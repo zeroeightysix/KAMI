@@ -5,7 +5,6 @@ import me.zeroeightsix.jtcui.JTCBuilder;
 import me.zeroeightsix.jtcui.component.Pane;
 import me.zeroeightsix.jtcui.layout.layouts.FixedSelfSizingLayout;
 import me.zeroeightsix.jtcui.layout.layouts.SelfSizingLayout;
-import me.zeroeightsix.jtcui.layout.layouts.VerticalLayout;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.gui.KamiJTCRenderHandler;
@@ -30,9 +29,9 @@ public class GuiCommand extends Command {
     public static void setupJTC() {
         jtc = JTCBuilder.builder(new KamiJTCRenderHandler()).build();
 
-        Pane pane = new Pane(new FixedSelfSizingLayout(SelfSizingLayout.Type.EXPANDING), new Fat(20, 20, 20, 20));
+        Pane pane = new Pane(new FixedSelfSizingLayout(SelfSizingLayout.Type.EXPANDING), Fat.NO_FAT);
         Window window = new Window(5, 5, 100, 100, "Test Window", 20, 4);
-        window.setLayout(new VerticalLayout(SelfSizingLayout.Type.EXPANDING));
+//        window.setLayout(new VerticalLayout(SelfSizingLayout.Type.EXPANDING));
         pane.getChildren().add(window);
         jtc.getRootComponent().getChildren().add(pane);
     }
