@@ -4,9 +4,9 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.commands.PeekCommand;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
-import me.zeroeightsix.kami.gui.UIRenderer;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
+import me.zeroeightsix.kami.gui.old.UIRenderer;
+import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
+import me.zeroeightsix.kami.gui.old.rgui.component.container.use.Frame;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.render.BossStack;
 import me.zeroeightsix.kami.util.KamiTessellator;
@@ -47,6 +47,9 @@ public class ForgeEventProcessor {
             KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
             displayWidth = Minecraft.getMinecraft().displayWidth;
             displayHeight = Minecraft.getMinecraft().displayHeight;
+
+            KamiMod.jtc.getRootComponent().getSpace().widthProperty().set(displayWidth);
+            KamiMod.jtc.getRootComponent().getSpace().heightProperty().set(displayHeight);
 
             KamiMod.getInstance().getGuiManager().getChildren().stream()
                     .filter(component -> component instanceof Frame)

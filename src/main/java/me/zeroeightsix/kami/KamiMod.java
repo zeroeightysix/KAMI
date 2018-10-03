@@ -2,9 +2,13 @@ package me.zeroeightsix.kami;
 
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
+import me.zeroeightsix.jtcui.JTC;
+import me.zeroeightsix.jtcui.JTCBuilder;
 import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.event.ForgeEventProcessor;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
+import me.zeroeightsix.kami.gui.KamiJTCRenderHandler;
+import me.zeroeightsix.kami.gui.Window;
+import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.SettingsPool;
@@ -44,6 +48,8 @@ public class KamiMod {
     public KamiGUI guiManager;
     public CommandManager commandManager;
 
+    public static JTC jtc;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 
@@ -79,6 +85,9 @@ public class KamiMod {
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         ModuleManager.getModules().stream().filter(Module::isEnabled).forEach(Module::enable);
+
+        jtc = JTCBuilder.builder(new KamiJTCRenderHandler()).build();
+        jtc.getRootComponent().getChildren().add(new Window(5, 5, 200, 200, "Test Window", 20, 4));
 
         KamiMod.log.info("KAMI Mod initialized!\n");
     }

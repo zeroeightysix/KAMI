@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.util;
 
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.rgui.render.font.FontRenderer;
+import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
+import me.zeroeightsix.kami.gui.old.rgui.render.font.FontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.world.World;

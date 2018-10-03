@@ -6,11 +6,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.gui.rgui.component.AlignedComponent;
-import me.zeroeightsix.kami.gui.rgui.component.Component;
-import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
-import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
-import me.zeroeightsix.kami.gui.rgui.util.Docking;
+import me.zeroeightsix.kami.gui.old.rgui.component.AlignedComponent;
+import me.zeroeightsix.kami.gui.old.rgui.component.Component;
+import me.zeroeightsix.kami.gui.old.rgui.component.container.use.Frame;
+import me.zeroeightsix.kami.gui.old.rgui.util.ContainerHelper;
+import me.zeroeightsix.kami.gui.old.rgui.util.Docking;
 
 import java.io.*;
 import java.util.ArrayList;
