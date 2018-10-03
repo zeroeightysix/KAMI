@@ -54,10 +54,16 @@ public class DisplayGuiScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         calculateMouse();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableTexture2D();
+        double scale = getScale();
+        GlStateManager.scale(1d / scale, 1d / scale, 1);
         KamiMod.jtc.renderRecursive();
-//        gui.drawGUI();
         glEnable(GL_TEXTURE_2D);
         GlStateManager.color(1,1,1);
+        GlStateManager.popMatrix();
     }
 
     @Override

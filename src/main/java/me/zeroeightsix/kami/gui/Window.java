@@ -33,10 +33,10 @@ public class Window extends AbstractDraggable {
         @Override
         public void draw(Window component) {
             GlStateManager.disableTexture2D();
-            GL11.glColor3f(.9f, .9f, .9f);
-            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.getSpace().heightProperty().get());
             GL11.glColor3f(.1f, .1f, .1f);
-            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.titleHeight);
+            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.getSpace().heightProperty().get());
+            GL11.glColor3f(.9f, .9f, .9f);
+            RenderHelper.drawFilledRectangle(component.getFat().getLeft(), component.getFat().getTop(), component.getSpace().widthProperty().get() - component.getFat().getLeft() - component.getFat().getRight(), component.getSpace().heightProperty().get() - component.getFat().getBottom() - component.getFat().getTop());
             GlStateManager.enableTexture2D();
             Wrapper.getFontRenderer().drawString(5, component.titleHeight / 2 - 5, component.getText());
         }

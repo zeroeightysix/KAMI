@@ -43,19 +43,6 @@ public class ForgeEventProcessor {
         if (event.isCanceled()) return;
 //        KamiMod.EVENT_BUS.post(new UpdateEvent());
 
-        if (Minecraft.getMinecraft().displayWidth != displayWidth || Minecraft.getMinecraft().displayHeight != displayHeight) {
-            KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
-            displayWidth = Minecraft.getMinecraft().displayWidth;
-            displayHeight = Minecraft.getMinecraft().displayHeight;
-
-            KamiMod.jtc.getRootComponent().getSpace().widthProperty().set(displayWidth);
-            KamiMod.jtc.getRootComponent().getSpace().heightProperty().set(displayHeight);
-
-            KamiMod.getInstance().getGuiManager().getChildren().stream()
-                    .filter(component -> component instanceof Frame)
-                    .forEach(component -> KamiGUI.dock((Frame) component));
-        }
-
         if (PeekCommand.sb != null) {
             ScaledResolution scaledresolution = new ScaledResolution(Minecraft.getMinecraft());
             int i = scaledresolution.getScaledWidth();
@@ -70,6 +57,18 @@ public class ForgeEventProcessor {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (Wrapper.getPlayer() == null) return;
+        if (Minecraft.getMinecraft().displayWidth != displayWidth || Minecraft.getMinecraft().displayHeight != displayHeight) {
+            KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
+            displayWidth = Minecraft.getMinecraft().displayWidth;
+            displayHeight = Minecraft.getMinecraft().displayHeight;
+
+            KamiMod.jtc.getRootComponent().getSpace().widthProperty().set(displayWidth);
+            KamiMod.jtc.getRootComponent().getSpace().heightProperty().set(displayHeight);
+
+            KamiMod.getInstance().getGuiManager().getChildren().stream()
+                    .filter(component -> component instanceof Frame)
+                    .forEach(component -> KamiGUI.dock((Frame) component));
+        }
         ModuleManager.onUpdate();
         KamiMod.getInstance().getGuiManager().callTick(KamiMod.getInstance().getGuiManager());
     }
