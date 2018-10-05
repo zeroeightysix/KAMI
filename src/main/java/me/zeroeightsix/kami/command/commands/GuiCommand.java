@@ -9,6 +9,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.gui.KamiJTCRenderHandler;
 import me.zeroeightsix.kami.gui.Window;
+import me.zeroeightsix.kami.gui.old.kami.DisplayGuiScreen;
 
 import static me.zeroeightsix.kami.KamiMod.jtc;
 
@@ -23,7 +24,11 @@ public class GuiCommand extends Command {
 
     @Override
     public void call(String[] args) {
-        setupJTC();
+        if (args.length != 0) {
+            DisplayGuiScreen.scale = Double.parseDouble(args[0]);
+        } else {
+            setupJTC();
+        }
     }
 
     public static void setupJTC() {

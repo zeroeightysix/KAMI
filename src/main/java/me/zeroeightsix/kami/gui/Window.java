@@ -33,12 +33,18 @@ public class Window extends AbstractDraggable {
         @Override
         public void draw(Window component) {
             GlStateManager.disableTexture2D();
-            GL11.glColor3f(.1f, .1f, .1f);
-            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.getSpace().heightProperty().get());
-            GL11.glColor3f(.9f, .9f, .9f);
-            RenderHelper.drawFilledRectangle(component.getFat().getLeft(), component.getFat().getTop(), component.getSpace().widthProperty().get() - component.getFat().getLeft() - component.getFat().getRight(), component.getSpace().heightProperty().get() - component.getFat().getBottom() - component.getFat().getTop());
+            GL11.glColor3f(.2f, .2f, .2f);
+            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.titleHeight);
+            GL11.glColor3f(.12f, .12f, .12f);
+            RenderHelper.drawFilledRectangle(0, component.titleHeight, component.getSpace().widthProperty().get(), component.getSpace().heightProperty().get() - component.titleHeight);
             GlStateManager.enableTexture2D();
-            Wrapper.getFontRenderer().drawString(5, component.titleHeight / 2 - 5, component.getText());
+
+            String displayText = component.getText();
+            int stringWidth;
+            while ((stringWidth = Wrapper.getFontRenderer().getStringWidth(displayText)) > component.getSpace().widthProperty().get() && !displayText.isEmpty())
+                displayText = displayText.substring(0, displayText.length() - 3) + ".";
+
+            Wrapper.getMinecraft().fontRenderer.drawString(displayText, (int) (component.getSpace().widthProperty().get() / 2 - stringWidth / 2), component.titleHeight / 2 - 5, 0x7F8388);
         }
 
         @Override

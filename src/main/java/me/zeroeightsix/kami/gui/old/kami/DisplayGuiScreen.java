@@ -29,6 +29,8 @@ public class DisplayGuiScreen extends GuiScreen {
     private boolean mouseState;
     private int mouseButton;
 
+    public static double scale = 2;
+
     public DisplayGuiScreen(GuiScreen lastScreen) {
         this.lastScreen = lastScreen;
 
@@ -62,7 +64,7 @@ public class DisplayGuiScreen extends GuiScreen {
         GlStateManager.pushMatrix();
         GlStateManager.disableTexture2D();
         GlStateManager.enableTexture2D();
-        double scale = getScale();
+        double scale = getScale() / this.scale;
         GlStateManager.scale(1d / scale, 1d / scale, 1);
         jtc.renderRecursive();
         glEnable(GL_TEXTURE_2D);
@@ -95,7 +97,7 @@ public class DisplayGuiScreen extends GuiScreen {
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == Keyboard.KEY_ESCAPE)
             mc.displayGuiScreen(lastScreen);
         else{
@@ -126,6 +128,8 @@ public class DisplayGuiScreen extends GuiScreen {
 
         mouseX = Mouse.getX();
         mouseY = minecraft.displayHeight - Mouse.getY() - 1;
+        mouseX /= scale;
+        mouseY /= scale;
         mouseState = Mouse.isButtonDown(mouseButton);
 
         if (prevS != mouseState) {
