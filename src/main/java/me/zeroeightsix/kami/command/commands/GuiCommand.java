@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.gui.KamiJTCRenderHandler;
 import me.zeroeightsix.kami.gui.Window;
 import me.zeroeightsix.kami.gui.old.kami.DisplayGuiScreen;
+import me.zeroeightsix.kami.util.Wrapper;
 
 import static me.zeroeightsix.kami.KamiMod.jtc;
 
@@ -35,7 +36,7 @@ public class GuiCommand extends Command {
         jtc = JTCBuilder.builder(new KamiJTCRenderHandler()).build();
 
         Pane pane = new Pane(new FixedSelfSizingLayout(SelfSizingLayout.Type.EXPANDING), Fat.NO_FAT);
-        Window window = new Window(5, 5, 100, 100, "Test Window", 20, 4);
+        Window window = new Window(5, 5, 100, 100, "Test Window", Wrapper.getMinecraft().fontRenderer.FONT_HEIGHT+8, 4);
 //        window.setLayout(new VerticalLayout(SelfSizingLayout.Type.EXPANDING));
         pane.getChildren().add(window);
         jtc.getRootComponent().getChildren().add(pane);

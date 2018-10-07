@@ -18,6 +18,8 @@ public class Window extends AbstractDraggable {
 
     private final int titleHeight;
 
+    private boolean resizing = false;
+
     public Window(String title, int titleHeight, int borderThickness) {
         this(0, 0, 0, 0, title, titleHeight, borderThickness);
     }
@@ -32,24 +34,51 @@ public class Window extends AbstractDraggable {
 
         @Override
         public void draw(Window component) {
+            double width = component.getSpace().widthProperty().get();
+            double height = component.getSpace().heightProperty().get();
+
             GlStateManager.disableTexture2D();
-            GL11.glColor3f(.2f, .2f, .2f);
-            RenderHelper.drawFilledRectangle(0, 0, component.getSpace().widthProperty().get(), component.titleHeight);
-            GL11.glColor3f(.12f, .12f, .12f);
-            RenderHelper.drawFilledRectangle(0, component.titleHeight, component.getSpace().widthProperty().get(), component.getSpace().heightProperty().get() - component.titleHeight);
-            GlStateManager.enableTexture2D();
+            GlStateManager.color(.17f,.17f,.18f,.9f);
+            RenderHelper.drawFilledRectangle(0,0,width,height);
+            GlStateManager.color(.59f,.05f,.11f);
+            GlStateManager.glLineWidth(1.5f);
+            RenderHelper.drawRectangle(0,0,width,height);
+            GlStateManager.color(1,1,1);
+
+            if (component.resizing) {
+                GlStateManager.color(1, 0.64f, 0);
+                GL11.glBegin(GL11.GL_LINES);
+                GL11.glVertex2d(width, height - 4);
+                GL11.glVertex2d(width, height);
+                GL11.glVertex2d(width, height);
+                GL11.glVertex2d(width - 4, height);
+                GL11.glEnd();
+            }
+
+            GlStateManager.disableBlend();
 
             String displayText = component.getText();
             int stringWidth;
-            while ((stringWidth = Wrapper.getFontRenderer().getStringWidth(displayText)) > component.getSpace().widthProperty().get() && !displayText.isEmpty())
+            while ((stringWidth = Wrapper.getFontRenderer().getStringWidth(displayText)) > component.getSpace().widthProperty().get() && displayText.length()>=3) {
                 displayText = displayText.substring(0, displayText.length() - 3) + ".";
+            }
+            GlStateManager.enableTexture2D();
 
-            Wrapper.getMinecraft().fontRenderer.drawString(displayText, (int) (component.getSpace().widthProperty().get() / 2 - stringWidth / 2), component.titleHeight / 2 - 5, 0x7F8388);
+            Wrapper.getMinecraft().fontRenderer.drawString(displayText, (int) (component.getSpace().widthProperty().get() / 2 - stringWidth / 2), component.titleHeight / 2 - Wrapper.getMinecraft().fontRenderer.FONT_HEIGHT / 2, 0x7F8388);
         }
 
         @Override
         public void onMouse(Window component, InputHandler.MouseAction action, int x, int y, int button) {
             super.onMouse(component, action, x, y, button);
+            if (action == InputHandler.MouseAction.MOVE) {
+                boolean bottom = y > component.getSpace().heightProperty().get() - 5;
+                component.resizing = x > component.getSpace().widthProperty().get() - 5 && bottom;
+            } else if (action == InputHandler.MouseAction.DRAG && component.resizing) {
+                component.getSpace().heightProperty().set(y);
+                component.getSpace().widthProperty().set(x);
+            } else if (action == InputHandler.MouseAction.LEAVE_COMPONENT) {
+                component.resizing = false;
+            }
         }
 
     }

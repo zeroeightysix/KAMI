@@ -61,15 +61,13 @@ public class DisplayGuiScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         calculateMouse();
-        GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
         GlStateManager.enableTexture2D();
-        double scale = getScale() / this.scale;
+        double scale = getScale() / DisplayGuiScreen.scale;
         GlStateManager.scale(1d / scale, 1d / scale, 1);
         jtc.renderRecursive();
         glEnable(GL_TEXTURE_2D);
+        GlStateManager.enableBlend();
         GlStateManager.color(1,1,1);
-        GlStateManager.popMatrix();
     }
 
     @Override
@@ -90,7 +88,6 @@ public class DisplayGuiScreen extends GuiScreen {
         if (Mouse.hasWheel()){
             int a = Mouse.getDWheel();
             if (a != 0){
-//                gui.handleWheel(this.mouseX, this.mouseY, a);
                 jtc.input.onScroll(a, mouseX, mouseY);
             }
         }
@@ -101,8 +98,6 @@ public class DisplayGuiScreen extends GuiScreen {
         if (keyCode == Keyboard.KEY_ESCAPE)
             mc.displayGuiScreen(lastScreen);
         else{
-//            gui.handleKeyDown(keyCode);
-//            gui.handleKeyUp(keyCode);
             jtc.input.onKey(InputHandler.KeyAction.DOWN, keyCode, typedChar);
             jtc.input.onKey(InputHandler.KeyAction.RELEASE, keyCode, typedChar);
         }
