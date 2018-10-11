@@ -53,7 +53,7 @@ public class BindCommand extends Command {
             return;
         }
 
-        m.setKey(key);
+        m.getBind().setKey(key);
         sendChatMessage("Bind for &b" + m.getName() + "&r set to &b" + rkey.toUpperCase());
     }
 }

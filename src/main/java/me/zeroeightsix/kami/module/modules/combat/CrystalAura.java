@@ -46,6 +46,7 @@ public class CrystalAura extends Module {
     @Setting(name = "Players") private boolean players = true;
     @Setting(name = "Mobs") private boolean mobs = false;
     @Setting(name = "Animals") private boolean animals = false;
+    @Setting(name = "Auto switch") private boolean autoSwitch = true;
 
     private BlockPos render;
     private Entity renderEnt;
@@ -121,8 +122,10 @@ public class CrystalAura extends Module {
 
         if (place) {
             if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
-                mc.player.inventory.currentItem = crystalSlot;
-                resetRotation();
+                if (autoSwitch) {
+                    mc.player.inventory.currentItem = crystalSlot;
+                    resetRotation();
+                }
                 return;
             }
             lookAtPacket(q.x + .5, q.y - .5, q.z + .5, mc.player);

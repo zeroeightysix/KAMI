@@ -74,9 +74,9 @@ public class SettingsPool {
         }
 
         try {
-            Command.COMMAND_PREFIX = String.valueOf(rootObject.get("command_prefix").getAsCharacter());
+            Command.COMMAND_PREFIX = String.valueOf(rootObject.get("command_prefix").getAsString());
         }catch (Exception e) {
-            KamiMod.log.error("Couldn't load command prefix! Please make sure it is only one character long.");
+            e.printStackTrace();
         }
 
         JsonObject guiMap = rootObject.get("gui").getAsJsonObject();
@@ -120,7 +120,6 @@ public class SettingsPool {
     }
 
     public static void save(File file) throws IOException {
-
         JsonObject root = new JsonObject();
         JsonObject settings = new JsonObject();
         classes.forEach(settingsClass ->
@@ -131,7 +130,6 @@ public class SettingsPool {
                 try {
                     FieldConverter converter = getConverter(setting.converter());
                     jsonElement = converter.toJson(staticSetting);
-//                    value = setting.converter().getMethod("toJson", SettingsClass.StaticSetting.class).invoke(getConverter(setting.converter()), staticSetting);
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.err.println("FAILED TO CONVERT TO SAVE REPRESENTATION (" + staticSetting.field + " -> " + setting.converter().getSimpleName() + " -> " + staticSetting.getField().getType());

@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.old.kami.component;
 import me.zeroeightsix.kami.gui.old.rgui.component.listen.KeyListener;
 import me.zeroeightsix.kami.gui.old.rgui.component.listen.MouseListener;
 import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.util.Bind;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -15,15 +16,14 @@ public class BindButton extends EnumButton {
     boolean waiting = false;
     Module m;
 
+    boolean ctrl = false, shift = false, alt = false;
+
     public BindButton(String name, Module m) {
         super(name, none);
         this.m = m;
 
-        int key = m.getBind();
-        if (key == -1)
-            modes = none;
-        else
-            modes = new String[]{Keyboard.getKeyName(key)};
+        Bind bind = m.getBind();
+        modes = new String[]{bind.toString()};
 
         addKeyListener(new KeyListener() {
             @Override
@@ -31,20 +31,35 @@ public class BindButton extends EnumButton {
                 if (!waiting) return;
                 int key = event.getKey();
 
-                if (key == Keyboard.KEY_BACK){
-                    m.setKey(-1);
-                    modes = none;
+                if (isShift(key)) {
+                    shift = true;
+                    modes = new String[]{(ctrl ? "Ctrl+" : "") + (alt ? "Alt+" : "") + "Shift+"};
+                } else if (isCtrl(key)) {
+                    ctrl = true;
+                    modes = new String[]{"Ctrl+" + (alt ? "Alt+" : "") + (shift ? "Shift+" : "")};
+                } else if (isAlt(key)) {
+                    alt = true;
+                    modes = new String[]{(ctrl ? "Ctrl+" : "") + "Alt+" + (shift ? "Shift+" : "")};
+                } else if (key == Keyboard.KEY_BACK) {
+                    m.getBind().setCtrl(false);
+                    m.getBind().setShift(false);
+                    m.getBind().setAlt(false);
+                    m.getBind().setKey(-1);
+                    modes = new String[]{m.getBind().toString()};
                     waiting = false;
-                    return;
+                } else {
+                    m.getBind().setCtrl(ctrl);
+                    m.getBind().setShift(shift);
+                    m.getBind().setAlt(alt);
+                    m.getBind().setKey(key);
+                    modes = new String[]{m.getBind().toString()};
+                    ctrl = alt = shift = false;
+                    waiting = false;
                 }
-                m.setKey(key);
-                modes = new String[]{Keyboard.getKeyName(key)};
-                waiting = false;
             }
 
             @Override
             public void onKeyUp(KeyEvent event) {
-
             }
         });
 
@@ -76,4 +91,18 @@ public class BindButton extends EnumButton {
             }
         });
     }
+
+    private boolean isAlt(int key) {
+        return key == Keyboard.KEY_LMENU || key == Keyboard.KEY_RMENU;
+    }
+
+    private boolean isCtrl(int key) {
+        return key == Keyboard.KEY_LCONTROL || key == Keyboard.KEY_RCONTROL;
+    }
+
+    private boolean isShift(int key) {
+        return key == Keyboard.KEY_LSHIFT || key == Keyboard.KEY_RSHIFT;
+    }
+
+
 }

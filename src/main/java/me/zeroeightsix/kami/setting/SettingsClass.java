@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.setting;
 
+import me.zeroeightsix.kami.util.Bind;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -150,7 +152,7 @@ public class SettingsClass {
                 }
             }
 
-            if (value.getClass() == ArrayList.class) {
+            if (value.getClass() == ArrayList.class || value.getClass() == Bind.class) {
                 try {
                     field.set(holder, value);
                     return;

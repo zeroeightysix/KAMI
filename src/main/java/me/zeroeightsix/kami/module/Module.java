@@ -1,12 +1,16 @@
 package me.zeroeightsix.kami.module;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.modules.movement.Sprint;
+import me.zeroeightsix.kami.setting.FieldConverter;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.SettingsClass;
+import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.input.Keyboard;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,8 +23,8 @@ public class Module extends SettingsClass {
     private final String name = getAnnotation().name();
     private final String description = getAnnotation().description();
     private final Category category = getAnnotation().category();
-    @Setting(name = "Bind", hidden = true)
-    private int bind = getAnnotation().bind();
+    @Setting(name = "Bind", hidden = true, converter = BindsConverter.class)
+    private Bind bind = Bind.none();
     @Setting(name = "Enabled", hidden = true)
     private boolean enabled;
     public boolean alwaysListening = false;
@@ -42,16 +46,12 @@ public class Module extends SettingsClass {
     public void onRender() {}
     public void onWorldRender(RenderEvent event) {}
 
-    public int getBind() {
+    public Bind getBind() {
         return bind;
     }
 
     public String getBindName() {
-        return bind == -1 ? "NONE" : Keyboard.getKeyName(bind);
-    }
-
-    public void setKey(int key) {
-        this.bind = key;
+        return bind.toString();
     }
 
     public enum Category
@@ -87,7 +87,6 @@ public class Module extends SettingsClass {
     {
         String name();
         String description() default "Descriptionless";
-        int bind() default 0;
         Module.Category category();
         boolean alwaysListening() default false;
     }
@@ -156,5 +155,34 @@ public class Module extends SettingsClass {
      * Cleanup method in case this module wants to do something when the client closes down
      */
     public void destroy(){};
+
+    public static class BindsConverter implements FieldConverter {
+
+        public BindsConverter() {
+        }
+
+        @Override
+        public JsonElement toJson(StaticSetting setting) {
+            Bind bind = (Bind) setting.getValue();
+            if (bind.isEmpty()) return null;
+            JsonObject object = new JsonObject();
+            object.add("shift", new JsonPrimitive(bind.isShift()));
+            object.add("alt", new JsonPrimitive(bind.isAlt()));
+            object.add("ctrl", new JsonPrimitive(bind.isCtrl()));
+            object.add("key", new JsonPrimitive(bind.getKey()));
+            return object;
+        }
+
+        @Override
+        public Object fromJson(StaticSetting setting, JsonElement value) {
+            if (value == null || value.isJsonNull()) return Bind.none();
+            JsonObject object = value.getAsJsonObject();
+            boolean shift = object.get("shift").getAsBoolean();
+            boolean alt = object.get("alt").getAsBoolean();
+            boolean ctrl = object.get("ctrl").getAsBoolean();
+            int key = object.get("key").getAsInt();
+            return new Bind(ctrl, alt, shift, key);
+        }
+    }
 
 }

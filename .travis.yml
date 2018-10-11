@@ -1,0 +1,20 @@
+language: java
+jdk:
+- oraclejdk8
+
+before_install:
+- chmod +x gradlew
+- "./gradlew setupDecompWorkspace"
+
+deploy:
+- provider: releases
+  api_key:
+    secure: XdbjD4VQ2vXFPEwOBm9Snn1r6n+btyaHCCdCSTu4J48rTzys29Ud9ZSJK3QnpOaiHKUZP6YyP9xmYRrVWkdCJQhSZ5CYmJZeQuiwGaWL7r7ntiDVhpbxcp/ajbMCk8U1+yj8kR0unl3grnM56Ui1Oqs+CSjB29OIh+qcJs8d16vL4fYF7lQtjcVA4FKTHe3/G5HGq4nS9bmaqokjKpLSlLj/TQowsLuO3t44iTXzP3fjp4dViA2Cb7CFSOrs6yyQhNulohRMkK/0JvnwcCGQJS83cUNpKsoCWM8cDO3iZ/Me5uHq01mu1ziwBCd3cAXjepf46DvL1KGQa/OrZiI4/f9fDuTPIwh4SdKj50I88Mdh2P63AJKn+qd/i+c7MlPjqBm0pT5VT2m0CRI6dVSKmapscK5Qsto0b96lq4fQqJUPa7w622u1tTx2h6ovS4jMNhM5bMn4FN4Y1K+jWKTQw3ShOd5o4kS5yjJnDSa1pMJLyowywCFEnS4hA6RvbYRbigZvEzHypnDPNgOoSPQB6L517gInxdz4BTS619LPrJq3ae8Nmv4xMvWcjxT0DHsAWWJ9qUx+I7mF+XSt0qc0zgEPA7I50g/gx9ki0VX7BD9bv5/+jWZjZh+H1FyKtMczQRjgoF/6ferJ7tg1AaZUioW7JpFlT3U03vCQ7HLVLPw=
+
+  file: build/libs/KAMI-*-release.jar
+  file_glob: true
+  skip_cleanup: true
+
+  on:
+    repo: wine/KAMI
+    tags: true
