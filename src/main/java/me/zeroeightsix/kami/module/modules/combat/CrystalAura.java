@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.modules.render.Tracers;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.GeometryMasks;
@@ -41,12 +42,12 @@ import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
 @Module.Info(name = "CrystalAura", category = Module.Category.COMBAT)
 public class CrystalAura extends Module {
 
-    @Setting(name = "Range") private double range = 4;
-    @Setting(name = "Place") private boolean place = false;
-    @Setting(name = "Players") private boolean players = true;
-    @Setting(name = "Mobs") private boolean mobs = false;
-    @Setting(name = "Animals") private boolean animals = false;
-    @Setting(name = "Auto switch") private boolean autoSwitch = true;
+    private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
+    private Setting<Boolean> players = register(Settings.b("Players"));
+    private Setting<Boolean> place = register(Settings.b("Place", false));
+    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
+    private Setting<Boolean> animals = register(Settings.b("Animals", false));
+    private Setting<Double> range = register(Settings.d("Range", 4));
 
     private BlockPos render;
     private Entity renderEnt;
@@ -60,7 +61,7 @@ public class CrystalAura extends Module {
                 .map(entity -> (EntityEnderCrystal) entity)
                 .min(Comparator.comparing(c -> mc.player.getDistance(c)))
                 .orElse(null);
-        if (crystal != null && mc.player.getDistance(crystal) <= range) {
+        if (crystal != null && mc.player.getDistance(crystal) <= range.getValue()) {
             //Added delay to stop ncp from flagging "hitting too fast"
             if (((System.nanoTime() / 1000000) - systemTime) >= 250) {
                 lookAtPacket(crystal.posX, crystal.posY, crystal.posZ, mc.player);
@@ -87,9 +88,9 @@ public class CrystalAura extends Module {
 
         List<BlockPos> blocks = findCrystalBlocks();
         List<Entity> entities = new ArrayList<>();
-        if (players)
+        if (players.getValue())
             entities.addAll(mc.world.playerEntities.stream().filter(entityPlayer -> !Friends.isFriend(entityPlayer.getName())).collect(Collectors.toList()));
-        entities.addAll(mc.world.loadedEntityList.stream().filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals : mobs)).collect(Collectors.toList()));
+        entities.addAll(mc.world.loadedEntityList.stream().filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())).collect(Collectors.toList()));
 
         BlockPos q = null;
         double damage = .5;
@@ -120,9 +121,9 @@ public class CrystalAura extends Module {
         }
         render = q;
 
-        if (place) {
+        if (place.getValue()) {
             if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
-                if (autoSwitch) {
+                if (autoSwitch.getValue()) {
                     mc.player.inventory.currentItem = crystalSlot;
                     resetRotation();
                 }
@@ -185,7 +186,7 @@ public class CrystalAura extends Module {
 
     private List<BlockPos> findCrystalBlocks() {
         NonNullList<BlockPos> positions = NonNullList.create();
-        positions.addAll(getSphere(getPlayerPos(), (float) range, (int) range, false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
+        positions.addAll(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
         return positions;
     }
 

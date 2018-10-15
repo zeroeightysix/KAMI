@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 
@@ -16,11 +17,8 @@ import net.minecraft.network.play.server.SPacketExplosion;
 @Module.Info(name = "Velocity", description = "Modify knockback impact", category = Module.Category.MOVEMENT)
 public class Velocity extends Module {
 
-    @Setting(name = "Horizontal")
-    private float horizontal = 0;
-
-    @Setting(name = "Vertical")
-    private float vertical = 0;
+    private Setting<Float> horizontal = register(Settings.f("Horizontal", 0));
+    private Setting<Float> vertical = register(Settings.f("Vertical", 0));
 
     @EventHandler
     private Listener<PacketEvent.Receive> packetEventListener = new Listener<>(event -> {
@@ -28,17 +26,17 @@ public class Velocity extends Module {
             if (event.getPacket() instanceof SPacketEntityVelocity) {
                 SPacketEntityVelocity velocity = (SPacketEntityVelocity) event.getPacket();
                 if (velocity.getEntityID() == mc.player.entityId) {
-                    if (horizontal == 0 && vertical == 0) event.cancel();
-                    velocity.motionX *= horizontal;
-                    velocity.motionY *= vertical;
-                    velocity.motionZ *= horizontal;
+                    if (horizontal.getValue() == 0 && vertical.getValue() == 0) event.cancel();
+                    velocity.motionX *= horizontal.getValue();
+                    velocity.motionY *= vertical.getValue();
+                    velocity.motionZ *= horizontal.getValue();
                 }
             } else if (event.getPacket() instanceof SPacketExplosion) {
-                if (horizontal == 0 && vertical == 0) event.cancel();
+                if (horizontal.getValue() == 0 && vertical.getValue() == 0) event.cancel();
                 SPacketExplosion velocity = (SPacketExplosion) event.getPacket();
-                velocity.motionX *= horizontal;
-                velocity.motionY *= vertical;
-                velocity.motionZ *= horizontal;
+                velocity.motionX *= horizontal.getValue();
+                velocity.motionY *= vertical.getValue();
+                velocity.motionZ *= horizontal.getValue();
             }
         }
     });
@@ -46,13 +44,13 @@ public class Velocity extends Module {
     @EventHandler
     private Listener<EntityEvent.EntityCollision> entityCollisionListener = new Listener<>(event -> {
         if (event.getEntity() == mc.player) {
-            if (horizontal == 0 && vertical == 0) {
+            if (horizontal.getValue() == 0 && vertical.getValue() == 0) {
                 event.cancel();
                 return;
             }
-            event.setX(-event.getX() * horizontal);
+            event.setX(-event.getX() * horizontal.getValue());
             event.setY(0);
-            event.setZ(-event.getZ() * horizontal);
+            event.setZ(-event.getZ() * horizontal.getValue());
         }
     });
 

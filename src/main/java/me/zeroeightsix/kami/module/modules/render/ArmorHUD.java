@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.module.modules.render;
 
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -18,7 +19,7 @@ public class ArmorHUD extends Module {
     private static RenderItem itemRender = Minecraft.getMinecraft()
             .getRenderItem();
 
-    @Setting(name = "Damage") private boolean damage = false;
+    private Setting<Boolean> damage = register(Settings.b("Damage", false));
 
     @Override
     public void onRender() {
@@ -27,11 +28,11 @@ public class ArmorHUD extends Module {
         ScaledResolution resolution = new ScaledResolution(mc);
         int i = resolution.getScaledWidth() / 2;
         int iteration = 0;
-        int y = resolution.getScaledHeight()-55;
-        for (ItemStack is : mc.player.inventory.armorInventory){
+        int y = resolution.getScaledHeight() - 55;
+        for (ItemStack is : mc.player.inventory.armorInventory) {
             iteration++;
             if (is.isEmpty()) continue;
-            int x = i - 90 + (9-iteration) * 20 + 2;
+            int x = i - 90 + (9 - iteration) * 20 + 2;
             GlStateManager.enableDepth();
 
             itemRender.zLevel = 200F;
@@ -44,13 +45,13 @@ public class ArmorHUD extends Module {
             GlStateManager.disableDepth();
 
             String s = is.getCount() > 1 ? is.getCount() + "" : "";
-            mc.fontRenderer.drawStringWithShadow(s, x + 19 - 2 -  mc.fontRenderer.getStringWidth(s), y+9, 0xffffff);
+            mc.fontRenderer.drawStringWithShadow(s, x + 19 - 2 - mc.fontRenderer.getStringWidth(s), y + 9, 0xffffff);
 
-            if (damage){
+            if (damage.getValue()) {
                 float green = ((float) is.getMaxDamage() - (float) is.getItemDamage()) / (float) is.getMaxDamage();
-                float red =  1-green;
-                int dmg = 100 - (int) (red*100);
-                mc.fontRenderer.drawStringWithShadow(dmg + "", x+8 - mc.fontRenderer.getStringWidth(dmg + "")/2, y-11, ColourHolder.toHex((int) (red*255), (int) (green*255), 0));
+                float red = 1 - green;
+                int dmg = 100 - (int) (red * 100);
+                mc.fontRenderer.drawStringWithShadow(dmg + "", x + 8 - mc.fontRenderer.getStringWidth(dmg + "") / 2, y - 11, ColourHolder.toHex((int) (red * 255), (int) (green * 255), 0));
             }
         }
 

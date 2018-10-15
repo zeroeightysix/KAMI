@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.module.modules.misc;
 
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 
 import java.util.Random;
@@ -12,8 +13,8 @@ import java.util.Random;
 @Module.Info(name = "SkinFlicker", description = "Toggle the jacket layer rapidly for a cool skin effect", category = Module.Category.MISC)
 public class SkinFlicker extends Module {
 
-    @Setting(name = "Mode") private static FlickerMode mode = FlickerMode.HORIZONTAL;
-    @Setting(name = "Slowness", min = 1) private int slowness = 2;
+    private Setting<FlickerMode> mode = register(Settings.e("Mode", FlickerMode.HORIZONTAL));
+    private Setting<Integer> slowness = register(Settings.integerBuilder().withName("Slowness").withValue(2).withMinimum(1).build());
 
     private final static EnumPlayerModelParts[] PARTS_HORIZONTAL = new EnumPlayerModelParts[]{
             EnumPlayerModelParts.LEFT_SLEEVE,
@@ -38,20 +39,20 @@ public class SkinFlicker extends Module {
 
     @Override
     public void onUpdate() {
-        switch (mode) {
+        switch (mode.getValue()) {
             case RANDOM:
-                if (mc.player.ticksExisted%slowness!=0) return;
+                if (mc.player.ticksExisted % slowness.getValue() != 0) return;
                 mc.gameSettings.switchModelPartEnabled(EnumPlayerModelParts.values()[r.nextInt(len)]);
                 break;
             case VERTICAL:
             case HORIZONTAL:
-                int i = (mc.player.ticksExisted/slowness)%(PARTS_HORIZONTAL.length*2); // *2 for on/off
+                int i = (mc.player.ticksExisted / slowness.getValue()) % (PARTS_HORIZONTAL.length * 2); // *2 for on/off
                 boolean on = false;
                 if (i >= PARTS_HORIZONTAL.length) {
                     on = true;
                     i -= PARTS_HORIZONTAL.length;
                 }
-                mc.gameSettings.setModelPartEnabled(mode==FlickerMode.VERTICAL ? PARTS_VERTICAL[i] : PARTS_HORIZONTAL[i], on);
+                mc.gameSettings.setModelPartEnabled(mode.getValue() == FlickerMode.VERTICAL ? PARTS_VERTICAL[i] : PARTS_HORIZONTAL[i], on);
         }
     }
 

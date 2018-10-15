@@ -1,19 +1,30 @@
 package me.zeroeightsix.kami.setting;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
- * Created by 086 on 25/08/2017.
+ * Created by 086 on 12/10/2018.
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Setting {
-    String name();
-    Class<? extends FieldConverter> converter() default PrimitiveConverter.class;
-    boolean hidden() default false;
+public abstract class Setting<T> implements ISetting<T> {
 
-    double min() default -1;
-    double max() default -1;
+    T value;
 
-    boolean integer() default false;
+    public Setting(T value) {
+        this.value = value;
+    }
+
+    @Override
+    public T getValue() {
+        return value;
+    }
+
+    @Override
+    public boolean isVisible() {
+        return true;
+    }
+
+    @Override
+    public boolean setValue(T value) {
+        this.value = value;
+        return true;
+    }
+
 }

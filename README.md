@@ -33,7 +33,7 @@ The default prefix is `.`. Commands are used through chat, use `.commands` for a
 Run `.bind <module> <key>`.
 
 ##### Change command prefix
-After having ran KAMI (make sure it's closed), edit `kami.settings` and find `command_prefix` to change the prefix.
+By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
 
 ## Troubleshooting
 Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)

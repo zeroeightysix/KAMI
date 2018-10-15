@@ -13,6 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -37,6 +38,9 @@ public class ModuleManager {
                 Module module = (Module) aClass.getConstructor().newInstance();
                 modules.add(module);
                 lookup.put(module.getName().toLowerCase(), module);
+            } catch (InvocationTargetException e) {
+                e.getCause().printStackTrace();
+                System.err.println("Couldn't initiate module " + aClass.getSimpleName() + "! Err: " + e.getClass().getSimpleName() + ", message: " + e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
                 System.err.println("Couldn't initiate module " + aClass.getSimpleName() + "! Err: " + e.getClass().getSimpleName() + ", message: " + e.getMessage());

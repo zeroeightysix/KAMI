@@ -1,35 +1,37 @@
 package me.zeroeightsix.kami.util;
 
+import com.google.common.base.Converter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import me.zeroeightsix.kami.setting.FieldConverter;
 import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.SettingsClass;
+import me.zeroeightsix.kami.setting.Settings;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
  * Created by 086 on 13/12/2017.
  */
-public class Friends extends SettingsClass {
+public class Friends {
     public static final Friends INSTANCE = new Friends();
 
-    @Setting(name = "Friends", converter = FriendListConverter.class)
-    public List<Friend> friends = new ArrayList<>();
+    public static Setting<ArrayList<Friend>> friends;
 
-    public Friends() {
+    private Friends() {
+    }
+
+    public static void initFriends() {
+        friends = Settings.custom("Friends", new ArrayList<Friend>(), new FriendListConverter()).buildAndRegister("friends");
     }
 
     public static boolean isFriend(String name) {
-        return INSTANCE.friends.stream().anyMatch(friend -> friend.username.equalsIgnoreCase(name));
+        return friends.getValue().stream().anyMatch(friend -> friend.username.equalsIgnoreCase(name));
     }
 
     public static class Friend {
@@ -46,23 +48,22 @@ public class Friends extends SettingsClass {
         }
     }
 
-    public static class FriendListConverter implements FieldConverter {
+    public static class FriendListConverter extends Converter<ArrayList<Friend>, JsonElement> {
         public FriendListConverter() {}
 
         @Override
-        public JsonElement toJson(StaticSetting setting) {
+        protected JsonElement doForward(ArrayList<Friend> list) {
             StringBuilder present = new StringBuilder();
-            ArrayList<Friend> friends = (ArrayList<Friend>) setting.getValue();
-            for (Friend friend : friends)
+            for (Friend friend : list)
                 present.append(String.format("%s;%s$", friend.username, friend.uuid.toString()));
             return new JsonPrimitive(present.toString());
         }
 
         @Override
-        public Object fromJson(StaticSetting setting, JsonElement value) {
-            String v = value.getAsString();
+        protected ArrayList<Friend> doBackward(JsonElement jsonElement) {
+            String v = jsonElement.getAsString();
             String[] pairs = v.split(Pattern.quote("$"));
-            List<Friend> friends = new ArrayList<>();
+            ArrayList<Friend> friends = new ArrayList<>();
             for (String pair : pairs) {
                 try {
                     String[] split = pair.split(";");

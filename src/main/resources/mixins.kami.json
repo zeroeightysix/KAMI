@@ -21,6 +21,7 @@
     "MixinC00Handshake",
     "MixinNetHandlerPlayClient",
     "MixinRenderLiving",
-    "MixinPlayerControllerMP"
+    "MixinPlayerControllerMP",
+    "MixinEntityLlama"
   ]
 }

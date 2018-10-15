@@ -6,6 +6,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.util.ChatAllowedCharacters;
@@ -23,30 +24,30 @@ import java.util.stream.Collectors;
 @Module.Info(name = "ChatEncryption", description = "Encrypts and decrypts chat messages (Delimiter %)", category = Module.Category.MISC)
 public class ChatEncryption extends Module {
 
-    @Setting(name = "Mode") private EncryptionMode mode = EncryptionMode.SHUFFLE;
-    @Setting(name = "Key", integer = true) private int key = 6;
-    @Setting(name = "Delimiter") private boolean delim = true;
+    private Setting<EncryptionMode> mode = register(Settings.e("Mode", EncryptionMode.SHUFFLE));
+    private Setting<Integer> key = register(Settings.i("Key", 6));
+    private Setting<Boolean> delim = register(Settings.b("Delimiter", true));
 
     private final Pattern CHAT_PATTERN = Pattern.compile("<.*?> ");
 
-    private static final char[] ORIGIN_CHARS = new char[]{'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','-','_','/',';','=','?','+','\u00B5','\u00A3','*','^','\u00F9','$','!','{','}','\'','"','|','&'};
+    private static final char[] ORIGIN_CHARS = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-', '_', '/', ';', '=', '?', '+', '\u00B5', '\u00A3', '*', '^', '\u00F9', '$', '!', '{', '}', '\'', '"', '|', '&'};
 
     @EventHandler
     private Listener<PacketEvent.Send> sendListener = new Listener<>(event -> {
         if (event.getPacket() instanceof CPacketChatMessage) {
             String s = ((CPacketChatMessage) event.getPacket()).getMessage();
-            if (delim) {
+            if (delim.getValue()) {
                 if (!s.startsWith("%")) return;
                 s = s.substring(1);
             }
             StringBuilder builder = new StringBuilder();
-            switch (mode) {
+            switch (mode.getValue()) {
                 case SHUFFLE:
-                    builder.append(shuffle(key, s));
+                    builder.append(shuffle(key.getValue(), s));
                     builder.append("\uD83D\uDE4D");
                     break;
                 case SHIFT:
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) (value+ key)) ? key : 0))));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) (value + key.getValue())) ? key.getValue() : 0))));
                     builder.append("\uD83D\uDE48");
                     break;
             }
@@ -69,21 +70,21 @@ public class ChatEncryption extends Module {
             String username = "unnamed";
             if (matcher.find()) {
                 username = matcher.group();
-                username = username.substring(1, username.length()-2);
+                username = username.substring(1, username.length() - 2);
                 s = matcher.replaceFirst("");
             }
 
             StringBuilder builder = new StringBuilder();
-            switch (mode) {
+            switch (mode.getValue()) {
                 case SHUFFLE:
                     if (!s.endsWith("\uD83D\uDE4D")) return;
-                    s = s.substring(0,s.length()-2);
-                    builder.append(unshuffle(key, s));
+                    s = s.substring(0, s.length() - 2);
+                    builder.append(unshuffle(key.getValue(), s));
                     break;
                 case SHIFT:
                     if (!s.endsWith("\uD83D\uDE48")) return;
-                    s = s.substring(0,s.length()-2);
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) value) ? -key : 0))));
+                    s = s.substring(0, s.length() - 2);
+                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) value) ? -key.getValue() : 0))));
                     break;
             }
 
@@ -97,8 +98,8 @@ public class ChatEncryption extends Module {
         List<Character> counter = new ArrayList<>(characters);
         Collections.shuffle(counter, r);
 
-        Map<Character,Character> map = new LinkedHashMap<>();  // ordered
-        for (int i=0; i<characters.size(); i++) {
+        Map<Character, Character> map = new LinkedHashMap<>();  // ordered
+        for (int i = 0; i < characters.size(); i++) {
             map.put(characters.get(i), counter.get(i));
         }
 

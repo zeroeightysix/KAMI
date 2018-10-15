@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.module.modules.movement;
 
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.entity.item.EntityBoat;
 
@@ -11,8 +12,14 @@ import net.minecraft.entity.item.EntityBoat;
 @Module.Info(name = "BoatSpeed", category = Module.Category.MOVEMENT)
 public class BoatSpeed extends Module {
 
-    @Setting(name = "Speed") public float speed = .5f;
-    @Setting(name = "Opacity") private static float opacity = .5f;
+    private Setting<Float> speed = register(Settings.f("Speed", .5f));
+    private Setting<Float> opacity = register(Settings.f("Opacity", .5f));
+
+    private static BoatSpeed INSTANCE;
+
+    public BoatSpeed() {
+        INSTANCE = this;
+    }
 
     @Override
     public void onRender() {
@@ -35,7 +42,7 @@ public class BoatSpeed extends Module {
         boolean right = mc.gameSettings.keyBindRight.isKeyDown();
         boolean back = mc.gameSettings.keyBindBack.isKeyDown();
         if (!(forward && back)) boat.motionY = 0;
-        if (mc.gameSettings.keyBindJump.isKeyDown()) boat.motionY += speed/2f;
+        if (mc.gameSettings.keyBindJump.isKeyDown()) boat.motionY += speed.getValue() / 2f;
 
         if (!forward && !left && !right && !back) return;
         if (left && right) angle = forward ? 0 : back ? 180 : -1;
@@ -43,21 +50,22 @@ public class BoatSpeed extends Module {
         else {
             angle = left ? -90 : (right ? 90 : 0);
             if (forward) angle /= 2;
-            else if (back) angle = 180-(angle/2);
+            else if (back) angle = 180 - (angle / 2);
         }
 
         if (angle == -1) return;
-        float yaw = mc.player.rotationYaw+angle;
-        boat.motionX = EntityUtil.getRelativeX(yaw)*speed;
-        boat.motionZ = EntityUtil.getRelativeZ(yaw)*speed;
+        float yaw = mc.player.rotationYaw + angle;
+        boat.motionX = EntityUtil.getRelativeX(yaw) * speed.getValue();
+        boat.motionZ = EntityUtil.getRelativeZ(yaw) * speed.getValue();
     }
 
     private EntityBoat getBoat() {
-        if (mc.player.getRidingEntity() != null && mc.player.getRidingEntity() instanceof EntityBoat) return (EntityBoat) mc.player.getRidingEntity();
+        if (mc.player.getRidingEntity() != null && mc.player.getRidingEntity() instanceof EntityBoat)
+            return (EntityBoat) mc.player.getRidingEntity();
         return null;
     }
 
     public static float getOpacity() {
-        return opacity;
+        return INSTANCE.opacity.getValue();
     }
 }

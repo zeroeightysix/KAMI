@@ -21,8 +21,8 @@ public class KamiGuiChat extends GuiChat {
     public KamiGuiChat(String startString, String historybuffer, int sentHistoryCursor) {
         super(startString);
         this.startString = startString;
-        if (!startString.equals(Command.COMMAND_PREFIX))
-            calculateCommand(startString.substring(Command.COMMAND_PREFIX.length()));
+        if (!startString.equals(Command.getCommandPrefix()))
+            calculateCommand(startString.substring(Command.getCommandPrefix().length()));
         this.historyBuffer = historybuffer;
         cursor = sentHistoryCursor;
     }
@@ -34,7 +34,7 @@ public class KamiGuiChat extends GuiChat {
 
         String chatLine = this.inputField.getText();
 
-        if (!chatLine.startsWith(Command.COMMAND_PREFIX)){
+        if (!chatLine.startsWith(Command.getCommandPrefix())){
             GuiChat newGUI = new GuiChat(chatLine) {
                 int cursor = KamiGuiChat.this.cursor;
                 @Override
@@ -51,12 +51,12 @@ public class KamiGuiChat extends GuiChat {
 
         // Startstring is still here! Hooray!
 
-        if (chatLine.equals(Command.COMMAND_PREFIX)) {
+        if (chatLine.equals(Command.getCommandPrefix())) {
             currentFillinLine = "";
             return;
         }
 
-        calculateCommand(chatLine.substring(Command.COMMAND_PREFIX.length()));
+        calculateCommand(chatLine.substring(Command.getCommandPrefix().length()));
     }
 
     protected void calculateCommand(String line){

@@ -5,6 +5,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.network.play.server.SPacketDisconnect;
@@ -18,7 +19,7 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 @Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
 public class AutoLog extends Module {
 
-    @Setting(name = "Health", min = 0, max = 36) private int health = 6;
+    private Setting<Integer> health = register(Settings.integerBuilder("Health").withRange(0, 36).withValue(6).build());
     private boolean shouldLog = false;
     long lastLog = System.currentTimeMillis();
 
@@ -26,7 +27,7 @@ public class AutoLog extends Module {
     private Listener<LivingDamageEvent> livingDamageEventListener = new Listener<>(event -> {
         if (mc.player == null) return;
         if (event.getEntity() == mc.player) {
-            if (mc.player.getHealth() - event.getAmount() < health) {
+            if (mc.player.getHealth() - event.getAmount() < health.getValue()) {
                 log();
             }
         }
@@ -36,7 +37,7 @@ public class AutoLog extends Module {
     private Listener<EntityJoinWorldEvent> entityJoinWorldEventListener = new Listener<>(event -> {
         if (mc.player == null) return;
         if (event.getEntity() instanceof EntityEnderCrystal) {
-            if (mc.player.getHealth() - CrystalAura.calculateDamage((EntityEnderCrystal) event.getEntity(), mc.player) < health) {
+            if (mc.player.getHealth() - CrystalAura.calculateDamage((EntityEnderCrystal) event.getEntity(), mc.player) < health.getValue()) {
                 log();
             }
         }

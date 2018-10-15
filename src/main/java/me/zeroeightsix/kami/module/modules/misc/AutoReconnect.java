@@ -5,6 +5,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.GuiScreenEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
@@ -15,7 +16,7 @@ import net.minecraft.client.multiplayer.ServerData;
 @Module.Info(name = "AutoReconnect", description = "Automatically reconnects after being disconnected", category = Module.Category.MISC, alwaysListening = true)
 public class AutoReconnect extends Module {
 
-    @Setting(name = "Seconds", min = 0) public static int seconds = 5;
+    private Setting<Integer> seconds = register(Settings.integerBuilder("Seconds").withValue(5).withMinimum(0).build());
     private static ServerData cServer;
 
     @EventHandler
@@ -32,7 +33,7 @@ public class AutoReconnect extends Module {
 
     private class KamiGuiDisconnected extends GuiDisconnected {
 
-        int millis = AutoReconnect.seconds*1000;
+        int millis = seconds.getValue() * 1000;
         long cTime;
 
         public KamiGuiDisconnected(GuiDisconnected disconnected) {
@@ -43,7 +44,7 @@ public class AutoReconnect extends Module {
         @Override
         public void updateScreen() {
             if (millis <= 0)
-                mc.displayGuiScreen(new GuiConnecting(parentScreen, mc, cServer==null ? mc.currentServerData : cServer));
+                mc.displayGuiScreen(new GuiConnecting(parentScreen, mc, cServer == null ? mc.currentServerData : cServer));
         }
 
         @Override
@@ -51,11 +52,11 @@ public class AutoReconnect extends Module {
             super.drawScreen(mouseX, mouseY, partialTicks);
 
             long a = System.currentTimeMillis();
-            millis -= a-cTime;
+            millis -= a - cTime;
             cTime = a;
 
-            String s = "Reconnecting in " + Math.max(0,Math.floor((double)millis/100)/10) + "s";
-            fontRenderer.drawString(s, width/2-fontRenderer.getStringWidth(s)/2,height-16,0xffffff,true);
+            String s = "Reconnecting in " + Math.max(0, Math.floor((double) millis / 100) / 10) + "s";
+            fontRenderer.drawString(s, width / 2 - fontRenderer.getStringWidth(s) / 2, height - 16, 0xffffff, true);
         }
 
     }

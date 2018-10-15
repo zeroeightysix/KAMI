@@ -6,6 +6,7 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.render.Pathfind;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraftforge.client.event.InputUpdateEvent;
 
@@ -17,20 +18,20 @@ import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
 @Module.Info(name = "AutoWalk", category = Module.Category.PLAYER)
 public class AutoWalk extends Module {
 
-    @Setting(name = "Mode") private AutoWalkMode mode = AutoWalkMode.FORWARD;
+    private Setting<AutoWalkMode> mode = register(Settings.e("Mode", AutoWalkMode.FORWARD));
 
     @EventHandler
     private Listener<InputUpdateEvent> inputUpdateEventListener = new Listener<>(event -> {
-        switch (mode) {
+        switch (mode.getValue()) {
             case FORWARD:
-                event.getMovementInput().moveForward=1;
+                event.getMovementInput().moveForward = 1;
                 break;
             case BACKWARDS:
-                event.getMovementInput().moveForward=-1;
+                event.getMovementInput().moveForward = -1;
                 break;
             case PATH:
                 if (Pathfind.points.isEmpty()) return;
-                event.getMovementInput().moveForward=1;
+                event.getMovementInput().moveForward = 1;
                 if (mc.player.isInWater() || mc.player.isInLava()) mc.player.movementInput.jump = true;
                 else if (mc.player.collidedHorizontally && mc.player.onGround) mc.player.jump();
                 if (!ModuleManager.isModuleEnabled("Pathfind") || Pathfind.points.isEmpty()) return;
@@ -40,9 +41,8 @@ public class AutoWalk extends Module {
         }
     });
 
-    private void lookAt(PathPoint pathPoint)
-    {
-        double[] v = calculateLookAt(pathPoint.x+.5f, pathPoint.y, pathPoint.z+.5f, mc.player);
+    private void lookAt(PathPoint pathPoint) {
+        double[] v = calculateLookAt(pathPoint.x + .5f, pathPoint.y, pathPoint.z + .5f, mc.player);
         mc.player.rotationYaw = (float) v[0];
         mc.player.rotationPitch = (float) v[1];
     }

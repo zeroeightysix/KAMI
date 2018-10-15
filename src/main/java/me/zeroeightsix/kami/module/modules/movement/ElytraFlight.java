@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.module.modules.movement;
 
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.util.math.MathHelper;
 
@@ -11,12 +12,12 @@ import net.minecraft.util.math.MathHelper;
 @Module.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = Module.Category.MOVEMENT)
 public class ElytraFlight extends Module {
 
-    @Setting(name = "Mode") private ElytraFlightMode mode = ElytraFlightMode.BOOST;
+    private Setting<ElytraFlightMode> mode = register(Settings.e("Mode", ElytraFlightMode.BOOST));
 
     @Override
     public void onUpdate() {
         if (!mc.player.isElytraFlying()) return;
-        switch (mode) {
+        switch (mode.getValue()) {
             case BOOST:
                 if(mc.player.isInWater())
                 {
