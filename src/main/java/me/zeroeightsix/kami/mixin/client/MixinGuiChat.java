@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.gui.old.mc.KamiGuiChat;
+import me.zeroeightsix.kami.gui.mc.KamiGuiChat;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiTextField;

@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.util;
 
-import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.old.rgui.render.font.FontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 
@@ -14,10 +13,6 @@ public class Wrapper {
 
     private static FontRenderer fontRenderer;
 
-    public static void init() {
-//      fontRenderer = new CFontRenderer(new Font("Segoe UI", Font.PLAIN, 19), true, false);
-        fontRenderer = KamiGUI.fontRenderer;
-    }
     public static Minecraft getMinecraft() {
         return Minecraft.getMinecraft();
     }
@@ -32,6 +27,6 @@ public class Wrapper {
     }
 
     public static FontRenderer getFontRenderer() {
-        return fontRenderer;
+        return Minecraft.getMinecraft().fontRenderer;
     }
 }

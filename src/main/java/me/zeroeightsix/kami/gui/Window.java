@@ -5,7 +5,6 @@ import me.zeroeightsix.jtcui.JTC;
 import me.zeroeightsix.jtcui.component.AbstractDraggable;
 import me.zeroeightsix.jtcui.handle.DraggableHandle;
 import me.zeroeightsix.jtcui.handle.InputHandler;
-import me.zeroeightsix.kami.gui.old.kami.RenderHelper;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;

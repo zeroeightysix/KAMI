@@ -5,7 +5,6 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
 import me.zeroeightsix.kami.command.syntax.parsers.DependantParser;
 import me.zeroeightsix.kami.command.syntax.parsers.EnumParser;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -72,8 +71,7 @@ public class ConfigCommand extends Command {
     }
 
     private void reload() {
-        KamiMod.getInstance().guiManager = new KamiGUI();
-        KamiMod.getInstance().guiManager.initializeGUI();
+        //TODO: Reload GUI
         KamiMod.loadConfiguration();
         Command.sendChatMessage("Configuration reloaded!");
     }

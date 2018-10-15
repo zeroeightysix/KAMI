@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules;
 
-import me.zeroeightsix.kami.gui.old.kami.DisplayGuiScreen;
+import me.zeroeightsix.kami.gui.DisplayGuiScreen;
 import me.zeroeightsix.kami.module.Module;
 import org.lwjgl.input.Keyboard;
 

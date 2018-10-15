@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.gui.old.rgui.component.container.use;
 
-import me.zeroeightsix.kami.gui.old.kami.DisplayGuiScreen;
+import me.zeroeightsix.kami.gui.DisplayGuiScreen;
 import me.zeroeightsix.kami.gui.old.rgui.GUI;
 import me.zeroeightsix.kami.gui.old.rgui.component.Component;
 import me.zeroeightsix.kami.gui.old.rgui.component.container.Container;

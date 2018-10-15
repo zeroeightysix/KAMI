@@ -4,9 +4,6 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.commands.PeekCommand;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
-import me.zeroeightsix.kami.gui.old.UIRenderer;
-import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.old.rgui.component.container.use.Frame;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.render.BossStack;
 import me.zeroeightsix.kami.util.KamiTessellator;
@@ -64,13 +61,8 @@ public class ForgeEventProcessor {
 
             KamiMod.jtc.getRootComponent().getSpace().widthProperty().set(displayWidth);
             KamiMod.jtc.getRootComponent().getSpace().heightProperty().set(displayHeight);
-
-            KamiMod.getInstance().getGuiManager().getChildren().stream()
-                    .filter(component -> component instanceof Frame)
-                    .forEach(component -> KamiGUI.dock((Frame) component));
         }
         ModuleManager.onUpdate();
-        KamiMod.getInstance().getGuiManager().callTick(KamiMod.getInstance().getGuiManager());
     }
 
     @SubscribeEvent
@@ -97,7 +89,8 @@ public class ForgeEventProcessor {
         if (event.getType() == target) {
             ModuleManager.onRender();
             GL11.glPushMatrix();
-            UIRenderer.renderAndUpdateFrames();
+            //TODO: Render JTC pinned components
+//            UIRenderer.renderAndUpdateFrames();
             GL11.glPopMatrix();
             KamiTessellator.releaseGL();
         } else if (event.getType() == RenderGameOverlayEvent.ElementType.BOSSINFO && ModuleManager.isModuleEnabled("BossStack")) {
