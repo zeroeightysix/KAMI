@@ -1,9 +1,7 @@
 package me.zeroeightsix.kami;
 
 import com.google.common.base.Converter;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.jtcui.JTC;
@@ -11,13 +9,6 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.command.commands.GuiCommand;
 import me.zeroeightsix.kami.event.ForgeEventProcessor;
-import me.zeroeightsix.kami.gui.old.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.rgui.component.AlignedComponent;
-import me.zeroeightsix.kami.gui.rgui.component.Component;
-import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
-import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
-import me.zeroeightsix.kami.gui.rgui.util.Docking;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
@@ -26,7 +17,6 @@ import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
-import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -35,9 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by 086 on 7/11/2017.
@@ -62,8 +49,8 @@ public class KamiMod {
     @Mod.Instance
     private static KamiMod INSTANCE;
 
-    public KamiGUI guiManager;
     public CommandManager commandManager;
+    public static JTC jtc;
     private Setting<JsonObject> guiStateSetting = Settings.custom("gui", new JsonObject(), new Converter<JsonObject, JsonObject>() {
         @Override
         protected JsonObject doForward(JsonObject jsonObject) {
@@ -91,12 +78,8 @@ public class KamiMod {
         MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
         LagCompensator.INSTANCE = new LagCompensator();
 
-        Wrapper.init();
-
-        guiManager = new KamiGUI();
-        guiManager.initializeGUI();
-
         commandManager = new CommandManager();
+        GuiCommand.setupJTC();
 
         Friends.initFriends();
         SettingsRegister.register("commandPrefix", Command.commandPrefix);
@@ -141,7 +124,7 @@ public class KamiMod {
         if (!kamiConfig.exists()) return;
         Configuration.loadConfiguration(kamiConfig);
 
-        JsonObject gui = KamiMod.INSTANCE.guiStateSetting.getValue();
+        /*JsonObject gui = KamiMod.INSTANCE.guiStateSetting.getValue();
         for (Map.Entry<String, JsonElement> entry : gui.entrySet()) {
             Optional<Component> optional = KamiMod.INSTANCE.guiManager.getChildren().stream().filter(component -> component instanceof Frame).filter(component -> ((Frame) component).getTitle().equals(entry.getKey())).findFirst();
             if (optional.isPresent()) {
@@ -160,6 +143,7 @@ public class KamiMod {
             }
         }
         KamiMod.getInstance().getGuiManager().getChildren().stream().filter(component -> (component instanceof Frame) && (((Frame) component).isPinneable()) && component.isVisible()).forEach(component -> component.setOpacity(0f));
+        */
     }
 
     public static void saveConfiguration() {
@@ -171,7 +155,7 @@ public class KamiMod {
     }
 
     public static void saveConfigurationUnsafe() throws IOException {
-        JsonObject object = new JsonObject();
+        /*JsonObject object = new JsonObject();
         KamiMod.INSTANCE.guiManager.getChildren().stream().filter(component -> component instanceof Frame).map(component -> (Frame) component).forEach(frame -> {
             JsonObject frameObject = new JsonObject();
             frameObject.add("x", new JsonPrimitive(frame.getX()));
@@ -181,7 +165,7 @@ public class KamiMod {
             frameObject.add("pinned", new JsonPrimitive(frame.isPinned()));
             object.add(frame.getTitle(), frameObject);
         });
-        KamiMod.INSTANCE.guiStateSetting.setValue(object);
+        KamiMod.INSTANCE.guiStateSetting.setValue(object);*/
 
         File outputFile = new File(getConfigName());
         if (!outputFile.exists())
@@ -202,10 +186,6 @@ public class KamiMod {
 
     public static KamiMod getInstance() {
         return INSTANCE;
-    }
-
-    public KamiGUI getGuiManager() {
-        return guiManager;
     }
 
     public CommandManager getCommandManager() {

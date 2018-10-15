@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami.gui.old.mc;
+package me.zeroeightsix.kami.gui.mc;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;

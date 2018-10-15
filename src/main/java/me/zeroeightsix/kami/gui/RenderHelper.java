@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami.gui.old.kami;
+package me.zeroeightsix.kami.gui;
 
 import static org.lwjgl.opengl.GL11.*;
 

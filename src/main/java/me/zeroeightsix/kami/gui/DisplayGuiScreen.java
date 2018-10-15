@@ -1,7 +1,6 @@
-package me.zeroeightsix.kami.gui.old.kami;
+package me.zeroeightsix.kami.gui;
 
 import me.zeroeightsix.jtcui.handle.InputHandler;
-import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -20,7 +19,6 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class DisplayGuiScreen extends GuiScreen {
 
-    KamiGUI gui;
     public final GuiScreen lastScreen;
 
     public static int mouseX;
@@ -51,11 +49,6 @@ public class DisplayGuiScreen extends GuiScreen {
 //        KamiGUI gui = KamiMod.getInstance().getGuiManager();
 //
 //        gui.getChildren().stream().filter(component -> (component instanceof Frame) && (((Frame) component).isPinneable()) && component.isVisible()).forEach(component -> component.setOpacity(0f));
-    }
-
-    @Override
-    public void initGui() {
-        gui = KamiMod.getInstance().getGuiManager();
     }
 
     @Override

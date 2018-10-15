@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.gui.KamiJTCRenderHandler;
 import me.zeroeightsix.kami.gui.Window;
-import me.zeroeightsix.kami.gui.old.kami.DisplayGuiScreen;
+import me.zeroeightsix.kami.gui.DisplayGuiScreen;
 import me.zeroeightsix.kami.util.Wrapper;
 
 import static me.zeroeightsix.kami.KamiMod.jtc;
