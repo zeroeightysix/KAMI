@@ -36,13 +36,17 @@ public class Window extends AbstractDraggable {
             double width = component.getSpace().widthProperty().get();
             double height = component.getSpace().heightProperty().get();
 
-            GlStateManager.disableTexture2D();
+            /*GlStateManager.disableTexture2D();
             GlStateManager.color(.17f,.17f,.18f,.9f);
             RenderHelper.drawFilledRectangle(0,0,width,height);
             GlStateManager.color(.59f,.05f,.11f);
             GlStateManager.glLineWidth(1.5f);
             RenderHelper.drawRectangle(0,0,width,height);
-            GlStateManager.color(1,1,1);
+            GlStateManager.color(1,1,1);*/
+
+            GlStateManager.disableTexture2D();
+            GlStateManager.color(0.19f, 0.22f, 0.25f);
+            RenderHelper.drawFilledRectangle(0, 0, width, height);
 
             if (component.resizing) {
                 GlStateManager.color(1, 0.64f, 0);

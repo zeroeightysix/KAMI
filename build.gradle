@@ -71,7 +71,7 @@ dependencies {
     compile(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    compile 'com.github.zeroeightysix:jtcui:280044a575'
+    compile 'com.github.zeroeightysix:jtcui:3adabbc433'
 }
 
 processResources {
