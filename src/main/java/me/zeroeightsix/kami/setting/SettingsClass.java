@@ -165,7 +165,7 @@ public class SettingsClass {
             if (primitiveType == null)
                 throw new RuntimeException("Unsupported value: " + value.getClass().getSimpleName());
             try {
-                value = value.getClass().getDeclaredMethod(fieldType.getName() + "Value", null).invoke(value);
+                value = value.getClass().getDeclaredMethod(fieldType.getName() + "Value", (Class<?>[]) null).invoke(value);
 
                 field.set(holder, value);
             } catch (Exception e) {
