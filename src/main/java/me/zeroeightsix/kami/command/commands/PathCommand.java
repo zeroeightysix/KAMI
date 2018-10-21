@@ -12,6 +12,9 @@ import java.awt.*;
 
 /**
  * Created by 086 on 25/01/2018.
+ *
+ * PLEASE READ: YOU WILL GET "CANNOT RESOLVE SYMBOL" ERRORS IN THIS CLASS. THIS IS OK.
+ * THIS IS NORMAL. IT WILL STILL COMPILE. DO NOT WORRY ABOUT IT. PLS AND THANK <3
  */
 public class PathCommand extends Command {
     public PathCommand() {

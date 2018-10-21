@@ -57,9 +57,25 @@ repositories {
     mavenCentral()
 }
 
+/**
+ * Download a file from a URL (So we don't have to keep a local copy)
+ */
+def urlFile = { url, name ->
+    File file = new File("$buildDir/download/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
+    }
+    files(file.absolutePath)
+}
+
 dependencies {
     //mixin needs to be distributed with the mod, very important
-    compile("org.spongepowered:mixin:0.7.4-SNAPSHOT") {
+    compile("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
         exclude module: 'gson'
@@ -67,7 +83,7 @@ dependencies {
     }
     compile "com.github.ZeroMemes:Alpine:1.5"
     compile group: 'net.jodah', name: 'typetools', version: '0.5.0'
-    compile 'com.github.cabaletta:baritone:v1.0.0-hotfix-2'
+    compile files(urlFile('https://github.com/cabaletta/baritone/releases/download/v1.0.0-hotfix-2/baritone-api-1.0.0-hotfix-2.jar', 'baritone'))
     compile(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
         exclude group: 'com.google.guava', module: 'guava'
     }
@@ -102,7 +118,6 @@ shadowJar {
         include(dependency('net.jodah:typetools'))
         include(dependency('org.reflections:reflections'))
         include(dependency('org.javassist:javassist'))
-        include(dependency('com.github.cabaletta:baritone'))
     }
     exclude 'dummyThing'
     exclude 'LICENSE.txt'
