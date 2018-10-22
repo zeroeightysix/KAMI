@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.util.Wrapper;
 import java.awt.*;
 
 /**
- * Created by 086 on 25/01/2018. hello please push
+ * Created by 086 on 25/01/2018. hello please pus
  */
 public class PathCommand extends Command {
     public PathCommand() {
