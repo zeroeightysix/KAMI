@@ -21,6 +21,7 @@ public class PathCommand extends Command {
     @Override
     public void call(String[] args) {
         BaritoneAPI.getSettings().chatDebug.value = false;
+        BaritoneAPI.getSettings().freeLook.value = false;
         BaritoneAPI.getSettings().allowSprint.value = true;
         BaritoneAPI.getSettings().antiCheatCompatibility.value = true;
         BaritoneAPI.getSettings().walkWhileBreaking.value = false;
