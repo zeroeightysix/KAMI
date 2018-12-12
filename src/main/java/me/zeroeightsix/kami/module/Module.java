@@ -155,6 +155,26 @@ public class Module {
      */
     public void destroy(){};
 
+    protected void registerAll(Setting... settings) {
+        for (Setting setting : settings) {
+            register(setting);
+        }
+    }
+
+    protected <T> Setting<T> register(Setting<T> setting) {
+        if (settingList == null) settingList = new ArrayList<>();
+        settingList.add(setting);
+        return SettingBuilder.register(setting, "modules." + name);
+    }
+
+    protected <T> Setting<T> register(SettingBuilder<T> builder) {
+        if (settingList == null) settingList = new ArrayList<>();
+        Setting<T> setting = builder.buildAndRegister("modules." + name);
+        settingList.add(setting);
+        return setting;
+    }
+
+
     private class BindConverter extends Converter<Bind, JsonElement> {
         @Override
         protected JsonElement doForward(Bind bind) {
@@ -189,24 +209,4 @@ public class Module {
             return new Bind(ctrl, alt, shift, key);
         }
     }
-
-    protected void registerAll(Setting... settings) {
-        for (Setting setting : settings) {
-            register(setting);
-        }
-    }
-
-    protected <T> Setting<T> register(Setting<T> setting) {
-        if (settingList == null) settingList = new ArrayList<>();
-        settingList.add(setting);
-        return SettingBuilder.register(setting, "modules." + name);
-    }
-
-    protected <T> Setting<T> register(SettingBuilder<T> builder) {
-        if (settingList == null) settingList = new ArrayList<>();
-        Setting<T> setting = builder.buildAndRegister("modules." + name);
-        settingList.add(setting);
-        return setting;
-    }
-
 }

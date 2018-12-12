@@ -28,7 +28,7 @@ public class ArmorHUD extends Module {
         ScaledResolution resolution = new ScaledResolution(mc);
         int i = resolution.getScaledWidth() / 2;
         int iteration = 0;
-        int y = resolution.getScaledHeight() - 55;
+        int y = resolution.getScaledHeight() - 55 - (mc.player.isInWater() ? 10 : 0);
         for (ItemStack is : mc.player.inventory.armorInventory) {
             iteration++;
             if (is.isEmpty()) continue;

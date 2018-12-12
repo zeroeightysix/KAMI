@@ -42,9 +42,11 @@ public class HelpCommand extends Command {
         if (args[0] == null) {
             Command.sendStringChatMessage(new String[]{
                     "KAMI " + KamiMod.MODVER,
-                    "&7commands&r to view all available commands",
-                    "&7bind <module> <key>&r to bind mods",
-                    "press &b" + ModuleManager.getModuleByName("ClickGUI").getBindName() + "&r to open GUI"
+                    "commands&7 to view all available commands",
+                    "bind <module> <key>&7 to bind mods",
+                    "&7Press &r" + ModuleManager.getModuleByName("ClickGUI").getBindName() + "&7 to open GUI",
+                    "prefix <prefix>&r to change the command prefix.",
+                    "help <subjects:[subject]> &r for more help."
             });
         }else{
             String subject = args[0];

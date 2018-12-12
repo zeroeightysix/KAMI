@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.misc.NoEntityTrace;
 import me.zeroeightsix.kami.module.modules.render.AntiFog;
+import me.zeroeightsix.kami.module.modules.render.Brightness;
 import me.zeroeightsix.kami.module.modules.render.NoHurtCam;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -62,12 +63,12 @@ public class MixinEntityRenderer {
 
     @Redirect(method = "updateLightmap", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
     public boolean isPotionActive(EntityPlayerSP player, Potion potion) {
-        return (nightVision = ModuleManager.isModuleEnabled("Brightness")) || player.isPotionActive(potion);
+        return (nightVision = Brightness.shouldBeActive()) || player.isPotionActive(potion);
     }
 
     @Redirect(method = "updateLightmap", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;getNightVisionBrightness(Lnet/minecraft/entity/EntityLivingBase;F)F"))
     public float getNightVisionBrightnessMixin(EntityRenderer renderer, EntityLivingBase entity, float partialTicks) {
-        if (nightVision) return 1;
+        if (nightVision) return Brightness.getCurrentBrightness();
         return renderer.getNightVisionBrightness(entity, partialTicks);
     }
 

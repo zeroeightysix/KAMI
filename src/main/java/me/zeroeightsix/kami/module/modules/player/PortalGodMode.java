@@ -15,11 +15,10 @@ import java.util.Queue;
 @Module.Info(name = "PortalGodMode", category = Module.Category.PLAYER)
 public class PortalGodMode extends Module {
 
-
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-       if (isEnabled() && event.getPacket() instanceof CPacketConfirmTeleport) {
-           event.cancel();
-       }
+        if (isEnabled() && event.getPacket() instanceof CPacketConfirmTeleport) {
+            event.cancel();
+        }
     });
 }

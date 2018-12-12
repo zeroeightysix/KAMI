@@ -46,7 +46,7 @@ public class ModuleManager {
                 System.err.println("Couldn't initiate module " + aClass.getSimpleName() + "! Err: " + e.getClass().getSimpleName() + ", message: " + e.getMessage());
             }
         });
-        KamiMod.log.info("Modules initialized");
+        KamiMod.log.info("Modules initialised");
         getModules().sort(Comparator.comparing(Module::getName));
     }
 
