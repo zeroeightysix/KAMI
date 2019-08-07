@@ -1,3 +1,37 @@
+// debugging 
+
+task testprint {
+   doLast {
+      println 'testuwu'
+   }
+}
+
+// copy
+// make folders for copy
+
+task mkdir {
+    doLast {
+        mkdir "../../.minecraft/mods/1.12.2"
+    }
+}
+
+// delete old versions
+
+task rmold(type: Delete) {
+    delete fileTree("../../.minecraft/mods/1.12.2").matching {
+        include "KAMI*.jar"
+    }
+}
+
+// copy file
+
+task copy(type: Copy) {
+    from file("build/libs/KAMI-b9-release.jar")
+    into file("../../.minecraft/mods/1.12.2/")
+}
+
+// forge's stuff 
+
 buildscript {
     repositories {
         jcenter()
