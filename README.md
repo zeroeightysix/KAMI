@@ -7,6 +7,8 @@ A minecraft utility mod for anarchy servers.
 
 See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as I sometimes used it as reference.
 
+Please note Baritone is no longer included. Download the standalone jar [from here](https://github.com/cabaletta/baritone/releases).
+
 This is by no means a finished project and is still in rapid development.
 
 ## Preview
