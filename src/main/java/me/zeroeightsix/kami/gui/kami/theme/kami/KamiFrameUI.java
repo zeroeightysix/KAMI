@@ -14,6 +14,7 @@ import me.zeroeightsix.kami.gui.rgui.render.AbstractComponentUI;
 import me.zeroeightsix.kami.gui.rgui.render.font.FontRenderer;
 import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
 import me.zeroeightsix.kami.gui.rgui.util.Docking;
+import me.zeroeightsix.kami.util.Bind;
 import me.zeroeightsix.kami.util.ColourHolder;
 import me.zeroeightsix.kami.util.Wrapper;
 import org.lwjgl.opengl.GL11;
@@ -253,6 +254,7 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
         component.addPoof(new Frame.FrameDragPoof<Frame, Frame.FrameDragPoof.DragInfo>() {
             @Override
             public void execute(Frame component, DragInfo info) {
+                if (Bind.isShiftDown() || Bind.isAltDown() || Bind.isCtrlDown()) return;
                 int x = info.getX();
                 int y = info.getY();
                 yLineComponent = null;
