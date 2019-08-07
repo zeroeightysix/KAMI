@@ -75,23 +75,32 @@ If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
 
 ### Building
 #### Windows
-You can build by running `autobuild.bat` and then `autocopy.bat`, or if you prefer the manual way, do the following:
+You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
+```
+gradlew.bat <args>
+```
+Possible arguments on Windows are `build`.
 
-```
-gradlew.bat build
-cd build/libs
-```
-To copy the release  jar in `build/libs` you can run `autocopy.bat` or, if you prefer doing it manually, find a file `KAMI-<minecraftVersion>-<kamiVersion>-release.jar` which you can copy to the `mods` folder of a minecraft instance that has forge installed.
-#### Linux
-```
-git clone https://github.com/zeroeightysix/KAMI.git
-cd KAMI
-chmod +x auto*
-./autobuild
-mkdir ~/.minecraft/mods
-./autocopy
-```
+To copy on windows run `autocopy.bat`
+
+If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\1.12.2` folder of a minecraft instance that has forge installed.
+
 Note: This assumes your minecraft folder is in the default location under your home folder.
+
+#### Linux
+You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd ~/Downloads/KAMI`)
+```
+./gradlew <args>
+```
+Possible arguments are `build`, `mkdir`, `rmold` and `copy`, in that order. 
+
+Build is required, mkdir makes the mods/1.12.2 directory, rmold removes old versions of KAMI in that directory, and copy copies the build release to the mods/1.12.2 directory. 
+
+If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods/1.12.2` folder of a minecraft instance that has forge installed.
+
+Note: This assumes your minecraft folder is in the default location under your home folder.
+
+Note: Any argument other then `build` assumes you downloaded KAMI to a nested folder inside your home folder. For example `~/Downloads/KAMI` or `~/Documents/KAMI`
 
 ## Thank you
 [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
