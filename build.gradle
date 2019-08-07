@@ -1,15 +1,7 @@
-// debugging 
-
-task testprint {
-   doLast {
-      println 'testuwu'
-   }
-}
-
-// copy
-// make folders for copy
+// make folders
 
 task mkdir {
+    group = "kami"
     doLast {
         mkdir "../../.minecraft/mods/1.12.2"
     }
@@ -18,6 +10,7 @@ task mkdir {
 // delete old versions
 
 task rmold(type: Delete) {
+    group = "kami"
     delete fileTree("../../.minecraft/mods/1.12.2").matching {
         include "KAMI*.jar"
     }
@@ -26,6 +19,7 @@ task rmold(type: Delete) {
 // copy file
 
 task copy(type: Copy) {
+    group = "kami"
     from file("build/libs/KAMI-b9-release.jar")
     into file("../../.minecraft/mods/1.12.2/")
 }
