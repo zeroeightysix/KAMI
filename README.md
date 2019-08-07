@@ -1,13 +1,12 @@
 # KAMI
 [![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=master)](https://travis-ci.com/zeroeightysix/KAMI)
+[![Maintainability](https://api.codeclimate.com/v1/badges/81228111eb82b7ca391e/maintainability)](https://codeclimate.com/github/zeroeightysix/KAMI/maintainability)
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
 A minecraft utility mod for anarchy servers.
 
 See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as I sometimes used it as reference.
-
-Please note Baritone is no longer included. Download the standalone jar [from here](https://github.com/cabaletta/baritone/releases).
 
 This is by no means a finished project and is still in rapid development.
 
@@ -93,9 +92,9 @@ You can build by running these commands (without these <>) in a terminal with th
 ```
 ./gradlew <args>
 ```
-Possible arguments are `build`, `mkdir`, `rmold` and `copy`, in that order. 
+Possible arguments are `build`, `mkdir`, `rmOld` and `copy`, in that order. 
 
-Build is required, mkdir makes the mods/1.12.2 directory, rmold removes old versions of KAMI in that directory, and copy copies the build release to the mods/1.12.2 directory. 
+Build is required, mkdir makes the mods/1.12.2 directory, rmOld removes old versions of KAMI in that directory, and copy copies the build release to the mods/1.12.2 directory. 
 
 If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods/1.12.2` folder of a minecraft instance that has forge installed.
 
