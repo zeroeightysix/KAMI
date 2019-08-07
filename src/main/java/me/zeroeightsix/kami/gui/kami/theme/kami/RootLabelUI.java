@@ -22,10 +22,11 @@ public class RootLabelUI<T extends Label> extends AbstractComponentUI<Label> {
         boolean shadow = component.isShadow();
         for (String s : lines){
             int x = 0;
-            if (component.getAlignment().equals(AlignedComponent.Alignment.CENTER))
+            if (component.getAlignment() == AlignedComponent.Alignment.CENTER)
                 x = component.getWidth() / 2 - a.getStringWidth(s) / 2;
-            if (component.getAlignment().equals(AlignedComponent.Alignment.RIGHT))
+            else if (component.getAlignment() == AlignedComponent.Alignment.RIGHT)
                 x = component.getWidth() - a.getStringWidth(s);
+
             if (shadow)
                 a.drawStringWithShadow(x,y,255,255,255,s);
             else

@@ -16,7 +16,7 @@ import me.zeroeightsix.kami.util.Wrapper;
  */
 public class BindCommand extends Command {
 
-    public static Setting<Boolean> modifiersEnabled = SettingBuilder.register(Settings.b("modifiersEnabled"), "binds");
+    public static Setting<Boolean> modifiersEnabled = SettingBuilder.register(Settings.b("modifiersEnabled", false), "binds");
 
     public BindCommand() {
         super("bind", new ChunkBuilder()

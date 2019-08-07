@@ -61,8 +61,8 @@ public class Bind {
         return isEmpty() ? "None" : (isCtrl() ? "Ctrl+" : "") + (isAlt() ? "Alt+" : "") + (isShift() ? "Shift+" : "") + (key < 0 ? "None" : capitalise(Keyboard.getKeyName(key)));
     }
 
-    public boolean isDown() {
-        return !isEmpty() && (!BindCommand.modifiersEnabled.getValue() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && Keyboard.isKeyDown(getKey());
+    public boolean isDown(int eventKey) {
+        return !isEmpty() && (!BindCommand.modifiersEnabled.getValue() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && eventKey == getKey();
     }
 
     private boolean isShiftDown() {

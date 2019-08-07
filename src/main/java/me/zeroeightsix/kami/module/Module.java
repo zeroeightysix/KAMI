@@ -213,7 +213,7 @@ public class Module {
 
             int key = -1;
             try {
-                key = Keyboard.getKeyIndex(s);
+                key = Keyboard.getKeyIndex(s.toUpperCase());
             } catch (Exception ignored) {}
 
             if (key == 0) return Bind.none();

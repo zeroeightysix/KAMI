@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
@@ -42,6 +43,19 @@ public class KamiActiveModulesUI extends AbstractComponentUI<ActiveModules> {
         final float[] hue = {(System.currentTimeMillis() % (360 * 32)) / (360f * 32)};
 
         boolean lAlign = component.getAlignment() == AlignedComponent.Alignment.LEFT;
+        Function<Integer, Integer> xFunc;
+        switch (component.getAlignment()) {
+            case RIGHT:
+                xFunc = i -> component.getWidth() - i;
+                break;
+            case CENTER:
+                xFunc = i -> component.getWidth() / 2 - i / 2;
+                break;
+            case LEFT:
+            default:
+                xFunc = i -> 0;
+                break;
+        }
 
         mods.stream().forEach(module -> {
             int rgb = Color.HSBtoRGB(hue[0], 1, 1);
@@ -53,7 +67,7 @@ public class KamiActiveModulesUI extends AbstractComponentUI<ActiveModules> {
             int green = (rgb >> 8) & 0xFF;
             int blue = rgb & 0xFF;
 
-            renderer.drawStringWithShadow(!lAlign ? (component.getWidth() - textwidth) : 0, y[0], red,green,blue, text);
+            renderer.drawStringWithShadow(xFunc.apply(textwidth), y[0], red,green,blue, text);
             hue[0] +=.02f;
             y[0] += textheight;
         });

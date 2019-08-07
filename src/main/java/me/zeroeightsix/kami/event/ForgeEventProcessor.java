@@ -183,4 +183,9 @@ public class ForgeEventProcessor {
         KamiMod.EVENT_BUS.post(entityEvent);
     }
 
+    @SubscribeEvent
+    public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
+        KamiMod.EVENT_BUS.post(event);
+    }
+
 }

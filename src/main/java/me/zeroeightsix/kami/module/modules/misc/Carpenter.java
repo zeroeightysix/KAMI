@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by 086 on 20/05/2018.
  */
-@Module.Info(name = "Carpenter", category = Module.Category.MISC)
+// @Module.Info(name = "Carpenter", category = Module.Category.MISC)
 public class Carpenter extends Module {
 
     private int displayList = -1;

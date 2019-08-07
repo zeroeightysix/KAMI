@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by 086 on 15/12/2017.
  */
-@Module.Info(name = "PortalTracers", category = Module.Category.RENDER)
+// @Module.Info(name = "PortalTracers", category = Module.Category.RENDER)
 public class PortalTracers extends Module {
 
     private Setting<Integer> range = register(Settings.i("Range", 5000));

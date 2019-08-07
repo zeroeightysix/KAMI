@@ -419,5 +419,10 @@ public class KamiGUI extends GUI {
             component.setX(DOCK_OFFSET);
         if (docking.isRight())
             component.setX((Wrapper.getMinecraft().displayWidth / DisplayGuiScreen.getScale()) - component.getWidth() - DOCK_OFFSET);
+        if (docking.isCenterHorizontal())
+            component.setX((Wrapper.getMinecraft().displayWidth / (DisplayGuiScreen.getScale() * 2) - component.getWidth() / 2));
+        if (docking.isCenterVertical())
+            component.setY(Wrapper.getMinecraft().displayHeight / (DisplayGuiScreen.getScale() * 2) - component.getHeight() / 2);
+
     }
 }
