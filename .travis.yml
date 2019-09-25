@@ -1,20 +1,16 @@
 language: java
 jdk:
-- oraclejdk8
-
+- openjdk8
 before_install:
 - chmod +x gradlew
 - "./gradlew setupDecompWorkspace"
-
 deploy:
-- provider: releases
+  provider: releases
   api_key:
-    secure: XdbjD4VQ2vXFPEwOBm9Snn1r6n+btyaHCCdCSTu4J48rTzys29Ud9ZSJK3QnpOaiHKUZP6YyP9xmYRrVWkdCJQhSZ5CYmJZeQuiwGaWL7r7ntiDVhpbxcp/ajbMCk8U1+yj8kR0unl3grnM56Ui1Oqs+CSjB29OIh+qcJs8d16vL4fYF7lQtjcVA4FKTHe3/G5HGq4nS9bmaqokjKpLSlLj/TQowsLuO3t44iTXzP3fjp4dViA2Cb7CFSOrs6yyQhNulohRMkK/0JvnwcCGQJS83cUNpKsoCWM8cDO3iZ/Me5uHq01mu1ziwBCd3cAXjepf46DvL1KGQa/OrZiI4/f9fDuTPIwh4SdKj50I88Mdh2P63AJKn+qd/i+c7MlPjqBm0pT5VT2m0CRI6dVSKmapscK5Qsto0b96lq4fQqJUPa7w622u1tTx2h6ovS4jMNhM5bMn4FN4Y1K+jWKTQw3ShOd5o4kS5yjJnDSa1pMJLyowywCFEnS4hA6RvbYRbigZvEzHypnDPNgOoSPQB6L517gInxdz4BTS619LPrJq3ae8Nmv4xMvWcjxT0DHsAWWJ9qUx+I7mF+XSt0qc0zgEPA7I50g/gx9ki0VX7BD9bv5/+jWZjZh+H1FyKtMczQRjgoF/6ferJ7tg1AaZUioW7JpFlT3U03vCQ7HLVLPw=
-
+    secure: GV6VEpKw8t5MyHVnv7PJqlIVXxXLmwTmMY9LMKRkCo475/SPC9R1JGR9awudpHlJSJWenaGyDRBCQpnbK4K/LeJHRByvTjBbZHQ5ZYELgwmwjG3L8W4dLgjEhltbJdvVChezEA4b8W3IFYr2K0vt8N9JUceIAUVmDA6X81e3boe99qyX8AOg0qXUIjVEWj0hgaXTe66Z7cylVe2po5LMO3Ke+gsdgRV2WZorX4Bc+DlYmdTXaOkGeUTZgOmju3Hv0LL6cezf/YZ2bV2d3+ZNgJc5nOaSxaE+LRP9MXn8oP7rqIxFWQU13AV24vwcK4L6EYpQ8eSDOXg4/DY13vHRNpdQHyb3Bqt6oDw86cD0wBEaZzG8tXlPYxxGsB99DvcVAUEFQSwCdQplS7Vidh29cEwl06olDVfjLfsaMxTceZ/iQLZgBCgVcDHJNo18/GkKiW5ut6lIPeNxV2S8aAmcQO57Ko0e3jhGgMe7JX/itdZIVDqM37maNVFJkczLsl0RuQGKRGBjNFxOgd/wHQsUKHXzbVbq4PjzzPbTwVWu6tzcpSoA7ZYVToyfoJ+jBogc3mZ0Khb/8BpVHu4aBQyI1rTdnV44v6GaMNrBUyT/yzpgScRYz1yC+4d8TM7CWgbWaOPYdq7jYIX6LMRx2tXDRu3oGdJvUrn/Plx5Upb6wYw=
   file: build/libs/KAMI-*-release.jar
   file_glob: true
   skip_cleanup: true
-
   on:
-    repo: wine/KAMI
+    repo: zeroeightysix/KAMI
     tags: true

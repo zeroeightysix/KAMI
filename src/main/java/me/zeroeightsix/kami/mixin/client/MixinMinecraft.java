@@ -10,12 +10,14 @@ import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.crash.CrashReport;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -37,8 +39,7 @@ public class MixinMinecraft {
     @Shadow
     boolean skipRenderWorld;
     @Shadow
-    SoundHandler mcSoundHandler;
-
+    SoundHandler soundHandler;
 
     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
     public void displayGuiScreen(GuiScreen guiScreenIn, CallbackInfo info) {
@@ -95,11 +96,27 @@ public class MixinMinecraft {
         }
         else
         {
-            this.mcSoundHandler.resumeSounds();
+            this.soundHandler.resumeSounds();
             Minecraft.getMinecraft().setIngameFocus();
         }
 
         info.cancel();
+    }
+
+    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V"))
+    public void displayCrashReport(Minecraft minecraft, CrashReport crashReport) {
+        save();
+    }
+
+    @Inject(method = "shutdown", at = @At("HEAD"))
+    public void shutdown(CallbackInfo info) {
+        save();
+    }
+
+    private void save() {
+        System.out.println("Shutting down: saving KAMI configuration");
+        KamiMod.saveConfiguration();
+        System.out.println("Configuration saved.");
     }
 
 }

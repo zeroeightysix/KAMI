@@ -32,12 +32,12 @@ public class FriendCommand extends Command {
     @Override
     public void call(String[] args) {
         if (args[0] == null) {
-            if (Friends.INSTANCE.friends.isEmpty()) {
+            if (Friends.INSTANCE.friends.getValue().isEmpty()) {
                 Command.sendChatMessage("You currently don't have any friends added. &bfriend add <name>&r to add one.");
                 return;
             }
             String f = "";
-            for (Friends.Friend friend : Friends.INSTANCE.friends)
+            for (Friends.Friend friend : Friends.INSTANCE.friends.getValue())
                 f += friend.getUsername() + ", ";
             f = f.substring(0,f.length()-2);
             Command.sendChatMessage("Your friends: " + f);
@@ -62,7 +62,7 @@ public class FriendCommand extends Command {
                         Command.sendChatMessage("Failed to find UUID of " + args[1]);
                         return;
                     }
-                    Friends.INSTANCE.friends.add(f);
+                    Friends.INSTANCE.friends.getValue().add(f);
                     Command.sendChatMessage("&b" + f.getUsername() + "&r has been friended.");
                 }).start();
 
@@ -73,8 +73,8 @@ public class FriendCommand extends Command {
                     return;
                 }
 
-                Friends.Friend friend = Friends.INSTANCE.friends.stream().filter(friend1 -> friend1.getUsername().equalsIgnoreCase(args[1])).findFirst().get();
-                Friends.INSTANCE.friends.remove(friend);
+                Friends.Friend friend = Friends.INSTANCE.friends.getValue().stream().filter(friend1 -> friend1.getUsername().equalsIgnoreCase(args[1])).findFirst().get();
+                Friends.INSTANCE.friends.getValue().remove(friend);
                 Command.sendChatMessage("&b" + friend.getUsername() + "&r has been unfriended.");
                 return;
             }else{

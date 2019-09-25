@@ -19,8 +19,8 @@ public class PrefixCommand extends Command {
             return;
         }
 
-        Command.COMMAND_PREFIX = args[0];
-        Command.sendChatMessage("Prefix set to &b" + Command.COMMAND_PREFIX);
+        Command.commandPrefix.setValue(args[0]);
+        Command.sendChatMessage("Prefix set to &b" + Command.commandPrefix.getValue());
     }
 
 }

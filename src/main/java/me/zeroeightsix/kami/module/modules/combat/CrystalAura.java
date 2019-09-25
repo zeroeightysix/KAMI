@@ -7,10 +7,8 @@ import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.modules.render.Tracers;
 import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.util.EntityUtil;
-import me.zeroeightsix.kami.util.Friends;
-import me.zeroeightsix.kami.util.GeometryMasks;
-import me.zeroeightsix.kami.util.KamiTessellator;
+import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.util.*;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,6 +17,10 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.item.ItemTool;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
@@ -37,21 +39,29 @@ import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
 
 /**
  * Created by 086 on 28/12/2017.
+ * Last Updated 29 June 2019 by hub
  */
 @Module.Info(name = "CrystalAura", category = Module.Category.COMBAT)
 public class CrystalAura extends Module {
 
-    @Setting(name = "Range") private double range = 4;
-    @Setting(name = "Place") private boolean place = false;
-    @Setting(name = "Players") private boolean players = true;
-    @Setting(name = "Mobs") private boolean mobs = false;
-    @Setting(name = "Animals") private boolean animals = false;
-    @Setting(name = "Auto switch") private boolean autoSwitch = true;
+    private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
+    private Setting<Boolean> players = register(Settings.b("Players"));
+    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
+    private Setting<Boolean> animals = register(Settings.b("Animals", false));
+    private Setting<Boolean> place = register(Settings.b("Place", false));
+    private Setting<Boolean> explode = register(Settings.b("Explode", false));
+    private Setting<Double>  range = register(Settings.d("Range", 4));
+    private Setting<Boolean> antiWeakness = register(Settings.b("Anti Weakness", false));
 
     private BlockPos render;
     private Entity renderEnt;
     private long systemTime = -1;
     private static boolean togglePitch = false;
+	// we need this cooldown to not place from old hotbar slot, before we have switched to crystals
+    private boolean switchCooldown = false;
+    private boolean isAttacking = false;
+    private int oldSlot = -1;
+    private int newSlot;
 
     @Override
     public void onUpdate() {
@@ -60,9 +70,37 @@ public class CrystalAura extends Module {
                 .map(entity -> (EntityEnderCrystal) entity)
                 .min(Comparator.comparing(c -> mc.player.getDistance(c)))
                 .orElse(null);
-        if (crystal != null && mc.player.getDistance(crystal) <= range) {
+        if (explode.getValue() && crystal != null && mc.player.getDistance(crystal) <= range.getValue()) {
             //Added delay to stop ncp from flagging "hitting too fast"
             if (((System.nanoTime() / 1000000) - systemTime) >= 250) {
+                if (antiWeakness.getValue() && mc.player.isPotionActive(MobEffects.WEAKNESS)) {
+                    if (!isAttacking) {
+                        // save initial player hand
+                        oldSlot = Wrapper.getPlayer().inventory.currentItem;
+                        isAttacking = true;
+                    }
+                    // search for sword and tools in hotbar
+                    newSlot = -1;
+                    for (int i = 0; i < 9; i++) {
+                        ItemStack stack = Wrapper.getPlayer().inventory.getStackInSlot(i);
+                        if (stack == ItemStack.EMPTY) {
+                            continue;
+                        }
+                        if ((stack.getItem() instanceof ItemSword)) {
+                            newSlot = i;
+                            break;
+                        }
+                        if ((stack.getItem() instanceof ItemTool)) {
+                            newSlot = i;
+                            break;
+                        }
+                    }
+                    // check if any swords or tools were found
+                    if (newSlot != -1) {
+                        Wrapper.getPlayer().inventory.currentItem = newSlot;
+                        switchCooldown = true;
+                    }
+                }
                 lookAtPacket(crystal.posX, crystal.posY, crystal.posZ, mc.player);
                 mc.playerController.attackEntity(mc.player, crystal);
                 mc.player.swingArm(EnumHand.MAIN_HAND);
@@ -71,41 +109,56 @@ public class CrystalAura extends Module {
             return;
         } else {
             resetRotation();
+			if (oldSlot != -1) {
+                Wrapper.getPlayer().inventory.currentItem = oldSlot;
+                oldSlot = -1;
+			}
+            isAttacking = false;
         }
 
         int crystalSlot = mc.player.getHeldItemMainhand().getItem() == Items.END_CRYSTAL ? mc.player.inventory.currentItem : -1;
-        if (crystalSlot == -1)
+        if (crystalSlot == -1) {
             for (int l = 0; l < 9; ++l) {
                 if (mc.player.inventory.getStackInSlot(l).getItem() == Items.END_CRYSTAL) {
                     crystalSlot = l;
                     break;
                 }
             }
+        }
+		
         boolean offhand = false;
-        if (mc.player.getHeldItemOffhand().getItem() == Items.END_CRYSTAL) offhand = true;
-        else if (crystalSlot == -1) return;
+        if (mc.player.getHeldItemOffhand().getItem() == Items.END_CRYSTAL) {
+            offhand = true;
+        } else if (crystalSlot == -1) {
+            return;
+        }
 
         List<BlockPos> blocks = findCrystalBlocks();
         List<Entity> entities = new ArrayList<>();
-        if (players)
+        if (players.getValue()) {
             entities.addAll(mc.world.playerEntities.stream().filter(entityPlayer -> !Friends.isFriend(entityPlayer.getName())).collect(Collectors.toList()));
-        entities.addAll(mc.world.loadedEntityList.stream().filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals : mobs)).collect(Collectors.toList()));
+        }
+        entities.addAll(mc.world.loadedEntityList.stream().filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())).collect(Collectors.toList()));
 
         BlockPos q = null;
         double damage = .5;
         for (Entity entity : entities) {
-            if (entity == mc.player || ((EntityLivingBase) entity).getHealth() <= 0) continue;
+            if (entity == mc.player || ((EntityLivingBase) entity).getHealth() <= 0) {
+                continue;
+            }
             for (BlockPos blockPos : blocks) {
                 double b = entity.getDistanceSq(blockPos);
-                if (b >= 169)
+                if (b >= 169) {
                     continue; // If this block if further than 13 (3.6^2, less calc) blocks, ignore it. It'll take no or very little damage
+                }
                 double d = calculateDamage(blockPos.x + .5, blockPos.y + 1, blockPos.z + .5, entity);
                 if (d > damage) {
                     double self = calculateDamage(blockPos.x + .5, blockPos.y + 1, blockPos.z + .5, mc.player);
                     // If this deals more damage to ourselves than it does to our target, continue. This is only ignored if the crystal is sure to kill our target but not us.
                     // Also continue if our crystal is going to hurt us.. alot
-                    if ((self > d && !(d < ((EntityLivingBase) entity).getHealth())) || self - .5 > mc.player.getHealth())
+                    if ((self > d && !(d < ((EntityLivingBase) entity).getHealth())) || self - .5 > mc.player.getHealth()) {
                         continue;
+                    }
                     damage = d;
                     q = blockPos;
                     renderEnt = entity;
@@ -120,22 +173,30 @@ public class CrystalAura extends Module {
         }
         render = q;
 
-        if (place) {
+        if (place.getValue()) {
             if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
-                if (autoSwitch) {
+                if (autoSwitch.getValue()) {
                     mc.player.inventory.currentItem = crystalSlot;
                     resetRotation();
+                    switchCooldown = true;
                 }
                 return;
             }
             lookAtPacket(q.x + .5, q.y - .5, q.z + .5, mc.player);
             RayTraceResult result = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(q.x + .5, q.y - .5d, q.z + .5));
             EnumFacing f;
-            if (result == null || result.sideHit == null) f = EnumFacing.UP;
-            else f = result.sideHit;
-            //Small delay
-                //mc.playerController.processRightClickBlock(mc.player, mc.world, q, f, new Vec3d(0, 0, 0), EnumHand.MAIN_HAND);
-                mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(q, f, offhand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND, 0, 0, 0));
+            if (result == null || result.sideHit == null) {
+                f = EnumFacing.UP;
+            } else {
+                f = result.sideHit;
+            }
+            // return after we did an autoswitch
+            if (switchCooldown) {
+                switchCooldown = false;
+                return;
+            }
+            //mc.playerController.processRightClickBlock(mc.player, mc.world, q, f, new Vec3d(0, 0, 0), EnumHand.MAIN_HAND);
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(q, f, offhand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND, 0, 0, 0));
         }
         //this sends a constant packet flow for default packets
         if (isSpoofingAngles) {
@@ -147,6 +208,7 @@ public class CrystalAura extends Module {
                 togglePitch = true;
             }
         }
+
     }
 
     @Override
@@ -174,8 +236,9 @@ public class CrystalAura extends Module {
                 && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN)
                 || mc.world.getBlockState(boost).getBlock() != Blocks.AIR
                 || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR
-                || !mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost)).isEmpty())
+                || !mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost)).isEmpty()) {
             return false;
+        }
         return true;
     }
 
@@ -185,7 +248,7 @@ public class CrystalAura extends Module {
 
     private List<BlockPos> findCrystalBlocks() {
         NonNullList<BlockPos> positions = NonNullList.create();
-        positions.addAll(getSphere(getPlayerPos(), (float) range, (int) range, false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
+        positions.addAll(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
         return positions;
     }
 
@@ -246,7 +309,7 @@ public class CrystalAura extends Module {
     }
 
     private static float getDamageMultiplied(float damage) {
-        int diff = mc.world.getDifficulty().getDifficultyId();
+        int diff = mc.world.getDifficulty().getId();
         return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
     }
 

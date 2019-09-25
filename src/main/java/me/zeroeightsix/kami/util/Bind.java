@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.util;
 
+import me.zeroeightsix.kami.command.commands.BindCommand;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -60,18 +61,19 @@ public class Bind {
         return isEmpty() ? "None" : (isCtrl() ? "Ctrl+" : "") + (isAlt() ? "Alt+" : "") + (isShift() ? "Shift+" : "") + (key < 0 ? "None" : capitalise(Keyboard.getKeyName(key)));
     }
 
-    public boolean isDown() {
-        return !isEmpty() && (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()) && Keyboard.isKeyDown(getKey());
+    public boolean isDown(int eventKey) {
+        return !isEmpty() && (!BindCommand.modifiersEnabled.getValue() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && eventKey == getKey();
     }
 
-    private boolean isShiftDown() {
+    public static boolean isShiftDown() {
         return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
     }
-    private boolean isCtrlDown() {
+
+    public static boolean isCtrlDown() {
         return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
     }
 
-    private boolean isAltDown() {
+    public static boolean isAltDown() {
         return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
     }
 

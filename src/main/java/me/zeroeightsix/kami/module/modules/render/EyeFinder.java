@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.module.modules.render;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.GeometryMasks;
 import me.zeroeightsix.kami.util.KamiTessellator;
@@ -21,9 +22,9 @@ import org.lwjgl.opengl.GL11;
 @Module.Info(name = "EyeFinder", description = "Draw lines from entity's heads to where they are looking", category = Module.Category.RENDER)
 public class EyeFinder extends Module {
 
-    @Setting(name = "Players") private boolean players = true;
-    @Setting(name = "Mobs") private boolean mobs = false;
-    @Setting(name = "Animals") private boolean animals = false;
+    private Setting<Boolean> players = register(Settings.b("Players", true));
+    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
+    private Setting<Boolean> animals = register(Settings.b("Animals", false));
 
     @Override
     public void onWorldRender(RenderEvent event) {
@@ -32,7 +33,7 @@ public class EyeFinder extends Module {
                 .filter(entity -> mc.player != entity)
                 .map(entity -> (EntityLivingBase) entity)
                 .filter(entityLivingBase -> !entityLivingBase.isDead)
-                .filter(entity -> (players && entity instanceof EntityPlayer) || (EntityUtil.isPassive(entity) ? animals : mobs))
+                .filter(entity -> (players.getValue() && entity instanceof EntityPlayer) || (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue()))
                 .forEach(this::drawLine);
     }
 

@@ -1,16 +1,26 @@
 # KAMI
+[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=master)](https://travis-ci.com/zeroeightysix/KAMI)
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
 A minecraft utility mod for anarchy servers.
 
-See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as I sometimes used it as reference.
+This is by no means a finished project and is still in rapid development.
 
-This is by no means a finished project and isn't fully ready for release.
+## Preview
+
+<details>
+ <summary>Click to view images</summary>
+
+ ![GUI](.github/IMAGES/gui.png)
+ 
+ ![CrystalAura](.github/IMAGES/crystalAura.png)
+
+</details>
 
 ## Installing
 
-KAMI is a forge mod. Start by downloading the latest version of [forge](https://files.minecraftforge.net/).
+KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](https://files.minecraftforge.net/).
 1. Install forge
 2. Navigate to your `.minecraft` directory.
    * **Windows**: `%appdata%/.minecraft`
@@ -33,7 +43,7 @@ The default prefix is `.`. Commands are used through chat, use `.commands` for a
 Run `.bind <module> <key>`.
 
 ##### Change command prefix
-After having ran KAMI (make sure it's closed), edit `kami.settings` and find `command_prefix` to change the prefix.
+By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
 
 ## Troubleshooting
 Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
@@ -61,9 +71,28 @@ Import KAMI into your IDE of choice. If you use IntelliJ, import from the `build
 If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
 
 ### Building
+#### Windows
+You can build by running `autobuild.bat` and then `autocopy.bat`, or if you prefer the manual way, do the following:
 
 ```
 gradlew.bat build
 cd build/libs
 ```
-In `build/libs` you will find a file `KAMI-<minecraftVersion>-<kamiVersion>-full.jar` which you can copy to the `mods` folder of a minecraft instance that has forge installed.
+To copy the release  jar in `build/libs` you can run `autocopy.bat` or, if you prefer doing it manually, find a file `KAMI-<minecraftVersion>-<kamiVersion>-release.jar` which you can copy to the `mods` folder of a minecraft instance that has forge installed.
+#### Linux
+```
+git clone https://github.com/zeroeightysix/KAMI.git
+cd KAMI
+chmod +x auto*
+./autobuild
+mkdir ~/.minecraft/mods
+./autocopy
+```
+Note: This assumes your minecraft folder is in the default location under your home folder.
+
+## Thank you
+[ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
+
+[ronmamo](https://github.com/ronmamo/) for [Reflections](https://github.com/ronmamo/reflections)
+
+The [minecraft forge team](https://github.com/MinecraftForge) for [forge](https://files.minecraftforge.net/)

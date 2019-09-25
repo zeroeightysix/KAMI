@@ -2,9 +2,13 @@ package me.zeroeightsix.kami.command.commands;
 
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
+import me.zeroeightsix.kami.command.syntax.parsers.DependantParser;
 import me.zeroeightsix.kami.command.syntax.parsers.ModuleParser;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Wrapper;
 
 /**
@@ -12,10 +16,12 @@ import me.zeroeightsix.kami.util.Wrapper;
  */
 public class BindCommand extends Command {
 
+    public static Setting<Boolean> modifiersEnabled = SettingBuilder.register(Settings.b("modifiersEnabled", false), "binds");
+
     public BindCommand() {
         super("bind", new ChunkBuilder()
-                .append("module", true, new ModuleParser())
-                .append("key", true)
+                .append("[module]|modifiers", true, new ModuleParser())
+                .append("[key]|[on|off]", true)
                 .build()
         );
     }
@@ -27,8 +33,26 @@ public class BindCommand extends Command {
             return;
         }
 
-        String rkey = args[1];
         String module = args[0];
+        String rkey = args[1];
+
+        if (module.equalsIgnoreCase("modifiers")) {
+            if (rkey == null) {
+                sendChatMessage("Expected: on or off");
+                return;
+            }
+
+            if (rkey.equalsIgnoreCase("on")) {
+                modifiersEnabled.setValue(true);
+                sendChatMessage("Turned modifiers on.");
+            } else if (rkey.equalsIgnoreCase("off")) {
+                modifiersEnabled.setValue(false);
+                sendChatMessage("Turned modifiers off.");
+            } else {
+                sendChatMessage("Expected: on or off");
+            }
+            return;
+        }
 
         Module m = ModuleManager.getModuleByName(module);
 

@@ -2,6 +2,8 @@ package me.zeroeightsix.kami.command;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
+import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentBase;
@@ -17,7 +19,7 @@ public abstract class Command {
 
 	protected SyntaxChunk[] syntaxChunks;
 
-	public static String COMMAND_PREFIX = ".";
+	public static Setting<String> commandPrefix = Settings.s("commandPrefix", ".");
 
 	public Command(String label, SyntaxChunk[] syntaxChunks) {
 		this.label = label;
@@ -47,7 +49,7 @@ public abstract class Command {
 	}
 
 	public static String getCommandPrefix() {
-		return COMMAND_PREFIX;
+		return commandPrefix.getValue();
 	}
 	
 	public String getLabel() {

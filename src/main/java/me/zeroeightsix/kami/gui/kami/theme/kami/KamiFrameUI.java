@@ -14,6 +14,7 @@ import me.zeroeightsix.kami.gui.rgui.render.AbstractComponentUI;
 import me.zeroeightsix.kami.gui.rgui.render.font.FontRenderer;
 import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
 import me.zeroeightsix.kami.gui.rgui.util.Docking;
+import me.zeroeightsix.kami.util.Bind;
 import me.zeroeightsix.kami.util.ColourHolder;
 import me.zeroeightsix.kami.util.Wrapper;
 import org.lwjgl.opengl.GL11;
@@ -30,6 +31,10 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
 
     Component yLineComponent = null;
     Component xLineComponent = null;
+    Component centerXComponent = null;
+    Component centerYComponent = null;
+    boolean centerX = false;
+    boolean centerY = false;
     int xLineOffset = 0;
 
     private static final RootFontRenderer ff = new RootLargeFontRenderer();
@@ -123,6 +128,18 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
             glEnd();
         }
 
+        if (component == centerXComponent && centerX) {
+            glColor3f(0.86f, 0.03f, 1f);
+            glLineWidth(1f);
+            glBegin(GL_LINES);
+            {
+                double x = component.getWidth() / 2;
+                glVertex2d(x, -GUI.calculateRealPosition(component)[1]);
+                glVertex2d(x, Wrapper.getMinecraft().displayHeight);
+            }
+            glEnd();
+        }
+
         if (component.equals(yLineComponent)){
             glColor3f(.44f,.44f,.44f);
             glLineWidth(1f);
@@ -134,6 +151,18 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
             glEnd();
         }
 
+        if (component == centerYComponent && centerY) {
+            glColor3f(0.86f, 0.03f, 1f);
+            glLineWidth(1f);
+            glBegin(GL_LINES);
+            {
+                double y = component.getHeight() / 2;
+                glVertex2d(-GUI.calculateRealPosition(component)[0], y);
+                glVertex2d(Wrapper.getMinecraft().displayWidth, y);
+            }
+            glEnd();
+        }
+
         glDisable(GL_BLEND);
     }
 
@@ -141,6 +170,8 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
     public void handleMouseRelease(Frame component, int x, int y, int button) {
         yLineComponent = null;
         xLineComponent = null;
+        centerXComponent = null;
+        centerYComponent = null;
     }
 
     @Override
@@ -223,6 +254,7 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
         component.addPoof(new Frame.FrameDragPoof<Frame, Frame.FrameDragPoof.DragInfo>() {
             @Override
             public void execute(Frame component, DragInfo info) {
+                if (Bind.isShiftDown() || Bind.isAltDown() || Bind.isCtrlDown()) return;
                 int x = info.getX();
                 int y = info.getY();
                 yLineComponent = null;
@@ -233,15 +265,7 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
                 KamiGUI rootGUI = KamiMod.getInstance().getGuiManager();
                 for (Component c : rootGUI.getChildren()){
                     if (c.equals(component)) continue;
-                    /*// Top right
-                    int xDiff = Math.abs(c.getX() + c.getWidth() - x);
-                    int yDiff = Math.abs(c.getY() - y);
-                    if (xDiff < 4 && yDiff < 4){
-                        x = c.getX() + c.getWidth();
-                        y = c.getY();
-                    }
 
-                    // Top left*/
                     int yDiff = Math.abs(y - c.getY());
                     if (yDiff < 4){
                         y = c.getY();
@@ -277,13 +301,6 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
                         xLineOffset = 0;
                     }
 
-                    /*// Bottom
-                    xDiff = Math.abs(x - c.getX());
-                    yDiff = Math.abs(c.getY() + c.getHeight() - y);
-                    if (xDiff < 4 && yDiff < 4){
-                        x = c.getX();
-                        y = c.getY()+c.getHeight();
-                    }*/
                 }
 
                 if (x < 5) {
@@ -318,6 +335,41 @@ public class KamiFrameUI<T extends Frame> extends AbstractComponentUI<Frame> {
                         component.setDocking(Docking.BOTTOMLEFT);
                     else
                         component.setDocking(Docking.BOTTOM);
+                }
+
+                if (Math.abs(((x + component.getWidth() / 2) * DisplayGuiScreen.getScale() * 2) - Wrapper.getMinecraft().displayWidth) < 5) { // Component is center-aligned on the x axis
+                    xLineComponent = null;
+                    centerXComponent = component;
+                    centerX = true;
+                    x = (Wrapper.getMinecraft().displayWidth / (DisplayGuiScreen.getScale() * 2)) - component.getWidth() / 2;
+                    if (component.getDocking().isTop()) {
+                        component.setDocking(Docking.CENTERTOP);
+                    } else if (component.getDocking().isBottom()){
+                        component.setDocking(Docking.CENTERBOTTOM);
+                    } else {
+                        component.setDocking(Docking.CENTERVERTICAL);
+                    }
+                    ContainerHelper.setAlignment(component, AlignedComponent.Alignment.CENTER);
+                } else {
+                    centerX = false;
+                }
+
+                if (Math.abs(((y + component.getHeight() / 2) * DisplayGuiScreen.getScale() * 2) - Wrapper.getMinecraft().displayHeight) < 5) { // Component is center-aligned on the y axis
+                    yLineComponent = null;
+                    centerYComponent = component;
+                    centerY = true;
+                    y = (Wrapper.getMinecraft().displayHeight / (DisplayGuiScreen.getScale() * 2)) - component.getHeight() / 2;
+                    if (component.getDocking().isLeft()) {
+                        component.setDocking(Docking.CENTERLEFT);
+                    } else if (component.getDocking().isRight()) {
+                        component.setDocking(Docking.CENTERRIGHT);
+                    } else if (component.getDocking().isCenterHorizontal()) {
+                        component.setDocking(Docking.CENTER);
+                    } else {
+                        component.setDocking(Docking.CENTERHOIZONTAL);
+                    }
+                } else {
+                    centerY = false;
                 }
 
                 info.setX(x);

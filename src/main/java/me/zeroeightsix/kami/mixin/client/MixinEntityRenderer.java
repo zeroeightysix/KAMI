@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.misc.NoEntityTrace;
 import me.zeroeightsix.kami.module.modules.render.AntiFog;
+import me.zeroeightsix.kami.module.modules.render.Brightness;
 import me.zeroeightsix.kami.module.modules.render.NoHurtCam;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -45,13 +46,13 @@ public class MixinEntityRenderer {
 
     @Inject(method = "setupFog", at = @At(value = "HEAD"), cancellable = true)
     public void setupFog(int startCoords, float partialTicks, CallbackInfo callbackInfo) {
-        if (AntiFog.enabled() && AntiFog.mode == AntiFog.VisionMode.NOFOG)
+        if (AntiFog.enabled() && AntiFog.mode.getValue() == AntiFog.VisionMode.NOFOG)
             callbackInfo.cancel();
     }
 
     @Redirect(method = "setupFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;getBlockStateAtEntityViewpoint(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;F)Lnet/minecraft/block/state/IBlockState;"))
     public IBlockState getBlockStateAtEntityViewpoint(World worldIn, Entity entityIn, float p_186703_2_) {
-        if (AntiFog.enabled() && AntiFog.mode == AntiFog.VisionMode.AIR) return Blocks.AIR.defaultBlockState;
+        if (AntiFog.enabled() && AntiFog.mode.getValue() == AntiFog.VisionMode.AIR) return Blocks.AIR.defaultBlockState;
         return ActiveRenderInfo.getBlockStateAtEntityViewpoint(worldIn, entityIn, p_186703_2_);
     }
 
@@ -62,12 +63,12 @@ public class MixinEntityRenderer {
 
     @Redirect(method = "updateLightmap", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
     public boolean isPotionActive(EntityPlayerSP player, Potion potion) {
-        return (nightVision = ModuleManager.isModuleEnabled("Brightness")) || player.isPotionActive(potion);
+        return (nightVision = Brightness.shouldBeActive()) || player.isPotionActive(potion);
     }
 
     @Redirect(method = "updateLightmap", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;getNightVisionBrightness(Lnet/minecraft/entity/EntityLivingBase;F)F"))
     public float getNightVisionBrightnessMixin(EntityRenderer renderer, EntityLivingBase entity, float partialTicks) {
-        if (nightVision) return 1;
+        if (nightVision) return Brightness.getCurrentBrightness();
         return renderer.getNightVisionBrightness(entity, partialTicks);
     }
 

@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.module.modules.render;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,11 +20,10 @@ import static org.lwjgl.opengl.GL11.*;
 @Module.Info(name = "ESP", category = Module.Category.RENDER)
 public class ESP extends Module {
 
-    @Setting(name = "Mode")
-    private ESPMode mode = ESPMode.RECTANGLE;
-    @Setting(name = "Players") private boolean players = true;
-    @Setting(name = "Animals") private boolean animals = false;
-    @Setting(name = "Mobs") private boolean mobs = false;
+    private Setting<ESPMode> mode = register(Settings.e("Mode", ESPMode.RECTANGLE));
+    private Setting<Boolean> players = register(Settings.b("Players", true));
+    private Setting<Boolean> animals = register(Settings.b("Animals", false));
+    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
 
     public enum ESPMode {
         RECTANGLE
@@ -32,7 +32,7 @@ public class ESP extends Module {
     @Override
     public void onWorldRender(RenderEvent event) {
         if (Wrapper.getMinecraft().getRenderManager().options == null) return;
-        switch (mode) {
+        switch (mode.getValue()) {
             case RECTANGLE:
                 boolean isThirdPersonFrontal = Wrapper.getMinecraft().getRenderManager().options.thirdPersonView == 2;
                 float viewerYaw = Wrapper.getMinecraft().getRenderManager().playerViewY;
@@ -42,7 +42,7 @@ public class ESP extends Module {
                         .filter(entity -> mc.player != entity)
                         .map(entity -> (EntityLivingBase) entity)
                         .filter(entityLivingBase -> !entityLivingBase.isDead)
-                        .filter(entity -> (players && entity instanceof EntityPlayer) || (EntityUtil.isPassive(entity) ? animals : mobs))
+                        .filter(entity -> (players.getValue() && entity instanceof EntityPlayer) || (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue()))
                         .forEach(e -> {
                             GlStateManager.pushMatrix();
                             Vec3d pos = EntityUtil.getInterpolatedPos(e, event.getPartialTicks());

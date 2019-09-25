@@ -1,41 +1,43 @@
 package me.zeroeightsix.kami.module;
 
+import com.google.common.base.Converter;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
+import me.zeroeightsix.kami.gui.kami.KamiGUI;
 import me.zeroeightsix.kami.module.modules.movement.Sprint;
-import me.zeroeightsix.kami.setting.FieldConverter;
 import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.SettingsClass;
+import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.input.Keyboard;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 086 on 23/08/2017.
  */
-public class Module extends SettingsClass {
+public class Module {
 
-    private final String name = getAnnotation().name();
+    private final String originalName = getAnnotation().name();
+    private final Setting<String> name = register(Settings.s("Name", originalName));
     private final String description = getAnnotation().description();
     private final Category category = getAnnotation().category();
-    @Setting(name = "Bind", hidden = true, converter = BindsConverter.class)
-    private Bind bind = Bind.none();
-    @Setting(name = "Enabled", hidden = true)
-    private boolean enabled;
-    public boolean alwaysListening = false;
+    private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter()).build());
+    private Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
+    public boolean alwaysListening;
     protected static final Minecraft mc = Minecraft.getMinecraft();
+
+    public List<Setting> settingList = new ArrayList<>();
 
     public Module() {
         alwaysListening = getAnnotation().alwaysListening();
-
-        enabled = false;
-//        FMLCommonHandler.instance().bus().register(this);
-        initSettings();
+        registerAll(bind, enabled);
     }
 
     private Info getAnnotation() {
@@ -47,11 +49,20 @@ public class Module extends SettingsClass {
     public void onWorldRender(RenderEvent event) {}
 
     public Bind getBind() {
-        return bind;
+        return bind.getValue();
     }
 
     public String getBindName() {
-        return bind.toString();
+        return bind.getValue().toString();
+    }
+
+    public void setName(String name) {
+        this.name.setValue(name);
+        ModuleManager.updateLookup();
+    }
+
+    public String getOriginalName() {
+        return originalName;
     }
 
     public enum Category
@@ -66,7 +77,6 @@ public class Module extends SettingsClass {
 
         boolean hidden;
         String name;
-        private int bind;
 
         Category(String name, boolean hidden) {
             this.name = name;
@@ -92,7 +102,7 @@ public class Module extends SettingsClass {
     }
 
     public String getName() {
-        return name;
+        return name.getValue();
     }
 
     public String getDescription() {
@@ -104,7 +114,7 @@ public class Module extends SettingsClass {
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return enabled.getValue();
     }
 
     protected void onEnable() {}
@@ -115,14 +125,14 @@ public class Module extends SettingsClass {
     }
 
     public void enable() {
-        enabled = true;
+        enabled.setValue(true);
         onEnable();
         if (!alwaysListening)
             KamiMod.EVENT_BUS.subscribe(this);
     }
 
     public void disable() {
-        enabled = false;
+        enabled.setValue(false);
         onDisable();
         if (!alwaysListening)
             KamiMod.EVENT_BUS.unsubscribe(this);
@@ -133,7 +143,7 @@ public class Module extends SettingsClass {
     }
 
     public void setEnabled(boolean enabled) {
-        boolean prev = this.enabled;
+        boolean prev = this.enabled.getValue();
         if (prev != enabled)
             if (enabled)
                 enable();
@@ -156,33 +166,58 @@ public class Module extends SettingsClass {
      */
     public void destroy(){};
 
-    public static class BindsConverter implements FieldConverter {
-
-        public BindsConverter() {
-        }
-
-        @Override
-        public JsonElement toJson(StaticSetting setting) {
-            Bind bind = (Bind) setting.getValue();
-            if (bind.isEmpty()) return null;
-            JsonObject object = new JsonObject();
-            object.add("shift", new JsonPrimitive(bind.isShift()));
-            object.add("alt", new JsonPrimitive(bind.isAlt()));
-            object.add("ctrl", new JsonPrimitive(bind.isCtrl()));
-            object.add("key", new JsonPrimitive(bind.getKey()));
-            return object;
-        }
-
-        @Override
-        public Object fromJson(StaticSetting setting, JsonElement value) {
-            if (value == null || value.isJsonNull()) return Bind.none();
-            JsonObject object = value.getAsJsonObject();
-            boolean shift = object.get("shift").getAsBoolean();
-            boolean alt = object.get("alt").getAsBoolean();
-            boolean ctrl = object.get("ctrl").getAsBoolean();
-            int key = object.get("key").getAsInt();
-            return new Bind(ctrl, alt, shift, key);
+    protected void registerAll(Setting... settings) {
+        for (Setting setting : settings) {
+            register(setting);
         }
     }
 
+    protected <T> Setting<T> register(Setting<T> setting) {
+        if (settingList == null) settingList = new ArrayList<>();
+        settingList.add(setting);
+        return SettingBuilder.register(setting, "modules." + originalName);
+    }
+
+    protected <T> Setting<T> register(SettingBuilder<T> builder) {
+        if (settingList == null) settingList = new ArrayList<>();
+        Setting<T> setting = builder.buildAndRegister("modules." + name);
+        settingList.add(setting);
+        return setting;
+    }
+
+
+    private class BindConverter extends Converter<Bind, JsonElement> {
+        @Override
+        protected JsonElement doForward(Bind bind) {
+            return new JsonPrimitive(bind.toString());
+        }
+
+        @Override
+        protected Bind doBackward(JsonElement jsonElement) {
+            String s = jsonElement.getAsString();
+            if (s.equalsIgnoreCase("None")) return Bind.none();
+            boolean ctrl = false, alt = false, shift = false;
+
+            if (s.startsWith("Ctrl+")) {
+                ctrl = true;
+                s = s.substring(5);
+            }
+            if (s.startsWith("Alt+")) {
+                alt = true;
+                s = s.substring(4);
+            }
+            if (s.startsWith("Shift+")) {
+                shift = true;
+                s = s.substring(6);
+            }
+
+            int key = -1;
+            try {
+                key = Keyboard.getKeyIndex(s.toUpperCase());
+            } catch (Exception ignored) {}
+
+            if (key == 0) return Bind.none();
+            return new Bind(ctrl, alt, shift, key);
+        }
+    }
 }

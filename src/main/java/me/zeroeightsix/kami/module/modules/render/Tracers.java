@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.module.modules.render;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourUtils;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
@@ -20,12 +21,12 @@ import org.lwjgl.opengl.GL11;
 @Module.Info(name = "Tracers", description = "Draws lines to other living entities", category = Module.Category.RENDER)
 public class Tracers extends Module {
 
-    @Setting(name = "Players") private boolean players = true;
-    @Setting(name = "Friends") private boolean friends = true;
-    @Setting(name = "Animals") private boolean animals = false;
-    @Setting(name = "Mobs") private boolean mobs = false;
-    @Setting(name = "Range") private double range = 200;
-    @Setting(name = "Opacity", min = 0, max = 1) private float opacity = 1f;
+    private Setting<Boolean> players = register(Settings.b("Players", true));
+    private Setting<Boolean> friends = register(Settings.b("Friends", true));
+    private Setting<Boolean> animals = register(Settings.b("Animals", false));
+    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
+    private Setting<Double> range = register(Settings.d("Range", 200));
+    private Setting<Float> opacity = register(Settings.floatBuilder("Opacity").withRange(0f, 1f).withValue(1f));
 
     HueCycler cycler = new HueCycler(3600);
 
@@ -35,18 +36,18 @@ public class Tracers extends Module {
         Minecraft.getMinecraft().world.loadedEntityList.stream()
                 .filter(EntityUtil::isLiving)
                 .filter(entity -> !EntityUtil.isFakeLocalPlayer(entity))
-                .filter(entity -> (entity instanceof EntityPlayer ? players && mc.player!=entity : (EntityUtil.isPassive(entity) ? animals : mobs)))
-                .filter(entity -> mc.player.getDistance(entity)<range)
+                .filter(entity -> (entity instanceof EntityPlayer ? players.getValue() && mc.player!=entity : (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())))
+                .filter(entity -> mc.player.getDistance(entity)<range.getValue())
                 .forEach(entity -> {
                     int colour = getColour(entity);
                     if (colour == ColourUtils.Colors.RAINBOW) {
-                        if (!friends) return;
+                        if (!friends.getValue()) return;
                         colour = cycler.current();
                     }
                     final float r = ((colour >>> 16) & 0xFF)/255f;
                     final float g = ((colour >>> 8) & 0xFF)/255f;
                     final float b = (colour & 0xFF)/255f;
-                    drawLineToEntity(entity, r, g, b, opacity);
+                    drawLineToEntity(entity, r, g, b, opacity.getValue());
                 });
         GlStateManager.popMatrix();
     }

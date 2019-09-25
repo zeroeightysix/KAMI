@@ -5,9 +5,9 @@ import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 public class DependantParser extends AbstractParser {
 
     int dependantIndex;
-    private Dependancy dependancy;
+    private Dependency dependancy;
 
-    public DependantParser(int dependantIndex, Dependancy dependancy) {
+    public DependantParser(int dependantIndex, Dependency dependancy) {
         this.dependantIndex = dependantIndex;
         this.dependancy = dependancy;
     }
@@ -27,11 +27,11 @@ public class DependantParser extends AbstractParser {
         return dependancy.feed(values[dependantIndex]);
     }
 
-    public static class Dependancy {
+    public static class Dependency {
         String[][] map = new String[][]{};
         String escape;
 
-        public Dependancy(String[][] map, String escape) {
+        public Dependency(String[][] map, String escape) {
             this.map = map;
             this.escape = escape;
         }

@@ -18,7 +18,7 @@ public class CommandsCommand extends Command {
     @Override
     public void call(String[] args) {
         KamiMod.getInstance().getCommandManager().getCommands().stream().sorted(Comparator.comparing(command -> command.getLabel())).forEach(command ->
-            Command.sendChatMessage("&7" + Command.COMMAND_PREFIX + command.getLabel() + "&r ~ &8" + command.getDescription())
+            Command.sendChatMessage("&7" + Command.getCommandPrefix() + command.getLabel() + "&r ~ &8" + command.getDescription())
         );
     }
 }

@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.module.ModuleManager;
-import me.zeroeightsix.kami.module.modules.movement.BoatSpeed;
+import me.zeroeightsix.kami.module.modules.movement.EntitySpeed;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.model.ModelBoat;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,8 +19,8 @@ public class MixinModelBoat {
 
     @Inject(method = "render", at = @At("HEAD"))
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, CallbackInfo info) {
-        if (Wrapper.getPlayer().getRidingEntity()==entityIn && ModuleManager.isModuleEnabled("BoatSpeed")) {
-            GlStateManager.color(1,1,1, BoatSpeed.getOpacity());
+        if (Wrapper.getPlayer().getRidingEntity() == entityIn && ModuleManager.isModuleEnabled("EntitySpeed")) {
+            GlStateManager.color(1, 1, 1, EntitySpeed.getOpacity());
             GlStateManager.enableBlend();
         }
     }
