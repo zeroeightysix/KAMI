@@ -91,9 +91,8 @@ Note: Any argument other then `build` assumes you downloaded KAMI to a nested fo
 
 You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
 ```
-gradlew.bat <args>
+gradlew.bat build
 ```
-Possible arguments on Windows are `build`.
 
 To copy on windows run `autocopy.bat`
 
