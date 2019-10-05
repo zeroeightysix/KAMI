@@ -47,7 +47,7 @@ By using the command `prefix <prefix>` without the `<>`(by default, `. <newprefi
 
 Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
-If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
+If you experience an issue and it's not listed there, please [open a new issue](../../issues/new/choose) and a contributor will help you further.
 
 ## Installing
 
