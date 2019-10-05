@@ -2,7 +2,8 @@
 
 ##### please note the current build status is based on the master branch, which won't be updated as often. I will replace this with my own or with a manual build status as soon as I can (05/10/19). 
 [![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=master)](https://travis-ci.com/zeroeightysix/KAMI)
-[![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/S-B99/kami/issues)
+[![Issues Master](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
+[![Issues](https://img.shields.io/github/issues/S-B99/kami.svg)](https://github.com/S-B99/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
 A Minecraft utility mod for anarchy servers.
