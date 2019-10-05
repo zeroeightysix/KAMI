@@ -231,6 +231,11 @@ index 4f8ed09..0effb41 100644
  zipStorePath=wrapper/dists
 -distributionUrl=https\://services.gradle.org/distributions/gradle-4.8.1-bin.zip
 +distributionUrl=https\://services.gradle.org/distributions/gradle-2.14.1-bin.zip
+
+
+############ finished upto here as of commit 5:44pm
+
+
 diff --git a/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java b/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java
 index 33cc14d..cef03b0 100644
 --- a/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java
