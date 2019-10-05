@@ -69,7 +69,15 @@ You can build by running these commands (without these <>) in a terminal with th
 ```
 ./gradlew <args>
 ```
-Possible arguments are `build`, `mkdir`, `rmOld` and `copy`, in that order. 
+
+Possible arguments:
+```
+build
+mkdir
+rmOld
+copy
+```
+If you use more then one then it must be in that order.
 
 Build is required, mkdir makes the mods/1.12.2 directory, rmOld removes old versions of KAMI in that directory, and copy copies the build release to the mods/1.12.2 directory. 
 
