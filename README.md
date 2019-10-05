@@ -63,20 +63,6 @@ KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](h
 5. Place the `.jar` file in your mods directory.
 
 ## Building
-#### Windows
-
-You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
-```
-gradlew.bat <args>
-```
-Possible arguments on Windows are `build`.
-
-To copy on windows run `autocopy.bat`
-
-If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\1.12.2` folder of a minecraft instance that has forge installed.
-
-Note: This assumes your minecraft folder is in the default location under your home folder.
-
 #### Linux
 
 You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd ~/Downloads/KAMI`)
@@ -92,6 +78,20 @@ If you prefer copying it manually, find a file in `build/libs` called `KAMI-<min
 Note: This assumes your minecraft folder is in the default location under your home folder.
 
 Note: Any argument other then `build` assumes you downloaded KAMI to a nested folder inside your home folder. For example `~/Downloads/KAMI` or `~/Documents/KAMI`
+
+#### Windows
+
+You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
+```
+gradlew.bat <args>
+```
+Possible arguments on Windows are `build`.
+
+To copy on windows run `autocopy.bat`
+
+If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\1.12.2` folder of a minecraft instance that has forge installed.
+
+Note: This assumes your minecraft folder is in the default location under your home folder.
 
 ## Contributing
 
