@@ -10,6 +10,9 @@ See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalen
 Please note Baritone is no longer included. Download the standalone jar [from here](https://github.com/cabaletta/baritone/releases).
 
 This is by no means a finished project and is still in rapid development.
+## Status
+
+This is currently in slowed development. Maintainance and further development is planned in the next couple months
 
 ## Preview
 
