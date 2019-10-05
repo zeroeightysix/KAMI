@@ -57,7 +57,7 @@ KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](h
    * By **building** it: see [building](#building).
 5. Place the `.jar` file in your mods directory.
 
-### Building
+## Building
 #### Windows
 You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
 ```
@@ -107,6 +107,9 @@ Import KAMI into your IDE of choice. If you use IntelliJ, import from the `build
 If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
 
 ## Thank you
+
+[zeroeightysix](https://github.com/zeroeightysix) for the original [KAMI](https://github.com/zeroeightysix/KAMI)
+
 [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
 
 [ronmamo](https://github.com/ronmamo/) for [Reflections](https://github.com/ronmamo/reflections)
