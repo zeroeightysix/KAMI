@@ -25,19 +25,6 @@ This is currently in slowed development. Maintainance and further development is
 
 </details>
 
-## Installing
-
-KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](https://files.minecraftforge.net/).
-1. Install forge
-2. Navigate to your `.minecraft` directory.
-   * **Windows**: `%appdata%/.minecraft`
-   * **Linux**: `~/.minecraft`
-3. Navigate to the `mods` directory. If it doesn't exist, create it.
-4. Obtain the KAMI `.jar` file.
-   * By **downloading** it: see [releases](../../releases)
-   * By **building** it: see [building](#building).
-5. Place the `.jar` file in your mods directory.
-
 ## How do I
 
 ##### Open the GUI
@@ -57,25 +44,18 @@ Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
 If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
 
-## Contributing
+## Installing
 
-You are free to clone, modify KAMI and make pull requests as you wish. To set up your development environment, make use of the following commands:
-
-```
-git clone https://github.com/zeroeightysix/KAMI/
-cd KAMI
-```
-
-On GNU/Linux, run `chmod +x gradlew` and for the following commands use `./gradlew` instead of `gradlew.bat`
-
-Of-course you can also use a Gradle installation if you for some reason want another version of gradle
-
-```
-gradlew.bat setupDecompWorkspace
-```
-Import KAMI into your IDE of choice. If you use IntelliJ, import from the `build.gradle` file and run `gradlew.bat genIntellijRuns`
-
-If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
+KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](https://files.minecraftforge.net/).
+1. Install forge
+2. Navigate to your `.minecraft` directory.
+   * **Windows**: `%appdata%/.minecraft`
+   * **Linux**: `~/.minecraft`
+3. Navigate to the `mods` directory. If it doesn't exist, create it.
+4. Obtain the KAMI `.jar` file.
+   * By **downloading** it: see [releases](../../releases)
+   * By **building** it: see [building](#building).
+5. Place the `.jar` file in your mods directory.
 
 ### Building
 #### Windows
@@ -105,6 +85,26 @@ If you prefer copying it manually, find a file in `build/libs` called `KAMI-<min
 Note: This assumes your minecraft folder is in the default location under your home folder.
 
 Note: Any argument other then `build` assumes you downloaded KAMI to a nested folder inside your home folder. For example `~/Downloads/KAMI` or `~/Documents/KAMI`
+
+## Contributing
+
+You are free to clone, modify KAMI and make pull requests as you wish. To set up your development environment, make use of the following commands:
+
+```
+git clone https://github.com/zeroeightysix/KAMI/
+cd KAMI
+```
+
+On GNU/Linux, run `chmod +x gradlew` and for the following commands use `./gradlew` instead of `gradlew.bat`
+
+Of-course you can also use a Gradle installation if you for some reason want another version of gradle
+
+```
+gradlew.bat setupDecompWorkspace
+```
+Import KAMI into your IDE of choice. If you use IntelliJ, import from the `build.gradle` file and run `gradlew.bat genIntellijRuns`
+
+If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
 
 ## Thank you
 [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
