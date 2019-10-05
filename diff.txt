@@ -1,0 +1,1359 @@
+diff --git a/README.md b/README.md
+index e477b37..9494c9e 100644
+--- a/README.md
++++ b/README.md
+@@ -1,11 +1,22 @@
+ # KAMI
++
++##### please note the current build status is based on the master branch, which won't be updated as often. I will replace this with my own or with a manual build status as soon as I can (05/10/19). 
+ [![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=master)](https://travis-ci.com/zeroeightysix/KAMI)
+-[![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
++[![Issues Master](https://img.shields.io/github/issues/zeroeightysix/KAMI?label=issues%20master)](https://github.com/zeroeightysix/kami/issues)
++[![Issues](https://img.shields.io/github/issues/S-B99/kami.svg)](https://github.com/S-B99/kami/issues)
+ [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
+ 
+-A minecraft utility mod for anarchy servers.
++A Minecraft utility mod for anarchy servers.
++
++See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as it was sometimes used it as reference. Forgehax may also be missing some KAMI features. Client compatibility between these two should be fine, but please mention that you're using other clients if you do have an issue.
++
++Please note Baritone is no longer included. Download the standalone jar [from here](https://github.com/cabaletta/baritone/releases).
++
++This is by no means a finished project, nor is it a "cheat" or "hack" for anything, it is a *utility* mod.
+ 
+-This is by no means a finished project and is still in rapid development.
++## Status
++
++This is currently in slowed development. Maintainance and further development is planned in the next couple months
+ 
+ ## Preview
+ 
+@@ -18,6 +29,26 @@ This is by no means a finished project and is still in rapid development.
+ 
+ </details>
+ 
++## How do I
++
++##### Open the GUI
++Press Y.
++
++##### Use commands
++The default prefix is `.`. Commands are used through chat, use `.commands` for a list of commands.
++
++##### Bind modules
++Run `.bind <module> <key>`.
++
++##### Change command prefix
++By using the command `prefix <prefix>` without the `<>`(by default, `. <newprefix>`) or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
++
++## Troubleshooting
++
++Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
++
++If you experience an issue and it's not listed there, please [open a new issue](../../issues/new/choose) and a contributor will help you further.
++
+ ## Installing
+ 
+ KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](https://files.minecraftforge.net/).
+@@ -31,24 +62,43 @@ KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](h
+    * By **building** it: see [building](#building).
+ 5. Place the `.jar` file in your mods directory.
+ 
+-## How do I
++## Building
++#### Linux
+ 
+-##### Open the GUI
+-Press Y.
++You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd ~/Downloads/KAMI`)
++```
++./gradlew <args>
++```
+ 
+-##### Use commands
+-The default prefix is `.`. Commands are used through chat, use `.commands` for a list of commands.
++Possible arguments:
++```
++build
++mkdir
++rmOld
++copy
++```
++If you use more then one then it must be in that order.
+ 
+-##### Bind modules
+-Run `.bind <module> <key>`.
++Build is required, mkdir makes the mods/1.12.2 directory, rmOld removes old versions of KAMI in that directory, and copy copies the build release to the mods/1.12.2 directory. 
+ 
+-##### Change command prefix
+-By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
++If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods/1.12.2` folder of a minecraft instance that has forge installed.
+ 
+-## Troubleshooting
+-Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
++Note: This assumes your minecraft folder is in the default location under your home folder.
++
++Note: Any argument other then `build` assumes you downloaded KAMI to a nested folder inside your home folder. For example `~/Downloads/KAMI` or `~/Documents/KAMI`
++
++#### Windows
++
++You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
++```
++gradlew.bat build
++```
++
++To copy on windows run `autocopy.bat`
+ 
+-If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
++If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\1.12.2` folder of a minecraft instance that has forge installed.
++
++Note: This assumes your minecraft folder is in the default location under your home folder.
+ 
+ ## Contributing
+ 
+@@ -70,27 +120,10 @@ Import KAMI into your IDE of choice. If you use IntelliJ, import from the `build
+ 
+ If you do not wish to run from an IDE, use `gradlew.bat runClient` to run KAMI.
+ 
+-### Building
+-#### Windows
+-You can build by running `autobuild.bat` and then `autocopy.bat`, or if you prefer the manual way, do the following:
++## Thank you
+ 
+-```
+-gradlew.bat build
+-cd build/libs
+-```
+-To copy the release  jar in `build/libs` you can run `autocopy.bat` or, if you prefer doing it manually, find a file `KAMI-<minecraftVersion>-<kamiVersion>-release.jar` which you can copy to the `mods` folder of a minecraft instance that has forge installed.
+-#### Linux
+-```
+-git clone https://github.com/zeroeightysix/KAMI.git
+-cd KAMI
+-chmod +x auto*
+-./autobuild
+-mkdir ~/.minecraft/mods
+-./autocopy
+-```
+-Note: This assumes your minecraft folder is in the default location under your home folder.
++[zeroeightysix](https://github.com/zeroeightysix) for the original [KAMI](https://github.com/zeroeightysix/KAMI)
+ 
+-## Thank you
+ [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
+ 
+ [ronmamo](https://github.com/ronmamo/) for [Reflections](https://github.com/ronmamo/reflections)
+diff --git a/autobuild b/autobuild
+deleted file mode 100644
+index 8187595..0000000
+--- a/autobuild
++++ /dev/null
+@@ -1 +0,0 @@
+-./gradlew build
+diff --git a/autobuild.bat b/autobuild.bat
+deleted file mode 100644
+index 4691619..0000000
+--- a/autobuild.bat
++++ /dev/null
+@@ -1 +0,0 @@
+-start gradlew.bat build
+\ No newline at end of file
+diff --git a/autocopy b/autocopy
+deleted file mode 100644
+index edd57e8..0000000
+--- a/autocopy
++++ /dev/null
+@@ -1,4 +0,0 @@
+-mkdir ~/.minecraft/mods/
+-mkdir ~/.minecraft/mods/1.12.2/
+-rm ~/.minecraft/mods/1.12.2/KAMI*
+-cp build/libs/*-release.jar ~/.minecraft/mods/1.12.2/
+diff --git a/build.gradle b/build.gradle
+index a9e393f..db07f44 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -1,3 +1,31 @@
++// make folders
++
++task mkdir {
++    group = "kami"
++    doLast {
++        mkdir System.getProperty("user.home") + "/.minecraft/mods/1.12.2"
++    }
++}
++
++// delete old versions
++
++task rmOld(type: Delete) {
++    group = "kami"
++    delete fileTree(System.getProperty("user.home") + "/.minecraft/mods/1.12.2").matching {
++        include "KAMI*.jar"
++    }
++}
++
++// copy file
++
++task copy(type: Copy) {
++    group = "kami"
++    from file("build/libs/KAMI-b9-release.jar")
++    into file(System.getProperty("user.home") + "/.minecraft/mods/1.12.2")
++}
++
++// forge's stuff 
++
+ buildscript {
+     repositories {
+         jcenter()
+@@ -135,4 +163,4 @@ jar {
+     }
+ }
+ 
+-build.dependsOn(shadowJar)
+\ No newline at end of file
++build.dependsOn(shadowJar)
+diff --git a/gradle.properties b/gradle.properties
+index d901cf0..e3d12e1 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,4 +6,4 @@ modVersion=b9
+ modBaseName=kami
+ forgeVersion=1.12.2-14.23.0.2531
+ #mcpVersion=snapshot_20170605
+-mcpVersion=snapshot_20180814
+\ No newline at end of file
++mcpVersion=snapshot_20171003
+\ No newline at end of file
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index 4f8ed09..0effb41 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -3,4 +3,4 @@ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-4.8.1-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-2.14.1-bin.zip
+diff --git a/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java b/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java
+index 33cc14d..cef03b0 100644
+--- a/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java
++++ b/src/main/java/me/zeroeightsix/kami/command/commands/SetCommand.java
+@@ -5,7 +5,7 @@ import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
+ import me.zeroeightsix.kami.command.syntax.parsers.ModuleParser;
+ import me.zeroeightsix.kami.module.Module;
+ import me.zeroeightsix.kami.module.ModuleManager;
+-import me.zeroeightsix.kami.setting.ISettingUnknown;
++import me.zeroeightsix.kami.setting.Named;
+ import me.zeroeightsix.kami.setting.Setting;
+ 
+ import java.util.Optional;
+@@ -38,7 +38,7 @@ public class SetCommand extends Command {
+         }
+ 
+         if (args[1] == null) {
+-            String settings = String.join(", ",  m.settingList.stream().map(setting -> setting.getName()).collect(Collectors.toList()));
++            String settings = String.join(", ",  m.settingList.stream().filter(setting -> setting instanceof Named).map(setting -> ((Named) setting).getName()).collect(Collectors.toList()));
+             if (settings.isEmpty())
+                 Command.sendChatMessage("Module &b" + m.getName() + "&r has no settings.");
+             else {
+@@ -49,22 +49,22 @@ public class SetCommand extends Command {
+             return;
+         }
+ 
+-        Optional<Setting> optionalSetting = m.settingList.stream().filter(setting1 -> setting1.getName().equalsIgnoreCase(args[1])).findFirst();
++        Optional<Setting> optionalSetting = m.settingList.stream().filter(setting1 -> setting1 instanceof Named).filter(setting1 -> ((Named) setting1).getName().equalsIgnoreCase(args[1])).findFirst();
+         if (!optionalSetting .isPresent()) {
+             Command.sendChatMessage("Unknown setting &b" + args[1] + "&r in &b" + m.getName() + "&r!");
+             return;
+         }
+ 
+-        ISettingUnknown setting = optionalSetting.get();
++        Setting setting = optionalSetting.get();
+ 
+         if (args[2] == null) {
+-            Command.sendChatMessage("&b" + setting.getName() + "&r is a &3" + setting.getValueClass().getSimpleName() + "&r. Its current value is &3" + setting.getValueAsString());
++            Command.sendChatMessage("&b" + ((Named) setting).getName() + "&r is a &3" + setting.getValue().getClass().getSimpleName() + "&r. Its current value is &3" + setting.getValue());
+             return;
+         }
+ 
+         try {
+-            setting.setValueFromString(args[2]);
+-            Command.sendChatMessage("Set &b" + setting.getName() + "&r to &3" + args[2] + "&r.");
++            setting.setValue(args[2]);
++            Command.sendChatMessage("Set &b" + ((Named) setting).getName() + "&r to &3" + args[2] + "&r.");
+         } catch (Exception e) {
+             e.printStackTrace();
+             Command.sendChatMessage("Unable to set value! &6" + e.getMessage());
+diff --git a/src/main/java/me/zeroeightsix/kami/command/commands/SettingsCommand.java b/src/main/java/me/zeroeightsix/kami/command/commands/SettingsCommand.java
+index 1bdae9a..0438812 100644
+--- a/src/main/java/me/zeroeightsix/kami/command/commands/SettingsCommand.java
++++ b/src/main/java/me/zeroeightsix/kami/command/commands/SettingsCommand.java
+@@ -5,6 +5,7 @@ import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
+ import me.zeroeightsix.kami.command.syntax.parsers.ModuleParser;
+ import me.zeroeightsix.kami.module.Module;
+ import me.zeroeightsix.kami.module.ModuleManager;
++import me.zeroeightsix.kami.setting.Named;
+ import me.zeroeightsix.kami.setting.Setting;
+ import me.zeroeightsix.kami.setting.impl.EnumSetting;
+ 
+@@ -37,7 +38,7 @@ public class SettingsCommand extends Command {
+         String[] result = new String[settings.size()];
+         for (int i = 0; i < settings.size(); i++) {
+             Setting setting = settings.get(i);
+-            result[i] = "&b" + setting.getName() + "&3(=" + setting.getValue() + ")  &ftype: &3" + setting.getValue().getClass().getSimpleName();
++            result[i] = "&b" + (setting instanceof Named ? (((Named) setting).getName()) : "Unnamed Setting") + "&3(=" + setting.getValue() + ")  &ftype: &3" + setting.getValue().getClass().getSimpleName();
+ 
+             if (setting instanceof EnumSetting){
+                 result[i] += "  (";
+diff --git a/src/main/java/me/zeroeightsix/kami/command/syntax/parsers/ValueParser.java b/src/main/java/me/zeroeightsix/kami/command/syntax/parsers/ValueParser.java
+index 570c8d1..ad11eac 100644
+--- a/src/main/java/me/zeroeightsix/kami/command/syntax/parsers/ValueParser.java
++++ b/src/main/java/me/zeroeightsix/kami/command/syntax/parsers/ValueParser.java
+@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.command.syntax.parsers;
+ import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
+ import me.zeroeightsix.kami.module.Module;
+ import me.zeroeightsix.kami.module.ModuleManager;
++import me.zeroeightsix.kami.setting.Named;
+ import me.zeroeightsix.kami.setting.Setting;
+ 
+ import java.util.HashMap;
+@@ -25,14 +26,14 @@ public class ValueParser extends AbstractParser {
+         HashMap<String, Setting> possibilities = new HashMap<>();
+ 
+         for (Setting v : m.settingList){
+-            if (v.getName().toLowerCase().startsWith(chunkValue.toLowerCase()))
+-                possibilities.put(v.getName(), v);
++            if (v instanceof Named && ((Named) v).getName().toLowerCase().startsWith(chunkValue.toLowerCase()))
++                possibilities.put(((Named) v).getName(), v);
+         }
+ 
+         if (possibilities.isEmpty()) return "";
+ 
+         TreeMap<String, Setting> p = new TreeMap<>(possibilities);
+         Setting aV = p.firstEntry().getValue();
+-        return aV.getName().substring(chunkValue.length());
++        return ((Named) aV).getName().substring(chunkValue.length());
+     }
+ }
+diff --git a/src/main/java/me/zeroeightsix/kami/gui/kami/KamiGUI.java b/src/main/java/me/zeroeightsix/kami/gui/kami/KamiGUI.java
+index 99c0457..13ace80 100644
+--- a/src/main/java/me/zeroeightsix/kami/gui/kami/KamiGUI.java
++++ b/src/main/java/me/zeroeightsix/kami/gui/kami/KamiGUI.java
+@@ -1,6 +1,5 @@
+ package me.zeroeightsix.kami.gui.kami;
+ 
+-import com.mojang.realmsclient.gui.ChatFormatting;
+ import me.zeroeightsix.kami.KamiMod;
+ import me.zeroeightsix.kami.command.Command;
+ import me.zeroeightsix.kami.gui.kami.component.ActiveModules;
+@@ -25,7 +24,6 @@ import me.zeroeightsix.kami.util.Pair;
+ import me.zeroeightsix.kami.util.Wrapper;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.entity.Entity;
+-import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.item.*;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.projectile.EntityEgg;
+@@ -34,8 +32,6 @@ import net.minecraft.entity.projectile.EntityWitherSkull;
+ import net.minecraft.util.text.TextFormatting;
+ 
+ import javax.annotation.Nonnull;
+-import java.math.RoundingMode;
+-import java.text.DecimalFormat;
+ import java.util.*;
+ import java.util.stream.Collectors;
+ 
+@@ -218,9 +214,6 @@ public class KamiGUI extends GUI {
+ 
+         frame = new Frame(getTheme(), new Stretcherlayout(1), "Text Radar");
+         Label list = new Label("");
+-        DecimalFormat dfHealth = new DecimalFormat("#.#");
+-        dfHealth.setRoundingMode(RoundingMode.HALF_UP);
+-        StringBuilder healthSB = new StringBuilder();
+         list.addTickListener(() -> {
+             if (!list.isVisible()) return;
+             list.setText("");
+@@ -233,22 +226,7 @@ public class KamiGUI extends GUI {
+             Map<String, Integer> players = new HashMap<>();
+             for (Entity e : entityList) {
+                 if (e.getName().equals(mc.player.getName())) continue;
+-                String posString = (e.posY > mc.player.posY ? ChatFormatting.DARK_GREEN + "+" : (e.posY == mc.player.posY ? " " : ChatFormatting.DARK_RED + "-"));
+-                float hpRaw = ((EntityLivingBase) e).getHealth() + ((EntityLivingBase) e).getAbsorptionAmount();
+-                String hp = dfHealth.format(hpRaw);
+-                healthSB.append(Command.SECTIONSIGN());
+-                if (hpRaw >= 20) {
+-                    healthSB.append("a");
+-                } else if (hpRaw >= 10) {
+-                    healthSB.append("e");
+-                } else if (hpRaw >= 5) {
+-                    healthSB.append("6");
+-                } else {
+-                    healthSB.append("c");
+-                }
+-                healthSB.append(hp);
+-                players.put(ChatFormatting.GRAY + posString + " " + healthSB.toString() + " " + ChatFormatting.GRAY + e.getName(), (int) mc.player.getDistance(e));
+-                healthSB.setLength(0);
++                players.put(e.getName() + " " + (e.posY > mc.player.posY ? "(+)" : (e.posY == mc.player.posY ? "(=)" : "(-)")), (int) mc.player.getDistance(e));
+             }
+ 
+             if (players.isEmpty()) {
+diff --git a/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java b/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java
+index 7c39277..b70d3d0 100644
+--- a/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java
++++ b/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java
+@@ -7,6 +7,8 @@ import me.zeroeightsix.kami.gui.rgui.component.use.CheckButton;
+ import me.zeroeightsix.kami.gui.rgui.component.use.Slider;
+ import me.zeroeightsix.kami.gui.rgui.render.theme.Theme;
+ import me.zeroeightsix.kami.module.Module;
++import me.zeroeightsix.kami.setting.AbstractSetting;
++import me.zeroeightsix.kami.setting.Named;
+ import me.zeroeightsix.kami.setting.Setting;
+ import me.zeroeightsix.kami.setting.impl.BooleanSetting;
+ import me.zeroeightsix.kami.setting.impl.EnumSetting;
+@@ -49,8 +51,8 @@ public class SettingsPanel extends OrganisedContainer {
+         }
+         if (!module.settingList.isEmpty()) {
+             for (Setting setting : module.settingList) {
+-                if (!setting.isVisible()) continue;
+-                String name = setting.getName();
++                if (!(setting instanceof Named) || ((setting instanceof AbstractSetting) && !setting.isVisible())) continue;
++                String name = ((Named) setting).getName();
+                 boolean isNumber = setting instanceof NumberSetting;
+                 boolean isBoolean = setting instanceof BooleanSetting;
+                 boolean isEnum = setting instanceof EnumSetting;
+diff --git a/src/main/java/me/zeroeightsix/kami/mixin/client/MixinBlockSoulSand.java b/src/main/java/me/zeroeightsix/kami/mixin/client/MixinBlockSoulSand.java
+index 0cd6e4e..3ecda93 100644
+--- a/src/main/java/me/zeroeightsix/kami/mixin/client/MixinBlockSoulSand.java
++++ b/src/main/java/me/zeroeightsix/kami/mixin/client/MixinBlockSoulSand.java
+@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ @Mixin(BlockSoulSand.class)
+ public class MixinBlockSoulSand {
+ 
+-    @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
++    @Inject(method = "onEntityCollidedWithBlock", at = @At("HEAD"), cancellable = true)
+     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn, CallbackInfo info) {
+         // If noslowdown is on, just don't do anything else in this method (slow the player)
+         if (ModuleManager.isModuleEnabled("NoSlowDown")) info.cancel();
+diff --git a/src/main/java/me/zeroeightsix/kami/mixin/client/MixinMinecraft.java b/src/main/java/me/zeroeightsix/kami/mixin/client/MixinMinecraft.java
+index 6bc738a..f3c6bb4 100644
+--- a/src/main/java/me/zeroeightsix/kami/mixin/client/MixinMinecraft.java
++++ b/src/main/java/me/zeroeightsix/kami/mixin/client/MixinMinecraft.java
+@@ -39,7 +39,7 @@ public class MixinMinecraft {
+     @Shadow
+     boolean skipRenderWorld;
+     @Shadow
+-    SoundHandler soundHandler;
++    SoundHandler mcSoundHandler;
+ 
+     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
+     public void displayGuiScreen(GuiScreen guiScreenIn, CallbackInfo info) {
+@@ -96,7 +96,7 @@ public class MixinMinecraft {
+         }
+         else
+         {
+-            this.soundHandler.resumeSounds();
++            this.mcSoundHandler.resumeSounds();
+             Minecraft.getMinecraft().setIngameFocus();
+         }
+ 
+diff --git a/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java b/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java
+index 782cfbe..a19d8ce 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java
++++ b/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java
+@@ -65,9 +65,9 @@ public class ModuleManager {
+     }
+ 
+     public static void onWorldRender(RenderWorldLastEvent event) {
+-        Minecraft.getMinecraft().profiler.startSection("kami");
++        Minecraft.getMinecraft().mcProfiler.startSection("kami");
+ 
+-        Minecraft.getMinecraft().profiler.startSection("setup");
++        Minecraft.getMinecraft().mcProfiler.startSection("setup");
+ //        GlStateManager.pushMatrix();
+         GlStateManager.disableTexture2D();
+         GlStateManager.enableBlend();
+@@ -81,15 +81,15 @@ public class ModuleManager {
+ 
+         RenderEvent e = new RenderEvent(KamiTessellator.INSTANCE, renderPos);
+         e.resetTranslation();
+-        Minecraft.getMinecraft().profiler.endSection();
++        Minecraft.getMinecraft().mcProfiler.endSection();
+ 
+         modules.stream().filter(module -> module.alwaysListening || module.isEnabled()).forEach(module -> {
+-            Minecraft.getMinecraft().profiler.startSection(module.getName());
++            Minecraft.getMinecraft().mcProfiler.startSection(module.getName());
+             module.onWorldRender(e);
+-            Minecraft.getMinecraft().profiler.endSection();
++            Minecraft.getMinecraft().mcProfiler.endSection();
+         });
+ 
+-        Minecraft.getMinecraft().profiler.startSection("release");
++        Minecraft.getMinecraft().mcProfiler.startSection("release");
+         GlStateManager.glLineWidth(1f);
+ 
+         GlStateManager.shadeModel(GL11.GL_FLAT);
+@@ -100,9 +100,9 @@ public class ModuleManager {
+         GlStateManager.enableCull();
+ //        GlStateManager.popMatrix();
+         KamiTessellator.releaseGL();
+-        Minecraft.getMinecraft().profiler.endSection();
++        Minecraft.getMinecraft().mcProfiler.endSection();
+ 
+-        Minecraft.getMinecraft().profiler.endSection();
++        Minecraft.getMinecraft().mcProfiler.endSection();
+     }
+ 
+     public static void onBind(int eventKey) {
+diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/combat/CrystalAura.java b/src/main/java/me/zeroeightsix/kami/module/modules/combat/CrystalAura.java
+index 4b297c9..efe488b 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/modules/combat/CrystalAura.java
++++ b/src/main/java/me/zeroeightsix/kami/module/modules/combat/CrystalAura.java
+@@ -309,7 +309,7 @@ public class CrystalAura extends Module {
+     }
+ 
+     private static float getDamageMultiplied(float damage) {
+-        int diff = mc.world.getDifficulty().getId();
++        int diff = mc.world.getDifficulty().getDifficultyId();
+         return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
+     }
+ 
+diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/movement/EntitySpeed.java b/src/main/java/me/zeroeightsix/kami/module/modules/movement/EntitySpeed.java
+index 57a6e2e..2b62a93 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/modules/movement/EntitySpeed.java
++++ b/src/main/java/me/zeroeightsix/kami/module/modules/movement/EntitySpeed.java
+@@ -144,7 +144,7 @@ public class EntitySpeed extends Module {
+     }
+ 
+     private boolean isBorderingChunk(Entity entity, double motX, double motZ) {
+-        return antiStuck.getValue() && mc.world.getChunk((int) (entity.posX + motX) >> 4, (int) (entity.posZ + motZ) >> 4) instanceof EmptyChunk;
++        return antiStuck.getValue() && mc.world.getChunkFromChunkCoords((int) (entity.posX + motX) >> 4, (int) (entity.posZ + motZ) >> 4) instanceof EmptyChunk;
+     }
+ 
+     public static float getOpacity() {
+diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/player/NoFall.java b/src/main/java/me/zeroeightsix/kami/module/modules/player/NoFall.java
+index fd34b9d..134fe80 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/modules/player/NoFall.java
++++ b/src/main/java/me/zeroeightsix/kami/module/modules/player/NoFall.java
+@@ -36,7 +36,7 @@ public class NoFall extends Module {
+     public void onUpdate() {
+         if (bucket.getValue() && mc.player.fallDistance >= distance.getValue() && !EntityUtil.isAboveWater(mc.player) && System.currentTimeMillis() - last > 100) {
+             Vec3d posVec = mc.player.getPositionVector();
+-            RayTraceResult result = mc.world.rayTraceBlocks(posVec, posVec.add(0, -5.33f, 0), true, true, false);
++            RayTraceResult result = mc.world.rayTraceBlocks(posVec, posVec.addVector(0, -5.33f, 0), true, true, false);
+             if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {
+                 EnumHand hand = EnumHand.MAIN_HAND;
+                 if (mc.player.getHeldItemOffhand().getItem() == Items.WATER_BUCKET) hand = EnumHand.OFF_HAND;
+diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/player/Scaffold.java b/src/main/java/me/zeroeightsix/kami/module/modules/player/Scaffold.java
+index 879ab0a..4b85f9f 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/modules/player/Scaffold.java
++++ b/src/main/java/me/zeroeightsix/kami/module/modules/player/Scaffold.java
+@@ -135,16 +135,16 @@ public class Scaffold extends Module {
+ 
+             // check if side is visible (facing away from player)
+             if(eyesPos.squareDistanceTo(
+-                    new Vec3d(pos).add(0.5, 0.5, 0.5)) >= eyesPos
++                    new Vec3d(pos).addVector(0.5, 0.5, 0.5)) >= eyesPos
+                     .squareDistanceTo(
+-                            new Vec3d(neighbor).add(0.5, 0.5, 0.5)))
++                            new Vec3d(neighbor).addVector(0.5, 0.5, 0.5)))
+                 continue;
+ 
+             // check if neighbor can be right clicked
+             if(!canBeClicked(neighbor))
+                 continue;
+ 
+-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5)
++            Vec3d hitVec = new Vec3d(neighbor).addVector(0.5, 0.5, 0.5)
+                     .add(new Vec3d(side2.getDirectionVec()).scale(0.5));
+ 
+             // check if hitVec is within range (4.25 blocks)
+diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java b/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java
+index 96f7211..456bbe2 100644
+--- a/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java
++++ b/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java
+@@ -2,42 +2,26 @@ package me.zeroeightsix.kami.module.modules.render;
+ 
+ import me.zero.alpine.listener.EventHandler;
+ import me.zero.alpine.listener.Listener;
+-import me.zeroeightsix.kami.command.Command;
+ import me.zeroeightsix.kami.event.events.ChunkEvent;
+ import me.zeroeightsix.kami.event.events.RenderEvent;
+ import me.zeroeightsix.kami.module.Module;
+-import me.zeroeightsix.kami.KamiMod;
+ import me.zeroeightsix.kami.setting.Setting;
+ import me.zeroeightsix.kami.setting.Settings;
+-import net.minecraft.client.Minecraft;
+ import net.minecraft.world.chunk.Chunk;
+-import org.apache.commons.lang3.SystemUtils;
+ import org.lwjgl.opengl.GL11;
+ 
+-import java.io.*;
+-import java.nio.file.Files;
+-import java.nio.file.Path;
+-import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+-import java.util.Date;
+ 
+ import static org.lwjgl.opengl.GL11.*;
+ 
+ /**
+- * @author 086 and IronException
++ * @author 086
+  */
+ @Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
+ public class ChunkFinder extends Module {
+ 
+     private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
+     private Setting<Boolean> relative = register(Settings.b("Relative", true));
+-    private Setting<Boolean> saveNewChunks = register(Settings.b("Save New Chunks", false));
+-    private Setting<SaveOption> saveOption = register(Settings.enumBuilder(SaveOption.class).withValue(SaveOption.extraFolder).withName("Save Option").withVisibility(aBoolean -> saveNewChunks.getValue()).build());
+-    private Setting<Boolean> saveInRegionFolder = register(Settings.booleanBuilder("In Region").withValue(false).withVisibility(aBoolean -> saveNewChunks.getValue()).build());
+-    private Setting<Boolean> alsoSaveNormalCoords = register(Settings.booleanBuilder("Save Normal Coords").withValue(false).withVisibility(aBoolean -> saveNewChunks.getValue()).build());
+-
+-    private LastSetting lastSetting = new LastSetting();
+-    private PrintWriter logWriter;
+ 
+     static ArrayList<Chunk> chunks = new ArrayList<>();
+ 
+@@ -92,199 +76,14 @@ public class ChunkFinder extends Module {
+         GL11.glTranslated(x, -(y + yOffset.getValue()), z);
+     }
+ 
+-    @Override
+-    protected void onDisable() {
+-        logWriterClose();
+-        chunks.clear();
+-    }
+-
+     @EventHandler
+     public Listener<ChunkEvent> listener = new Listener<>(event -> {
+         if (!event.getPacket().isFullChunk()) {
+             chunks.add(event.getChunk());
+             dirty = true;
+-            if(saveNewChunks.getValue()) {
+-                saveNewChunk(event.getChunk());
+-            }
+         }
+     });
+ 
+-    // needs to be synchronized so no data gets lost
+-    public void saveNewChunk(Chunk chunk) {
+-        saveNewChunk(testAndGetLogWriter(), getNewChunkInfo(chunk));
+-    }
+-    
+-    private String getNewChunkInfo(Chunk chunk) {
+-        String rV = String.format("%d,%d,%d", System.currentTimeMillis(), chunk.x, chunk.z);
+-        if(alsoSaveNormalCoords.getValue()){
+-            rV += String.format(",%d,%d", chunk.x * 16 + 8, chunk.z * 16 + 8);
+-        }
+-        return rV;
+-    }
+-    
+-    private PrintWriter testAndGetLogWriter() {
+-        if(lastSetting.testChangeAndUpdate()) {
+-            logWriterClose();
+-            logWriterOpen();
+-        }
+-        return logWriter;
+-    }
+-    
+-    private void logWriterOpen() {
+-        String filepath = getPath().toString();
+-        try {
+-            logWriter = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)), true);
+-            String head = "timestamp,ChunkX,ChunkZ";
+-            if (alsoSaveNormalCoords.getValue()) {
+-                head += ",x coordinate,z coordinate";
+-            }
+-            logWriter.println(head);
+-        } catch (Exception e) {
+-            e.printStackTrace();
+-            KamiMod.log.error("some exception happened when trying to start the logging -> " + e.getMessage());
+-            Command.sendChatMessage("onLogStart: " + e.getMessage());
+-        }
+-    }
+-
+-    private Path getPath() {
+-        /* code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
+-        */
+-        File file = null;
+-        int dimension = mc.player.dimension;
+-
+-        // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
+-        if (mc.isSingleplayer()) {
+-            try {
+-                file = mc.getIntegratedServer().getWorld(dimension).getChunkSaveLocation();
+-            } catch (Exception e) {
+-                e.printStackTrace();
+-                KamiMod.log.error("some exception happened when getting canonicalFile -> " + e.getMessage());
+-                Command.sendChatMessage("onGetPath: " + e.getMessage());
+-            }
+-
+-            // Gets the "depth" of this directory relative the the game's run directory, 2 is the location of the world
+-            if (file.toPath().relativize(mc.gameDir.toPath()).getNameCount() != 2) {
+-                // subdirectory of the main save directory for this world
+-
+-                file = file.getParentFile();
+-            }
+-
+-        } else { // Otherwise, the server must be remote...
+-            file = makeMultiplayerDirectory().toFile();
+-        }
+-
+-        // We will actually store the world data in a subfolder: "DIM<id>"
+-        if(dimension != 0) { // except if it's the overworld
+-            file = new File(file, "DIM" + dimension);
+-        }
+-        
+-        // maybe we want to save it in region folder
+-        if(saveInRegionFolder.getValue()) {
+-            file = new File(file, "region");
+-        }
+-        
+-        file = new File(file, "newChunkLogs");
+-
+-
+-        String date = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+-        file = new File(file, mc.getSession().getUsername() + "_" + date + ".csv"); // maybe dont safe the name actually. But I also dont want to make another option...
+-
+-        Path rV = file.toPath();
+-        try {
+-            if(!Files.exists(rV)) { // ovsly always...
+-                Files.createDirectories(rV.getParent());
+-                Files.createFile(rV);
+-            }
+-        } catch (IOException e) {
+-            e.printStackTrace();
+-            KamiMod.log.error("some exception happened when trying to make the file -> " + e.getMessage());
+-            Command.sendChatMessage("onCreateFile: " + e.getMessage());
+-        }
+-        return rV;
+-    }
+-    
+-    private Path makeMultiplayerDirectory(){
+-        File rV = Minecraft.getMinecraft().gameDir;
+-        String folderName;
+-        switch(saveOption.getValue()){
+-                case liteLoaderWdl: // make folder structure like liteLoader
+-                    folderName = mc.getCurrentServerData().serverName;
+-                    
+-                    rV = new File(rV, "saves");
+-                    rV = new File(rV, folderName);
+-                    break;
+-                case nhackWdl: // make folder structure like nhack-insdustries
+-                    folderName = getNHackInetName();
+-                    
+-                    rV = new File(rV, "config");
+-                    rV = new File(rV, "wdl-saves");
+-                    rV = new File(rV, folderName);
+-
+-                    // extra because name might be different
+-                    if (!rV.exists()) {
+-                        Command.sendChatMessage("nhack wdl directory doesnt exist: " + folderName);
+-                        Command.sendChatMessage("creating the directory now. It is recommended to update the ip");
+-                    }
+-                    break;
+-                default: // make folder structure in .minecraft
+-                    folderName = mc.getCurrentServerData().serverName + "-" + mc.getCurrentServerData().serverIP;
+-                    if (SystemUtils.IS_OS_WINDOWS) {
+-                        folderName = folderName.replace(":", "_");
+-                    }
+-
+-                    rV = new File(rV, "KAMI_NewChunks");
+-                    rV = new File(rV, folderName);
+-            }
+-        
+-        return rV.toPath();
+-    }
+-
+-    private String getNHackInetName() {
+-        String folderName = mc.getCurrentServerData().serverIP;
+-        if (SystemUtils.IS_OS_WINDOWS) {
+-            folderName = folderName.replace(":", "_");
+-        }
+-        if (hasNoPort(folderName)) {
+-            folderName += "_25565"; // if there is no port then we have to manually include the standard port..
+-        }
+-        return folderName;
+-    }
+-
+-    private boolean hasNoPort(String ip) {
+-        if(!ip.contains("_")) {
+-            return true;
+-        }
+-
+-        String[] sp = ip.split("_");
+-        String ending = sp[sp.length - 1];
+-        if (!isInteger(ending)) { // if it is numeric it means it might be a port...
+-            return true;
+-        }
+-        return false;
+-    }
+-
+-    private boolean isInteger(String s) {
+-        try {
+-            Integer.parseInt(s);
+-        } catch (NumberFormatException | NullPointerException e) {
+-            return false;
+-        }
+-        return true;
+-    }
+-    
+-    private void logWriterClose() {
+-        if(logWriter != null) {
+-            logWriter.close();
+-            logWriter = null;
+-        }
+-    }
+-    
+-    private void saveNewChunk(PrintWriter log, String data) {
+-        log.println(data);
+-    }
+-
+-
+-
+     @EventHandler
+     private Listener<net.minecraftforge.event.world.ChunkEvent.Unload> unloadListener = new Listener<>(event -> dirty = chunks.remove(event.getChunk()));
+ 
+@@ -292,54 +91,4 @@ public class ChunkFinder extends Module {
+     public void destroy() {
+         GL11.glDeleteLists(1, 1);
+     }
+-
+-    private enum SaveOption {
+-        extraFolder, liteLoaderWdl, nhackWdl
+-    }
+-    
+-    private class LastSetting {
+-
+-        SaveOption lastSaveOption;
+-        boolean lastInRegion;
+-        boolean lastSaveNormal;
+-        int dimension;
+-        String ip;
+-
+-        public boolean testChangeAndUpdate() {
+-            if (testChange()) {
+-                // so we dont have to do this process again next time
+-                update();
+-                return true;
+-            }
+-            return false;
+-        }
+-
+-        public boolean testChange() {
+-            // these somehow include the test wether its null
+-            if (saveOption.getValue() != lastSaveOption) {
+-                return true;
+-            }
+-            if (saveInRegionFolder.getValue() != lastInRegion) {
+-                return true;
+-            }
+-            if (alsoSaveNormalCoords.getValue() != lastSaveNormal) {
+-                return true;
+-            }
+-            if(dimension != mc.player.dimension) {
+-                return true;
+-            }
+-            if(!mc.getCurrentServerData().serverIP.equals(ip)) { // strings need equals + this way because could be null
+-                return true;
+-            }
+-            return false;
+-        }
+-
+-        private void update() {
+-            lastSaveOption = saveOption.getValue();
+-            lastInRegion = saveInRegionFolder.getValue();
+-            lastSaveNormal = alsoSaveNormalCoords.getValue();
+-            dimension = mc.player.dimension;
+-            ip = mc.getCurrentServerData().serverIP;
+-        }
+-    }
+ }
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/AbstractSetting.java b/src/main/java/me/zeroeightsix/kami/setting/AbstractSetting.java
+new file mode 100644
+index 0000000..3ea6d28
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/AbstractSetting.java
+@@ -0,0 +1,23 @@
++package me.zeroeightsix.kami.setting;
++
++import java.util.function.BiConsumer;
++import java.util.function.Predicate;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public abstract class AbstractSetting<T> extends SavableListeningNamedSettingRestrictable<T> {
++
++    private Predicate<T> visibilityPredicate;
++
++    public AbstractSetting(T value, Predicate<T> restriction, BiConsumer<T, T> consumer, String name, Predicate<T> visibilityPredicate) {
++        super(value, restriction, consumer, name);
++        this.visibilityPredicate = visibilityPredicate;
++    }
++
++    @Override
++    public boolean isVisible() {
++        return visibilityPredicate.test(getValue());
++    }
++
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/ISetting.java b/src/main/java/me/zeroeightsix/kami/setting/ISetting.java
+new file mode 100644
+index 0000000..356b707
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/ISetting.java
+@@ -0,0 +1,28 @@
++package me.zeroeightsix.kami.setting;
++
++import java.util.function.BiConsumer;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public interface ISetting<T> {
++
++    T getValue();
++
++    /**
++     * @param value
++     * @return true if value was set
++     */
++    boolean setValue(T value);
++
++    /**
++     * @return Whether or not this setting should be displayed to the user
++     */
++    boolean isVisible();
++
++    /**
++     * @return A consumer that expects first the previous value and then the new value
++     */
++    BiConsumer<T, T> changeListener();
++
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/ISettingUnknown.java b/src/main/java/me/zeroeightsix/kami/setting/ISettingUnknown.java
+deleted file mode 100644
+index 04f08db..0000000
+--- a/src/main/java/me/zeroeightsix/kami/setting/ISettingUnknown.java
++++ /dev/null
+@@ -1,31 +0,0 @@
+-package me.zeroeightsix.kami.setting;
+-
+-/**
+- * Used as a non-generic base class for Setting that prevents weird type issues.
+- * Raw Setting instances are too easy to screw up (they accept Object with no type check)
+- * @author 20kdc
+- */
+-public interface ISettingUnknown {
+-    String getName();
+-
+-    /**
+-     * @return The Class of the internal value (used for .set's output)
+-     */
+-    Class getValueClass();
+-
+-    /**
+-     * @return The value in a format that setValueFromString can accept (if possible)
+-     */
+-    String getValueAsString();
+-
+-    /**
+-     * @return Whether or not this setting should be displayed to the user
+-     */
+-    boolean isVisible();
+-
+-    /**
+-     * Convert & set for .set & other "generic" setter cases.
+-     * Will throw if unconvertable.
+-     */
+-    void setValueFromString(String value);
+-}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/ListeningNamedSettingRestrictable.java b/src/main/java/me/zeroeightsix/kami/setting/ListeningNamedSettingRestrictable.java
+new file mode 100644
+index 0000000..264f181
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/ListeningNamedSettingRestrictable.java
+@@ -0,0 +1,23 @@
++package me.zeroeightsix.kami.setting;
++
++import java.util.function.BiConsumer;
++import java.util.function.Predicate;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public abstract class ListeningNamedSettingRestrictable<T> extends ListeningSettingRestrictable<T> implements Named {
++
++    String name;
++
++    public ListeningNamedSettingRestrictable(T value, Predicate<T> restriction, BiConsumer<T, T> consumer, String name) {
++        super(value, restriction, consumer);
++        this.name = name;
++    }
++
++    @Override
++    public String getName() {
++        return name;
++    }
++
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/ListeningSettingRestrictable.java b/src/main/java/me/zeroeightsix/kami/setting/ListeningSettingRestrictable.java
+new file mode 100644
+index 0000000..a757169
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/ListeningSettingRestrictable.java
+@@ -0,0 +1,30 @@
++package me.zeroeightsix.kami.setting;
++
++import java.util.function.BiConsumer;
++import java.util.function.Predicate;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public class ListeningSettingRestrictable<T> extends SettingRestrictable<T> {
++
++    private BiConsumer<T, T> consumer;
++
++    public ListeningSettingRestrictable(T value, Predicate<T> restriction, BiConsumer<T, T> consumer) {
++        super(value, restriction);
++        this.consumer = consumer;
++    }
++
++    @Override
++    public BiConsumer<T, T> changeListener() {
++        return consumer;
++    }
++
++    @Override
++    public boolean setValue(T value) {
++        T old = getValue();
++        boolean b = super.setValue(value);
++        if (b) consumer.accept(old, value);
++        return b;
++    }
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/Named.java b/src/main/java/me/zeroeightsix/kami/setting/Named.java
+new file mode 100644
+index 0000000..b3782bf
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/Named.java
+@@ -0,0 +1,10 @@
++package me.zeroeightsix.kami.setting;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public interface Named {
++
++    String getName();
++
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/SavableListeningNamedSettingRestrictable.java b/src/main/java/me/zeroeightsix/kami/setting/SavableListeningNamedSettingRestrictable.java
+new file mode 100644
+index 0000000..92923b2
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/SavableListeningNamedSettingRestrictable.java
+@@ -0,0 +1,16 @@
++package me.zeroeightsix.kami.setting;
++
++import me.zeroeightsix.kami.setting.converter.Convertable;
++
++import java.util.function.BiConsumer;
++import java.util.function.Predicate;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public abstract class SavableListeningNamedSettingRestrictable<T> extends ListeningNamedSettingRestrictable<T> implements Convertable {
++
++    public SavableListeningNamedSettingRestrictable(T value, Predicate<T> restriction, BiConsumer<T, T> consumer, String name) {
++        super(value, restriction, consumer, name);
++    }
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/Setting.java b/src/main/java/me/zeroeightsix/kami/setting/Setting.java
+index b1f8726..94e699f 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/Setting.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/Setting.java
+@@ -1,87 +1,30 @@
+ package me.zeroeightsix.kami.setting;
+ 
+-import com.google.gson.JsonElement;
+-import com.google.gson.JsonParser;
+-import java.util.function.BiConsumer;
+-import java.util.function.Predicate;
+-import me.zeroeightsix.kami.setting.converter.Convertable;
+-
+ /**
+  * Created by 086 on 12/10/2018.
+  */
+-public abstract class Setting<T> implements ISettingUnknown, Convertable<T> {
+-
+-    String name;
++public abstract class Setting<T> implements ISetting<T> {
+ 
+     T value;
+ 
+-    /**
+-     * Returns false if the value is "out of bounds"
+-     */
+-    private Predicate<T> restriction;
+-
+-    private Predicate<T> visibilityPredicate;
+-
+-    private BiConsumer<T, T> consumer;
+-
+-    private final Class valueType;
+-
+-    public Setting(T value, Predicate<T> restriction, BiConsumer<T, T> consumer, String name, Predicate<T> visibilityPredicate) {
++    public Setting(T value) {
+         this.value = value;
+-        this.valueType = value.getClass();
+-        this.restriction = restriction;
+-        this.consumer = consumer;
+-        this.name = name;
+-        this.visibilityPredicate = visibilityPredicate;
+     }
+ 
+     @Override
+-    public String getName() {
+-        return name;
+-    }
+-
+     public T getValue() {
+         return value;
+     }
+ 
+     @Override
+-    public Class getValueClass() {
+-        return valueType;
++    public boolean isVisible() {
++        return true;
+     }
+ 
+-    /**
+-     * @param value
+-     * @return true if value was set
+-     */
++    @Override
+     public boolean setValue(T value) {
+-        T old = getValue();
+-        if (!restriction.test(value))
+-            return false;
+         this.value = value;
+-        consumer.accept(old, value);
+         return true;
+     }
+ 
+-    @Override
+-    public boolean isVisible() {
+-        return visibilityPredicate.test(getValue());
+-    }
+-
+-    /**
+-     * @return A consumer that expects first the previous value and then the new value
+-     */
+-    public BiConsumer<T, T> changeListener() {
+-        return consumer;
+-    }
+-
+-    @Override
+-    public void setValueFromString(String value) {
+-        JsonParser jp = new JsonParser();
+-        setValue(this.converter().reverse().convert(jp.parse(value)));
+-    }
+-
+-    @Override
+-    public String getValueAsString() {
+-        return this.converter().convert(getValue()).toString();
+-    }
+ }
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/SettingRestrictable.java b/src/main/java/me/zeroeightsix/kami/setting/SettingRestrictable.java
+new file mode 100644
+index 0000000..25e78ed
+--- /dev/null
++++ b/src/main/java/me/zeroeightsix/kami/setting/SettingRestrictable.java
+@@ -0,0 +1,25 @@
++package me.zeroeightsix.kami.setting;
++
++import java.util.function.Predicate;
++
++/**
++ * Created by 086 on 12/10/2018.
++ */
++public abstract class SettingRestrictable<T> extends Setting<T> {
++
++    /**
++     * Returns false if the value is "out of bounds"
++     */
++    private Predicate<T> restriction;
++
++    public SettingRestrictable(T value, Predicate<T> restriction) {
++        super(value);
++        this.restriction = restriction;
++    }
++
++    @Override
++    public boolean setValue(T value) {
++        return restriction.test(value) && super.setValue(value);
++    }
++
++}
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/Settings.java b/src/main/java/me/zeroeightsix/kami/setting/Settings.java
+index 88df4ed..87d4358 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/Settings.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/Settings.java
+@@ -94,7 +94,7 @@ public class Settings {
+         return new SettingBuilder<T>() {
+             @Override
+             public Setting<T> build() {
+-                return new Setting<T>(initialValue, predicate(), consumer, name, visibilityPredicate()) {
++                return new AbstractSetting<T>(initialValue, predicate(), consumer, name, visibilityPredicate()) {
+                     @Override
+                     public Converter converter() {
+                         return converter;
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/builder/SettingBuilder.java b/src/main/java/me/zeroeightsix/kami/setting/builder/SettingBuilder.java
+index d7d270f..19e96e1 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/builder/SettingBuilder.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/builder/SettingBuilder.java
+@@ -1,6 +1,7 @@
+ package me.zeroeightsix.kami.setting.builder;
+ 
+ import com.google.common.base.MoreObjects;
++import me.zeroeightsix.kami.setting.Named;
+ import me.zeroeightsix.kami.setting.Setting;
+ import me.zeroeightsix.kami.setting.SettingsRegister;
+ 
+@@ -64,7 +65,8 @@ public abstract class SettingBuilder<T> {
+     }
+ 
+     public static <T> Setting<T> register(Setting<T> setting, String group) {
+-        String name = setting.getName();
++        if (!(setting instanceof Named)) throw new RuntimeException("Can't register unnamed setting");
++        String name = ((Named) setting).getName();
+         if (name == null || name.isEmpty()) throw new RuntimeException("Can't register nameless setting");
+         SettingsRegister.register(group + "." + name, setting);
+         return setting;
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/config/Configuration.java b/src/main/java/me/zeroeightsix/kami/setting/config/Configuration.java
+index 40016a5..42e4ac8 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/config/Configuration.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/config/Configuration.java
+@@ -1,7 +1,6 @@
+ package me.zeroeightsix.kami.setting.config;
+ 
+ import com.google.gson.*;
+-import me.zeroeightsix.kami.KamiMod;
+ import me.zeroeightsix.kami.setting.Setting;
+ import me.zeroeightsix.kami.setting.SettingsRegister;
+ import me.zeroeightsix.kami.setting.converter.Convertable;
+@@ -52,12 +51,7 @@ public class Configuration {
+     }
+ 
+     public static void loadConfiguration(InputStream stream) {
+-        try {
+-            loadConfiguration(new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject());
+-        } catch (IllegalStateException e) { // The JSON file is probably malformed.
+-            KamiMod.log.error("KAMI Config malformed: resetting.");
+-            loadConfiguration(new JsonObject()); // Just reset it!
+-        }
++        loadConfiguration(new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject());
+     }
+ 
+     public static void loadConfiguration(JsonObject input) {
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/impl/BooleanSetting.java b/src/main/java/me/zeroeightsix/kami/setting/impl/BooleanSetting.java
+index 0a3bac5..3120365 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/impl/BooleanSetting.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/impl/BooleanSetting.java
+@@ -1,6 +1,6 @@
+ package me.zeroeightsix.kami.setting.impl;
+ 
+-import me.zeroeightsix.kami.setting.Setting;
++import me.zeroeightsix.kami.setting.AbstractSetting;
+ import me.zeroeightsix.kami.setting.converter.BooleanConverter;
+ 
+ import java.util.function.BiConsumer;
+@@ -9,7 +9,7 @@ import java.util.function.Predicate;
+ /**
+  * Created by 086 on 12/10/2018.
+  */
+-public class BooleanSetting extends Setting<Boolean> {
++public class BooleanSetting extends AbstractSetting<Boolean> {
+ 
+     private static final BooleanConverter converter = new BooleanConverter();
+ 
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/impl/EnumSetting.java b/src/main/java/me/zeroeightsix/kami/setting/impl/EnumSetting.java
+index bdd72ec..a4a9114 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/impl/EnumSetting.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/impl/EnumSetting.java
+@@ -1,7 +1,7 @@
+ package me.zeroeightsix.kami.setting.impl;
+ 
+ import com.google.common.base.Converter;
+-import me.zeroeightsix.kami.setting.Setting;
++import me.zeroeightsix.kami.setting.AbstractSetting;
+ import me.zeroeightsix.kami.setting.converter.EnumConverter;
+ 
+ import java.util.function.BiConsumer;
+@@ -10,7 +10,7 @@ import java.util.function.Predicate;
+ /**
+  * Created by 086 on 14/10/2018.
+  */
+-public class EnumSetting<T extends Enum> extends Setting<T> {
++public class EnumSetting<T extends Enum> extends AbstractSetting<T> {
+ 
+     private EnumConverter converter;
+     public final Class<? extends Enum> clazz;
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/impl/StringSetting.java b/src/main/java/me/zeroeightsix/kami/setting/impl/StringSetting.java
+index a22d071..9ac7a22 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/impl/StringSetting.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/impl/StringSetting.java
+@@ -1,6 +1,6 @@
+ package me.zeroeightsix.kami.setting.impl;
+ 
+-import me.zeroeightsix.kami.setting.Setting;
++import me.zeroeightsix.kami.setting.AbstractSetting;
+ import me.zeroeightsix.kami.setting.converter.StringConverter;
+ 
+ import java.util.function.BiConsumer;
+@@ -9,7 +9,7 @@ import java.util.function.Predicate;
+ /**
+  * Created by 086 on 12/10/2018.
+  */
+-public class StringSetting extends Setting<String> {
++public class StringSetting extends AbstractSetting<String> {
+ 
+     private static final StringConverter converter = new StringConverter();
+ 
+diff --git a/src/main/java/me/zeroeightsix/kami/setting/impl/numerical/NumberSetting.java b/src/main/java/me/zeroeightsix/kami/setting/impl/numerical/NumberSetting.java
+index 90c03ab..2892d87 100644
+--- a/src/main/java/me/zeroeightsix/kami/setting/impl/numerical/NumberSetting.java
++++ b/src/main/java/me/zeroeightsix/kami/setting/impl/numerical/NumberSetting.java
+@@ -1,6 +1,6 @@
+ package me.zeroeightsix.kami.setting.impl.numerical;
+ 
+-import me.zeroeightsix.kami.setting.Setting;
++import me.zeroeightsix.kami.setting.AbstractSetting;
+ import me.zeroeightsix.kami.setting.converter.AbstractBoxedNumberConverter;
+ 
+ import java.util.function.BiConsumer;
+@@ -9,7 +9,7 @@ import java.util.function.Predicate;
+ /**
+  * Created by 086 on 12/10/2018.
+  */
+-public abstract class NumberSetting<T extends Number> extends Setting<T> {
++public abstract class NumberSetting<T extends Number> extends AbstractSetting<T> {
+ 
+     private final T min;
+     private final T max;
+diff --git a/src/main/java/me/zeroeightsix/kami/util/TrajectoryCalculator.java b/src/main/java/me/zeroeightsix/kami/util/TrajectoryCalculator.java
+index 4531ee6..e5e1075 100644
+--- a/src/main/java/me/zeroeightsix/kami/util/TrajectoryCalculator.java
++++ b/src/main/java/me/zeroeightsix/kami/util/TrajectoryCalculator.java
+@@ -279,7 +279,7 @@ public class TrajectoryCalculator {
+          */
+         private void setThrowableHeading(Vec3d motion, float velocity) {
+             // Divide the current motion by the length of the vector
+-            this.motion = div(motion, (float) motion.length());
++            this.motion = div(motion, (float) motion.lengthVector());
+             // Multiply by the velocity
+             this.motion = mult(this.motion, velocity);
+         }
