@@ -1,15 +1,18 @@
 # KAMI
+
+### please note the current build status is based on the master branch, which won't be updated as often. I will replace this with my own or with a manual build status as soon as I can (05/10/19). 
 [![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=master)](https://travis-ci.com/zeroeightysix/KAMI)
-[![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
+[![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/S-B99/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
-A minecraft utility mod for anarchy servers.
+A Minecraft utility mod for anarchy servers.
 
-See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as I sometimes used it as reference.
+See [forgehax](https://github.com/fr1kin/forgehax) for a more polished equivalent. Some features in KAMI may be based on those of forgehax, as I sometimes used it as reference. Forgehax may also be missing some KAMI features. Client compatibility between these two should be fine, but please mention that you're using other clients if you do have an issue.
 
 Please note Baritone is no longer included. Download the standalone jar [from here](https://github.com/cabaletta/baritone/releases).
 
-This is by no means a finished project and is still in rapid development.
+This is by no means a finished project, nor is it a "cheat" or "hack" for anything, it is a *utility* mod.
+
 ## Status
 
 This is currently in slowed development. Maintainance and further development is planned in the next couple months
@@ -37,9 +40,10 @@ The default prefix is `.`. Commands are used through chat, use `.commands` for a
 Run `.bind <module> <key>`.
 
 ##### Change command prefix
-By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
+By using the command `prefix <prefix>` without the `<>`(by default, `. <newprefix>`) or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
 
 ## Troubleshooting
+
 Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
 If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
@@ -59,6 +63,7 @@ KAMI is a forge mod. Start by downloading the latest version of [1.12.2 forge](h
 
 ## Building
 #### Windows
+
 You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
 ```
 gradlew.bat <args>
@@ -72,6 +77,7 @@ If you prefer copying it manually, find a file in `build/libs` called `KAMI-<min
 Note: This assumes your minecraft folder is in the default location under your home folder.
 
 #### Linux
+
 You can build by running these commands (without these <>) in a terminal with the current directory being KAMI. (EG. `cd ~/Downloads/KAMI`)
 ```
 ./gradlew <args>
