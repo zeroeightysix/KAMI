@@ -581,6 +581,10 @@ index 879ab0a..4b85f9f 100644
 +            Vec3d hitVec = new Vec3d(neighbor).addVector(0.5, 0.5, 0.5)
                      .add(new Vec3d(side2.getDirectionVec()).scale(0.5));
  
+
+############ finished upto here as of commit 9:54am
+
+
              // check if hitVec is within range (4.25 blocks)
 diff --git a/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java b/src/main/java/me/zeroeightsix/kami/module/modules/render/ChunkFinder.java
 index 96f7211..456bbe2 100644

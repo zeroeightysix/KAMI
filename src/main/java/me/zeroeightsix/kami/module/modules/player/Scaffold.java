@@ -135,16 +135,16 @@ public class Scaffold extends Module {
 
             // check if side is visible (facing away from player)
             if(eyesPos.squareDistanceTo(
-                    new Vec3d(pos).addVector(0.5, 0.5, 0.5)) >= eyesPos
+                    new Vec3d(pos).add(0.5, 0.5, 0.5)) >= eyesPos
                     .squareDistanceTo(
-                            new Vec3d(neighbor).addVector(0.5, 0.5, 0.5)))
+                            new Vec3d(neighbor).add(0.5, 0.5, 0.5)))
                 continue;
 
             // check if neighbor can be right clicked
             if(!canBeClicked(neighbor))
                 continue;
 
-            Vec3d hitVec = new Vec3d(neighbor).addVector(0.5, 0.5, 0.5)
+            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5)
                     .add(new Vec3d(side2.getDirectionVec()).scale(0.5));
 
             // check if hitVec is within range (4.25 blocks)
