@@ -7,8 +7,6 @@ import me.zeroeightsix.kami.gui.rgui.component.use.CheckButton;
 import me.zeroeightsix.kami.gui.rgui.component.use.Slider;
 import me.zeroeightsix.kami.gui.rgui.render.theme.Theme;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.setting.AbstractSetting;
-import me.zeroeightsix.kami.setting.Named;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.impl.BooleanSetting;
 import me.zeroeightsix.kami.setting.impl.EnumSetting;
@@ -51,8 +49,8 @@ public class SettingsPanel extends OrganisedContainer {
         }
         if (!module.settingList.isEmpty()) {
             for (Setting setting : module.settingList) {
-                if (!(setting instanceof Named) || ((setting instanceof AbstractSetting) && !setting.isVisible())) continue;
-                String name = ((Named) setting).getName();
+                if (!setting.isVisible()) continue;
+                String name = setting.getName();
                 boolean isNumber = setting instanceof NumberSetting;
                 boolean isBoolean = setting instanceof BooleanSetting;
                 boolean isEnum = setting instanceof EnumSetting;
