@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui.kami;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.gui.kami.component.ActiveModules;
@@ -24,6 +25,7 @@ import me.zeroeightsix.kami.util.Pair;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityEgg;
@@ -32,6 +34,8 @@ import net.minecraft.entity.projectile.EntityWitherSkull;
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nonnull;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -214,6 +218,9 @@ public class KamiGUI extends GUI {
 
         frame = new Frame(getTheme(), new Stretcherlayout(1), "Text Radar");
         Label list = new Label("");
+        DecimalFormat dfHealth = new DecimalFormat("#.#");
+        dfHealth.setRoundingMode(RoundingMode.HALF_UP);
+        StringBuilder healthSB = new StringBuilder();
         list.addTickListener(() -> {
             if (!list.isVisible()) return;
             list.setText("");
@@ -226,8 +233,22 @@ public class KamiGUI extends GUI {
             Map<String, Integer> players = new HashMap<>();
             for (Entity e : entityList) {
                 if (e.getName().equals(mc.player.getName())) continue;
-                players.put(e.getName() + " " + (e.posY > mc.player.posY ? "(+)" : (e.posY == mc.player.posY ? "(=)" : "(-)")), (int) mc.player.getDistance(e));
-            }
+                String posString = (e.posY > mc.player.posY ? ChatFormatting.DARK_GREEN + "+" : (e.posY == mc.player.posY ? " " : ChatFormatting.DARK_RED + "-"));
+                float hpRaw = ((EntityLivingBase) e).getHealth() + ((EntityLivingBase) e).getAbsorptionAmount();
+                String hp = dfHealth.format(hpRaw);
+                healthSB.append(Command.SECTIONSIGN());
+                if (hpRaw >= 20) {
+                    healthSB.append("a");
+                } else if (hpRaw >= 10) {
+                    healthSB.append("e");
+                } else if (hpRaw >= 5) {
+                    healthSB.append("6");
+                } else {
+                    healthSB.append("c");
+                }
+                healthSB.append(hp);
+                players.put(ChatFormatting.GRAY + posString + " " + healthSB.toString() + " " + ChatFormatting.GRAY + e.getName(), (int) mc.player.getDistance(e));
+                healthSB.setLength(0);            }
 
             if (players.isEmpty()) {
                 list.setText("");

@@ -5,7 +5,7 @@ import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
 import me.zeroeightsix.kami.command.syntax.parsers.ModuleParser;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
-import me.zeroeightsix.kami.setting.Named;
+//import me.zeroeightsix.kami.setting.Named;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.impl.EnumSetting;
 
@@ -38,7 +38,7 @@ public class SettingsCommand extends Command {
         String[] result = new String[settings.size()];
         for (int i = 0; i < settings.size(); i++) {
             Setting setting = settings.get(i);
-            result[i] = "&b" + (setting instanceof Named ? (((Named) setting).getName()) : "Unnamed Setting") + "&3(=" + setting.getValue() + ")  &ftype: &3" + setting.getValue().getClass().getSimpleName();
+            result[i] = "&b" + setting.getName() + "&3(=" + setting.getValue() + ")  &ftype: &3" + setting.getValue().getClass().getSimpleName();
 
             if (setting instanceof EnumSetting){
                 result[i] += "  (";

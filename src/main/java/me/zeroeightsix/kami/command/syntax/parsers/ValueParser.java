@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.command.syntax.parsers;
 import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
-import me.zeroeightsix.kami.setting.Named;
+//import me.zeroeightsix.kami.setting.Named;
 import me.zeroeightsix.kami.setting.Setting;
 
 import java.util.HashMap;
@@ -26,14 +26,14 @@ public class ValueParser extends AbstractParser {
         HashMap<String, Setting> possibilities = new HashMap<>();
 
         for (Setting v : m.settingList){
-            if (v instanceof Named && ((Named) v).getName().toLowerCase().startsWith(chunkValue.toLowerCase()))
-                possibilities.put(((Named) v).getName(), v);
+            if (v.getName().toLowerCase().startsWith(chunkValue.toLowerCase()))
+                possibilities.put(v.getName(), v);
         }
 
         if (possibilities.isEmpty()) return "";
 
         TreeMap<String, Setting> p = new TreeMap<>(possibilities);
         Setting aV = p.firstEntry().getValue();
-        return ((Named) aV).getName().substring(chunkValue.length());
+        return aV.getName().substring(chunkValue.length());
     }
 }
