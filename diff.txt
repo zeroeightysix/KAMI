@@ -397,7 +397,11 @@ index 99c0457..13ace80 100644
 -                healthSB.setLength(0);
 +                players.put(e.getName() + " " + (e.posY > mc.player.posY ? "(+)" : (e.posY == mc.player.posY ? "(=)" : "(-)")), (int) mc.player.getDistance(e));
              }
- 
+
+
+############ finished upto here as of commit 9:35 am
+
+
              if (players.isEmpty()) {
 diff --git a/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java b/src/main/java/me/zeroeightsix/kami/gui/kami/component/SettingsPanel.java
 index 7c39277..b70d3d0 100644
