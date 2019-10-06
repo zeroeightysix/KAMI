@@ -144,7 +144,7 @@ public class EntitySpeed extends Module {
     }
 
     private boolean isBorderingChunk(Entity entity, double motX, double motZ) {
-        return antiStuck.getValue() && mc.world.getChunkFromChunkCoords((int) (entity.posX + motX) >> 4, (int) (entity.posZ + motZ) >> 4) instanceof EmptyChunk;
+        return antiStuck.getValue() && mc.world.getChunk((int) (entity.posX + motX) >> 4, (int) (entity.posZ + motZ) >> 4) instanceof EmptyChunk;
     }
 
     public static float getOpacity() {
