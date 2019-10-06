@@ -399,7 +399,7 @@ index 99c0457..13ace80 100644
              }
 
 
-############ finished upto here as of commit 9:35 am
+############ finished upto here as of commit 9:35am
 
 
              if (players.isEmpty()) {
@@ -462,6 +462,11 @@ index 6bc738a..f3c6bb4 100644
              Minecraft.getMinecraft().setIngameFocus();
          }
  
+
+############ finished upto here as of commit 9:40am
+
+
+
 diff --git a/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java b/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java
 index 782cfbe..a19d8ce 100644
 --- a/src/main/java/me/zeroeightsix/kami/module/ModuleManager.java
