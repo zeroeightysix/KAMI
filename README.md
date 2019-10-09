@@ -16,6 +16,8 @@ This is by no means a finished project, nor is it a "cheat" or "hack" for anythi
 
 ## Status
 
+### please use the release, the current build has a chance of not working, I am currently reimplementing changes done to master, however due to being in the Netherlands I will not be able to actively work on it for the week of October 6-13
+
 This is currently in slowed development. Maintainance and further development is planned in the next couple months
 
 ## Preview
