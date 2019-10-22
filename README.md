@@ -55,9 +55,6 @@ You can also use `.bind modifiers on` to change binds to something like `ctrl + 
 ##### Change command prefix
 By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
 
-##### Change Custom Chat ending
-Edit line 19 in `kami/src/main/java/me/zeroeightysix/kami/module/modules/misc/CustomChat.java` Change the `\u23D0` characters to something else you want, [use this website to do it](https://www.branah.com/unicode-converter). Paste text in the first box and copy the output from the second.
-
 ## Troubleshooting
 Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
