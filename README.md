@@ -63,7 +63,7 @@ Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
 If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
 
-## Contributing / Editing the client
+## Contributing
 
 You are free to clone, modify KAMI and make pull requests as you wish. To set up your development environment, make use of the following commands:
 
