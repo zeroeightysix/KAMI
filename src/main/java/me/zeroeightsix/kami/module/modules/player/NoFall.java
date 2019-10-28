@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 /**
  * Created by 086 on 19/11/2017.
  */
-@Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
+@Module.Info(name = "NoFall", category = Module.Category.PLAYER, description = "Prevents fall damage")
 public class NoFall extends Module {
 
     private Setting<Boolean> packet = register(Settings.b("Packet", false));
