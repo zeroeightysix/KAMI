@@ -31,7 +31,8 @@ public class BlockInteractionHelper {
             Blocks.HOPPER,
             Blocks.DROPPER,
             Blocks.DISPENSER,
-            Blocks.TRAPDOOR
+            Blocks.TRAPDOOR,
+            Blocks.ENCHANTING_TABLE
     );
 
     public static final List<Block> shulkerList = Arrays.asList(
