@@ -62,8 +62,7 @@ public class AutoTrap extends Module {
     private int delayStep = 0;
     private int offsetStep = 0;
     private boolean firstRun;
-
-    private boolean announcedDisable = false;
+    private boolean missingObiDisable = false;
 
     private static EnumFacing getPlaceableSide(BlockPos pos) {
 
@@ -121,7 +120,7 @@ public class AutoTrap extends Module {
         playerHotbarSlot = -1;
         lastHotbarSlot = -1;
 
-        announcedDisable = false;
+        missingObiDisable = false;
 
     }
 
@@ -137,7 +136,11 @@ public class AutoTrap extends Module {
         }
 
 
-        if (!firstRun) {
+        if (firstRun) {
+            if (findObiInHotbar() == -1) {
+                missingObiDisable = true;
+            }
+        } else {
             if (delayStep < tickDelay.getValue()) {
                 delayStep++;
                 return;
@@ -208,6 +211,14 @@ public class AutoTrap extends Module {
 
         }
 
+        if (missingObiDisable) {
+            missingObiDisable = false;
+            if (infoMessage.getValue()) {
+                Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
+            }
+            this.disable();
+        }
+
     }
 
     private boolean placeBlockInRange(BlockPos pos, double range) {
@@ -250,10 +261,7 @@ public class AutoTrap extends Module {
         int obiSlot = findObiInHotbar();
 
         if (obiSlot == -1) {
-            if (!announcedDisable && infoMessage.getValue()) {
-                Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
-            }
-            this.disable();
+            missingObiDisable = true;
             return false;
         }
 
