@@ -138,7 +138,11 @@ public class AutoTrap extends Module {
 
         if (firstRun) {
             if (findObiInHotbar() == -1) {
-                missingObiDisable = true;
+                if (infoMessage.getValue()) {
+                    Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
+                }
+                this.disable();
+                return;
             }
         } else {
             if (delayStep < tickDelay.getValue()) {
