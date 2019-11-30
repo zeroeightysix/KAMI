@@ -250,6 +250,7 @@ public class AutoTrap extends Module {
                 Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
             }
             this.disable();
+            return false;
         }
 
         if (lastHotbarSlot != obiSlot) {
