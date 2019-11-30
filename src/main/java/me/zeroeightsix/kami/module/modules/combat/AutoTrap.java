@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
@@ -8,9 +9,11 @@ import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.BlockInteractionHelper;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
-import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockObsidian;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -18,60 +21,68 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static me.zeroeightsix.kami.util.BlockInteractionHelper.checkForNeighbours;
+import static me.zeroeightsix.kami.util.BlockInteractionHelper.canBeClicked;
 import static me.zeroeightsix.kami.util.BlockInteractionHelper.faceVectorPacketInstant;
 
 /**
- * Created 6 August 2019 by hub
- * Updated 21 November 2019 by hub
+ * @author hub
+ * @since 2019-8-6
  */
 @Module.Info(name = "AutoTrap", category = Module.Category.COMBAT)
 public class AutoTrap extends Module {
 
-    private final Vec3d[] offsetsDefault = {
-            new Vec3d(0, 0, -1),
-            new Vec3d(1, 0, 0),
-            new Vec3d(0, 0, 1),
-            new Vec3d(-1, 0, 0),
-            new Vec3d(0, 1, -1),
-            new Vec3d(1, 1, 0),
-            new Vec3d(0, 1, 1),
-            new Vec3d(-1, 1, 0),
-            new Vec3d(0, 2, -1),
-            new Vec3d(1, 2, 0),
-            new Vec3d(0, 2, 1),
-            new Vec3d(-1, 2, 0),
-            new Vec3d(0, 3, -1),
-            new Vec3d(0, 3, 0)
-    };
-
-    private Setting<Double> range = register(Settings.d("Range", 5.5d));
-    private Setting<Integer> blockPerTick = register(Settings.i("Blocks per Tick", 4));
-    private Setting<Boolean> rotate = register(Settings.b("Rotate", true));
-    private Setting<Boolean> announceUsage = register(Settings.b("Announce Usage", false));
+    private Setting<Double> range = register(Settings.doubleBuilder("Range").withMinimum(3.5).withValue(5.5).withMaximum(10.0).build());
+    private Setting<Integer> blocksPerTick = register(Settings.integerBuilder("BlocksPerTick").withMinimum(1).withValue(2).withMaximum(23).build());
+    private Setting<Integer> tickDelay = register(Settings.integerBuilder("TickDelay").withMinimum(0).withValue(2).withMaximum(10).build());
+    private Setting<Cage> cage = register(Settings.e("Cage", Cage.TRAP));
+    private Setting<Boolean> rotate = register(Settings.b("Rotate", false));
+    private Setting<Boolean> noGlitchBlocks = register(Settings.b("NoGlitchBlocks", true));
+    private Setting<Boolean> activeInFreecam = register(Settings.b("ActiveInFreecam", true));
+    private Setting<Boolean> infoMessage = register(Settings.b("InfoMessage", false));
 
     private EntityPlayer closestTarget;
     private String lastTickTargetName;
 
     private int playerHotbarSlot = -1;
     private int lastHotbarSlot = -1;
-
     private boolean isSneaking = false;
 
-
+    private int delayStep = 0;
     private int offsetStep = 0;
-
     private boolean firstRun;
+
+    private static EnumFacing getPlaceableSide(BlockPos pos) {
+
+        for (EnumFacing side : EnumFacing.values()) {
+
+            BlockPos neighbour = pos.offset(side);
+
+            if (!mc.world.getBlockState(neighbour).getBlock().canCollideCheck(mc.world.getBlockState(neighbour), false)) {
+                continue;
+            }
+
+            IBlockState blockState = mc.world.getBlockState(neighbour);
+            if (!blockState.getMaterial().isReplaceable()) {
+                return side;
+            }
+
+        }
+
+        return null;
+
+    }
 
     @Override
     protected void onEnable() {
@@ -84,7 +95,7 @@ public class AutoTrap extends Module {
         firstRun = true;
 
         // save initial player hand
-        playerHotbarSlot = Wrapper.getPlayer().inventory.currentItem;
+        playerHotbarSlot = mc.player.inventory.currentItem;
         lastHotbarSlot = -1;
 
     }
@@ -97,7 +108,7 @@ public class AutoTrap extends Module {
         }
 
         if (lastHotbarSlot != playerHotbarSlot && playerHotbarSlot != -1) {
-            Wrapper.getPlayer().inventory.currentItem = playerHotbarSlot;
+            mc.player.inventory.currentItem = playerHotbarSlot;
         }
 
         if (isSneaking) {
@@ -108,17 +119,26 @@ public class AutoTrap extends Module {
         playerHotbarSlot = -1;
         lastHotbarSlot = -1;
 
-        if (announceUsage.getValue()) {
-            Command.sendChatMessage("[AutoTrap] Disabled!");
-        }
-
     }
 
     @Override
     public void onUpdate() {
 
-        if (mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
+        if (mc.player == null) {
             return;
+        }
+
+        if (!activeInFreecam.getValue() && ModuleManager.isModuleEnabled("Freecam")) {
+            return;
+        }
+
+        if (!firstRun) {
+            if (delayStep < tickDelay.getValue()) {
+                delayStep++;
+                return;
+            } else {
+                delayStep = 0;
+            }
         }
 
         findClosestTarget();
@@ -126,9 +146,6 @@ public class AutoTrap extends Module {
         if (closestTarget == null) {
             if (firstRun) {
                 firstRun = false;
-                if (announceUsage.getValue()) {
-                    Command.sendChatMessage("[AutoTrap] Enabled, waiting for target.");
-                }
             }
             return;
         }
@@ -136,23 +153,28 @@ public class AutoTrap extends Module {
         if (firstRun) {
             firstRun = false;
             lastTickTargetName = closestTarget.getName();
-            if (announceUsage.getValue()) {
-                Command.sendChatMessage("[AutoTrap] Enabled, target: " + lastTickTargetName);
-            }
         } else if (!lastTickTargetName.equals(closestTarget.getName())) {
             lastTickTargetName = closestTarget.getName();
             offsetStep = 0;
-            if (announceUsage.getValue()) {
-                Command.sendChatMessage("[AutoTrap] New target: " + lastTickTargetName);
-            }
         }
 
         List<Vec3d> placeTargets = new ArrayList<>();
-        Collections.addAll(placeTargets, offsetsDefault);
+
+        if (cage.getValue().equals(Cage.TRAP)) {
+            Collections.addAll(placeTargets, Offsets.TRAP);
+        }
+
+        if (cage.getValue().equals(Cage.CRYSTAL)) {
+            Collections.addAll(placeTargets, Offsets.CRYSTALFULL);
+        }
+
+        if (cage.getValue().equals(Cage.CRYSTALFULL)) {
+            Collections.addAll(placeTargets, Offsets.CRYSTAL);
+        }
 
         int blocksPlaced = 0;
 
-        while (blocksPlaced < blockPerTick.getValue()) {
+        while (blocksPlaced < blocksPerTick.getValue()) {
 
             if (offsetStep >= placeTargets.size()) {
                 offsetStep = 0;
@@ -162,25 +184,8 @@ public class AutoTrap extends Module {
             BlockPos offsetPos = new BlockPos(placeTargets.get(offsetStep));
             BlockPos targetPos = new BlockPos(closestTarget.getPositionVector()).down().add(offsetPos.x, offsetPos.y, offsetPos.z);
 
-            boolean shouldTryToPlace = true;
-
-            // check if block is already placed
-            if (!Wrapper.getWorld().getBlockState(targetPos).getMaterial().isReplaceable()) {
-                shouldTryToPlace = false;
-            }
-
-            // check if entity blocks placing
-            for (Entity entity : mc.world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(targetPos))) {
-                if (!(entity instanceof EntityItem) && !(entity instanceof EntityXPOrb)) {
-                    shouldTryToPlace = false;
-                    break;
-                }
-            }
-
-            if (shouldTryToPlace) {
-                if (placeBlock(targetPos)) {
-                    blocksPlaced++;
-                }
+            if (placeBlockInRange(targetPos, range.getValue())) {
+                blocksPlaced++;
             }
 
             offsetStep++;
@@ -190,7 +195,7 @@ public class AutoTrap extends Module {
         if (blocksPlaced > 0) {
 
             if (lastHotbarSlot != playerHotbarSlot && playerHotbarSlot != -1) {
-                Wrapper.getPlayer().inventory.currentItem = playerHotbarSlot;
+                mc.player.inventory.currentItem = playerHotbarSlot;
                 lastHotbarSlot = playerHotbarSlot;
             }
 
@@ -203,68 +208,75 @@ public class AutoTrap extends Module {
 
     }
 
-    private boolean placeBlock(BlockPos pos) {
+    private boolean placeBlockInRange(BlockPos pos, double range) {
 
-        // check if block at pos is replaceable
-        if (!mc.world.getBlockState(pos).getMaterial().isReplaceable()) {
+        // check if block is already placed
+        Block block = mc.world.getBlockState(pos).getBlock();
+        if (!(block instanceof BlockAir) && !(block instanceof BlockLiquid)) {
             return false;
         }
 
-        // check if we have a block adjacent to blockpos to click at
-        if (!checkForNeighbours(pos)) {
-            return false;
-        }
-
-        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().posX, Wrapper.getPlayer().posY + Wrapper.getPlayer().getEyeHeight(), Wrapper.getPlayer().posZ);
-
-        for (EnumFacing side : EnumFacing.values()) {
-
-            BlockPos neighbor = pos.offset(side);
-            EnumFacing side2 = side.getOpposite();
-
-            if (!mc.world.getBlockState(neighbor).getBlock().canCollideCheck(mc.world.getBlockState(neighbor), false)) {
-                continue;
-            }
-
-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getDirectionVec()).scale(0.5));
-
-            if (eyesPos.distanceTo(hitVec) > range.getValue()) {
-                continue;
-            }
-
-            int obiSlot = findObiInHotbar();
-
-            // check if any blocks were found
-            if (obiSlot == -1) {
-                this.disable();
+        // check if entity blocks placing
+        for (Entity entity : mc.world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos))) {
+            if (!(entity instanceof EntityItem) && !(entity instanceof EntityXPOrb)) {
                 return false;
             }
-
-            if (lastHotbarSlot != obiSlot) {
-                Wrapper.getPlayer().inventory.currentItem = obiSlot;
-                lastHotbarSlot = obiSlot;
-            }
-
-            Block neighborPos = mc.world.getBlockState(neighbor).getBlock();
-            if (BlockInteractionHelper.blackList.contains(neighborPos) || BlockInteractionHelper.shulkerList.contains(neighborPos)) {
-                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-                isSneaking = true;
-            }
-
-            // fake rotation
-            if (rotate.getValue()) {
-                faceVectorPacketInstant(hitVec);
-            }
-
-            // place block
-            mc.playerController.processRightClickBlock(mc.player, mc.world, neighbor, side2, hitVec, EnumHand.MAIN_HAND);
-            mc.player.swingArm(EnumHand.MAIN_HAND);
-
-            return true;
-
         }
 
-        return false;
+        EnumFacing side = getPlaceableSide(pos);
+
+        // check if we have a block adjacent to blockpos to click at
+        if (side == null) {
+            return false;
+        }
+
+        BlockPos neighbour = pos.offset(side);
+        EnumFacing opposite = side.getOpposite();
+
+        // check if neighbor can be right clicked
+        if (!canBeClicked(neighbour)) {
+            return false;
+        }
+
+        Vec3d hitVec = new Vec3d(neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+        Block neighbourBlock = mc.world.getBlockState(neighbour).getBlock();
+
+        if (mc.player.getPositionVector().distanceTo(hitVec) > range) {
+            return false;
+        }
+
+        int obiSlot = findObiInHotbar();
+
+        if (obiSlot == -1) {
+            if (infoMessage.getValue()) {
+                Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
+            }
+            this.disable();
+        }
+
+        if (lastHotbarSlot != obiSlot) {
+            mc.player.inventory.currentItem = obiSlot;
+            lastHotbarSlot = obiSlot;
+        }
+
+        if (!isSneaking && BlockInteractionHelper.blackList.contains(neighbourBlock) || BlockInteractionHelper.shulkerList.contains(neighbourBlock)) {
+            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            isSneaking = true;
+        }
+
+        if (rotate.getValue()) {
+            faceVectorPacketInstant(hitVec);
+        }
+
+        mc.playerController.processRightClickBlock(mc.player, mc.world, neighbour, opposite, hitVec, EnumHand.MAIN_HAND);
+        mc.player.swingArm(EnumHand.MAIN_HAND);
+        mc.rightClickDelayTimer = 4;
+
+        if (noGlitchBlocks.getValue() && !mc.playerController.getCurrentGameType().equals(GameType.CREATIVE)) {
+            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, neighbour, opposite));
+        }
+
+        return true;
 
     }
 
@@ -275,7 +287,7 @@ public class AutoTrap extends Module {
         for (int i = 0; i < 9; i++) {
 
             // filter out non-block items
-            ItemStack stack = Wrapper.getPlayer().inventory.getStackInSlot(i);
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
 
             if (stack == ItemStack.EMPTY || !(stack.getItem() instanceof ItemBlock)) {
                 continue;
@@ -295,7 +307,7 @@ public class AutoTrap extends Module {
 
     private void findClosestTarget() {
 
-        List<EntityPlayer> playerList = Wrapper.getWorld().playerEntities;
+        List<EntityPlayer> playerList = mc.world.playerEntities;
 
         closestTarget = null;
 
@@ -305,7 +317,7 @@ public class AutoTrap extends Module {
                 continue;
             }
 
-            if (Friends.isFriend(target.getName())) {
+            if (mc.player.getDistance(target) > range.getValue() + 3) {
                 continue;
             }
 
@@ -317,16 +329,91 @@ public class AutoTrap extends Module {
                 continue;
             }
 
+            if (Friends.isFriend(target.getName())) {
+                continue;
+            }
+
             if (closestTarget == null) {
                 closestTarget = target;
                 continue;
             }
 
-            if (Wrapper.getPlayer().getDistance(target) < Wrapper.getPlayer().getDistance(closestTarget)) {
+            if (mc.player.getDistance(target) < mc.player.getDistance(closestTarget)) {
                 closestTarget = target;
             }
 
         }
+
+    }
+
+    @Override
+    public String getHudInfo() {
+        if (closestTarget != null) {
+            return closestTarget.getName().toUpperCase();
+        }
+        return "NO TARGET";
+    }
+
+    private enum Cage {
+        TRAP, CRYSTAL, CRYSTALFULL
+    }
+
+    private static class Offsets {
+
+        private static final Vec3d[] TRAP = {
+                new Vec3d(0, 0, -1),
+                new Vec3d(1, 0, 0),
+                new Vec3d(0, 0, 1),
+                new Vec3d(-1, 0, 0),
+                new Vec3d(0, 1, -1),
+                new Vec3d(1, 1, 0),
+                new Vec3d(0, 1, 1),
+                new Vec3d(-1, 1, 0),
+                new Vec3d(0, 2, -1),
+                new Vec3d(1, 2, 0),
+                new Vec3d(0, 2, 1),
+                new Vec3d(-1, 2, 0),
+                new Vec3d(0, 3, -1),
+                new Vec3d(0, 3, 0)
+        };
+
+        private static final Vec3d[] CRYSTAL = {
+                new Vec3d(0, 0, -1),
+                new Vec3d(0, 1, -1),
+                new Vec3d(0, 2, -1),
+                new Vec3d(1, 2, 0),
+                new Vec3d(0, 2, 1),
+                new Vec3d(-1, 2, 0),
+                new Vec3d(-1, 2, -1),
+                new Vec3d(1, 2, 1),
+                new Vec3d(1, 2, -1),
+                new Vec3d(-1, 2, 1),
+                new Vec3d(0, 3, -1),
+                new Vec3d(0, 3, 0)
+        };
+
+        private static final Vec3d[] CRYSTALFULL = {
+                new Vec3d(0, 0, -1),
+                new Vec3d(1, 0, 0),
+                new Vec3d(0, 0, 1),
+                new Vec3d(-1, 0, 0),
+                new Vec3d(-1, 0, 1),
+                new Vec3d(1, 0, -1),
+                new Vec3d(-1, 0, -1),
+                new Vec3d(1, 0, 1),
+                new Vec3d(-1, 1, -1),
+                new Vec3d(1, 1, 1),
+                new Vec3d(-1, 1, 1),
+                new Vec3d(1, 1, -1),
+                new Vec3d(0, 2, -1),
+                new Vec3d(1, 2, 0),
+                new Vec3d(0, 2, 1),
+                new Vec3d(-1, 2, 0),
+                new Vec3d(-1, 2, 1),
+                new Vec3d(1, 2, -1),
+                new Vec3d(0, 3, -1),
+                new Vec3d(0, 3, 0)
+        };
 
     }
 
