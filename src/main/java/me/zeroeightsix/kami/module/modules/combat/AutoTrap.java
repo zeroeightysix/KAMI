@@ -53,7 +53,7 @@ public class AutoTrap extends Module {
     private Setting<Boolean> infoMessage = register(Settings.b("InfoMessage", false));
 
     private EntityPlayer closestTarget;
-    private String lastTickTargetName;
+    private String lastTargetName;
 
     private int playerHotbarSlot = -1;
     private int lastHotbarSlot = -1;
@@ -132,6 +132,7 @@ public class AutoTrap extends Module {
             return;
         }
 
+
         if (!firstRun) {
             if (delayStep < tickDelay.getValue()) {
                 delayStep++;
@@ -144,18 +145,15 @@ public class AutoTrap extends Module {
         findClosestTarget();
 
         if (closestTarget == null) {
-            if (firstRun) {
-                firstRun = false;
-            }
             return;
         }
 
         if (firstRun) {
             firstRun = false;
-            lastTickTargetName = closestTarget.getName();
-        } else if (!lastTickTargetName.equals(closestTarget.getName())) {
-            lastTickTargetName = closestTarget.getName();
+            lastTargetName = closestTarget.getName();
+        } else if (!lastTargetName.equals(closestTarget.getName())) {
             offsetStep = 0;
+            lastTargetName = closestTarget.getName();
         }
 
         List<Vec3d> placeTargets = new ArrayList<>();
