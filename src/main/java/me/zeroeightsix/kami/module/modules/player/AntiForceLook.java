@@ -14,6 +14,7 @@ public class AntiForceLook extends Module {
 
     @EventHandler
     Listener<PacketEvent.Receive> receiveListener = new Listener<>(event -> {
+        if (mc.player == null) return;
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
             packet.yaw = mc.player.rotationYaw;

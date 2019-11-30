@@ -11,24 +11,31 @@ import net.minecraft.client.gui.GuiGameOver;
 
 /**
  * Created by 086 on 9/04/2018.
+ * Updated 16 November 2019 by hub
  */
-@Module.Info(name = "AutoRespawn", description = "Automatically respawns upon death and tells you where you died", category = Module.Category.MISC)
+@Module.Info(name = "AutoRespawn", description = "Respawn utility", category = Module.Category.MISC)
 public class AutoRespawn extends Module {
 
-    private Setting<Boolean> deathCoords = register(Settings.b("DeathCoords", false));
     private Setting<Boolean> respawn = register(Settings.b("Respawn", true));
+    private Setting<Boolean> deathCoords = register(Settings.b("DeathCoords", false));
+    private Setting<Boolean> antiGlitchScreen = register(Settings.b("Anti Glitch Screen", true));
 
     @EventHandler
     public Listener<GuiScreenEvent.Displayed> listener = new Listener<>(event -> {
-        if (event.getScreen() instanceof GuiGameOver) {
-            if (deathCoords.getValue())
-                Command.sendChatMessage(String.format("You died at x %d y %d z %d", (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ));
 
-            if (respawn.getValue()) {
-                mc.player.respawnPlayer();
-                mc.displayGuiScreen(null);
-            }
+        if (!(event.getScreen() instanceof GuiGameOver)) {
+            return;
         }
+
+        if (deathCoords.getValue() && mc.player.getHealth() <= 0) {
+            Command.sendChatMessage(String.format("You died at x %d y %d z %d", (int) mc.player.posX, (int) mc.player.posY, (int) mc.player.posZ));
+        }
+
+        if (respawn.getValue() || (antiGlitchScreen.getValue() && mc.player.getHealth() > 0)) {
+            mc.player.respawnPlayer();
+            mc.displayGuiScreen(null);
+        }
+
     });
 
 }
