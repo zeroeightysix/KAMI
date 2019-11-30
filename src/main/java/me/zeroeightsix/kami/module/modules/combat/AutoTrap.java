@@ -63,6 +63,8 @@ public class AutoTrap extends Module {
     private int offsetStep = 0;
     private boolean firstRun;
 
+    private boolean announcedDisable = false;
+
     private static EnumFacing getPlaceableSide(BlockPos pos) {
 
         for (EnumFacing side : EnumFacing.values()) {
@@ -118,6 +120,8 @@ public class AutoTrap extends Module {
 
         playerHotbarSlot = -1;
         lastHotbarSlot = -1;
+
+        announcedDisable = false;
 
     }
 
@@ -246,7 +250,7 @@ public class AutoTrap extends Module {
         int obiSlot = findObiInHotbar();
 
         if (obiSlot == -1) {
-            if (infoMessage.getValue()) {
+            if (!announcedDisable && infoMessage.getValue()) {
                 Command.sendChatMessage("[AutoTrap] " + ChatFormatting.RED + "Disabled" + ChatFormatting.RESET + ", Obsidian missing!");
             }
             this.disable();
