@@ -174,11 +174,11 @@ public class AutoTrap extends Module {
         }
 
         if (cage.getValue().equals(Cage.CRYSTAL)) {
-            Collections.addAll(placeTargets, Offsets.CRYSTALFULL);
+            Collections.addAll(placeTargets, Offsets.CRYSTAL);
         }
 
         if (cage.getValue().equals(Cage.CRYSTALFULL)) {
-            Collections.addAll(placeTargets, Offsets.CRYSTAL);
+            Collections.addAll(placeTargets, Offsets.CRYSTALFULL);
         }
 
         int blocksPlaced = 0;
