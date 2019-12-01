@@ -173,8 +173,8 @@ public class AutoTrap extends Module {
             Collections.addAll(placeTargets, Offsets.TRAP);
         }
 
-        if (cage.getValue().equals(Cage.CRYSTAL)) {
-            Collections.addAll(placeTargets, Offsets.CRYSTAL);
+        if (cage.getValue().equals(Cage.CRYSTALEXA)) {
+            Collections.addAll(placeTargets, Offsets.CRYSTALEXA);
         }
 
         if (cage.getValue().equals(Cage.CRYSTALFULL)) {
@@ -370,7 +370,7 @@ public class AutoTrap extends Module {
     }
 
     private enum Cage {
-        TRAP, CRYSTAL, CRYSTALFULL
+        TRAP, CRYSTALEXA, CRYSTALFULL
     }
 
     private static class Offsets {
@@ -392,7 +392,7 @@ public class AutoTrap extends Module {
                 new Vec3d(0, 3, 0)
         };
 
-        private static final Vec3d[] CRYSTAL = {
+        private static final Vec3d[] CRYSTALEXA = {
                 new Vec3d(0, 0, -1),
                 new Vec3d(0, 1, -1),
                 new Vec3d(0, 2, -1),
