@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.world.chunk.Chunk;
 import org.apache.commons.lang3.SystemUtils;
 import org.lwjgl.opengl.GL11;
@@ -204,7 +204,7 @@ public class ChunkFinder extends Module {
     }
     
     private Path makeMultiplayerDirectory(){
-        File rV = Minecraft.getMinecraft().gameDir;
+        File rV = MinecraftClient.getInstance().gameDir;
         String folderName;
         switch(saveOption.getValue()){
                 case liteLoaderWdl: // make folder structure like liteLoader

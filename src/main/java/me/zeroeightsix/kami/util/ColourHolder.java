@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 /**
- * Created by Gebruiker on 18/04/2017.
+ * Created by 086 on 18/04/2017.
  */
 public class ColourHolder {
 

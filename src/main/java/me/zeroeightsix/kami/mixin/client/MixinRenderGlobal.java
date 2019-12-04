@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.renderer.ChunkRenderContainer;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.util.BlockRenderLayer;

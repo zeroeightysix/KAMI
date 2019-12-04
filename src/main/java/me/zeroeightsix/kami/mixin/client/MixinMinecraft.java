@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.GuiScreenEvent;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.*;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Created by 086 on 17/11/2017.
  */
-@Mixin(Minecraft.class)
+@Mixin(MinecraftClient.class)
 public class MixinMinecraft {
 
     @Shadow
@@ -79,7 +79,7 @@ public class MixinMinecraft {
 
         if (guiScreenIn != null)
         {
-            Minecraft.getMinecraft().setIngameNotInFocus();
+            MinecraftClient.getInstance().setIngameNotInFocus();
             KeyBinding.unPressAllKeys();
 
             while (Mouse.next())
@@ -88,16 +88,16 @@ public class MixinMinecraft {
             while (Keyboard.next())
             {}
 
-            ScaledResolution scaledresolution = new ScaledResolution(Minecraft.getMinecraft());
+            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
             int i = scaledresolution.getScaledWidth();
             int j = scaledresolution.getScaledHeight();
-            guiScreenIn.setWorldAndResolution(Minecraft.getMinecraft(), i, j);
+            guiScreenIn.setWorldAndResolution(MinecraftClient.getInstance(), i, j);
             this.skipRenderWorld = false;
         }
         else
         {
             this.soundHandler.resumeSounds();
-            Minecraft.getMinecraft().setIngameFocus();
+            MinecraftClient.getInstance().setIngameFocus();
         }
 
         info.cancel();

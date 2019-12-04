@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.util;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.BlockPos;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -27,20 +27,20 @@ public class KamiTessellator extends Tessellator {
     public static void prepareGL() {
 //        GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.glLineWidth(1.5F);
-        GlStateManager.disableTexture2D();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.lineWidth(1.5F);
+        GlStateManager.disableTexture();
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
-        GlStateManager.enableAlpha();
-        GlStateManager.color(1,1,1);
+        GlStateManager.enableAlphaTest();
+        GlStateManager.color3f(1f,1f,1f);
     }
 
     public static void begin(int mode) {
-        INSTANCE.getBuffer().begin(mode, DefaultVertexFormats.POSITION_COLOR);
+        INSTANCE.getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
     }
 
     public static void release() {
@@ -55,9 +55,9 @@ public class KamiTessellator extends Tessellator {
     public static void releaseGL() {
         GlStateManager.enableCull();
         GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.enableBlend();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
     }
 
     public static void drawBox(BlockPos blockPos, int argb, int sides) {
@@ -73,120 +73,120 @@ public class KamiTessellator extends Tessellator {
         final int r = (argb >>> 16) & 0xFF;
         final int g = (argb >>> 8) & 0xFF;
         final int b = argb & 0xFF;
-        drawBox(INSTANCE.getBuffer(), x, y, z, 1, 1, 1, r, g, b, a, sides);
+        drawBox(getBuffer(), x, y, z, 1, 1, 1, r, g, b, a, sides);
     }
 
     public static void drawBox(BlockPos blockPos, int r, int g, int b, int a, int sides) {
-        drawBox(INSTANCE.getBuffer(), blockPos.x, blockPos.y, blockPos.z, 1, 1, 1, r, g, b, a, sides);
+        drawBox(getBuffer(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, r, g, b, a, sides);
     }
 
-    public static BufferBuilder getBufferBuilder() {
-        return INSTANCE.getBuffer();
+    public static BufferBuilder getBuffer() {
+        return INSTANCE.getBufferBuilder();
     }
 
     public static void drawBox(final BufferBuilder buffer, float x, float y, float z, float w, float h, float d, int r, int g, int b, int a, int sides) {
         if ((sides & GeometryMasks.Quad.DOWN) != 0) {
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Quad.UP) != 0) {
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Quad.NORTH) != 0) {
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Quad.SOUTH) != 0) {
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Quad.WEST) != 0) {
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Quad.EAST) != 0) {
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
         }
     }
 
     public static void drawLines(final BufferBuilder buffer, float x, float y, float z, float w, float h, float d, int r, int g, int b, int a, int sides) {
         if ((sides & GeometryMasks.Line.DOWN_WEST) != 0) {
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.UP_WEST) != 0) {
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.DOWN_EAST) != 0) {
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.UP_EAST) != 0) {
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.DOWN_NORTH) != 0) {
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.UP_NORTH) != 0) {
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.DOWN_SOUTH) != 0) {
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.UP_SOUTH) != 0) {
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.NORTH_WEST) != 0) {
-            buffer.pos(x, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.NORTH_EAST) != 0) {
-            buffer.pos(x+w, y, z).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.SOUTH_WEST) != 0) {
-            buffer.pos(x, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x, y+h, z+d).color(r, g, b, a).end();
         }
 
         if ((sides & GeometryMasks.Line.SOUTH_EAST) != 0) {
-            buffer.pos(x+w, y, z+d).color(r, g, b, a).endVertex();
-            buffer.pos(x+w, y+h, z+d).color(r, g, b, a).endVertex();
+            buffer.vertex(x+w, y, z+d).color(r, g, b, a).end();
+            buffer.vertex(x+w, y+h, z+d).color(r, g, b, a).end();
         }
     }
 

@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.module.ModuleManager;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.*;
@@ -22,8 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GuiScreen.class)
 public class MixinGuiScreen {
 
-    RenderItem itemRender = Minecraft.getMinecraft().getRenderItem();
-    FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    RenderItem itemRender = MinecraftClient.getInstance().getRenderItem();
+    FontRenderer fontRenderer = MinecraftClient.getInstance().fontRenderer;
 
     @Inject(method = "renderToolTip", at = @At("HEAD"), cancellable = true)
     public void renderToolTip(ItemStack stack, int x, int y, CallbackInfo info) {

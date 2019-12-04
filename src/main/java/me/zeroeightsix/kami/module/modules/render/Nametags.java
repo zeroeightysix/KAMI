@@ -7,7 +7,7 @@ import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -49,7 +49,7 @@ public class Nametags extends Module {
         GlStateManager.enableTexture2D();
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-        Minecraft.getMinecraft().world.loadedEntityList.stream()
+        MinecraftClient.getInstance().world.loadedEntityList.stream()
                 .filter(EntityUtil::isLiving)
                 .filter(entity -> !EntityUtil.isFakeLocalPlayer(entity))
                 .filter(entity -> (entity instanceof EntityPlayer ? players.getValue() && mc.player != entity : (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())))

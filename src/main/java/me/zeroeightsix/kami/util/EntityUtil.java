@@ -1,15 +1,15 @@
 package me.zeroeightsix.kami.util;
 
-import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.FluidBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.EntityCategory;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.AmbientEntity;
+import net.minecraft.entity.mob.EndermanEntity;
+import net.minecraft.entity.mob.ZombiePigmanEntity;
 import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -17,14 +17,13 @@ import net.minecraft.util.math.Vec3d;
 public class EntityUtil {
 
     public static boolean isPassive(Entity e){
-        if (e instanceof EntityWolf && ((EntityWolf) e).isAngry()) return false;
-        if (e instanceof EntityAnimal || e instanceof EntityAgeable || e instanceof EntityTameable || e instanceof EntityAmbientCreature || e instanceof EntitySquid) return true;
-        if (e instanceof EntityIronGolem && ((EntityIronGolem) e).getRevengeTarget() == null) return true;
-        return false;
+        if (e instanceof WolfEntity && ((WolfEntity) e).isAngry()) return false;
+        if (e instanceof AnimalEntity || e instanceof AmbientEntity || e instanceof SquidEntity) return true;
+        return e instanceof IronGolemEntity && ((IronGolemEntity) e).getTarget() == null;
     }
 
     public static boolean isLiving(Entity e) {
-        return e instanceof EntityLivingBase;
+        return e instanceof LivingEntity;
     }
 
     public static boolean isFakeLocalPlayer(Entity entity) {
@@ -35,11 +34,7 @@ public class EntityUtil {
      * Find the entities interpolated amount
      */
     public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
-        return new Vec3d(
-                (entity.posX - entity.lastTickPosX) * x,
-                (entity.posY - entity.lastTickPosY) * y,
-                (entity.posZ - entity.lastTickPosZ) * z
-        );
+        return entity.getPos().subtract(entity.prevX, entity.prevY, entity.prevZ).multiply(x, y, z);
     }
     public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
         return getInterpolatedAmount(entity, vec.x, vec.y, vec.z);
@@ -49,16 +44,16 @@ public class EntityUtil {
     }
 
     public static boolean isMobAggressive(Entity entity) {
-        if(entity instanceof EntityPigZombie) {
-            // arms raised = aggressive, angry = either game or we have set the anger cooldown
-            if(((EntityPigZombie) entity).isArmsRaised() || ((EntityPigZombie) entity).isAngry()) {
+        if(entity instanceof ZombiePigmanEntity) {
+            // angry = either game or we have set the anger cooldown
+            if(((ZombiePigmanEntity) entity).isAngryAt(MinecraftClient.getInstance().player)) {
                 return true;
             }
-        } else if(entity instanceof EntityWolf) {
-            return ((EntityWolf) entity).isAngry() &&
-                    !Wrapper.getPlayer().equals(((EntityWolf) entity).getOwner());
-        } else if(entity instanceof EntityEnderman) {
-            return ((EntityEnderman) entity).isScreaming();
+        } else if(entity instanceof WolfEntity) {
+            return ((WolfEntity) entity).isAngry() &&
+                    !Wrapper.getPlayer().equals(((WolfEntity) entity).getOwner());
+        } else if(entity instanceof EndermanEntity) {
+            return ((EndermanEntity) entity).isAngry();
         }
         return isHostileMob(entity);
     }
@@ -67,79 +62,80 @@ public class EntityUtil {
      * If the mob by default wont attack the player, but will if the player attacks it
      */
     public static boolean isNeutralMob(Entity entity) {
-        return entity instanceof EntityPigZombie ||
-                entity instanceof EntityWolf ||
-                entity instanceof EntityEnderman;
+        return entity instanceof ZombiePigmanEntity ||
+                entity instanceof WolfEntity ||
+                entity instanceof EndermanEntity;
     }
 
     /**
      * If the mob is friendly (not aggressive)
      */
     public static boolean isFriendlyMob(Entity entity) {
-        return (entity.isCreatureType(EnumCreatureType.CREATURE, false) && !EntityUtil.isNeutralMob(entity)) ||
-                (entity.isCreatureType(EnumCreatureType.AMBIENT, false)) ||
-                entity instanceof EntityVillager ||
-                entity instanceof EntityIronGolem ||
-                (isNeutralMob(entity) && !EntityUtil.isMobAggressive(entity));
+        return (entity.getType().getCategory() == EntityCategory.CREATURE && !EntityUtil.isNeutralMob(entity)) ||
+                (entity.getType().getCategory() == EntityCategory.AMBIENT ||
+                entity instanceof VillagerEntity ||
+                entity instanceof IronGolemEntity ||
+                (isNeutralMob(entity) && !EntityUtil.isMobAggressive(entity)));
     }
 
     /**
      * If the mob is hostile
      */
     public static boolean isHostileMob(Entity entity) {
-        return (entity.isCreatureType(EnumCreatureType.MONSTER, false) && !EntityUtil.isNeutralMob(entity));
+        return (entity.getType().getCategory() == EntityCategory.MONSTER && !EntityUtil.isNeutralMob(entity));
     }
 
     /**
      * Find the entities interpolated position
      */
     public static Vec3d getInterpolatedPos(Entity entity, float ticks) {
-        return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ).add(getInterpolatedAmount(entity, ticks));
+        return new Vec3d(entity.prevX, entity.prevY, entity.prevZ).add(getInterpolatedAmount(entity, ticks));
     }
 
     public static Vec3d getInterpolatedRenderPos(Entity entity, float ticks) {
-        return getInterpolatedPos(entity, ticks).subtract(Wrapper.getMinecraft().getRenderManager().renderPosX,Wrapper.getMinecraft().getRenderManager().renderPosY,Wrapper.getMinecraft().getRenderManager().renderPosZ);
+        Vec3d renderPos = Wrapper.getRenderPosition();
+        return getInterpolatedPos(entity, ticks).subtract(renderPos);
     }
 
     public static boolean isInWater(Entity entity) {
         if(entity == null) return false;
 
-        double y = entity.posY + 0.01;
+        double y = entity.y + 0.01;
 
-        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
-            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
+            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
                 BlockPos pos = new BlockPos(x, (int) y, z);
 
-                if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+                if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
             }
 
         return false;
     }
 
     public static boolean isDrivenByPlayer(Entity entityIn) {
-        return Wrapper.getPlayer() != null && entityIn != null && entityIn.equals(Wrapper.getPlayer().getRidingEntity());
+        return Wrapper.getPlayer() != null && entityIn != null && entityIn.equals(Wrapper.getPlayer().getVehicle());
     }
 
     public static boolean isAboveWater(Entity entity) { return isAboveWater(entity, false); }
     public static boolean isAboveWater(Entity entity, boolean packet){
         if (entity == null) return false;
 
-        double y = entity.posY - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
+        double y = entity.y - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
-        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
-            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
+            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
-                if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+                if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
             }
 
         return false;
     }
 
-    public static double[] calculateLookAt(double px, double py, double pz, EntityPlayer me) {
-        double dirx = me.posX - px;
-        double diry = me.posY - py;
-        double dirz = me.posZ - pz;
+    public static double[] calculateLookAt(double px, double py, double pz, ClientPlayerEntity me) {
+        double dirx = me.x - px;
+        double diry = me.y - py;
+        double dirz = me.z - pz;
 
         double len = Math.sqrt(dirx*dirx + diry*diry + dirz*dirz);
 
@@ -160,15 +156,15 @@ public class EntityUtil {
     }
 
     public static boolean isPlayer(Entity entity) {
-        return entity instanceof EntityPlayer;
+        return entity instanceof ClientPlayerEntity;
     }
 
     public static double getRelativeX(float yaw){
-        return (double) (MathHelper.sin(-yaw * 0.017453292F));
+        return MathHelper.sin(-yaw * 0.017453292F);
     }
 
     public static double getRelativeZ(float yaw){
-        return (double) (MathHelper.cos(yaw * 0.017453292F));
+        return MathHelper.cos(yaw * 0.017453292F);
     }
 
 }

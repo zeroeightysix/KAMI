@@ -4,7 +4,7 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.gui.rgui.component.Component;
 import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
@@ -114,7 +114,7 @@ public class DisplayGuiScreen extends GuiScreen {
     }
 
     private void calculateMouse() {
-        Minecraft minecraft = Minecraft.getMinecraft();
+        Minecraft minecraft = MinecraftClient.getInstance();
         int scaleFactor = getScale();
         this.mouseX = Mouse.getX() / scaleFactor;
         this.mouseY =  minecraft.displayHeight / scaleFactor - Mouse.getY() / scaleFactor - 1;

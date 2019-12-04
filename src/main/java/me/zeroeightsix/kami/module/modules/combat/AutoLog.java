@@ -6,7 +6,7 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.network.play.server.SPacketDisconnect;
 import net.minecraft.util.text.TextComponentString;
@@ -48,7 +48,7 @@ public class AutoLog extends Module {
         if (shouldLog) {
             shouldLog = false;
             if (System.currentTimeMillis() - lastLog < 2000) return;
-            Minecraft.getMinecraft().getConnection().handleDisconnect(new SPacketDisconnect(new TextComponentString("AutoLogged")));
+            MinecraftClient.getInstance().getConnection().handleDisconnect(new SPacketDisconnect(new TextComponentString("AutoLogged")));
         }
     }
 

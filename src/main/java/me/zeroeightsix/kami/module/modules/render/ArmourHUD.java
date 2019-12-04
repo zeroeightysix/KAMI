@@ -4,7 +4,7 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack;
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
 public class ArmourHUD extends Module {
 
-    private static RenderItem itemRender = Minecraft.getMinecraft()
+    private static RenderItem itemRender = MinecraftClient.getInstance()
             .getRenderItem();
 
     private Setting<Boolean> damage = register(Settings.b("Damage", false));

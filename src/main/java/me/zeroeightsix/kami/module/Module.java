@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Bind;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.input.Keyboard;
 
 import java.lang.annotation.Retention;
@@ -32,7 +32,7 @@ public class Module {
     private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter()).build());
     private Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
     public boolean alwaysListening;
-    protected static final Minecraft mc = Minecraft.getMinecraft();
+    protected static final Minecraft mc = MinecraftClient.getInstance();
 
     public List<Setting> settingList = new ArrayList<>();
 

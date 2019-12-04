@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.util.ColourUtils;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.HueCycler;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +33,7 @@ public class Tracers extends Module {
     @Override
     public void onWorldRender(RenderEvent event) {
         GlStateManager.pushMatrix();
-        Minecraft.getMinecraft().world.loadedEntityList.stream()
+        MinecraftClient.getInstance().world.loadedEntityList.stream()
                 .filter(EntityUtil::isLiving)
                 .filter(entity -> !EntityUtil.isFakeLocalPlayer(entity))
                 .filter(entity -> (entity instanceof EntityPlayer ? players.getValue() && mc.player!=entity : (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())))
@@ -60,9 +60,9 @@ public class Tracers extends Module {
     private void drawRainbowToEntity(Entity entity, float opacity) {
         Vec3d eyes = new Vec3d(0, 0, 1)
                 .rotatePitch(-(float)Math
-                        .toRadians(Minecraft.getMinecraft().player.rotationPitch))
+                        .toRadians(MinecraftClient.getInstance().player.rotationPitch))
                 .rotateYaw(-(float)Math
-                        .toRadians(Minecraft.getMinecraft().player.rotationYaw));
+                        .toRadians(MinecraftClient.getInstance().player.rotationYaw));
         double[] xyz = interpolate(entity);
         double posx = xyz[0];
         double posy = xyz[1];
@@ -131,9 +131,9 @@ public class Tracers extends Module {
     {
         Vec3d eyes = new Vec3d(0, 0, 1)
                 .rotatePitch(-(float)Math
-                        .toRadians(Minecraft.getMinecraft().player.rotationPitch))
+                        .toRadians(MinecraftClient.getInstance().player.rotationPitch))
                 .rotateYaw(-(float)Math
-                        .toRadians(Minecraft.getMinecraft().player.rotationYaw));
+                        .toRadians(MinecraftClient.getInstance().player.rotationYaw));
 
         drawLineFromPosToPos(eyes.x, eyes.y + mc.player.getEyeHeight(), eyes.z, posx, posy, posz, up, red, green, blue, opacity);
     }

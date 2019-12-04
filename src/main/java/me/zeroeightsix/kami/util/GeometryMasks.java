@@ -1,19 +1,19 @@
 package me.zeroeightsix.kami.util;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Direction;
 
 import java.util.HashMap;
 
 public final class GeometryMasks {
 
-    public static final HashMap<EnumFacing, Integer> FACEMAP = new HashMap<>();
+    public static final HashMap<Direction, Integer> FACEMAP = new HashMap<>();
     static {
-        FACEMAP.put(EnumFacing.DOWN, Quad.DOWN);
-        FACEMAP.put(EnumFacing.WEST, Quad.WEST);
-        FACEMAP.put(EnumFacing.NORTH, Quad.NORTH);
-        FACEMAP.put(EnumFacing.SOUTH, Quad.SOUTH);
-        FACEMAP.put(EnumFacing.EAST, Quad.EAST);
-        FACEMAP.put(EnumFacing.UP, Quad.UP);
+        FACEMAP.put(Direction.DOWN, Quad.DOWN);
+        FACEMAP.put(Direction.WEST, Quad.WEST);
+        FACEMAP.put(Direction.NORTH, Quad.NORTH);
+        FACEMAP.put(Direction.SOUTH, Quad.SOUTH);
+        FACEMAP.put(Direction.EAST, Quad.EAST);
+        FACEMAP.put(Direction.UP, Quad.UP);
     }
 
     public static final class Quad {

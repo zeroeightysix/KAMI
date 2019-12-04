@@ -16,7 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -165,7 +165,7 @@ public class Scaffold extends Module {
 
     private static PlayerControllerMP getPlayerController()
     {
-        return Minecraft.getMinecraft().playerController;
+        return MinecraftClient.getInstance().playerController;
     }
 
     public static void processRightClickBlock(BlockPos pos, EnumFacing side,

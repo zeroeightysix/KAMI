@@ -7,7 +7,7 @@ import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.GeometryMasks;
 import me.zeroeightsix.kami.util.KamiTessellator;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,9 +38,9 @@ public class EyeFinder extends Module {
     }
 
     private void drawLine(EntityLivingBase e) {
-        RayTraceResult result = e.rayTrace(6, Minecraft.getMinecraft().getRenderPartialTicks());
+        RayTraceResult result = e.rayTrace(6, MinecraftClient.getInstance().getRenderPartialTicks());
         if (result == null) return;
-        Vec3d eyes = e.getPositionEyes(Minecraft.getMinecraft().getRenderPartialTicks());
+        Vec3d eyes = e.getPositionEyes(MinecraftClient.getInstance().getRenderPartialTicks());
 
         GlStateManager.enableDepth();
         GlStateManager.disableTexture2D();
@@ -71,7 +71,7 @@ public class EyeFinder extends Module {
             float x = b.x - .01f;
             float y = b.y - .01f;
             float z = b.z - .01f;
-            KamiTessellator.drawBox(KamiTessellator.getBufferBuilder(), x, y, z, 1.01f, 1.01f, 1.01f, 51, 25, 73, 200, GeometryMasks.Quad.ALL);
+            KamiTessellator.drawBox(KamiTessellator.getBuffer(), x, y, z, 1.01f, 1.01f, 1.01f, 51, 25, 73, 200, GeometryMasks.Quad.ALL);
             KamiTessellator.release();
         }
 

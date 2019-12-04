@@ -1,7 +1,8 @@
 package me.zeroeightsix.kami.util;
 
 import me.zeroeightsix.kami.command.commands.BindCommand;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.gui.screen.Screen;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Created by 086 on 9/10/2018.
@@ -12,16 +13,22 @@ public class Bind {
     boolean alt;
     boolean shift;
     int key;
+    int scancode;
 
-    public Bind(boolean ctrl, boolean alt, boolean shift, int key) {
+    public Bind(boolean ctrl, boolean alt, boolean shift, int key, int scancode) {
         this.ctrl = ctrl;
         this.alt = alt;
         this.shift = shift;
         this.key = key;
+        this.scancode = scancode;
     }
 
     public int getKey() {
         return key;
+    }
+
+    public int getScancode() {
+        return scancode;
     }
 
     public boolean isCtrl() {
@@ -56,9 +63,18 @@ public class Bind {
         this.shift = shift;
     }
 
+    public String getName() {
+        return isEmpty() ? "None" : GLFW.glfwGetKeyName(getKey(), getScancode());
+    }
+
     @Override
     public String toString() {
-        return isEmpty() ? "None" : (isCtrl() ? "Ctrl+" : "") + (isAlt() ? "Alt+" : "") + (isShift() ? "Shift+" : "") + (key < 0 ? "None" : capitalise(Keyboard.getKeyName(key)));
+        return isEmpty() ?
+                "None" :
+                (isCtrl() ? "Ctrl+" : "") +
+                        (isAlt() ? "Alt+" : "") +
+                        (isShift() ? "Shift+" : "") +
+                        capitalise(getName());
     }
 
     public boolean isDown(int eventKey) {
@@ -66,15 +82,15 @@ public class Bind {
     }
 
     public static boolean isShiftDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+        return Screen.hasShiftDown();
     }
 
     public static boolean isCtrlDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+        return Screen.hasControlDown();
     }
 
     public static boolean isAltDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+        return Screen.hasAltDown();
     }
 
     public String capitalise(String str) {
@@ -83,7 +99,7 @@ public class Bind {
     }
 
     public static Bind none() {
-        return new Bind(false, false, false, -1);
+        return new Bind(false, false, false, -1, -1);
     }
 
 }

@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.PacketEvent;
-import net.minecraft.network.play.server.SPacketTimeUpdate;
+import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public class LagCompensator implements EventListener {
 
     @EventHandler
     Listener<PacketEvent.Receive> packetEventListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof SPacketTimeUpdate){
+        if (event.getPacket() instanceof WorldTimeUpdateS2CPacket){
             INSTANCE.onTimeUpdate();
         }
     });

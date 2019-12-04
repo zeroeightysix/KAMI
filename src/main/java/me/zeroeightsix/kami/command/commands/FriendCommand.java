@@ -7,7 +7,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.syntax.ChunkBuilder;
 import me.zeroeightsix.kami.command.syntax.parsers.EnumParser;
 import me.zeroeightsix.kami.util.Friends;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
 import java.io.BufferedInputStream;
@@ -85,7 +85,7 @@ public class FriendCommand extends Command {
     }
 
     private Friends.Friend getFriendByName(String input) {
-        ArrayList<NetworkPlayerInfo> infoMap = new ArrayList<NetworkPlayerInfo>(Minecraft.getMinecraft().getConnection().getPlayerInfoMap());
+        ArrayList<NetworkPlayerInfo> infoMap = new ArrayList<NetworkPlayerInfo>(MinecraftClient.getInstance().getConnection().getPlayerInfoMap());
         NetworkPlayerInfo profile = infoMap.stream().filter(networkPlayerInfo -> networkPlayerInfo.getGameProfile().getName().equalsIgnoreCase(input)).findFirst().orElse(null);
         if (profile == null) {
             Command.sendChatMessage("Player isn't online. Looking up UUID..");

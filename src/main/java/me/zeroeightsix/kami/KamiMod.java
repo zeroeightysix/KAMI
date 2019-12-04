@@ -8,11 +8,9 @@ import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
-import me.zeroeightsix.kami.event.ForgeEventProcessor;
 import me.zeroeightsix.kami.gui.kami.KamiGUI;
 import me.zeroeightsix.kami.gui.rgui.component.AlignedComponent;
 import me.zeroeightsix.kami.gui.rgui.component.Component;
-import me.zeroeightsix.kami.gui.rgui.component.container.Container;
 import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
 import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
 import me.zeroeightsix.kami.gui.rgui.util.Docking;
@@ -25,14 +23,14 @@ import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -44,24 +42,16 @@ import java.util.Optional;
 /**
  * Created by 086 on 7/11/2017.
  */
-@Mod(modid = KamiMod.MODID, name = KamiMod.MODNAME, version = KamiMod.MODVER)
-public class KamiMod {
+public class KamiMod implements ModInitializer {
 
     public static final String MODID = "kami";
     public static final String MODNAME = "KAMI";
     public static final String MODVER = "b9";
-
-    public static final String KAMI_HIRAGANA = "\u304B\u307F";
-    public static final String KAMI_KATAKANA = "\u30AB\u30DF";
     public static final String KAMI_KANJI = "\u795E";
-
     private static final String KAMI_CONFIG_NAME_DEFAULT = "KAMIConfig.json";
 
     public static final Logger log = LogManager.getLogger("KAMI");
-
     public static final EventBus EVENT_BUS = new EventManager();
-
-    @Mod.Instance
     private static KamiMod INSTANCE;
 
     public KamiGUI guiManager;
@@ -78,19 +68,16 @@ public class KamiMod {
         }
     }).buildAndRegister("");
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    @Override
+    public void onInitialize() {
+        KamiMod.INSTANCE = this;
 
-    }
-
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
         KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
 
         ModuleManager.initialize();
 
         ModuleManager.getModules().stream().filter(module -> module.alwaysListening).forEach(EVENT_BUS::subscribe);
-        MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
+//        MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
         LagCompensator.INSTANCE = new LagCompensator();
 
         Wrapper.init();

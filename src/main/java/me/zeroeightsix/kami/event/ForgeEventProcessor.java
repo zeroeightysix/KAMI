@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.render.BossStack;
 import me.zeroeightsix.kami.util.KamiTessellator;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.passive.AbstractHorse;
@@ -43,10 +43,10 @@ public class ForgeEventProcessor {
         if (event.isCanceled()) return;
 //        KamiMod.EVENT_BUS.post(new UpdateEvent());
 
-        if (Minecraft.getMinecraft().displayWidth != displayWidth || Minecraft.getMinecraft().displayHeight != displayHeight) {
+        if (MinecraftClient.getInstance().displayWidth != displayWidth || MinecraftClient.getInstance().displayHeight != displayHeight) {
             KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
-            displayWidth = Minecraft.getMinecraft().displayWidth;
-            displayHeight = Minecraft.getMinecraft().displayHeight;
+            displayWidth = MinecraftClient.getInstance().displayWidth;
+            displayHeight = MinecraftClient.getInstance().displayHeight;
 
             KamiMod.getInstance().getGuiManager().getChildren().stream()
                     .filter(component -> component instanceof Frame)
@@ -54,12 +54,12 @@ public class ForgeEventProcessor {
         }
 
         if (PeekCommand.sb != null) {
-            ScaledResolution scaledresolution = new ScaledResolution(Minecraft.getMinecraft());
+            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
             int i = scaledresolution.getScaledWidth();
             int j = scaledresolution.getScaledHeight();
             GuiShulkerBox gui = new GuiShulkerBox(Wrapper.getPlayer().inventory, PeekCommand.sb);
             gui.setWorldAndResolution(Wrapper.getMinecraft(), i, j);
-            Minecraft.getMinecraft().displayGuiScreen(gui);
+            MinecraftClient.getInstance().displayGuiScreen(gui);
             PeekCommand.sb = null;
         }
     }

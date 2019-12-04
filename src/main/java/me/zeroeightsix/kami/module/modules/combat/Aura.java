@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -69,7 +69,7 @@ public class Aura extends Module {
             }
         }
 
-        Iterator<Entity> entityIterator = Minecraft.getMinecraft().world.loadedEntityList.iterator();
+        Iterator<Entity> entityIterator = MinecraftClient.getInstance().world.loadedEntityList.iterator();
         while (entityIterator.hasNext()) {
             Entity target = entityIterator.next();
             if (!EntityUtil.isLiving(target)) {

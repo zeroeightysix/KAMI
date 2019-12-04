@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.module;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.modules.ClickGUI;
@@ -7,7 +8,7 @@ import me.zeroeightsix.kami.util.ClassFinder;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.KamiTessellator;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -65,31 +66,31 @@ public class ModuleManager {
     }
 
     public static void onWorldRender(RenderWorldLastEvent event) {
-        Minecraft.getMinecraft().profiler.startSection("kami");
+        MinecraftClient.getInstance().getProfiler().push("kami");
 
-        Minecraft.getMinecraft().profiler.startSection("setup");
+        MinecraftClient.getInstance().getProfiler().push("setup");
 //        GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.disableAlphaTest();
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
 
-        GlStateManager.glLineWidth(1f);
+        GlStateManager.lineWidth(1f);
         Vec3d renderPos = EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.getPartialTicks());
 
         RenderEvent e = new RenderEvent(KamiTessellator.INSTANCE, renderPos);
         e.resetTranslation();
-        Minecraft.getMinecraft().profiler.endSection();
+        MinecraftClient.getInstance().profiler.endSection();
 
         modules.stream().filter(module -> module.alwaysListening || module.isEnabled()).forEach(module -> {
-            Minecraft.getMinecraft().profiler.startSection(module.getName());
+            MinecraftClient.getInstance().profiler.startSection(module.getName());
             module.onWorldRender(e);
-            Minecraft.getMinecraft().profiler.endSection();
+            MinecraftClient.getInstance().profiler.endSection();
         });
 
-        Minecraft.getMinecraft().profiler.startSection("release");
+        MinecraftClient.getInstance().profiler.startSection("release");
         GlStateManager.glLineWidth(1f);
 
         GlStateManager.shadeModel(GL11.GL_FLAT);
@@ -100,9 +101,9 @@ public class ModuleManager {
         GlStateManager.enableCull();
 //        GlStateManager.popMatrix();
         KamiTessellator.releaseGL();
-        Minecraft.getMinecraft().profiler.endSection();
+        MinecraftClient.getInstance().profiler.endSection();
 
-        Minecraft.getMinecraft().profiler.endSection();
+        MinecraftClient.getInstance().profiler.endSection();
     }
 
     public static void onBind(int eventKey) {

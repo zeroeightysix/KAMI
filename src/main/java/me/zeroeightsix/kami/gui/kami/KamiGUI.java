@@ -23,7 +23,7 @@ import me.zeroeightsix.kami.util.ColourHolder;
 import me.zeroeightsix.kami.util.LagCompensator;
 import me.zeroeightsix.kami.util.Pair;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -316,7 +316,7 @@ public class KamiGUI extends GUI {
         frame.setPinneable(true);
         Label coordsLabel = new Label("");
         coordsLabel.addTickListener(new TickListener() {
-            Minecraft mc = Minecraft.getMinecraft();
+            Minecraft mc = MinecraftClient.getInstance();
 
             @Override
             public void onTick() {

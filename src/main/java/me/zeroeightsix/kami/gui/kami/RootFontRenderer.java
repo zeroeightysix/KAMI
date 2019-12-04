@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.gui.kami;
 
 import me.zeroeightsix.kami.gui.rgui.render.font.FontRenderer;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.awt.*;
 public class RootFontRenderer implements FontRenderer {
 
     private final float fontsize;
-    private final net.minecraft.client.gui.FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    private final net.minecraft.client.gui.FontRenderer fontRenderer = MinecraftClient.getInstance().fontRenderer;
 
     public RootFontRenderer(float fontsize) {
         this.fontsize = fontsize;
@@ -20,7 +20,7 @@ public class RootFontRenderer implements FontRenderer {
 
     @Override
     public int getFontHeight() {
-        return (int) (Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT*fontsize);
+        return (int) (MinecraftClient.getInstance().fontRenderer.FONT_HEIGHT*fontsize);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class RootFontRenderer implements FontRenderer {
 
     public void drawString(int x, int y, int colour, String text, boolean shadow) {
         prepare(x, y);
-        Minecraft.getMinecraft().fontRenderer.drawString(text, 0, 0, colour, shadow);
+        MinecraftClient.getInstance().fontRenderer.drawString(text, 0, 0, colour, shadow);
         pop(x,y);
     }
 

@@ -4,7 +4,7 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Pair;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.BossInfoClient;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,9 +33,9 @@ public class BossStack extends Module {
 
     public static void render(RenderGameOverlayEvent.Post event) {
         if (mode.getValue() == BossStackMode.MINIMIZE) {
-            Map<UUID, BossInfoClient> map = Minecraft.getMinecraft().ingameGUI.getBossOverlay().mapBossInfos;
+            Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
             if (map == null) return;
-            ScaledResolution scaledresolution = new ScaledResolution(Minecraft.getMinecraft());
+            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
             int i = scaledresolution.getScaledWidth();
             int j = 12;
 
@@ -47,15 +47,15 @@ public class BossStack extends Module {
                 GL11.glScaled(scale.getValue(), scale.getValue(), 1);
                 if (!event.isCanceled()) {
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    Minecraft.getMinecraft().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
-                    Minecraft.getMinecraft().ingameGUI.getBossOverlay().render(k, j, info);
-                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - Minecraft.getMinecraft().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
+                    MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
+                    MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
+                    MinecraftClient.getInstance().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
                 }
                 GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
+                j += 10 + MinecraftClient.getInstance().fontRenderer.FONT_HEIGHT;
             }
         } else if (mode.getValue() == BossStackMode.STACK) {
-            Map<UUID, BossInfoClient> map = Minecraft.getMinecraft().ingameGUI.getBossOverlay().mapBossInfos;
+            Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
             HashMap<String, Pair<BossInfoClient, Integer>> to = new HashMap<>();
 
             for (Map.Entry<UUID, BossInfoClient> entry : map.entrySet()) {
@@ -70,7 +70,7 @@ public class BossStack extends Module {
                 }
             }
 
-            ScaledResolution scaledresolution = new ScaledResolution(Minecraft.getMinecraft());
+            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
             int i = scaledresolution.getScaledWidth();
             int j = 12;
 
@@ -84,12 +84,12 @@ public class BossStack extends Module {
                 GL11.glScaled(scale.getValue(), scale.getValue(), 1);
                 if (!event.isCanceled()) {
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    Minecraft.getMinecraft().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
-                    Minecraft.getMinecraft().ingameGUI.getBossOverlay().render(k, j, info);
-                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - Minecraft.getMinecraft().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
+                    MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
+                    MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
+                    MinecraftClient.getInstance().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
                 }
                 GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
+                j += 10 + MinecraftClient.getInstance().fontRenderer.FONT_HEIGHT;
             }
         }
         return;
