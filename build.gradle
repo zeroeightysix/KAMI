@@ -1,99 +1,32 @@
-// make folders
-
-task mkdir {
-    group = "kami"
-    doLast {
-        mkdir System.getProperty("user.home") + "/.minecraft/mods/1.12.2/"
-    }
+plugins {
+    id 'fabric-loom' version '0.2.6-SNAPSHOT'
+    id 'maven-publish'
 }
 
-// delete old versions
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
-task rmOld(type: Delete) {
-    group = "kami"
-    delete fileTree(System.getProperty("user.home") + "/.minecraft/mods/1.12.2/").matching {
-        include "*-release.jar"
-    }
-}
+version = minecraft_version + "-" + mod_version
+group = "me.zeroeightsix"
 
-// copy file
-
-task copy(type: Copy) {
-    group = "kami"
-    from file("build/libs/")
-    include '*-release.jar'
-    into file(System.getProperty("user.home") + "/.minecraft/mods/1.12.2/")
-}
-
-// forge's stuff 
-
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = 'forge'
-            url = 'http://files.minecraftforge.net/maven'
-        }
-        maven {
-            name = 'SpongePowered'
-            url = 'http://repo.spongepowered.org/maven'
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
-    }
-}
-
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-version project.modVersion
-group project.modGroup // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-
-sourceCompatibility = targetCompatibility = '1.8'
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
-
-minecraft {
-    version = project.forgeVersion
-    runDir = 'run'
-    mappings = project.mcpVersion
-    coreMod = 'me.zeroeightsix.kami.mixin.MixinLoaderForge'
-    makeObfSourceJar = false
-}
+minecraft {}
 
 repositories {
+    jcenter()
     maven {
-        name = 'spongepowered-repo'
-        url = 'http://repo.spongepowered.org/maven/'
+        name = "jitpack.io"
+        url = "https://jitpack.io"
     }
     maven {
         name = 'impactdevelopment-repo'
         url = 'https://impactdevelopment.github.io/maven/'
     }
-    maven {
-        name = 'swt-repo'
-        url = "http://maven-eclipse.github.io/maven"
-    }
-    maven {
-        name = "jitpack.io"
-        url = "https://jitpack.io"
-    }
-    mavenCentral()
 }
 
 dependencies {
-    //mixin needs to be distributed with the mod, very important
-    compile("org.spongepowered:mixin:0.7.4-SNAPSHOT") {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'gson'
-        exclude module: 'commons-io'
-    }
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+
     compile "com.github.ZeroMemes:Alpine:1.5"
     compile group: 'net.jodah', name: 'typetools', version: '0.5.0'
     compile group: 'org.yaml', name: 'snakeyaml', version: '1.19'
@@ -103,65 +36,50 @@ dependencies {
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property 'version', project.version
-    inputs.property 'mcversion', project.minecraft.version
+    inputs.property "version", project.version
 
-    // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+        include "fabric.mod.json"
+        expand "version": project.version
     }
 
-    // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+        exclude "fabric.mod.json"
     }
-
-    // move _at.cfg into META-INF
-    rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
-shadowJar {
-    dependencies {
-        include(dependency('org.spongepowered:mixin'))
-        include(dependency('com.github.ZeroMemes:Alpine'))
-        include(dependency('net.jodah:typetools'))
-        include(dependency('org.yaml:snakeyaml'))
-        include(dependency('org.reflections:reflections'))
-        include(dependency('org.javassist:javassist'))
-    }
-    exclude 'dummyThing'
-    exclude 'LICENSE.txt'
-    classifier = 'release'
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
-mixin {
-    defaultObfuscationEnv searge
-    add sourceSets.main, 'mixins.kami.refmap.json'
-}
-
-reobf {
-    shadowJar {
-        mappingType = 'SEARGE'
-        classpath = sourceSets.main.compileClasspath
-    }
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
+    from sourceSets.main.allSource
 }
 
 jar {
-    manifest {
-        attributes(
-                'MixinConfigs': 'mixins.kami.json',
-                'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': 0,
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLCorePlugin': 'me.zeroeightsix.kami.mixin.MixinLoaderForge',
-                'ForceLoadAsMod': 'true',
-                'FMLAT': 'kami_at.cfg'
-        )
+    from "LICENSE"
+}
+
+// extra kami tasks
+
+task mkdir {
+    group = "kami"
+    doLast {
+        mkdir System.getProperty("user.home") + "/.minecraft/mods/1.12.2/"
     }
 }
 
-build.dependsOn(shadowJar)
+task rmOld(type: Delete) {
+    group = "kami"
+    delete fileTree(System.getProperty("user.home") + "/.minecraft/mods/1.12.2/").matching {
+        include "*-release.jar"
+    }
+}
+
+task copy(type: Copy) {
+    group = "kami"
+    from file("build/libs/")
+    include '*-release.jar'
+    into file(System.getProperty("user.home") + "/.minecraft/mods/1.12.2/")
+}
