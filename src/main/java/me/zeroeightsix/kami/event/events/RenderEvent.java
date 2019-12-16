@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.event.events;
 
 import me.zeroeightsix.kami.event.KamiEvent;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -11,33 +11,54 @@ import net.minecraft.util.math.Vec3d;
  */
 public class RenderEvent extends KamiEvent {
 
-    private final Tessellator tessellator;
-    private final Vec3d renderPos;
+    private final Stage stage;
 
-    public RenderEvent(Tessellator tessellator, Vec3d renderPos) {
-        super();
-        this.tessellator = tessellator;
-        this.renderPos = renderPos;
+    private RenderEvent(Stage stage) {
+        this.stage = stage;
     }
 
-    public Tessellator getTessellator() {
-        return tessellator;
+    public enum Stage {
+        WORLD, SCREEN
     }
 
-    public BufferBuilder getBuffer() {
-        return tessellator.getBuffer();
+    public static class Screen extends RenderEvent {
+        public Screen() {
+            super(Stage.SCREEN);
+        }
     }
 
-    public Vec3d getRenderPos() {
-        return renderPos;
-    }
+    public static class World extends RenderEvent {
 
-    public void setTranslation(Vec3d translation) {
-        getBuffer().setTranslation(-translation.x, -translation.y, -translation.z);
-    }
+        private final Tessellator tessellator;
+        private final Vec3d renderPos;
 
-    public void resetTranslation() {
-        setTranslation(renderPos);
+        public World(Tessellator tessellator, Vec3d renderPos) {
+            super(Stage.WORLD);
+            this.tessellator = tessellator;
+            this.renderPos = renderPos;
+            setEra(Era.POST);
+        }
+
+        public Tessellator getTessellator() {
+            return tessellator;
+        }
+
+        public BufferBuilder getBuffer() {
+            return tessellator.getBufferBuilder();
+        }
+
+        public Vec3d getRenderPos() {
+            return renderPos;
+        }
+
+        public void setTranslation(Vec3d translation) {
+            getBuffer().setOffset(-translation.x, -translation.y, -translation.z);
+        }
+
+        public void resetTranslation() {
+            setTranslation(renderPos);
+        }
+
     }
 
 }

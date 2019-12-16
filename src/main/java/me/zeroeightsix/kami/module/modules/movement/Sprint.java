@@ -11,7 +11,7 @@ public class Sprint extends Module {
     @Override
     public void onUpdate() {
         try {
-            if (!mc.player.collidedHorizontally && mc.player.moveForward > 0)
+            if (!mc.player.horizontalCollision && mc.player.forwardSpeed > 0)
                 mc.player.setSprinting(true);
             else
                 mc.player.setSprinting(false);

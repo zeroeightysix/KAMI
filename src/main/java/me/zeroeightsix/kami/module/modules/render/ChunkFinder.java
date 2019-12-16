@@ -1,27 +1,6 @@
 package me.zeroeightsix.kami.module.modules.render;
 
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.event.events.ChunkEvent;
-import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.world.chunk.Chunk;
-import org.apache.commons.lang3.SystemUtils;
-import org.lwjgl.opengl.GL11;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
-import static org.lwjgl.opengl.GL11.*;
 
 /**
  * @author 086 and IronException
@@ -29,7 +8,7 @@ import static org.lwjgl.opengl.GL11.*;
 @Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
 public class ChunkFinder extends Module {
 
-    private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
+    /*private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
     private Setting<Boolean> relative = register(Settings.b("Relative", true));
     private Setting<Boolean> saveNewChunks = register(Settings.b("Save New Chunks", false));
     private Setting<SaveOption> saveOption = register(Settings.enumBuilder(SaveOption.class).withValue(SaveOption.extraFolder).withName("Save Option").withVisibility(aBoolean -> saveNewChunks.getValue()).build());
@@ -58,18 +37,18 @@ public class ChunkFinder extends Module {
             glEnable(GL_BLEND);
             glLineWidth(1.0F);
             for (Chunk chunk : chunks) {
-                double posX = chunk.x * 16;
-                double posY = 0;
-                double posZ = chunk.z * 16;
+                double x = chunk.x * 16;
+                double y = 0;
+                double z = chunk.z * 16;
 
                 glColor3f(.6f, .1f, .2f);
 
                 glBegin(GL_LINE_LOOP);
-                glVertex3d(posX, posY, posZ);
-                glVertex3d(posX + 16, posY, posZ);
-                glVertex3d(posX + 16, posY, posZ + 16);
-                glVertex3d(posX, posY, posZ + 16);
-                glVertex3d(posX, posY, posZ);
+                glVertex3d(x, y, z);
+                glVertex3d(x + 16, y, z);
+                glVertex3d(x + 16, y, z + 16);
+                glVertex3d(x, y, z + 16);
+                glVertex3d(x, y, z);
                 glEnd();
             }
             glDisable(GL_BLEND);
@@ -84,9 +63,9 @@ public class ChunkFinder extends Module {
             dirty = false;
         }
 
-        double x = mc.getRenderManager().renderPosX;
-        double y = relative.getValue() ? 0 : -mc.getRenderManager().renderPosY;
-        double z = mc.getRenderManager().renderPosZ;
+        double x = mc.getEntityRenderManager().renderPosX;
+        double y = relative.getValue() ? 0 : -mc.getEntityRenderManager().renderPosY;
+        double z = mc.getEntityRenderManager().renderPosZ;
         GL11.glTranslated(-x, y + yOffset.getValue(), -z);
         GL11.glCallList(list);
         GL11.glTranslated(x, -(y + yOffset.getValue()), z);
@@ -147,15 +126,14 @@ public class ChunkFinder extends Module {
     }
 
     private Path getPath() {
-        /* code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
-        */
+        // code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
         File file = null;
-        int dimension = mc.player.dimension;
+        DimensionType dimension = mc.player.dimension;
 
         // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
-        if (mc.isSingleplayer()) {
+        if (mc.isInSingleplayer()) {
             try {
-                file = mc.getIntegratedServer().getWorld(dimension).getChunkSaveLocation();
+                file = mc.getServer().getWorld(dimension).();
             } catch (Exception e) {
                 e.printStackTrace();
                 KamiMod.log.error("some exception happened when getting canonicalFile -> " + e.getMessage());
@@ -163,7 +141,7 @@ public class ChunkFinder extends Module {
             }
 
             // Gets the "depth" of this directory relative the the game's run directory, 2 is the location of the world
-            if (file.toPath().relativize(mc.gameDir.toPath()).getNameCount() != 2) {
+            if (file.toPath().relativize(mc.runDirectory.toPath()).getNameCount() != 2) {
                 // subdirectory of the main save directory for this world
 
                 file = file.getParentFile();
@@ -302,7 +280,7 @@ public class ChunkFinder extends Module {
         SaveOption lastSaveOption;
         boolean lastInRegion;
         boolean lastSaveNormal;
-        int dimension;
+        DimensionType dimension;
         String ip;
 
         public boolean testChangeAndUpdate() {
@@ -328,7 +306,7 @@ public class ChunkFinder extends Module {
             if(dimension != mc.player.dimension) {
                 return true;
             }
-            if(!mc.getCurrentServerData().serverIP.equals(ip)) { // strings need equals + this way because could be null
+            if(!mc.getCurrentServerEntry().address.equals(ip)) { // strings need equals + this way because could be null
                 return true;
             }
             return false;
@@ -339,7 +317,7 @@ public class ChunkFinder extends Module {
             lastInRegion = saveInRegionFolder.getValue();
             lastSaveNormal = alsoSaveNormalCoords.getValue();
             dimension = mc.player.dimension;
-            ip = mc.getCurrentServerData().serverIP;
+            ip = mc.getCurrentServerEntry().address;
         }
-    }
+    }*/
 }

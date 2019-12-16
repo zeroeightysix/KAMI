@@ -1,35 +1,38 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
 import me.zeroeightsix.kami.command.Command;
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
+import me.zeroeightsix.kami.util.ShulkerBoxCommon;
+import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FluidBlock;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.container.Container;
+import net.minecraft.container.SlotActionType;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.server.network.packet.ClientCommandC2SPacket;
+import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static me.zeroeightsix.kami.module.modules.combat.CrystalAura.getPlayerPos;
 import static me.zeroeightsix.kami.module.modules.player.Scaffold.faceVectorPacketInstant;
 
 /**
@@ -49,26 +52,12 @@ public class Auto32k extends Module {
             Blocks.HOPPER,
             Blocks.DROPPER,
             Blocks.DISPENSER,
-            Blocks.TRAPDOOR
-    );
-
-    private static final List<Block> shulkerList = Arrays.asList(
-            Blocks.WHITE_SHULKER_BOX,
-            Blocks.ORANGE_SHULKER_BOX,
-            Blocks.MAGENTA_SHULKER_BOX,
-            Blocks.LIGHT_BLUE_SHULKER_BOX,
-            Blocks.YELLOW_SHULKER_BOX,
-            Blocks.LIME_SHULKER_BOX,
-            Blocks.PINK_SHULKER_BOX,
-            Blocks.GRAY_SHULKER_BOX,
-            Blocks.SILVER_SHULKER_BOX,
-            Blocks.CYAN_SHULKER_BOX,
-            Blocks.PURPLE_SHULKER_BOX,
-            Blocks.BLUE_SHULKER_BOX,
-            Blocks.BROWN_SHULKER_BOX,
-            Blocks.GREEN_SHULKER_BOX,
-            Blocks.RED_SHULKER_BOX,
-            Blocks.BLACK_SHULKER_BOX
+            Blocks.OAK_TRAPDOOR,
+            Blocks.SPRUCE_TRAPDOOR,
+            Blocks.BIRCH_TRAPDOOR,
+            Blocks.JUNGLE_TRAPDOOR,
+            Blocks.ACACIA_TRAPDOOR,
+            Blocks.DARK_OAK_TRAPDOOR
     );
 
     private static final DecimalFormat df = new DecimalFormat("#.#");
@@ -105,17 +94,17 @@ public class Auto32k extends Module {
                 break;
             }
 
-            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            ItemStack stack = mc.player.inventory.getInvStack(i);
 
-            if (stack == ItemStack.EMPTY || !(stack.getItem() instanceof ItemBlock)) {
+            if (stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;
             }
 
-            Block block = ((ItemBlock) stack.getItem()).getBlock();
+            Block block = ((BlockItem) stack.getItem()).getBlock();
 
             if (block == Blocks.HOPPER) {
                 hopperSlot = i;
-            } else if (shulkerList.contains(block)) {
+            } else if (ShulkerBoxCommon.isShulkerBox(stack.getItem())) {
                 shulkerSlot = i;
             } else if (block == Blocks.OBSIDIAN) {
                 obiSlot = i;
@@ -142,16 +131,18 @@ public class Auto32k extends Module {
         int range = (int) Math.ceil(placeRange.getValue());
 
         CrystalAura crystalAura = (CrystalAura) ModuleManager.getModuleByName("CrystalAura");
-        List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
+        //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
+        List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
+
         Map<BlockPos, Double> placeTargetMap = new HashMap<>();
 
         BlockPos placeTarget = null;
         boolean useRangeSorting = false;
 
         for (BlockPos placeTargetTest : placeTargetList) {
-            for (Entity entity : mc.world.loadedEntityList) {
+            for (Entity entity : mc.world.getEntities()) {
 
-                if (!(entity instanceof EntityPlayer)) {
+                if (!(entity instanceof PlayerEntity)) {
                     continue;
                 }
 
@@ -159,18 +150,18 @@ public class Auto32k extends Module {
                     continue;
                 }
 
-                if (Friends.isFriend(entity.getName())) {
+                if (Friends.isFriend(entity.getName().getString())) {
                     continue;
                 }
 
                 if (yOffset.getValue() != 0) {
-                    if (Math.abs(mc.player.getPosition().y - placeTargetTest.y) > Math.abs(yOffset.getValue())) {
+                    if (Math.abs(mc.player.getPos().y - placeTargetTest.getY()) > Math.abs(yOffset.getValue())) {
                         continue;
                     }
                 }
 
                 if (isAreaPlaceable(placeTargetTest)) {
-                    double distanceToEntity = entity.getDistance(placeTargetTest.x, placeTargetTest.y, placeTargetTest.z);
+                    double distanceToEntity = Math.sqrt(entity.squaredDistanceTo(placeTargetTest.getX(), placeTargetTest.getY(), placeTargetTest.getZ()));
                     // Add distance to Map Value of placeTarget Key
                     placeTargetMap.put(placeTargetTest, placeTargetMap.containsKey(placeTargetTest) ? placeTargetMap.get(placeTargetTest) + distanceToEntity : distanceToEntity);
                     useRangeSorting = true;
@@ -234,28 +225,28 @@ public class Auto32k extends Module {
         }
 
         if (debugMessages.getValue()) {
-            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.x + " " + placeTarget.y + " " + placeTarget.z + " Distance: " + df.format(mc.player.getPositionVector().distanceTo(new Vec3d(placeTarget))));
+            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(placeTarget))));
         }
 
-        mc.player.inventory.currentItem = hopperSlot;
+        mc.player.inventory.selectedSlot = hopperSlot;
         placeBlock(new BlockPos(placeTarget));
 
-        mc.player.inventory.currentItem = shulkerSlot;
+        mc.player.inventory.selectedSlot = shulkerSlot;
         placeBlock(new BlockPos(placeTarget.add(0, 1, 0)));
 
         if (placeObiOnTop.getValue() && obiSlot != -1) {
-            mc.player.inventory.currentItem = obiSlot;
+            mc.player.inventory.selectedSlot = obiSlot;
             placeBlock(new BlockPos(placeTarget.add(0, 2, 0)));
         }
 
         if (isSneaking) {
-            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+            mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.STOP_SNEAKING));
             isSneaking = false;
         }
 
-        mc.player.inventory.currentItem = shulkerSlot;
+        mc.player.inventory.selectedSlot = shulkerSlot;
         BlockPos hopperPos = new BlockPos(placeTarget);
-        mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(hopperPos, EnumFacing.DOWN, EnumHand.MAIN_HAND, 0, 0, 0));
+        mc.player.networkHandler.getConnection().send(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(new Vec3d(0, 0, 0), Direction.DOWN, hopperPos, false)));
         swordSlot = shulkerSlot + 32;
 
     }
@@ -267,7 +258,7 @@ public class Auto32k extends Module {
             return;
         }
 
-        if (!(mc.currentScreen instanceof GuiContainer)) {
+        if (!(mc.currentScreen instanceof AbstractContainerScreen)) {
             return;
         }
 
@@ -282,16 +273,19 @@ public class Auto32k extends Module {
 
         boolean swapReady = true;
 
-        if (((GuiContainer) mc.currentScreen).inventorySlots.getSlot(0).getStack().isEmpty) {
+        Container container = ((AbstractContainerScreen) mc.currentScreen).getContainer();
+
+        if (container.getSlot(0).getStack().isEmpty()) {
             swapReady = false;
         }
 
-        if (!((GuiContainer) mc.currentScreen).inventorySlots.getSlot(swordSlot).getStack().isEmpty) {
+        if (!(container.getSlot(swordSlot).getStack().isEmpty())) {
             swapReady = false;
         }
 
         if (swapReady) {
-            mc.playerController.windowClick(((GuiContainer) mc.currentScreen).inventorySlots.windowId, 0, swordSlot - 32, ClickType.SWAP, mc.player);
+            // method_2906: click window
+            mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura.getValue()) {
                 ModuleManager.getModuleByName("Aura").enable();
             }
@@ -301,11 +295,8 @@ public class Auto32k extends Module {
     }
 
     private boolean isAreaPlaceable(BlockPos blockPos) {
-
-        for (Entity entity : mc.world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(blockPos))) {
-            if (entity instanceof EntityLivingBase) {
-                return false; // entity on block
-            }
+        for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
+            return false; // entity on block
         }
 
         if (!mc.world.getBlockState(blockPos).getMaterial().isReplaceable()) {
@@ -316,24 +307,24 @@ public class Auto32k extends Module {
             return false; // no space for shulker
         }
 
-        if (mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock() instanceof BlockAir) {
+        if (mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock() instanceof AirBlock) {
             return false; // air below hopper
         }
 
-        if (mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock() instanceof BlockLiquid) {
+        if (mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock() instanceof FluidBlock) {
             return false; // liquid below hopper
         }
 
-        if (mc.player.getPositionVector().distanceTo(new Vec3d(blockPos)) > placeRange.getValue()) {
+        if (mc.player.getPos().distanceTo(new Vec3d(blockPos)) > placeRange.getValue()) {
             return false; // out of range
         }
 
         Block block = mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock();
-        if (blackList.contains(block) || shulkerList.contains(block)) {
+        if (blackList.contains(block) || ShulkerBoxCommon.isShulkerBox(block)) {
             return false; // would need sneak
         }
 
-        return !(mc.player.getPositionVector().distanceTo(new Vec3d(blockPos).add(0, 1, 0)) > placeRange.getValue()); // out of range
+        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos).add(0, 1, 0)) > placeRange.getValue()); // out of range
 
     }
 
@@ -348,37 +339,36 @@ public class Auto32k extends Module {
             return;
         }
 
-        for (EnumFacing side : EnumFacing.values()) {
+        for (Direction side : Direction.values()) {
 
             BlockPos neighbor = pos.offset(side);
-            EnumFacing side2 = side.getOpposite();
+            Direction side2 = side.getOpposite();
 
-            if (!mc.world.getBlockState(neighbor).getBlock().canCollideCheck(mc.world.getBlockState(neighbor), false)) {
-                continue;
-            }
+//            if (!mc.world.getBlockState(neighbor).getBlock().canCollideCheck(mc.world.getBlockState(neighbor), false)) {
+//                continue;
+//            }
 
-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getDirectionVec()).scale(0.5));
+            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getVector()).multiply(0.5));
 
             Block neighborPos = mc.world.getBlockState(neighbor).getBlock();
-            if (blackList.contains(neighborPos) || shulkerList.contains(neighborPos)) {
-                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            if (blackList.contains(neighborPos) || ShulkerBoxCommon.isShulkerBox(neighborPos)) {
+                mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_SNEAKING));
                 isSneaking = true;
             }
 
             faceVectorPacketInstant(hitVec);
-            mc.playerController.processRightClickBlock(mc.player, mc.world, neighbor, side2, hitVec, EnumHand.MAIN_HAND);
-            mc.player.swingArm(EnumHand.MAIN_HAND);
-            mc.rightClickDelayTimer = 4;
+            mc.interactionManager.interactBlock(mc.player, mc.world, Hand.MAIN_HAND, new BlockHitResult(hitVec, side2, neighbor, false));
+            mc.player.swingHand(Hand.MAIN_HAND);
+            ((IMinecraftClient) mc).setItemUseCooldown(4);
 
             return;
-
         }
 
     }
 
     private static boolean checkForNeighbours(BlockPos blockPos) {
         if (!hasNeighbour(blockPos)) {
-            for (EnumFacing side : EnumFacing.values()) {
+            for (Direction side : Direction.values()) {
                 BlockPos neighbour = blockPos.offset(side);
                 if (hasNeighbour(neighbour)) {
                     return true;
@@ -390,7 +380,7 @@ public class Auto32k extends Module {
     }
 
     private static boolean hasNeighbour(BlockPos blockPos) {
-        for (EnumFacing side : EnumFacing.values()) {
+        for (Direction side : Direction.values()) {
             BlockPos neighbour = blockPos.offset(side);
             if (!mc.world.getBlockState(neighbour).getMaterial().isReplaceable()) {
                 return true;

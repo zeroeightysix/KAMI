@@ -19,12 +19,12 @@ public class PitchLock extends Module {
         if (slice.getValue() == 0) return;
         if (auto.getValue()) {
             int angle = 360 / slice.getValue();
-            float yaw = mc.player.rotationPitch;
+            float yaw = mc.player.pitch;
             yaw = Math.round(yaw / angle) * angle;
-            mc.player.rotationPitch = yaw;
-            if (mc.player.isRiding()) mc.player.getRidingEntity().rotationPitch = yaw;
+            mc.player.pitch = yaw;
+            if (mc.player.isRiding()) mc.player.getVehicle().pitch = yaw;
         } else {
-            mc.player.rotationPitch = MathHelper.clamp(pitch.getValue() - 180, -180, 180);
+            mc.player.pitch = MathHelper.clamp(pitch.getValue() - 180, -180, 180);
         }
     }
 }

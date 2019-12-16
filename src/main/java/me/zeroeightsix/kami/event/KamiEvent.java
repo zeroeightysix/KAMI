@@ -12,7 +12,11 @@ public class KamiEvent extends Cancellable {
     private final float partialTicks;
 
     public KamiEvent() {
-        partialTicks = Wrapper.getMinecraft().getRenderPartialTicks();
+        partialTicks = Wrapper.getMinecraft().getTickDelta();
+    }
+
+    protected void setEra(Era era) {
+        this.era = era;
     }
 
     public Era getEra() {

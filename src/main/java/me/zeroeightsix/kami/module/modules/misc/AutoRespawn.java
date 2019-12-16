@@ -3,11 +3,11 @@ package me.zeroeightsix.kami.module.modules.misc;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.event.events.GuiScreenEvent;
+import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.client.gui.GuiGameOver;
+import net.minecraft.client.gui.screen.DeathScreen;
 
 /**
  * Created by 086 on 9/04/2018.
@@ -21,19 +21,19 @@ public class AutoRespawn extends Module {
     private Setting<Boolean> antiGlitchScreen = register(Settings.b("Anti Glitch Screen", true));
 
     @EventHandler
-    public Listener<GuiScreenEvent.Displayed> listener = new Listener<>(event -> {
+    public Listener<ScreenEvent.Displayed> listener = new Listener<>(event -> {
 
-        if (!(event.getScreen() instanceof GuiGameOver)) {
+        if (!(event.getScreen() instanceof DeathScreen)) {
             return;
         }
 
         if (deathCoords.getValue() && mc.player.getHealth() <= 0) {
-            Command.sendChatMessage(String.format("You died at x %d y %d z %d", (int) mc.player.posX, (int) mc.player.posY, (int) mc.player.posZ));
+            Command.sendChatMessage(String.format("You died at x %d y %d z %d", (int) mc.player.x, (int) mc.player.y, (int) mc.player.z));
         }
 
         if (respawn.getValue() || (antiGlitchScreen.getValue() && mc.player.getHealth() > 0)) {
-            mc.player.respawnPlayer();
-            mc.displayGuiScreen(null);
+            mc.player.requestRespawn();
+            mc.openScreen(null);
         }
 
     });

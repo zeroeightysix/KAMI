@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.util;
 
-import me.zeroeightsix.kami.command.commands.BindCommand;
+import me.zeroeightsix.kami.command.commands.TestCommand;
 import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.glfw.GLFW;
 
@@ -77,8 +77,8 @@ public class Bind {
                         capitalise(getName());
     }
 
-    public boolean isDown(int eventKey) {
-        return !isEmpty() && (!BindCommand.modifiersEnabled.getValue() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && eventKey == getKey();
+    public boolean isDown(int eventKey, int scancode) {
+        return !isEmpty() && (!TestCommand.modifiersEnabled || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && eventKey == getKey() && scancode == getScancode();
     }
 
     public static boolean isShiftDown() {

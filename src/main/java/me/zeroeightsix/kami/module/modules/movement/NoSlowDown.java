@@ -2,8 +2,10 @@ package me.zeroeightsix.kami.module.modules.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.EntityBlockCollisionEvent;
+import me.zeroeightsix.kami.event.events.InputUpdateEvent;
 import me.zeroeightsix.kami.module.Module;
-import net.minecraftforge.client.event.InputUpdateEvent;
+import net.minecraft.block.SoulSandBlock;
 
 /**
  * Created by 086 on 15/12/2017.
@@ -19,10 +21,17 @@ public class NoSlowDown extends Module {
         //
 
         // Check if the player should be slowed down or not
-        if (mc.player.isHandActive() && !mc.player.isRiding()) {
-            event.getMovementInput().moveStrafe *= 5;
-            event.getMovementInput().moveForward *= 5;
+        if (mc.player.isUsingItem() && !mc.player.isRiding()) {
+            event.getNewState().movementSideways *= 5;
+            event.getNewState().movementForward *= 5;
         }
+    });
+
+    @EventHandler
+    private Listener<EntityBlockCollisionEvent> blockCollisionEventListener = new Listener<>(event -> {
+       if (event.getState().getBlock() instanceof SoulSandBlock) {
+           event.cancel();
+       }
     });
 
     // Check MixinBlockSoulSand for soulsand slowdown nullification

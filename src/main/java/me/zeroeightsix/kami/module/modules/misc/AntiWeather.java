@@ -12,6 +12,6 @@ public class AntiWeather extends Module {
     public void onUpdate() {
         if (isDisabled()) return;
         if (mc.world.isRaining())
-            mc.world.setRainStrength(0);
+            mc.world.setRainGradient(0);
     }
 }

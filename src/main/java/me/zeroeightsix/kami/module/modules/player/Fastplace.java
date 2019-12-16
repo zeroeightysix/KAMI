@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
 
 /**
@@ -10,6 +11,7 @@ public class Fastplace extends Module {
 
     @Override
     public void onUpdate() {
-        mc.rightClickDelayTimer = 0;
+        ((IMinecraftClient) mc).setItemUseCooldown(0);
     }
+
 }

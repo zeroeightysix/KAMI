@@ -3,18 +3,6 @@ package me.zeroeightsix.kami.module.modules.render;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import me.zeroeightsix.kami.util.Pair;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.BossInfoClient;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import org.lwjgl.opengl.GL11;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by 086 on 25/01/2018.
@@ -22,16 +10,12 @@ import java.util.UUID;
 @Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
 public class BossStack extends Module {
 
-    private static Setting<BossStackMode> mode = Settings.e("Mode", BossStackMode.STACK);
-    private static Setting<Double> scale = Settings.d("Scale", .5d);
+    private Setting<BossStackMode> mode = register(Settings.e("Mode", BossStackMode.STACK));
+    private Setting<Double> scale = Settings.d("Scale", .5d);
 
-    private static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
+    //private static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
 
-    public BossStack() {
-        registerAll(mode, scale);
-    }
-
-    public static void render(RenderGameOverlayEvent.Post event) {
+    /*public static void render(RenderGameOverlayEvent.Post event) {
         if (mode.getValue() == BossStackMode.MINIMIZE) {
             Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
             if (map == null) return;
@@ -49,10 +33,10 @@ public class BossStack extends Module {
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
                     MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
-                    MinecraftClient.getInstance().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
+                    MinecraftClient.getInstance().textRenderer.drawWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().textRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
                 }
                 GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + MinecraftClient.getInstance().fontRenderer.FONT_HEIGHT;
+                j += 10 + MinecraftClient.getInstance().textRenderer.FONT_HEIGHT;
             }
         } else if (mode.getValue() == BossStackMode.STACK) {
             Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
@@ -86,16 +70,17 @@ public class BossStack extends Module {
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
                     MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
-                    MinecraftClient.getInstance().fontRenderer.drawStringWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().fontRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
+                    MinecraftClient.getInstance().textRenderer.drawWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().textRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
                 }
                 GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + MinecraftClient.getInstance().fontRenderer.FONT_HEIGHT;
+                j += 10 + MinecraftClient.getInstance().textRenderer.FONT_HEIGHT;
             }
         }
         return;
-    }
+    }*/
 
     private enum BossStackMode {
         REMOVE, STACK, MINIMIZE
     }
+
 }

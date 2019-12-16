@@ -4,9 +4,9 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.module.Module;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.client.network.OtherClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,34 +18,34 @@ import java.util.Queue;
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
 public class Blink extends Module {
 
-    Queue<CPacketPlayer> packets = new LinkedList<>();
+    Queue<PlayerMoveC2SPacket> packets = new LinkedList<>();
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-        if (isEnabled() && event.getPacket() instanceof CPacketPlayer) {
+        if (isEnabled() && event.getPacket() instanceof PlayerMoveC2SPacket) {
             event.cancel();
-            packets.add((CPacketPlayer) event.getPacket());
+            packets.add((PlayerMoveC2SPacket) event.getPacket());
         }
     });
-    private EntityOtherPlayerMP clonedPlayer;
+    private OtherClientPlayerEntity clonedPlayer;
 
     @Override
     protected void onEnable() {
         if (mc.player != null) {
-            clonedPlayer = new EntityOtherPlayerMP(mc.world, mc.getSession().getProfile());
-            clonedPlayer.copyLocationAndAnglesFrom(mc.player);
-            clonedPlayer.rotationYawHead = mc.player.rotationYawHead;
-            mc.world.addEntityToWorld(-100, clonedPlayer);
+            clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile());
+            clonedPlayer.copyFrom(mc.player);
+            clonedPlayer.headYaw = mc.player.headYaw;
+            mc.world.addEntity(-100, clonedPlayer);
         }
     }
 
     @Override
     protected void onDisable() {
         while (!packets.isEmpty())
-            mc.player.connection.sendPacket(packets.poll());
+            mc.getNetworkHandler().sendPacket(packets.poll());
 
-        EntityPlayer localPlayer = mc.player;
+        PlayerEntity localPlayer = mc.player;
         if (localPlayer != null) {
-            mc.world.removeEntityFromWorld(-100);
+            mc.world.removeEntity(-100);
             clonedPlayer = null;
         }
     }

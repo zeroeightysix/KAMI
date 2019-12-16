@@ -1,18 +1,15 @@
 package me.zeroeightsix.kami.module;
 
 import com.google.common.base.Converter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
-import me.zeroeightsix.kami.module.modules.movement.Sprint;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.MinecraftClient;
-import org.lwjgl.input.Keyboard;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,7 +29,7 @@ public class Module {
     private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter()).build());
     private Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
     public boolean alwaysListening;
-    protected static final Minecraft mc = MinecraftClient.getInstance();
+    protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public List<Setting> settingList = new ArrayList<>();
 
@@ -193,35 +190,24 @@ public class Module {
     private class BindConverter extends Converter<Bind, JsonElement> {
         @Override
         protected JsonElement doForward(Bind bind) {
-            return new JsonPrimitive(bind.toString());
+            JsonArray array = new JsonArray();
+            array.add(bind.isAlt());
+            array.add(bind.isCtrl());
+            array.add(bind.isShift());
+            array.add(bind.getKey());
+            array.add(bind.getScancode());
+            return array;
         }
 
         @Override
         protected Bind doBackward(JsonElement jsonElement) {
-            String s = jsonElement.getAsString();
-            if (s.equalsIgnoreCase("None")) return Bind.none();
-            boolean ctrl = false, alt = false, shift = false;
-
-            if (s.startsWith("Ctrl+")) {
-                ctrl = true;
-                s = s.substring(5);
-            }
-            if (s.startsWith("Alt+")) {
-                alt = true;
-                s = s.substring(4);
-            }
-            if (s.startsWith("Shift+")) {
-                shift = true;
-                s = s.substring(6);
-            }
-
-            int key = -1;
-            try {
-                key = Keyboard.getKeyIndex(s.toUpperCase());
-            } catch (Exception ignored) {}
-
-            if (key == 0) return Bind.none();
-            return new Bind(ctrl, alt, shift, key);
+            JsonArray array = jsonElement.getAsJsonArray();
+            boolean alt = array.get(0).getAsBoolean();
+            boolean ctrl = array.get(1).getAsBoolean();
+            boolean shift = array.get(2).getAsBoolean();
+            int key = array.get(2).getAsInt();
+            int scancode = array.get(3).getAsInt();
+            return new Bind(ctrl, alt, shift, key, scancode);
         }
     }
 }

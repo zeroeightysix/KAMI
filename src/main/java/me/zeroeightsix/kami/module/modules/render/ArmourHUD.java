@@ -1,13 +1,12 @@
 package me.zeroeightsix.kami.module.modules.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -16,46 +15,44 @@ import net.minecraft.item.ItemStack;
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
 public class ArmourHUD extends Module {
 
-    private static RenderItem itemRender = MinecraftClient.getInstance()
-            .getRenderItem();
+    private static ItemRenderer itemRender = MinecraftClient.getInstance().getItemRenderer();
 
     private Setting<Boolean> damage = register(Settings.b("Damage", false));
 
     @Override
     public void onRender() {
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
 
-        ScaledResolution resolution = new ScaledResolution(mc);
-        int i = resolution.getScaledWidth() / 2;
+        int i = MinecraftClient.getInstance().window.getScaledWidth() / 2;
         int iteration = 0;
-        int y = resolution.getScaledHeight() - 55 - (mc.player.isInWater() ? 10 : 0);
-        for (ItemStack is : mc.player.inventory.armorInventory) {
+        int y = MinecraftClient.getInstance().window.getScaledHeight() - 55 - (mc.player.isInWater() ? 10 : 0);
+        for (ItemStack is : mc.player.inventory.armor) {
             iteration++;
             if (is.isEmpty()) continue;
             int x = i - 90 + (9 - iteration) * 20 + 2;
-            GlStateManager.enableDepth();
+            GlStateManager.enableDepthTest();
 
-            itemRender.zLevel = 200F;
-            itemRender.renderItemAndEffectIntoGUI(is, x, y);
-            itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, is, x, y, "");
-            itemRender.zLevel = 0F;
+            itemRender.zOffset = 200F;
+            itemRender.renderGuiItemOverlay(mc.textRenderer, is, x, y);
+            itemRender.renderGuiItem(is, x, y);
+            itemRender.zOffset = 0F;
 
-            GlStateManager.enableTexture2D();
+            GlStateManager.enableTexture();
             GlStateManager.disableLighting();
-            GlStateManager.disableDepth();
+            GlStateManager.disableDepthTest();
 
             String s = is.getCount() > 1 ? is.getCount() + "" : "";
-            mc.fontRenderer.drawStringWithShadow(s, x + 19 - 2 - mc.fontRenderer.getStringWidth(s), y + 9, 0xffffff);
+            mc.textRenderer.drawWithShadow(s, x + 19 - 2 - mc.textRenderer.getStringWidth(s), y + 9, 0xffffff);
 
             if (damage.getValue()) {
-                float green = ((float) is.getMaxDamage() - (float) is.getItemDamage()) / (float) is.getMaxDamage();
+                float green = ((float) is.getMaxDamage() - (float) is.getDamage()) / (float) is.getMaxDamage();
                 float red = 1 - green;
                 int dmg = 100 - (int) (red * 100);
-                mc.fontRenderer.drawStringWithShadow(dmg + "", x + 8 - mc.fontRenderer.getStringWidth(dmg + "") / 2, y - 11, ColourHolder.toHex((int) (red * 255), (int) (green * 255), 0));
+                mc.textRenderer.drawWithShadow(dmg + "", x + 8 - mc.textRenderer.getStringWidth(dmg + "") / 2, y - 11, ColourHolder.toHex((int) (red * 255), (int) (green * 255), 0));
             }
         }
 
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
         GlStateManager.disableLighting();
     }
 }

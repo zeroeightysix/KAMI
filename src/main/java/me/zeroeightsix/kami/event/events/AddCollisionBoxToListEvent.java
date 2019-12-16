@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.event.events;
 
 import me.zeroeightsix.kami.event.KamiEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -15,15 +15,15 @@ import java.util.List;
  */
 public class AddCollisionBoxToListEvent extends KamiEvent {
     private final Block block;
-    private final IBlockState state;
+    private final BlockState state;
     private final World world;
     private final BlockPos pos;
-    private final AxisAlignedBB entityBox;
-    private final List<AxisAlignedBB> collidingBoxes;
+    private final Box entityBox;
+    private final List<Box> collidingBoxes;
     private final Entity entity;
     private final boolean bool;
 
-    public AddCollisionBoxToListEvent(Block block, IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean bool) {
+    public AddCollisionBoxToListEvent(Block block, BlockState state, World worldIn, BlockPos pos, Box entityBox, List<Box> collidingBoxes, Entity entityIn, boolean bool) {
         super();
         this.block = block;
         this.state = state;
@@ -39,7 +39,7 @@ public class AddCollisionBoxToListEvent extends KamiEvent {
         return block;
     }
 
-    public IBlockState getState() {
+    public BlockState getState() {
         return state;
     }
 
@@ -51,11 +51,11 @@ public class AddCollisionBoxToListEvent extends KamiEvent {
         return pos;
     }
 
-    public AxisAlignedBB getEntityBox() {
+    public Box getEntityBox() {
         return entityBox;
     }
 
-    public List<AxisAlignedBB> getCollidingBoxes() {
+    public List<Box> getCollidingBoxes() {
         return collidingBoxes;
     }
 

@@ -3,7 +3,8 @@ package me.zeroeightsix.kami.module.modules.movement;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.network.play.client.CPacketEntityAction;
+import me.zeroeightsix.kami.util.EntityUtil;
+import net.minecraft.server.network.packet.ClientCommandC2SPacket;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -16,43 +17,38 @@ public class ElytraFlight extends Module {
 
     @Override
     public void onUpdate() {
-        if (!mc.player.isElytraFlying()) return;
+        if (!mc.player.isFallFlying()) return;
         switch (mode.getValue()) {
             case BOOST:
                 if(mc.player.isInWater())
                 {
-                    mc.getConnection()
-                            .sendPacket(new CPacketEntityAction(mc.player,
-                                    CPacketEntityAction.Action.START_FALL_FLYING));
+                    mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
                     return;
                 }
 
-                if(mc.gameSettings.keyBindJump.isKeyDown())
-                    mc.player.motionY += 0.08;
-                else if(mc.gameSettings.keyBindSneak.isKeyDown())
-                    mc.player.motionY -= 0.04;
+                if(mc.options.keyJump.isPressed()) {
+                    EntityUtil.updateVelocityY(mc.player, mc.player.getVelocity().y + 0.08);
+                } else if(mc.options.keySneak.isPressed()) {
+                    EntityUtil.updateVelocityY(mc.player, mc.player.getVelocity().y - 0.04);
+                }
 
-                if(mc.gameSettings.keyBindForward.isKeyDown()) {
-                    float yaw = (float)Math
-                            .toRadians(mc.player.rotationYaw);
-                    mc.player.motionX -= MathHelper.sin(yaw) * 0.05F;
-                    mc.player.motionZ += MathHelper.cos(yaw) * 0.05F;
-                }else if(mc.gameSettings.keyBindBack.isKeyDown()) {
-                    float yaw = (float)Math
-                            .toRadians(mc.player.rotationYaw);
-                    mc.player.motionX += MathHelper.sin(yaw) * 0.05F;
-                    mc.player.motionZ -= MathHelper.cos(yaw) * 0.05F;
+                if (mc.options.keyForward.isPressed()) {
+                    float yaw = (float) Math.toRadians(mc.player.yaw);
+                    mc.player.addVelocity(MathHelper.sin(yaw) * -0.05F, 0, MathHelper.cos(yaw) * 0.05F);
+                } else if (mc.options.keyBack.isPressed()) {
+                    float yaw = (float) Math.toRadians(mc.player.yaw);
+                    mc.player.addVelocity(MathHelper.sin(yaw) * 0.05F, 0, MathHelper.cos(yaw) * -0.05F);
                 }
                 break;
             case FLY:
-                mc.player.capabilities.isFlying = true;
+                mc.player.abilities.flying = true;
         }
     }
 
     @Override
     protected void onDisable() {
-        if (mc.player.capabilities.isCreativeMode) return;
-        mc.player.capabilities.isFlying = false;
+        if (mc.player.abilities.creativeMode) return;
+        mc.player.abilities.flying = false;
     }
 
     private enum ElytraFlightMode {

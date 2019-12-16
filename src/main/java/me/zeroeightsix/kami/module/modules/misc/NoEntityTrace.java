@@ -19,7 +19,7 @@ public class NoEntityTrace extends Module {
     }
 
     public static boolean shouldBlock() {
-        return INSTANCE.isEnabled() && (INSTANCE.mode.getValue() == TraceMode.STATIC || mc.playerController.isHittingBlock);
+        return INSTANCE.isEnabled() && (INSTANCE.mode.getValue() == TraceMode.STATIC || mc.interactionManager.isBreakingBlock());
     }
 
     private enum TraceMode {

@@ -4,13 +4,14 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
+import me.zeroeightsix.kami.mixin.client.IChatMessageS2CPacket;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraft.network.play.server.SPacketChat;
-import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.client.network.packet.ChatMessageS2CPacket;
+import net.minecraft.server.network.packet.ChatMessageC2SPacket;
+import net.minecraft.text.LiteralText;
 
 import java.nio.CharBuffer;
 import java.util.*;
@@ -34,8 +35,8 @@ public class ChatEncryption extends Module {
 
     @EventHandler
     private Listener<PacketEvent.Send> sendListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof CPacketChatMessage) {
-            String s = ((CPacketChatMessage) event.getPacket()).getMessage();
+        if (event.getPacket() instanceof ChatMessageC2SPacket) {
+            String s = ((ChatMessageC2SPacket) event.getPacket()).getChatMessage();
             if (delim.getValue()) {
                 if (!s.startsWith("%")) return;
                 s = s.substring(1);
@@ -47,7 +48,7 @@ public class ChatEncryption extends Module {
                     builder.append("\uD83D\uDE4D");
                     break;
                 case SHIFT:
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) (value + key.getValue())) ? key.getValue() : 0))));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value + key.getValue())));
                     builder.append("\uD83D\uDE48");
                     break;
             }
@@ -57,14 +58,14 @@ public class ChatEncryption extends Module {
                 event.cancel();
                 return;
             }
-            ((CPacketChatMessage) event.getPacket()).message = s;
+            ((IChatMessageC2SPacket) event.getPacket()).setChatMessage(s);
         }
     });
 
     @EventHandler
     private Listener<PacketEvent.Receive> receiveListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof SPacketChat) {
-            String s = ((SPacketChat) event.getPacket()).getChatComponent().getUnformattedText();
+        if (event.getPacket() instanceof ChatMessageS2CPacket) {
+            String s = ((ChatMessageS2CPacket) event.getPacket()).getMessage().getString();
 
             Matcher matcher = CHAT_PATTERN.matcher(s);
             String username = "unnamed";
@@ -84,11 +85,11 @@ public class ChatEncryption extends Module {
                 case SHIFT:
                     if (!s.endsWith("\uD83D\uDE48")) return;
                     s = s.substring(0, s.length() - 2);
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + (ChatAllowedCharacters.isAllowedCharacter((char) value) ? -key.getValue() : 0))));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value - key.getValue())));
                     break;
             }
 
-            ((SPacketChat) event.getPacket()).chatComponent = new TextComponentString(Command.SECTIONSIGN() + "b" + username + Command.SECTIONSIGN() + "r: " + builder.toString());
+            ((IChatMessageS2CPacket) event.getPacket()).setMessage(new LiteralText(Command.SECTIONSIGN() + "b" + username + Command.SECTIONSIGN() + "r: " + builder.toString()));
         }
     });
 

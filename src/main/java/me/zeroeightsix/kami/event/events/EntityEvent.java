@@ -20,7 +20,7 @@ public class EntityEvent extends KamiEvent {
     }
 
     public static class EntityCollision extends EntityEvent {
-        double x,y,z;
+        double x, y, z;
 
         public EntityCollision(Entity entity, double x, double y, double z) {
             super(entity);
@@ -51,6 +51,23 @@ public class EntityEvent extends KamiEvent {
 
         public void setZ(double z) {
             this.z = z;
+        }
+    }
+
+    public static class EntityDamage extends EntityEvent {
+        private int damage;
+
+        public EntityDamage(Entity entity, int damage) {
+            super(entity);
+            this.damage = damage;
+        }
+
+        public int getDamage() {
+            return damage;
+        }
+
+        public void setDamage(int damage) {
+            this.damage = damage;
         }
     }
 

@@ -5,8 +5,9 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.scoreboard.Team;
+import net.minecraft.text.LiteralText;
 
 /**
  * Created by 086 on 8/04/2018.
@@ -22,8 +23,8 @@ public class ExtraTab extends Module {
         ExtraTab.INSTANCE = this;
     }
 
-    public static String getPlayerName(NetworkPlayerInfo networkPlayerInfoIn) {
-        String dname = networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
+    public static String getPlayerName(PlayerListEntry networkPlayerInfoIn) {
+        String dname = networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getString() : Team.modifyText(networkPlayerInfoIn.getScoreboardTeam(), new LiteralText(networkPlayerInfoIn.getProfile().getName())).getString();
         if (Friends.isFriend(dname)) return String.format("%sa%s", Command.SECTIONSIGN(), dname);
         return dname;
     }

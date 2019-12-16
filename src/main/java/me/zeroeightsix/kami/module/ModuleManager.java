@@ -1,17 +1,19 @@
 package me.zeroeightsix.kami.module;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
+import me.zeroeightsix.kami.event.events.RenderHudEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.modules.ClickGUI;
 import me.zeroeightsix.kami.util.ClassFinder;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.KamiTessellator;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,13 +34,36 @@ public class ModuleManager {
      */
     static HashMap<String, Module> lookup = new HashMap<>();
 
+    @EventHandler
+    public Listener<TickEvent.Client> clientTickListener = new Listener<>(event -> {
+        if (Wrapper.getPlayer() == null) return;
+        onUpdate();
+
+        /*if (PeekCommand.sb != null) {
+            ShulkerBoxScreen gui = new ShulkerBoxScreen(new ShulkerBoxContainer(-1, Wrapper.getPlayer().inventory), Wrapper.getPlayer().inventory, new LiteralText("Peek"));
+            MinecraftClient.getInstance().openScreen(gui);
+            PeekCommand.sb = null;
+        }*/ //TODO
+    });
+
+    @EventHandler
+    public Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
+        onWorldRender(event);
+    });
+
+    @EventHandler
+    public Listener<RenderHudEvent> renderHudEventListener = new Listener<>(event -> {
+        onRender();
+        KamiTessellator.releaseGL();
+    });
+
     public static void updateLookup() {
         lookup.clear();
         for (Module m : modules)
             lookup.put(m.getName().toLowerCase(), m);
     }
 
-    public static void initialize() {
+    public static ModuleManager initialize() {
         Set<Class> classList = ClassFinder.findClasses(ClickGUI.class.getPackage().getName(), Module.class);
         classList.forEach(aClass -> {
             try {
@@ -55,6 +80,8 @@ public class ModuleManager {
         });
         KamiMod.log.info("Modules initialised");
         getModules().sort(Comparator.comparing(Module::getName));
+
+        return new ModuleManager();
     }
 
     public static void onUpdate() {
@@ -65,11 +92,10 @@ public class ModuleManager {
         modules.stream().filter(module -> module.alwaysListening || module.isEnabled()).forEach(module -> module.onRender());
     }
 
-    public static void onWorldRender(RenderWorldLastEvent event) {
+    public static void onWorldRender(RenderEvent.World event) {
         MinecraftClient.getInstance().getProfiler().push("kami");
 
         MinecraftClient.getInstance().getProfiler().push("setup");
-//        GlStateManager.pushMatrix();
         GlStateManager.disableTexture();
         GlStateManager.enableBlend();
         GlStateManager.disableAlphaTest();
@@ -80,36 +106,32 @@ public class ModuleManager {
         GlStateManager.lineWidth(1f);
         Vec3d renderPos = EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.getPartialTicks());
 
-        RenderEvent e = new RenderEvent(KamiTessellator.INSTANCE, renderPos);
-        e.resetTranslation();
-        MinecraftClient.getInstance().profiler.endSection();
+        MinecraftClient.getInstance().getProfiler().pop();
 
         modules.stream().filter(module -> module.alwaysListening || module.isEnabled()).forEach(module -> {
-            MinecraftClient.getInstance().profiler.startSection(module.getName());
-            module.onWorldRender(e);
-            MinecraftClient.getInstance().profiler.endSection();
+            MinecraftClient.getInstance().getProfiler().push(module.getName());
+            module.onWorldRender(event);
+            MinecraftClient.getInstance().getProfiler().pop();
         });
 
-        MinecraftClient.getInstance().profiler.startSection("release");
-        GlStateManager.glLineWidth(1f);
+        MinecraftClient.getInstance().getProfiler().push("release");
+        GlStateManager.lineWidth(1f);
 
         GlStateManager.shadeModel(GL11.GL_FLAT);
         GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableTexture();
+        GlStateManager.enableDepthTest();
         GlStateManager.enableCull();
-//        GlStateManager.popMatrix();
         KamiTessellator.releaseGL();
-        MinecraftClient.getInstance().profiler.endSection();
+        MinecraftClient.getInstance().getProfiler().pop();
 
-        MinecraftClient.getInstance().profiler.endSection();
+        MinecraftClient.getInstance().getProfiler().pop();
     }
 
-    public static void onBind(int eventKey) {
-        if (eventKey == 0) return; // if key is the 'none' key (stuff like mod key in i3 might return 0)
+    public static void onBind(int key, int scancode) {
         modules.forEach(module -> {
-            if (module.getBind().isDown(eventKey)) {
+            if (module.getBind().isDown(key, scancode)) {
                 module.toggle();
             }
         });

@@ -2,16 +2,15 @@ package me.zeroeightsix.kami.module.modules.render;
 
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.util.GeometryMasks;
-import me.zeroeightsix.kami.util.HueCycler;
-import me.zeroeightsix.kami.util.KamiTessellator;
-import me.zeroeightsix.kami.util.TrajectoryCalculator;
-import net.minecraft.entity.EntityLivingBase;
+import me.zeroeightsix.kami.util.*;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by 086 on 28/12/2017.
@@ -24,9 +23,9 @@ public class Trajectories extends Module {
     @Override
     public void onWorldRender(RenderEvent event) {
         try {
-            mc.world.loadedEntityList.stream()
-                    .filter(entity -> entity instanceof EntityLivingBase)
-                    .map(entity -> (EntityLivingBase) entity)
+            StreamSupport.stream(mc.world.getEntities().spliterator(), false)
+                    .filter(entity -> entity instanceof LivingEntity)
+                    .map(entity -> (LivingEntity) entity)
                     .forEach(entity -> {
                 positions.clear();
                 TrajectoryCalculator.ThrowingType tt = TrajectoryCalculator.getThrowType(entity);
@@ -39,7 +38,9 @@ public class Trajectories extends Module {
                 }
 
                 BlockPos hit = null;
-                if (flightPath.getCollidingTarget() != null) hit = flightPath.getCollidingTarget().getBlockPos();
+                if (flightPath.getCollidingTarget() != null) {
+                    hit = new BlockPos(flightPath.getCollidingTarget().getPos());
+                }
 
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -48,7 +49,9 @@ public class Trajectories extends Module {
                 if (hit != null){
                     KamiTessellator.prepare(GL11.GL_QUADS);
                     GL11.glColor4f(1,1,1,.3f);
-                    KamiTessellator.drawBox(hit, 0x33ffffff, GeometryMasks.FACEMAP.get(flightPath.getCollidingTarget().sideHit));
+                    if (flightPath.getCollidingTarget() instanceof BlockHitResult) {
+                        KamiTessellator.drawBox(hit, 0x33ffffff, GeometryMasks.FACEMAP.get(((BlockHitResult) flightPath.getCollidingTarget()).getSide()));
+                    }
                     KamiTessellator.release();
                 }
 
@@ -65,10 +68,11 @@ public class Trajectories extends Module {
                 GL11.glBegin(GL11.GL_LINES);
 
                 Vec3d a = positions.get(0);
-                GL11.glVertex3d(a.x - mc.getRenderManager().renderPosX, a.y - mc.getRenderManager().renderPosY, a.z - mc.getRenderManager().renderPosZ);
+                Vec3d renderPos = Wrapper.getRenderPosition();
+                GL11.glVertex3d(a.x - renderPos.x, a.y - renderPos.y, a.z - renderPos.z);
                 for (Vec3d v : positions) {
-                    GL11.glVertex3d(v.x - mc.getRenderManager().renderPosX, v.y - mc.getRenderManager().renderPosY, v.z - mc.getRenderManager().renderPosZ);
-                    GL11.glVertex3d(v.x - mc.getRenderManager().renderPosX, v.y - mc.getRenderManager().renderPosY, v.z - mc.getRenderManager().renderPosZ);
+                    GL11.glVertex3d(v.x - renderPos.x, v.y - renderPos.y, v.z - renderPos.z);
+                    GL11.glVertex3d(v.x - renderPos.x, v.y - renderPos.y, v.z - renderPos.z);
                     if (hit == null)
                         cycler.setNext();
                 }

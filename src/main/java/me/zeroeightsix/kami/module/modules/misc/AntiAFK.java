@@ -3,8 +3,8 @@ package me.zeroeightsix.kami.module.modules.misc;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.util.EnumHand;
+import net.minecraft.server.network.packet.PlayerInteractItemC2SPacket;
+import net.minecraft.util.Hand;
 
 import java.util.Random;
 
@@ -21,14 +21,14 @@ public class AntiAFK extends Module {
 
     @Override
     public void onUpdate() {
-        if (mc.playerController.getIsHittingBlock()) return;
+        if (mc.interactionManager.isBreakingBlock()) return;
 
-        if (mc.player.ticksExisted % 40 == 0 && swing.getValue())
-            mc.getConnection().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-        if (mc.player.ticksExisted % 15 == 0 && turn.getValue())
-            mc.player.rotationYaw = random.nextInt(360) - 180;
+        if (mc.player.age % 40 == 0 && swing.getValue())
+            mc.getNetworkHandler().getConnection().send(new PlayerInteractItemC2SPacket(Hand.MAIN_HAND));
+        if (mc.player.age % 15 == 0 && turn.getValue())
+            mc.player.yaw = random.nextInt(360) - 180;
 
-        if (!(swing.getValue() || turn.getValue()) && mc.player.ticksExisted % 80 == 0) {
+        if (!(swing.getValue() || turn.getValue()) && mc.player.age % 80 == 0) {
             mc.player.jump();
         }
     }

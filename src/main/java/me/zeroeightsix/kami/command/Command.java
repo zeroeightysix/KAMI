@@ -1,12 +1,11 @@
 package me.zeroeightsix.kami.command;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.command.syntax.SyntaxChunk;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentBase;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,13 +16,10 @@ public abstract class Command {
 	protected String syntax;
 	protected String description;
 
-	protected SyntaxChunk[] syntaxChunks;
-
 	public static Setting<String> commandPrefix = Settings.s("commandPrefix", ".");
 
-	public Command(String label, SyntaxChunk[] syntaxChunks) {
+	public Command(String label) {
 		this.label = label;
-		this.syntaxChunks = syntaxChunks;
 		this.description = "Descriptionless";
 	}
 
@@ -58,16 +54,13 @@ public abstract class Command {
 	
 	public abstract void call(String[] args);
 
-    public SyntaxChunk[] getSyntaxChunks() {
-        return syntaxChunks;
-    }
-
-    public static class ChatMessage extends TextComponentBase {
+    public static class ChatMessage extends LiteralText {
 
 		String text;
 		
 		public ChatMessage(String text) {
-			
+			super(text);
+
 			Pattern p = Pattern.compile("&[0123456789abcdefrlosmk]");
 			Matcher m = p.matcher(text);
 			StringBuffer sb = new StringBuffer();
@@ -87,18 +80,10 @@ public abstract class Command {
 		}
 
 		@Override
-		public ITextComponent createCopy() {
+		public Text copy() {
 			return new ChatMessage(text);
 		}
 
-	}
-
-	protected SyntaxChunk getSyntaxChunk(String name){
-		for (SyntaxChunk c : syntaxChunks){
-			if (c.getType().equals(name))
-				return c;
-		}
-		return null;
 	}
 
 	public static char SECTIONSIGN() {

@@ -1,11 +1,15 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zeroeightsix.kami.mixin.client.IKeyBinding;
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.item.ItemFood;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.entity.player.HungerManager;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.FoodStats;
+import net.minecraft.util.Hand;
+
+import java.util.Objects;
 
 /**
  * Created by 086 on 8/04/2018.
@@ -17,36 +21,36 @@ public class AutoEat extends Module {
     private boolean eating = false;
 
     private boolean isValid(ItemStack stack, int food) {
-        return stack.getItem() instanceof ItemFood && (20-food)>=((ItemFood) stack.getItem()).getHealAmount(stack);
+        return stack.getItem().getGroup() == ItemGroup.FOOD && (20-food)>= Objects.requireNonNull(stack.getItem().getFoodComponent()).getHunger();
     }
 
     @Override
     public void onUpdate() {
-        if (eating && !mc.player.isHandActive()) {
+        if (eating && !mc.player.isUsingItem()) {
             if (lastSlot != -1) {
-                mc.player.inventory.currentItem = lastSlot;
+                mc.player.inventory.selectedSlot = lastSlot;
                 lastSlot = -1;
             }
             eating = false;
-            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
             return;
         }
         if (eating) return;
 
-        FoodStats stats = mc.player.getFoodStats();
-        if (isValid(mc.player.getHeldItemOffhand(), stats.getFoodLevel())) {
-            mc.player.setActiveHand(EnumHand.OFF_HAND);
+        HungerManager stats = mc.player.getHungerManager();
+        if (isValid(mc.player.getOffHandStack(), stats.getFoodLevel())) {
+            mc.player.setCurrentHand(Hand.OFF_HAND);
             eating = true;
-            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
-            mc.rightClickMouse();
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+            ((IMinecraftClient) mc).callDoAttack();
         }else{
             for (int i = 0; i < 9; i++) {
-                if (isValid(mc.player.inventory.getStackInSlot(i), stats.getFoodLevel())) {
-                    lastSlot = mc.player.inventory.currentItem;
-                    mc.player.inventory.currentItem = i;
+                if (isValid(mc.player.inventory.getInvStack(i), stats.getFoodLevel())) {
+                    lastSlot = mc.player.inventory.selectedSlot;
+                    mc.player.inventory.selectedSlot = i;
                     eating = true;
-                    KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
-                    mc.rightClickMouse();
+                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+                    ((IMinecraftClient) mc).callDoAttack();
                     return;
                 }
             }

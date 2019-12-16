@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.render;
 
+import me.zero.alpine.listener.Listener;
+import me.zero.alpine.type.Cancellable;
+import me.zeroeightsix.kami.event.events.CameraHurtEvent;
 import me.zeroeightsix.kami.module.Module;
 
 /**
@@ -8,14 +11,6 @@ import me.zeroeightsix.kami.module.Module;
 @Module.Info(name = "NoHurtCam", category = Module.Category.RENDER, description = "Disables the 'hurt' camera effect")
 public class NoHurtCam extends Module {
 
-    private static NoHurtCam INSTANCE;
-
-    public NoHurtCam() {
-        INSTANCE = this;
-    }
-
-    public static boolean shouldDisable() {
-        return INSTANCE != null && INSTANCE.isEnabled();
-    }
+    public Listener<CameraHurtEvent> eventListener = new Listener<>(Cancellable::cancel);
 
 }

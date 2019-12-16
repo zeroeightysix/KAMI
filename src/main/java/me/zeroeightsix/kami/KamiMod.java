@@ -1,29 +1,21 @@
 package me.zeroeightsix.kami;
 
-import com.google.common.base.Converter;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
-import me.zeroeightsix.kami.gui.kami.KamiGUI;
-import me.zeroeightsix.kami.gui.rgui.component.AlignedComponent;
-import me.zeroeightsix.kami.gui.rgui.component.Component;
-import me.zeroeightsix.kami.gui.rgui.component.container.use.Frame;
-import me.zeroeightsix.kami.gui.rgui.util.ContainerHelper;
-import me.zeroeightsix.kami.gui.rgui.util.Docking;
+import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
-import me.zeroeightsix.kami.util.Wrapper;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,9 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by 086 on 7/11/2017.
@@ -54,19 +43,24 @@ public class KamiMod implements ModInitializer {
     public static final EventBus EVENT_BUS = new EventManager();
     private static KamiMod INSTANCE;
 
-    public KamiGUI guiManager;
-    public CommandManager commandManager;
-    private Setting<JsonObject> guiStateSetting = Settings.custom("gui", new JsonObject(), new Converter<JsonObject, JsonObject>() {
-        @Override
-        protected JsonObject doForward(JsonObject jsonObject) {
-            return jsonObject;
-        }
+    private int displayWidth;
+    private int displayHeight;
 
-        @Override
-        protected JsonObject doBackward(JsonObject jsonObject) {
-            return jsonObject;
+    public CommandManager commandManager;
+
+    @EventHandler
+    private Listener<TickEvent.Client> clientTickListener = new Listener<>(event -> {
+        if (MinecraftClient.getInstance().window.getWidth() != displayWidth || MinecraftClient.getInstance().window.getHeight() != displayHeight) {
+            KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
+            displayWidth = MinecraftClient.getInstance().window.getWidth();
+            displayHeight = MinecraftClient.getInstance().window.getHeight();
+
+            // TODO: new GUI
+//            KamiMod.getInstance().getGuiManager().getChildren().stream()
+//                    .filter(component -> component instanceof Frame)
+//                    .forEach(component -> KamiGUI.dock((Frame) component));
         }
-    }).buildAndRegister("");
+    });
 
     @Override
     public void onInitialize() {
@@ -74,16 +68,16 @@ public class KamiMod implements ModInitializer {
 
         KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
 
-        ModuleManager.initialize();
+        ModuleManager manager = ModuleManager.initialize();
+        EVENT_BUS.subscribe(manager);
 
         ModuleManager.getModules().stream().filter(module -> module.alwaysListening).forEach(EVENT_BUS::subscribe);
 //        MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
         LagCompensator.INSTANCE = new LagCompensator();
 
-        Wrapper.init();
-
-        guiManager = new KamiGUI();
-        guiManager.initializeGUI();
+        // TODO: New GUI
+//        guiManager = new KamiGUI();
+//        guiManager.initializeGUI();
 
         commandManager = new CommandManager();
 
@@ -121,7 +115,7 @@ public class KamiMod implements ModInitializer {
     public static void loadConfiguration() {
         try {
             loadConfigurationUnsafe();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -131,27 +125,6 @@ public class KamiMod implements ModInitializer {
         Path kamiConfig = Paths.get(kamiConfigName);
         if (!Files.exists(kamiConfig)) return;
         Configuration.loadConfiguration(kamiConfig);
-
-        JsonObject gui = KamiMod.INSTANCE.guiStateSetting.getValue();
-        for (Map.Entry<String, JsonElement> entry : gui.entrySet()) {
-            Optional<Component> optional = KamiMod.INSTANCE.guiManager.getChildren().stream().filter(component -> component instanceof Frame).filter(component -> ((Frame) component).getTitle().equals(entry.getKey())).findFirst();
-            if (optional.isPresent()) {
-                JsonObject object = entry.getValue().getAsJsonObject();
-                Frame frame = (Frame) optional.get();
-                frame.setX(object.get("x").getAsInt());
-                frame.setY(object.get("y").getAsInt());
-                Docking docking = Docking.values()[object.get("docking").getAsInt()];
-                if (docking.isLeft()) ContainerHelper.setAlignment(frame, AlignedComponent.Alignment.LEFT);
-                else if (docking.isRight()) ContainerHelper.setAlignment(frame, AlignedComponent.Alignment.RIGHT);
-                else if (docking.isCenterVertical()) ContainerHelper.setAlignment(frame, AlignedComponent.Alignment.CENTER);
-                frame.setDocking(docking);
-                frame.setMinimized(object.get("minimized").getAsBoolean());
-                frame.setPinned(object.get("pinned").getAsBoolean());
-            } else {
-                System.err.println("Found GUI config entry for " + entry.getKey() + ", but found no frame with that name");
-            }
-        }
-        KamiMod.getInstance().getGuiManager().getChildren().stream().filter(component -> (component instanceof Frame) && (((Frame) component).isPinneable()) && component.isVisible()).forEach(component -> component.setOpacity(0f));
     }
 
     public static void saveConfiguration() {
@@ -163,18 +136,6 @@ public class KamiMod implements ModInitializer {
     }
 
     public static void saveConfigurationUnsafe() throws IOException {
-        JsonObject object = new JsonObject();
-        KamiMod.INSTANCE.guiManager.getChildren().stream().filter(component -> component instanceof Frame).map(component -> (Frame) component).forEach(frame -> {
-            JsonObject frameObject = new JsonObject();
-            frameObject.add("x", new JsonPrimitive(frame.getX()));
-            frameObject.add("y", new JsonPrimitive(frame.getY()));
-            frameObject.add("docking", new JsonPrimitive(Arrays.asList(Docking.values()).indexOf(frame.getDocking())));
-            frameObject.add("minimized", new JsonPrimitive(frame.isMinimized()));
-            frameObject.add("pinned", new JsonPrimitive(frame.isPinned()));
-            object.add(frame.getTitle(), frameObject);
-        });
-        KamiMod.INSTANCE.guiStateSetting.setValue(object);
-
         Path outputFile = Paths.get(getConfigName());
         if (!Files.exists(outputFile))
             Files.createFile(outputFile);
@@ -196,11 +157,8 @@ public class KamiMod implements ModInitializer {
         return INSTANCE;
     }
 
-    public KamiGUI getGuiManager() {
-        return guiManager;
-    }
-
     public CommandManager getCommandManager() {
         return commandManager;
     }
+
 }

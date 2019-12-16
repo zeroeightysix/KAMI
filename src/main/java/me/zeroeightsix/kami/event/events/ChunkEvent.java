@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.event.events;
 
 import me.zeroeightsix.kami.event.KamiEvent;
-import net.minecraft.network.play.server.SPacketChunkData;
+import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -9,9 +9,9 @@ import net.minecraft.world.chunk.Chunk;
  */
 public class ChunkEvent extends KamiEvent {
     private Chunk chunk;
-    private SPacketChunkData packet;
+    private ChunkDataS2CPacket packet;
 
-    public ChunkEvent(Chunk chunk, SPacketChunkData packet) {
+    public ChunkEvent(Chunk chunk, ChunkDataS2CPacket packet) {
         this.chunk = chunk;
         this.packet = packet;
     }
@@ -20,7 +20,7 @@ public class ChunkEvent extends KamiEvent {
         return chunk;
     }
 
-    public SPacketChunkData getPacket() {
+    public ChunkDataS2CPacket getPacket() {
         return packet;
     }
 }

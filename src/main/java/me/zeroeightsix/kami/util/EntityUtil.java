@@ -155,6 +155,21 @@ public class EntityUtil {
         return new double[]{yaw,pitch};
     }
 
+    public static void updateVelocityX(Entity entity, double x) {
+        Vec3d velocity = entity.getVelocity();
+        entity.setVelocity(x, velocity.y, velocity.z);
+    }
+
+    public static void updateVelocityY(Entity entity, double y) {
+        Vec3d velocity = entity.getVelocity();
+        entity.setVelocity(velocity.x, y, velocity.z);
+    }
+
+    public static void updateVelocityZ(Entity entity, double z) {
+        Vec3d velocity = entity.getVelocity();
+        entity.setVelocity(velocity.x, velocity.y, z);
+    }
+
     public static boolean isPlayer(Entity entity) {
         return entity instanceof ClientPlayerEntity;
     }

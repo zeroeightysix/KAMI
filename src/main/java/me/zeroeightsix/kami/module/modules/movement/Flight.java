@@ -5,7 +5,8 @@ import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * Created by 086 on 25/08/2017.
@@ -21,9 +22,9 @@ public class Flight extends Module {
         if (mc.player == null) return;
         switch (mode.getValue()) {
             case VANILLA:
-                mc.player.capabilities.isFlying = true;
-                if (mc.player.capabilities.isCreativeMode) return;
-                mc.player.capabilities.allowFlying = true;
+                mc.player.abilities.flying = true;
+                if (mc.player.abilities.creativeMode) return;
+                mc.player.abilities.allowFlying = true;
                 break;
         }
     }
@@ -32,30 +33,30 @@ public class Flight extends Module {
     public void onUpdate() {
         switch (mode.getValue()) {
             case STATIC:
-                mc.player.capabilities.isFlying = false;
-                mc.player.motionX = 0;
-                mc.player.motionY = 0;
-                mc.player.motionZ = 0;
-                mc.player.jumpMovementFactor = speed.getValue();
+                mc.player.abilities.flying = false;
+                mc.player.setVelocity(Vec3d.ZERO);
+                mc.player.field_6281 = speed.getValue(); // jumpMovementFactor
 
-                if (mc.gameSettings.keyBindJump.isKeyDown())
-                    mc.player.motionY += speed.getValue();
-                if (mc.gameSettings.keyBindSneak.isKeyDown())
-                    mc.player.motionY -= speed.getValue();
+                if (mc.options.keyJump.isPressed()) {
+                    mc.player.addVelocity(0, speed.getValue(), 0);
+                }
+                if (mc.options.keySneak.isPressed()) {
+                    mc.player.addVelocity(0, -speed.getValue(), 0);
+                }
                 break;
             case VANILLA:
-                mc.player.capabilities.setFlySpeed(speed.getValue() / 100f);
-                mc.player.capabilities.isFlying = true;
-                if (mc.player.capabilities.isCreativeMode) return;
-                mc.player.capabilities.allowFlying = true;
+                mc.player.abilities.setFlySpeed(speed.getValue() / 100f);
+                mc.player.abilities.flying = true;
+                if (mc.player.abilities.creativeMode) return;
+                mc.player.abilities.allowFlying = true;
                 break;
             case PACKET:
                 int angle;
 
-                boolean forward = mc.gameSettings.keyBindForward.isKeyDown();
-                boolean left = mc.gameSettings.keyBindLeft.isKeyDown();
-                boolean right = mc.gameSettings.keyBindRight.isKeyDown();
-                boolean back = mc.gameSettings.keyBindBack.isKeyDown();
+                boolean forward = mc.options.keyForward.isPressed();
+                boolean left = mc.options.keyLeft.isPressed();
+                boolean right = mc.options.keyRight.isPressed();
+                boolean back = mc.options.keyBack.isPressed();
 
                 if (left && right) angle = forward ? 0 : back ? 180 : -1;
                 else if (forward && back) angle = left ? -90 : (right ? 90 : -1);
@@ -66,14 +67,13 @@ public class Flight extends Module {
                 }
 
                 if (angle != -1 && (forward || left || right || back)) {
-                    float yaw = mc.player.rotationYaw + angle;
-                    mc.player.motionX = EntityUtil.getRelativeX(yaw) * 0.2f;
-                    mc.player.motionZ = EntityUtil.getRelativeZ(yaw) * 0.2f;
+                    float yaw = mc.player.yaw + angle;
+                    mc.player.setVelocity(EntityUtil.getRelativeX(yaw) * 0.2f, mc.player.getVelocity().y, EntityUtil.getRelativeZ(yaw) * 0.2f);
                 }
 
-                mc.player.motionY = 0;
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + mc.player.motionX, mc.player.posY + (MinecraftClient.getInstance().gameSettings.keyBindJump.isKeyDown() ? 0.0622 : 0) - (MinecraftClient.getInstance().gameSettings.keyBindSneak.isKeyDown() ? 0.0622 : 0), mc.player.posZ + mc.player.motionZ, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + mc.player.motionX, mc.player.posY - 42069, mc.player.posZ + mc.player.motionZ, mc.player.rotationYaw, mc.player.rotationPitch, true));
+                EntityUtil.updateVelocityY(mc.player, 0);
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, false));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y - 42069, mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
                 break;
         }
     }
@@ -82,16 +82,16 @@ public class Flight extends Module {
     protected void onDisable() {
         switch (mode.getValue()) {
             case VANILLA:
-                mc.player.capabilities.isFlying = false;
-                mc.player.capabilities.setFlySpeed(0.05f);
-                if (mc.player.capabilities.isCreativeMode) return;
-                mc.player.capabilities.allowFlying = false;
+                mc.player.abilities.flying = false;
+                mc.player.abilities.setFlySpeed(0.05f);
+                if (mc.player.abilities.creativeMode) return;
+                mc.player.abilities.allowFlying = false;
                 break;
         }
     }
 
     public double[] moveLooking() {
-        return new double[]{mc.player.rotationYaw * 360.0F / 360.0F * 180.0F / 180.0F, 0.0D};
+        return new double[]{mc.player.yaw * 360.0F / 360.0F * 180.0F / 180.0F, 0.0D};
     }
 
     public enum FlightMode {

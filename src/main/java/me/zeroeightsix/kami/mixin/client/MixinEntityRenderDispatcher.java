@@ -1,30 +1,29 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.mixin.duck.HasRenderPosition;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(EntityRenderDispatcher.class)
-public abstract class MixinEntityRenderDispatcher implements HasRenderPosition {
+public abstract class MixinEntityRenderDispatcher {
 
-    @Shadow
-    private double renderPosX;
-    @Shadow
-    private double renderPosY;
-    @Shadow
-    private double renderPosZ;
-
-    public double getRenderPosX() {
-        return renderPosX;
+    /*@Redirect(method = "orientCamera", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;rayTraceBlocks(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/RayTraceResult;"))
+    public RayTraceResult rayTraceBlocks(WorldClient world, Vec3d start, Vec3d end) {
+        if (ModuleManager.isModuleEnabled("CameraClip"))
+            return null;
+        else
+            return world.rayTraceBlocks(start, end);
     }
 
-    public double getRenderPosY() {
-        return renderPosY;
+    @Inject(method = "setupFog", at = @At(value = "HEAD"), cancellable = true)
+    public void setupFog(int startCoords, float partialTicks, CallbackInfo callbackInfo) {
+        if (AntiFog.enabled() && AntiFog.mode.getValue() == AntiFog.VisionMode.NOFOG)
+            callbackInfo.cancel();
     }
 
-    public double getRenderPosZ() {
-        return renderPosZ;
-    }
+    @Redirect(method = "setupFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;getBlockStateAtEntityViewpoint(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;F)Lnet/minecraft/block/state/IBlockState;"))
+    public IBlockState getBlockStateAtEntityViewpoint(World worldIn, Entity entityIn, float p_186703_2_) {
+        if (AntiFog.enabled() && AntiFog.mode.getValue() == AntiFog.VisionMode.AIR) return Blocks.AIR.defaultBlockState;
+        return ActiveRenderInfo.getBlockStateAtEntityViewpoint(worldIn, entityIn, p_186703_2_);
+    }*/ //TODO
 
 }

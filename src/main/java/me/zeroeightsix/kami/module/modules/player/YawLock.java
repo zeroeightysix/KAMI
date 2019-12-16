@@ -19,12 +19,12 @@ public class YawLock extends Module {
         if (slice.getValue() == 0) return;
         if (auto.getValue()) {
             int angle = 360 / slice.getValue();
-            float yaw = mc.player.rotationYaw;
+            float yaw = mc.player.yaw;
             yaw = Math.round(yaw / angle) * angle;
-            mc.player.rotationYaw = yaw;
-            if (mc.player.isRiding()) mc.player.getRidingEntity().rotationYaw = yaw;
+            mc.player.yaw = yaw;
+            if (mc.player.isRiding()) mc.player.getVehicle().yaw = yaw;
         } else {
-            mc.player.rotationYaw = MathHelper.clamp(yaw.getValue() - 180, -180, 180);
+            mc.player.yaw = MathHelper.clamp(yaw.getValue() - 180, -180, 180);
         }
     }
 }

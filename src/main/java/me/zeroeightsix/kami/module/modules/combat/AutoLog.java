@@ -2,16 +2,14 @@ package me.zeroeightsix.kami.module.modules.combat;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.network.play.server.SPacketDisconnect;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraft.client.network.packet.DisconnectS2CPacket;
+import net.minecraft.text.LiteralText;
 
 /**
  * Created by 086 on 9/04/2018.
@@ -24,31 +22,31 @@ public class AutoLog extends Module {
     long lastLog = System.currentTimeMillis();
 
     @EventHandler
-    private Listener<LivingDamageEvent> livingDamageEventListener = new Listener<>(event -> {
+    private Listener<EntityEvent.EntityDamage> livingDamageEventListener = new Listener<>(event -> {
         if (mc.player == null) return;
         if (event.getEntity() == mc.player) {
-            if (mc.player.getHealth() - event.getAmount() < health.getValue()) {
+            if (mc.player.getHealth() - event.getDamage() < health.getValue()) {
                 log();
             }
         }
     });
 
-    @EventHandler
+    /*@EventHandler
     private Listener<EntityJoinWorldEvent> entityJoinWorldEventListener = new Listener<>(event -> {
         if (mc.player == null) return;
-        if (event.getEntity() instanceof EntityEnderCrystal) {
-            if (mc.player.getHealth() - CrystalAura.calculateDamage((EntityEnderCrystal) event.getEntity(), mc.player) < health.getValue()) {
+        if (event.getEntity() instanceof EnderCrystalEntity) {
+            if (mc.player.getHealth() - CrystalAura.calculateDamage((EnderCrystalEntity) event.getEntity(), mc.player) < health.getValue()) {
                 log();
             }
         }
-    });
+    });*/ //TODO
 
     @Override
     public void onUpdate() {
         if (shouldLog) {
             shouldLog = false;
             if (System.currentTimeMillis() - lastLog < 2000) return;
-            MinecraftClient.getInstance().getConnection().handleDisconnect(new SPacketDisconnect(new TextComponentString("AutoLogged")));
+            MinecraftClient.getInstance().getNetworkHandler().onDisconnect(new DisconnectS2CPacket(new LiteralText("AutoLogged")));
         }
     }
 

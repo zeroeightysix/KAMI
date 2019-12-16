@@ -4,10 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.module.Module;
-import net.minecraft.network.play.client.CPacketConfirmTeleport;
-
-import java.util.LinkedList;
-import java.util.Queue;
+import net.minecraft.server.network.packet.TeleportConfirmC2SPacket;
 
 /**
  * Created by GlowskiBroski on 10/14/2018.
@@ -17,8 +14,9 @@ public class PortalGodMode extends Module {
 
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-        if (isEnabled() && event.getPacket() instanceof CPacketConfirmTeleport) {
+        if (isEnabled() && event.getPacket() instanceof TeleportConfirmC2SPacket) {
             event.cancel();
         }
     });
+
 }

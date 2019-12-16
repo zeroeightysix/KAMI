@@ -10,16 +10,15 @@ import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.Vec3d;
-
-import java.util.Iterator;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.RayTraceContext;
 
 /**
  * Created by 086 on 12/12/2017.
@@ -42,20 +41,19 @@ public class Aura extends Module {
 
     @Override
     public void onUpdate() {
-
-        if (mc.player.isDead) {
+        if (!mc.player.isAlive()) {
             return;
         }
 
-        boolean shield = mc.player.getHeldItemOffhand().getItem().equals(Items.SHIELD) && mc.player.getActiveHand() == EnumHand.OFF_HAND;
-        if (mc.player.isHandActive() && !shield) {
+        boolean shield = mc.player.getOffHandStack().getItem().equals(Items.SHIELD) && mc.player.getActiveHand() == Hand.OFF_HAND;
+        if (mc.player.isUsingItem() && !shield) {
             return;
         }
 
         if (waitMode.getValue().equals(WaitMode.DYNAMIC)) {
-            if (mc.player.getCooledAttackStrength(getLagComp()) < 1) {
+            if (mc.player.getAttackCooldownProgress(getLagComp()) < 1) { // TODO: Is the right function?
                 return;
-            } else if (mc.player.ticksExisted % 2 != 0) {
+            } else if (mc.player.age % 2 != 0) {
                 return;
             }
         }
@@ -69,28 +67,26 @@ public class Aura extends Module {
             }
         }
 
-        Iterator<Entity> entityIterator = MinecraftClient.getInstance().world.loadedEntityList.iterator();
-        while (entityIterator.hasNext()) {
-            Entity target = entityIterator.next();
+        for (Entity target : MinecraftClient.getInstance().world.getEntities()) {
             if (!EntityUtil.isLiving(target)) {
                 continue;
             }
             if (target == mc.player) {
                 continue;
             }
-            if (mc.player.getDistance(target) > hitRange.getValue()) {
+            if (mc.player.distanceTo(target) > hitRange.getValue()) {
                 continue;
             }
-            if (((EntityLivingBase) target).getHealth() <= 0) {
+            if (((LivingEntity) target).getHealth() <= 0) {
                 continue;
             }
-            if (waitMode.getValue().equals(WaitMode.DYNAMIC) && ((EntityLivingBase) target).hurtTime != 0) {
+            if (waitMode.getValue().equals(WaitMode.DYNAMIC) && ((LivingEntity) target).hurtTime != 0) {
                 continue;
             }
-            if (!ignoreWalls.getValue() && (!mc.player.canEntityBeSeen(target) && !canEntityFeetBeSeen(target))) {
+            if (!ignoreWalls.getValue() && (!mc.player.canSee(target) && !canEntityFeetBeSeen(target))) {
                 continue; // If walls is on & you can't see the feet or head of the target, skip. 2 raytraces needed
             }
-            if (attackPlayers.getValue() && target instanceof EntityPlayer && !Friends.isFriend(target.getName())) {
+            if (attackPlayers.getValue() && target instanceof PlayerEntity && !Friends.isFriend(target.getName().getString())) {
                 attack(target);
                 return;
             } else {
@@ -110,41 +106,32 @@ public class Aura extends Module {
     }
 
     private boolean checkSharpness(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
 
-        if (stack.getTagCompound() == null) {
+        if (tag == null) {
             return false;
         }
 
-        NBTTagList enchants = (NBTTagList) stack.getTagCompound().getTag("ench");
+        ListTag enchantments = stack.getEnchantments();
 
-        // IntelliJ marks (enchants == null) as always false but this is not correct.
-        // In case of a Hotbar Slot without any Enchantment on the Stack it contains,
-        // this will throw a NullPointerException if not accounted for!
-        //noinspection ConstantConditions
-        if (enchants == null) {
-            return false;
-        }
-
-        for (int i = 0; i < enchants.tagCount(); i++) {
-            NBTTagCompound enchant = enchants.getCompoundTagAt(i);
-            if (enchant.getInteger("id") == 16) {
-                int lvl = enchant.getInteger("lvl");
-                if (lvl >= 42) { // dia sword against full prot 5 armor is deadly somehere >= 34 sharpness iirc
+        for(int i = 0; i < enchantments.size(); ++i) {
+            CompoundTag enchantment = enchantments.getCompoundTag(i);
+            if (enchantment.getInt("id") == 16) { // id of sharpness
+                int lvl = enchantment.getInt("lvl");
+                if (lvl >= 34)
                     return true;
-                }
-                break;
+                break; // we've already found sharpness; no other enchant will match id == 16
             }
         }
 
         return false;
-
     }
 
     private void attack(Entity e) {
 
         boolean holding32k = false;
 
-        if (checkSharpness(mc.player.getHeldItemMainhand())) {
+        if (checkSharpness(mc.player.getActiveItem())) {
             holding32k = true;
         }
 
@@ -153,7 +140,7 @@ public class Aura extends Module {
             int newSlot = -1;
 
             for (int i = 0; i < 9; i++) {
-                ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                ItemStack stack = mc.player.inventory.getInvStack(i);
                 if (stack == ItemStack.EMPTY) {
                     continue;
                 }
@@ -164,7 +151,7 @@ public class Aura extends Module {
             }
 
             if (newSlot != -1) {
-                mc.player.inventory.currentItem = newSlot;
+                mc.player.inventory.selectedSlot = newSlot;
                 holding32k = true;
             }
 
@@ -174,8 +161,8 @@ public class Aura extends Module {
             return;
         }
 
-        mc.playerController.attackEntity(mc.player, e);
-        mc.player.swingArm(EnumHand.MAIN_HAND);
+        mc.interactionManager.attackEntity(mc.player, e);
+        mc.player.swingHand(Hand.MAIN_HAND);
 
     }
 
@@ -187,7 +174,8 @@ public class Aura extends Module {
     }
 
     private boolean canEntityFeetBeSeen(Entity entityIn) {
-        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ), false, true, false) == null;
+        RayTraceContext context = new RayTraceContext(mc.player.getPos().add(0, mc.player.getEyeHeight(mc.player.getPose()), 0), entityIn.getPos(), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
+        return mc.world.rayTrace(context).getType() == HitResult.Type.MISS;
     }
 
     private enum WaitMode {

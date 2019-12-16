@@ -1,52 +1,37 @@
 package me.zeroeightsix.kami.module.modules.player;
 
-import com.google.common.collect.Lists;
-import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.event.events.RenderEvent;
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.EntityUtil;
-import me.zeroeightsix.kami.util.GeometryMasks;
-import me.zeroeightsix.kami.util.KamiTessellator;
 import me.zeroeightsix.kami.util.Wrapper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockFalling;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.block.*;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
 public class Scaffold extends Module {
 
-    private List<Block> blackList = Arrays.asList(new Block[] {
-            Blocks.ENDER_CHEST,
+    private List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST,
             Blocks.CHEST,
-            Blocks.TRAPPED_CHEST,
-    });
+            Blocks.TRAPPED_CHEST);
 
     private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2));
 
     private boolean hasNeighbour(BlockPos blockPos) {
-        for (EnumFacing side : EnumFacing.values()) {
+        for (Direction side : Direction.values()) {
             BlockPos neighbour = blockPos.offset(side);
             if(!Wrapper.getWorld().getBlockState(neighbour).getMaterial().isReplaceable())
                 return true;
@@ -71,23 +56,23 @@ public class Scaffold extends Module {
         {
             // filter out non-block items
             ItemStack stack =
-                    Wrapper.getPlayer().inventory.getStackInSlot(i);
+                    Wrapper.getPlayer().inventory.getInvStack(i);
 
-            if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof ItemBlock)) {
+            if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;
             }
-            Block block = ((ItemBlock) stack.getItem()).getBlock();
-            if (blackList.contains(block) || block instanceof BlockContainer) {
+            Block block = ((BlockItem) stack.getItem()).getBlock();
+            if (blackList.contains(block) || block instanceof BlockWithEntity) {
                 continue;
             }
 
             // filter out non-solid blocks
             if(!Block.getBlockFromItem(stack.getItem()).getDefaultState()
-                    .isFullBlock())
+                    .isOpaque())
                 continue;
 
             // don't use falling blocks if it'd fall
-            if (((ItemBlock) stack.getItem()).getBlock() instanceof BlockFalling) {
+            if (((BlockItem) stack.getItem()).getBlock() instanceof FallingBlock) {
                 if (Wrapper.getWorld().getBlockState(belowBlockPos).getMaterial().isReplaceable()) continue;
             }
 
@@ -100,13 +85,13 @@ public class Scaffold extends Module {
             return;
 
         // set slot
-        int oldSlot = Wrapper.getPlayer().inventory.currentItem;
-        Wrapper.getPlayer().inventory.currentItem = newSlot;
+        int oldSlot = Wrapper.getPlayer().inventory.selectedSlot;
+        Wrapper.getPlayer().inventory.selectedSlot = newSlot;
 
         // check if we don't have a block adjacent to blockpos
         A: if (!hasNeighbour(blockPos)) {
             // find air adjacent to blockpos that does have a block adjacent to it, let's fill this first as to form a bridge between the player and the original blockpos. necessary if the player is going diagonal.
-            for (EnumFacing side : EnumFacing.values()) {
+            for (Direction side : Direction.values()) {
                 BlockPos neighbour = blockPos.offset(side);
                 if (hasNeighbour(neighbour)) {
                     blockPos = neighbour;
@@ -120,23 +105,23 @@ public class Scaffold extends Module {
         placeBlockScaffold(blockPos);
 
         // reset slot
-        Wrapper.getPlayer().inventory.currentItem = oldSlot;
+        Wrapper.getPlayer().inventory.selectedSlot = oldSlot;
     }
 
     public static boolean placeBlockScaffold(BlockPos pos) {
-        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().posX,
-                Wrapper.getPlayer().posY + Wrapper.getPlayer().getEyeHeight(),
-                Wrapper.getPlayer().posZ);
+        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().x,
+                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().getPose()),
+                Wrapper.getPlayer().z);
 
-        for(EnumFacing side : EnumFacing.values())
+        for(Direction side : Direction.values())
         {
             BlockPos neighbor = pos.offset(side);
-            EnumFacing side2 = side.getOpposite();
+            Direction side2 = side.getOpposite();
 
             // check if side is visible (facing away from player)
-            if(eyesPos.squareDistanceTo(
+            if(eyesPos.squaredDistanceTo(
                     new Vec3d(pos).add(0.5, 0.5, 0.5)) >= eyesPos
-                    .squareDistanceTo(
+                    .squaredDistanceTo(
                             new Vec3d(neighbor).add(0.5, 0.5, 0.5)))
                 continue;
 
@@ -145,17 +130,17 @@ public class Scaffold extends Module {
                 continue;
 
             Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5)
-                    .add(new Vec3d(side2.getDirectionVec()).scale(0.5));
+                    .add(new Vec3d(side2.getVector()).multiply(0.5));
 
             // check if hitVec is within range (4.25 blocks)
-            if(eyesPos.squareDistanceTo(hitVec) > 18.0625)
+            if(eyesPos.squaredDistanceTo(hitVec) > 18.0625)
                 continue;
 
             // place block
             faceVectorPacketInstant(hitVec);
             processRightClickBlock(neighbor, side2, hitVec);
-            Wrapper.getPlayer().swingArm(EnumHand.MAIN_HAND);
-            mc.rightClickDelayTimer = 4;
+            Wrapper.getPlayer().swingHand(Hand.MAIN_HAND);
+            ((IMinecraftClient) mc).setItemUseCooldown(4);
 
             return true;
         }
@@ -163,19 +148,14 @@ public class Scaffold extends Module {
         return false;
     }
 
-    private static PlayerControllerMP getPlayerController()
-    {
-        return MinecraftClient.getInstance().playerController;
-    }
-
-    public static void processRightClickBlock(BlockPos pos, EnumFacing side,
+    public static void processRightClickBlock(BlockPos pos, Direction side,
                                               Vec3d hitVec)
     {
-        getPlayerController().processRightClickBlock(Wrapper.getPlayer(),
-                mc.world, pos, side, hitVec, EnumHand.MAIN_HAND);
+        mc.interactionManager.interactBlock(Wrapper.getPlayer(),
+                mc.world, Hand.MAIN_HAND, new BlockHitResult(hitVec, side, pos, false));
     }
 
-    public static IBlockState getState(BlockPos pos)
+    public static BlockState getState(BlockPos pos)
     {
         return Wrapper.getWorld().getBlockState(pos);
     }
@@ -187,14 +167,15 @@ public class Scaffold extends Module {
 
     public static boolean canBeClicked(BlockPos pos)
     {
-        return getBlock(pos).canCollideCheck(getState(pos), false);
+        //return getBlock(pos).canCollideCheck(getState(pos), false);
+        return true; // TODO
     }
 
     public static void faceVectorPacketInstant(Vec3d vec)
     {
         float[] rotations = getNeededRotations2(vec);
 
-        Wrapper.getPlayer().connection.sendPacket(new CPacketPlayer.Rotation(rotations[0],
+        mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookOnly(rotations[0],
                 rotations[1], Wrapper.getPlayer().onGround));
     }
 
@@ -212,17 +193,17 @@ public class Scaffold extends Module {
         float pitch = (float)-Math.toDegrees(Math.atan2(diffY, diffXZ));
 
         return new float[]{
-                Wrapper.getPlayer().rotationYaw
-                        + MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().rotationYaw),
-                Wrapper.getPlayer().rotationPitch + MathHelper
-                        .wrapDegrees(pitch - Wrapper.getPlayer().rotationPitch)};
+                Wrapper.getPlayer().yaw
+                        + MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
+                Wrapper.getPlayer().pitch + MathHelper
+                        .wrapDegrees(pitch - Wrapper.getPlayer().pitch)};
     }
 
     public static Vec3d getEyesPos()
     {
-        return new Vec3d(Wrapper.getPlayer().posX,
-                Wrapper.getPlayer().posY + Wrapper.getPlayer().getEyeHeight(),
-                Wrapper.getPlayer().posZ);
+        return new Vec3d(Wrapper.getPlayer().x,
+                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(mc.player.getPose()),
+                Wrapper.getPlayer().z);
     }
 
 }
