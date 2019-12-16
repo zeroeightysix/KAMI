@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.setting.builder.numerical.FloatSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.numerical.IntegerSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.numerical.NumericalSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.primitive.BooleanSettingBuilder;
+import me.zeroeightsix.kami.setting.builder.primitive.CharacterSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.primitive.EnumSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.primitive.StringSettingBuilder;
 
@@ -66,6 +67,10 @@ public class Settings {
         return stringBuilder(name).withValue(value).build();
     }
 
+    public static Setting<Character> c(String name, char value) {
+        return characterBuilder(name).withValue(value).build();
+    }
+
     public static <T extends Enum> Setting<T> e(String name, Enum value) {
         return enumBuilder(value.getClass()).withName(name).withValue(value).build();
     }
@@ -89,6 +94,11 @@ public class Settings {
     public static StringSettingBuilder stringBuilder(String name) {
         return (StringSettingBuilder) new StringSettingBuilder().withName(name);
     }
+
+    public static CharacterSettingBuilder characterBuilder(String name) {
+        return (CharacterSettingBuilder) new CharacterSettingBuilder().withName(name);
+    }
+
 
     public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, BiConsumer<T, T> consumer, Predicate<T> visibilityPredicate) {
         return new SettingBuilder<T>() {
