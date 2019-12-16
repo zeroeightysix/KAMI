@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(MobEntity.class)
 public abstract class MixinMobEntity {
 
-    @Inject(method = "canBeControlledByRider", at = @At("RETURN"))
+    @Inject(method = "canBeControlledByRider", at = @At("RETURN"), cancellable = true)
     public void canBeControlledByRider(CallbackInfoReturnable<Boolean> returnable) {
-        CanBeSteeredEvent event = new CanBeSteeredEvent((MobEntity) (Object) this, canBeControlledByRider());
+        CanBeSteeredEvent event = new CanBeSteeredEvent((MobEntity) (Object) this, returnable.getReturnValue());
         KamiMod.EVENT_BUS.post(event);
         returnable.setReturnValue(!event.isCancelled() && event.canBeSteered());
     }
