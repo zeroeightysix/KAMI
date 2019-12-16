@@ -24,7 +24,6 @@
     "MixinClientWorld",
     "MixinDecoderHandler",
     "MixinEntity",
-    "MixinEntityLlama",
     "MixinEntityRenderDispatcher",
     "MixinEntityRenderer",
     "MixinGameRenderer",
