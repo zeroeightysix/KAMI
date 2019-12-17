@@ -80,6 +80,8 @@ public class KamiMod implements ModInitializer {
 //        guiManager.initializeGUI();
 
         commandManager = new CommandManager();
+        commandManager.generateCommands();
+        KamiMod.log.info("Commands initialised");
 
         Friends.initFriends();
         SettingsRegister.register("commandPrefix", Command.commandPrefix);

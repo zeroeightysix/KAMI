@@ -1,9 +1,11 @@
 package me.zeroeightsix.kami.command;
 
+import com.mojang.brigadier.CommandDispatcher;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
+import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
@@ -15,21 +17,11 @@ public abstract class Command {
 	public static char SECTION_SIGN = '\u00A7';
 	public static Setting<Character> commandPrefix = Settings.c("commandPrefix", '.');
 
-	public static Setting<String> commandPrefix = Settings.s("commandPrefix", ".");
-
-	public Command(String label) {
-		this.label = label;
-		this.description = "Descriptionless";
-	}
+	public abstract void register(CommandDispatcher<CommandSource> dispatcher);
 
 	public static void sendChatMessage(String message){
 		sendRawChatMessage("&7[&a" + KamiMod.KAMI_KANJI + "&7] &r" + message);
 	}
-
-	public static void sendStringChatMessage(String[] messages) {
-		sendChatMessage("");
-		for (String s : messages) sendRawChatMessage(s);
-    }
 
 	public static void sendRawChatMessage(String message){
 		Wrapper.getPlayer().sendMessage(new ChatMessage(message));
@@ -39,12 +31,6 @@ public abstract class Command {
 		return commandPrefix.getValue();
 	}
 	
-	public String getLabel() {
-		return label;
-	}
-	
-	public abstract void call(String[] args);
-
     public static class ChatMessage extends LiteralText {
 
 		String text;
@@ -77,7 +63,4 @@ public abstract class Command {
 
 	}
 
-	public static char SECTIONSIGN() {
-    	return '\u00A7';
-	}
 }

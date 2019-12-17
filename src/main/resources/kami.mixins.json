@@ -18,6 +18,7 @@
     "MixinBlockState",
     "MixinBoatEntityModel",
     "MixinBossBarHud",
+    "MixinChatScreen",
     "MixinClientConnection",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
@@ -39,6 +40,7 @@
     "MixinPlayerEntity",
     "MixinRenderLiving",
     "MixinRenderPlayer",
-    "MixinScreen"
+    "MixinScreen",
+    "MixinSuggestionWindow"
   ]
 }
