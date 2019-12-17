@@ -25,7 +25,7 @@ public class ExtraTab extends Module {
 
     public static String getPlayerName(PlayerListEntry networkPlayerInfoIn) {
         String dname = networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getString() : Team.modifyText(networkPlayerInfoIn.getScoreboardTeam(), new LiteralText(networkPlayerInfoIn.getProfile().getName())).getString();
-        if (Friends.isFriend(dname)) return String.format("%sa%s", Command.SECTIONSIGN(), dname);
+        if (Friends.isFriend(dname)) return String.format("%sa%s", Command.SECTION_SIGN, dname);
         return dname;
     }
 }

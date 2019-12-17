@@ -89,7 +89,7 @@ public class ChatEncryption extends Module {
                     break;
             }
 
-            ((IChatMessageS2CPacket) event.getPacket()).setMessage(new LiteralText(Command.SECTIONSIGN() + "b" + username + Command.SECTIONSIGN() + "r: " + builder.toString()));
+            ((IChatMessageS2CPacket) event.getPacket()).setMessage(new LiteralText(Command.SECTION_SIGN + "b" + username + Command.SECTION_SIGN + "r: " + builder.toString()));
         }
     });
 

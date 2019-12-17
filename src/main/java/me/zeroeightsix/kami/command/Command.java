@@ -12,9 +12,8 @@ import java.util.regex.Pattern;
 
 public abstract class Command {
 	
-	protected String label;
-	protected String syntax;
-	protected String description;
+	public static char SECTION_SIGN = '\u00A7';
+	public static Setting<Character> commandPrefix = Settings.c("commandPrefix", '.');
 
 	public static Setting<String> commandPrefix = Settings.s("commandPrefix", ".");
 
@@ -36,15 +35,7 @@ public abstract class Command {
 		Wrapper.getPlayer().sendMessage(new ChatMessage(message));
 	}
 
-	protected void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public static String getCommandPrefix() {
+	public static char getCommandPrefix() {
 		return commandPrefix.getValue();
 	}
 	
