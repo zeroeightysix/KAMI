@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import me.zeroeightsix.kami.command.commands.TestCommand;
+import me.zeroeightsix.kami.command.commands.ToggleCommand;
 import me.zeroeightsix.kami.util.ClassFinder;
 import net.minecraft.server.command.CommandSource;
 
@@ -26,7 +26,7 @@ public class CommandManager {
 	}
 
 	private void discoverCommands() {
-		Set<Class> classList = ClassFinder.findClasses(TestCommand.class.getPackage().getName(), Command.class);
+		Set<Class> classList = ClassFinder.findClasses(ToggleCommand.class.getPackage().getName(), Command.class);
 		for (Class s : classList) {
 			if (Command.class.isAssignableFrom(s)){
 				try {
