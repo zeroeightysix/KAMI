@@ -19,10 +19,12 @@ public abstract class Command {
 
 	public abstract void register(CommandDispatcher<CommandSource> dispatcher);
 
+	@Deprecated
 	public static void sendChatMessage(String message){
 		sendRawChatMessage("&7[&a" + KamiMod.KAMI_KANJI + "&7] &r" + message);
 	}
 
+	@Deprecated
 	public static void sendRawChatMessage(String message){
 		Wrapper.getPlayer().sendMessage(new ChatMessage(message));
 	}
@@ -30,7 +32,8 @@ public abstract class Command {
 	public static char getCommandPrefix() {
 		return commandPrefix.getValue();
 	}
-	
+
+	@Deprecated
     public static class ChatMessage extends LiteralText {
 
 		String text;
@@ -52,10 +55,6 @@ public abstract class Command {
 			this.text = sb.toString();
 		}
 		
-		public String getUnformattedComponentText() {
-			return text;
-		}
-
 		@Override
 		public Text copy() {
 			return new ChatMessage(text);
