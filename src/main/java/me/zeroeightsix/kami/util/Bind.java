@@ -1,34 +1,26 @@
 package me.zeroeightsix.kami.util;
 
 import me.zeroeightsix.kami.command.commands.ToggleCommand;
+import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import net.minecraft.client.gui.screen.Screen;
-import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 
 /**
  * Created by 086 on 9/10/2018.
  */
 public class Bind {
 
-    boolean ctrl;
-    boolean alt;
-    boolean shift;
-    int key;
-    int scancode;
+    final boolean ctrl;
+    final boolean alt;
+    final boolean shift;
+    KeyBinding binding;
 
-    public Bind(boolean ctrl, boolean alt, boolean shift, int key, int scancode) {
+    public Bind(boolean ctrl, boolean alt, boolean shift, InputUtil.KeyCode code) {
         this.ctrl = ctrl;
         this.alt = alt;
         this.shift = shift;
-        this.key = key;
-        this.scancode = scancode;
-    }
-
-    public int getKey() {
-        return key;
-    }
-
-    public int getScancode() {
-        return scancode;
+        this.binding = new KeyBinding("key.none", code.getCategory(), code.getKeyCode(), "key.categories.none");
     }
 
     public boolean isCtrl() {
@@ -43,42 +35,26 @@ public class Bind {
         return shift;
     }
 
-    public boolean isEmpty() {
-        return !ctrl && !shift && !alt && key < 0;
+    public KeyBinding getBinding() {
+        return binding;
     }
 
-    public void setAlt(boolean alt) {
-        this.alt = alt;
-    }
-
-    public void setCtrl(boolean ctrl) {
-        this.ctrl = ctrl;
-    }
-
-    public void setKey(int key) {
-        this.key = key;
-    }
-
-    public void setShift(boolean shift) {
-        this.shift = shift;
-    }
-
-    public String getName() {
-        return isEmpty() ? "None" : GLFW.glfwGetKeyName(getKey(), getScancode());
+    public String getKeyName() {
+        return getBinding().getLocalizedName();
     }
 
     @Override
     public String toString() {
-        return isEmpty() ?
+        return ((IKeyBinding) binding).getKeyCode().getKeyCode() == -1 ?
                 "None" :
                 (isCtrl() ? "Ctrl+" : "") +
                         (isAlt() ? "Alt+" : "") +
                         (isShift() ? "Shift+" : "") +
-                        capitalise(getName());
+                        capitalise(getKeyName());
     }
 
-    public boolean isDown(int eventKey, int scancode) {
-        return !isEmpty() && (!ToggleCommand.modifiersEnabled || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown())) && eventKey == getKey() && scancode == getScancode();
+    public boolean isDown() {
+        return binding.isPressed() && (!ToggleCommand.modifiersEnabled || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()));
     }
 
     public static boolean isShiftDown() {
@@ -99,7 +75,7 @@ public class Bind {
     }
 
     public static Bind none() {
-        return new Bind(false, false, false, -1, -1);
+        return new Bind(false, false, false, InputUtil.getKeyCode(-1, -1));
     }
 
 }

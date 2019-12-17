@@ -7,12 +7,11 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.module.modules.ClickGUI;
-import me.zeroeightsix.kami.util.ClassFinder;
-import me.zeroeightsix.kami.util.EntityUtil;
-import me.zeroeightsix.kami.util.KamiTessellator;
-import me.zeroeightsix.kami.util.Wrapper;
+import me.zeroeightsix.kami.util.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
@@ -129,9 +128,16 @@ public class ModuleManager {
         MinecraftClient.getInstance().getProfiler().pop();
     }
 
-    public static void onBind(int key, int scancode) {
+    public static void onBind(int key, int scancode, int i) {
+        boolean pressed = i != 0;
+        InputUtil.KeyCode code = InputUtil.getKeyCode(key, scancode);
+
         modules.forEach(module -> {
-            if (module.getBind().isDown(key, scancode)) {
+            Bind bind = module.getBind();
+            if (((IKeyBinding) bind.getBinding()).getKeyCode().equals(code)) {
+                ((IKeyBinding) bind.getBinding()).setPressed(pressed);
+            }
+            if (module.getBind().isDown()) {
                 module.toggle();
             }
         });

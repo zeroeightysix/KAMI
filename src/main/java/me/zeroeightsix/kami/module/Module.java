@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -194,8 +195,9 @@ public class Module {
             array.add(bind.isAlt());
             array.add(bind.isCtrl());
             array.add(bind.isShift());
-            array.add(bind.getKey());
-            array.add(bind.getScancode());
+//            array.add(bind.getKey());
+//            array.add(bind.getScancode());
+            //TODO
             return array;
         }
 
@@ -207,7 +209,7 @@ public class Module {
             boolean shift = array.get(2).getAsBoolean();
             int key = array.get(2).getAsInt();
             int scancode = array.get(3).getAsInt();
-            return new Bind(ctrl, alt, shift, key, scancode);
+            return new Bind(ctrl, alt, shift, InputUtil.getKeyCode(key, scancode));
         }
     }
 }

@@ -12,7 +12,7 @@ public class MixinKeyboard {
 
     @Inject(method = "onKey", at = @At(value = "RETURN", ordinal = 4), require = 1)
     public void onKey(long window, int key, int scancode, int i, int j, CallbackInfo info) {
-        ModuleManager.onBind(key, scancode);
+        ModuleManager.onBind(key, scancode, i);
     }
 
 }
