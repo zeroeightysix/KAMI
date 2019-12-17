@@ -1,9 +1,15 @@
 package me.zeroeightsix.kami.setting.impl;
 
 import com.google.common.base.Converter;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.converter.EnumConverter;
+import net.minecraft.server.command.CommandSource;
 
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
@@ -24,6 +30,11 @@ public class EnumSetting<T extends Enum> extends Setting<T> {
     @Override
     public Converter converter() {
         return converter;
+    }
+
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        return CommandSource.suggestMatching(Arrays.stream(clazz.getEnumConstants()).map(Object::toString), builder);
     }
 
 }

@@ -1,10 +1,14 @@
 package me.zeroeightsix.kami.setting;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import me.zeroeightsix.kami.setting.converter.Convertable;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import me.zeroeightsix.kami.setting.converter.Convertable;
 
 /**
  * Created by 086 on 12/10/2018.
@@ -76,12 +80,22 @@ public abstract class Setting<T> implements ISettingUnknown, Convertable<T> {
 
     @Override
     public void setValueFromString(String value) {
+        setValue(convertFromString(value));
+    }
+
+    public T convertFromString(String value) {
         JsonParser jp = new JsonParser();
-        setValue(this.converter().reverse().convert(jp.parse(value)));
+        T convertedValue = this.converter().reverse().convert(jp.parse(value));
+        return convertedValue;
+    }
+
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        return null;
     }
 
     @Override
     public String getValueAsString() {
         return this.converter().convert(getValue()).toString();
     }
+
 }
