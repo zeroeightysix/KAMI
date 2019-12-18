@@ -19,4 +19,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: KAMI
-        path: /home/runner/work/KAMI/KAMI/build/libs/KAMI-b9-release.jar
+        path: /home/runner/work/KAMI/KAMI/build/libs/kami-1.14.4-r1.jar
