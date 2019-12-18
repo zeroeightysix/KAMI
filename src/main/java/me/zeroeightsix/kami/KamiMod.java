@@ -103,15 +103,20 @@ public class KamiMod implements ModInitializer {
             kamiConfigName = reader.readLine();
             if (!isFilenameValid(kamiConfigName)) kamiConfigName = KAMI_CONFIG_NAME_DEFAULT;
         } catch (NoSuchFileException e) {
-            try(BufferedWriter writer = Files.newBufferedWriter(config)) {
-                writer.write(KAMI_CONFIG_NAME_DEFAULT);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            setLastConfigName(KAMI_CONFIG_NAME_DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return kamiConfigName;
+    }
+
+    public static void setLastConfigName(String newConfigName) {
+        Path config = Paths.get("KAMILastConfig.txt");
+        try(BufferedWriter writer = Files.newBufferedWriter(config)) {
+            writer.write(newConfigName);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     public static void loadConfiguration() {
@@ -142,7 +147,6 @@ public class KamiMod implements ModInitializer {
         if (!Files.exists(outputFile))
             Files.createFile(outputFile);
         Configuration.saveConfiguration(outputFile);
-        ModuleManager.getModules().forEach(Module::destroy);
     }
 
     public static boolean isFilenameValid(String file) {

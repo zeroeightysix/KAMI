@@ -28,8 +28,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static me.zeroeightsix.kami.util.Texts.*;
-import static net.minecraft.util.Formatting.GOLD;
-import static net.minecraft.util.Formatting.YELLOW;
+import static net.minecraft.util.Formatting.*;
 
 /**
  * Created by 086 on 14/12/2017.
