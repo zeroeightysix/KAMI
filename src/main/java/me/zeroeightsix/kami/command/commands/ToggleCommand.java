@@ -8,7 +8,9 @@ import me.zeroeightsix.kami.command.KamiCommandSource;
 import me.zeroeightsix.kami.command.ModuleArgumentType;
 import me.zeroeightsix.kami.module.Module;
 import net.minecraft.server.command.CommandSource;
-import net.minecraft.text.LiteralText;
+
+import static net.minecraft.util.Formatting.*;
+import static me.zeroeightsix.kami.util.Texts.*;
 
 /**
  * Created by 086 on 17/11/2017.
@@ -27,7 +29,13 @@ public class ToggleCommand extends Command {
                             Module m = context.getArgument("module", Module.class);
                             m.toggle();
                             ((KamiCommandSource) context.getSource()).sendFeedback(
-                                    new LiteralText((m.isEnabled() ? "Enabled" : "Disabled") + " " + m.getName() + "."));
+                                    f(GOLD, append(
+                                            lit("Toggled module "),
+                                            flit(YELLOW, m.getName()),
+                                            lit(", now "),
+                                            flit(m.isEnabled() ? GREEN : RED, m.isEnabled() ? "ON" : "OFF")
+                                    ))
+                            );
                             return 0;
                         })
                 )
