@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.util;
 
 import com.google.common.base.Converter;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
+import com.mojang.authlib.GameProfile;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 
@@ -13,64 +12,62 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * Created by 086 on 13/12/2017.
  */
 public class Friends {
-    public static final Friends INSTANCE = new Friends();
-
-    public static Setting<ArrayList<Friend>> friends;
+    public static Setting<ArrayList<GameProfile>> friends;
 
     private Friends() {
     }
 
     public static void initFriends() {
-        friends = Settings.custom("Friends", new ArrayList<Friend>(), new FriendListConverter()).buildAndRegister("friends");
+        friends = Settings.custom("Friends", new ArrayList<GameProfile>(), new FriendListConverter()).buildAndRegister("friends");
     }
 
     public static boolean isFriend(String name) {
-        return friends.getValue().stream().anyMatch(friend -> friend.username.equalsIgnoreCase(name));
+        return friends.getValue().stream().anyMatch(friend -> friend.getName().equalsIgnoreCase(name));
     }
 
-    public static class Friend {
-        String username;
-        UUID uuid;
-
-        public Friend(String username, UUID uuid) {
-            this.username = username;
-            this.uuid = uuid;
-        }
-
-        public String getUsername() {
-            return username;
+    public static void addFriend(GameProfile profile) {
+        if (!isFriend(profile.getName())) {
+            friends.getValue().add(profile);
         }
     }
 
-    public static class FriendListConverter extends Converter<ArrayList<Friend>, JsonElement> {
+    public static void removeFriend(GameProfile profile) {
+        if (isFriend(profile.getName())) {
+            friends.getValue().removeIf(profile1 -> profile1.equals(profile));
+        }
+    }
+
+    public static class FriendListConverter extends Converter<ArrayList<GameProfile>, JsonElement> {
         public FriendListConverter() {}
 
         @Override
-        protected JsonElement doForward(ArrayList<Friend> list) {
-            StringBuilder present = new StringBuilder();
-            for (Friend friend : list)
-                present.append(String.format("%s;%s$", friend.username, friend.uuid.toString()));
-            return new JsonPrimitive(present.toString());
+        protected JsonElement doForward(ArrayList<GameProfile> list) {
+            JsonArray array = new JsonArray();
+            for (GameProfile friend : list) {
+                JsonObject object = new JsonObject();
+                object.add("id", new JsonPrimitive(friend.getId().toString()));
+                object.add("username", new JsonPrimitive(friend.getName()));
+                array.add(object);
+            }
+            return array;
         }
 
         @Override
-        protected ArrayList<Friend> doBackward(JsonElement jsonElement) {
-            String v = jsonElement.getAsString();
-            String[] pairs = v.split(Pattern.quote("$"));
-            ArrayList<Friend> friends = new ArrayList<>();
-            for (String pair : pairs) {
+        protected ArrayList<GameProfile> doBackward(JsonElement jsonElement) {
+            JsonArray v = jsonElement.getAsJsonArray();
+            ArrayList<GameProfile> friends = new ArrayList<>();
+            for (JsonElement element : v) {
+                JsonObject object = element.getAsJsonObject();
+                String username = object.get("username").getAsString();
+                UUID uuid = UUID.fromString(object.get("id").getAsString());
                 try {
-                    String[] split = pair.split(";");
-                    String username = split[0];
-                    UUID uuid = UUID.fromString(split[1]);
-                    friends.add(new Friend(getUsernameByUUID(uuid, username),uuid));
-                } catch (Exception ignored) {} // Empty line, wrong formatting or something, we don't care
+                    friends.add(new GameProfile(uuid, getUsernameByUUID(uuid, username)));
+                } catch (Exception ignored) {}
             }
             return friends;
         }

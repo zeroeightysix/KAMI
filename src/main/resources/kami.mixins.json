@@ -9,6 +9,7 @@
     "IClientPlayerInteractionManager",
     "IDisconnectedScreen",
     "IEntityRenderDispatcher",
+    "IEntitySelector",
     "IEntityVelocityUpdateS2CPacket",
     "IKeyBinding",
     "IMinecraftClient",

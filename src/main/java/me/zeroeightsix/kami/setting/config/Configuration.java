@@ -71,9 +71,13 @@ public class Configuration {
             if (register.registerHashMap.containsKey(key)) {
                 loadConfiguration(register.subregister(key), element.getAsJsonObject());
             } else {
-                Setting setting = register.getSetting(key);
-                if (setting == null) continue;
-                setting.setValue(((Convertable) setting).converter().reverse().convert(element));
+                try {
+                    Setting setting = register.getSetting(key);
+                    if (setting == null) continue;
+                    setting.setValue(setting.converter().reverse().convert(element));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
