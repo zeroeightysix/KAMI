@@ -16,6 +16,7 @@
     "IMiningToolItem",
     "IPlayerMoveC2SPacket",
     "IPlayerPositionLookS2CPacket",
+    "IShulkerBoxBlockEntity",
     "MixinBlockState",
     "MixinBoatEntityModel",
     "MixinBossBarHud",

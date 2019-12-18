@@ -37,12 +37,6 @@ public class ModuleManager {
     public Listener<TickEvent.Client> clientTickListener = new Listener<>(event -> {
         if (Wrapper.getPlayer() == null) return;
         onUpdate();
-
-        /*if (PeekCommand.sb != null) {
-            ShulkerBoxScreen gui = new ShulkerBoxScreen(new ShulkerBoxContainer(-1, Wrapper.getPlayer().inventory), Wrapper.getPlayer().inventory, new LiteralText("Peek"));
-            MinecraftClient.getInstance().openScreen(gui);
-            PeekCommand.sb = null;
-        }*/ //TODO
     });
 
     @EventHandler

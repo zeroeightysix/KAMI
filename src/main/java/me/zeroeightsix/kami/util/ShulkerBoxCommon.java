@@ -11,6 +11,7 @@ import java.util.List;
 public class ShulkerBoxCommon {
 
     private static final List<Block> shulkerList = Arrays.asList(
+            Blocks.SHULKER_BOX,
             Blocks.WHITE_SHULKER_BOX,
             Blocks.ORANGE_SHULKER_BOX,
             Blocks.MAGENTA_SHULKER_BOX,
