@@ -8,6 +8,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.gui.KamiGuiScreen;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.SettingsRegister;
@@ -45,6 +46,7 @@ public class KamiMod implements ModInitializer {
 
     private int displayWidth;
     private int displayHeight;
+    public KamiGuiScreen kamiGuiScreen = null;
 
     public CommandManager commandManager;
 
@@ -54,11 +56,6 @@ public class KamiMod implements ModInitializer {
             KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
             displayWidth = MinecraftClient.getInstance().window.getWidth();
             displayHeight = MinecraftClient.getInstance().window.getHeight();
-
-            // TODO: new GUI
-//            KamiMod.getInstance().getGuiManager().getChildren().stream()
-//                    .filter(component -> component instanceof Frame)
-//                    .forEach(component -> KamiGUI.dock((Frame) component));
         }
     });
 
@@ -72,12 +69,7 @@ public class KamiMod implements ModInitializer {
         EVENT_BUS.subscribe(manager);
 
         ModuleManager.getModules().stream().filter(module -> module.alwaysListening).forEach(EVENT_BUS::subscribe);
-//        MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
         LagCompensator.INSTANCE = new LagCompensator();
-
-        // TODO: New GUI
-//        guiManager = new KamiGUI();
-//        guiManager.initializeGUI();
 
         commandManager = new CommandManager();
         commandManager.generateCommands();
