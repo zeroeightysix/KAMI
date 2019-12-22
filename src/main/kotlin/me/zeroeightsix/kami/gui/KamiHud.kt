@@ -1,7 +1,9 @@
 package me.zeroeightsix.kami.gui
 
+import glm_.vec2.Vec2d
 import imgui.ImGui
 import imgui.classes.Context
+import imgui.classes.IO
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import net.minecraft.client.MinecraftClient
@@ -12,6 +14,7 @@ object KamiHud {
     internal var implGl3: ImplGL3
     internal val implGlfw: ImplGlfw
     internal val context: Context
+    internal val io: IO
 
     var informationVisible = true
 
@@ -21,9 +24,11 @@ object KamiHud {
         context = Context()
         implGlfw = ImplGlfw(window, false, null)
         implGl3 = ImplGL3()
+        io = ImGui.io
     }
 
-    fun render() {
+    fun renderHud() {
+
         frame {
             if (Information.pinned) {
                 Information(::informationVisible)
@@ -40,6 +45,10 @@ object KamiHud {
             ImGui.render()
             implGl3.renderDrawData(ImGui.drawData!!)
         }
+    }
+
+    fun mouseScroll(d: Double, e: Double) {
+        ImplGlfw.scrollCallback(Vec2d(d, e))
     }
 
 }

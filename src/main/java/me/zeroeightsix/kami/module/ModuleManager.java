@@ -52,7 +52,7 @@ public class ModuleManager {
         onRender();
 
         if (!(MinecraftClient.getInstance().currentScreen instanceof KamiGuiScreen)) {
-            KamiHud.INSTANCE.render();
+            KamiHud.INSTANCE.renderHud();
         }
 //        KamiTessellator.releaseGL();
     });

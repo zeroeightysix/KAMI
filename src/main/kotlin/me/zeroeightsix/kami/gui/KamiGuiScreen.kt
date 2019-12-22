@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.gui
 
 import imgui.ImGui
-import imgui.classes.IO
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.KamiHud.context
@@ -12,8 +11,6 @@ import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
-
-    private val io: IO = ImGui.io
 
     var demoWindowVisible = false
 

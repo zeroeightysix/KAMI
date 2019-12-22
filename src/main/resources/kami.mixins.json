@@ -38,6 +38,7 @@
     "MixinLivingEntity",
     "MixinMinecraftClient",
     "MixinMobEntity",
+    "MixinMouse",
     "MixinNetHandlerPlayClient",
     "MixinPlayerEntity",
     "MixinRenderLiving",
