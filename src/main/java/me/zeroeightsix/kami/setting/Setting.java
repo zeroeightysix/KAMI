@@ -90,7 +90,7 @@ public abstract class Setting<T> implements ISettingUnknown, Convertable<T> {
     }
 
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return null;
+        return builder.buildFuture();
     }
 
     @Override

@@ -42,7 +42,6 @@
     "MixinPlayerEntity",
     "MixinRenderLiving",
     "MixinRenderPlayer",
-    "MixinScreen",
-    "MixinSuggestionWindow"
+    "MixinScreen"
   ]
 }
