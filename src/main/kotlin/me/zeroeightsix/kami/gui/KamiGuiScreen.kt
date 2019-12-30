@@ -1,10 +1,10 @@
 package me.zeroeightsix.kami.gui
 
-import imgui.ImGui
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
-import me.zeroeightsix.kami.gui.KamiHud.context
 import me.zeroeightsix.kami.gui.KamiHud.implGl3
+import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.windows.KamiDebugWindow
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
@@ -16,7 +16,7 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
-        if (!returned && context.wantCaptureKeyboardNextFrame != -1) {
+        if (!returned) {
             ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_PRESS, modifiers)
         }
         return returned
@@ -24,7 +24,7 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
 
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyReleased(keyCode, scanCode, modifiers)
-        if (!returned && context.wantCaptureKeyboardNextFrame != -1) {
+        if (!returned) {
             ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_RELEASE, modifiers)
         }
         return returned
@@ -32,7 +32,7 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
 
     override fun charTyped(chr: Char, keyCode: Int): Boolean {
         val returned = super.charTyped(chr, keyCode)
-        if (!returned && context.wantCaptureKeyboardNextFrame != -1) {
+        if (!returned) {
             ImplGlfw.charCallback(chr.toInt())
         }
         return returned
@@ -42,17 +42,14 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         super.render(mouseX, mouseY, delta)
 
         KamiHud.frame {
-            with (ImGui) {
-                textWrapped("Hello world!")
+            MenuBar()
+            KamiDebugWindow()
 
-                checkbox("Demo Window", ::demoWindowVisible)
-
-                if (demoWindowVisible) {
-                    showDemoWindow(::demoWindowVisible)
-                }
-
-                if (KamiHud.informationVisible) {
-                    Information(KamiHud::informationVisible)
+            if (!EnabledWidgets.hideAll) {
+                for ((widget, open) in EnabledWidgets.widgets) {
+                    if (open.get()) {
+                        widget.showWindow(open)
+                    }
                 }
             }
         }

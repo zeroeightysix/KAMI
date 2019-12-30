@@ -6,17 +6,16 @@ import imgui.classes.Context
 import imgui.classes.IO
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
+import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import net.minecraft.client.MinecraftClient
 import uno.glfw.GlfwWindow
 
 object KamiHud {
 
     internal var implGl3: ImplGL3
-    internal val implGlfw: ImplGlfw
     internal val context: Context
-    internal val io: IO
-
-    var informationVisible = true
+    private val implGlfw: ImplGlfw
+    private val io: IO
 
     init {
         val window = GlfwWindow.from(MinecraftClient.getInstance().window.handle)
@@ -28,10 +27,13 @@ object KamiHud {
     }
 
     fun renderHud() {
-
         frame {
-            if (Information.pinned) {
-                Information(::informationVisible)
+            if (!EnabledWidgets.hideAll) {
+                for ((widget, open) in EnabledWidgets.widgets) {
+                    if (open.get() && widget.pinned) {
+                        widget.showWindow(open)
+                    }
+                }
             }
         }
     }
