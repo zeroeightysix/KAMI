@@ -1,9 +1,11 @@
 package me.zeroeightsix.kami.gui
 
+import glm_.vec2.Vec2
 import glm_.vec2.Vec2d
 import imgui.ImGui
 import imgui.classes.Context
 import imgui.classes.IO
+import imgui.font.FontConfig
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
@@ -25,6 +27,13 @@ object KamiHud {
         implGlfw = ImplGlfw(window, false, null)
         implGl3 = ImplGL3()
         io = ImGui.io
+
+        val fontCfg = FontConfig()
+        fontCfg.oversample put 1
+        fontCfg.pixelSnapH = true
+        fontCfg.glyphOffset = Vec2(0, -2)
+        ImGui.io.fonts.addFontFromFileTTF("assets/kami/Minecraftia.ttf", 12f, fontCfg)
+        ImGui.io.fonts.addFontDefault()
     }
 
     fun renderHud() {
