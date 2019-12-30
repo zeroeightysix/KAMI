@@ -22,6 +22,17 @@ object EnabledWidgets {
                 open.set(!open.get())
             }
         }
+        separator()
+        menuItem("Pin all") {
+            widgets.keys.forEach {
+                it.pinned = true
+            }
+        }
+        menuItem("Unpin all") {
+            widgets.keys.forEach {
+                it.pinned = false
+            }
+        }
     }
 
 }
