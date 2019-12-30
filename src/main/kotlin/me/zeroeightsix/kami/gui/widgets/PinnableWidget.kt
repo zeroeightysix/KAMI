@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.widgets
 import glm_.vec2.Vec2
 import imgui.Cond
 import imgui.ImGui.io
+import imgui.ImGui.setNextWindowBgAlpha
 import imgui.ImGui.setNextWindowPos
 import imgui.WindowFlag
 import imgui.dsl.menu
@@ -16,8 +17,13 @@ abstract class PinnableWidget(val name: String) {
 
     var pinned = false
     var corner = 0
+    var background = false
 
     val distance = 10f
+    
+    companion object {
+        var drawFadedBackground = true
+    }
 
     private fun showWidgetContextMenu(open: KMutableProperty0<Boolean>) {
         popupContextWindow {
@@ -31,6 +37,10 @@ abstract class PinnableWidget(val name: String) {
                 menuItem("Top-right", "", corner == 1) { corner = 1 }
                 menuItem("Bottom-left", "", corner == 2) { corner = 2 }
                 menuItem("Bottom-right", "", corner == 3) { corner = 3 }
+            }
+            menu("Style") {
+                menuItem("Background", "", background) { background = !background }
+                fillStyle()
             }
             fillContextMenu()
             menuItem("Close", "CTRL+W") {
@@ -47,6 +57,11 @@ abstract class PinnableWidget(val name: String) {
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
         }
+        if (!background) {
+            if (drawFadedBackground) {
+                setNextWindowBgAlpha(0.45f)
+            } else flags = flags or WindowFlag.NoBackground
+        }
 
         window(name, open, flags) {
             fillWindow(open)
@@ -57,6 +72,7 @@ abstract class PinnableWidget(val name: String) {
     private infix fun Int.has(b: Int) = (this and b) != 0
 
     protected abstract fun fillWindow(open: KMutableProperty0<Boolean>)
+    protected open fun fillStyle() {}
     protected open fun fillContextMenu() {}
 
 }

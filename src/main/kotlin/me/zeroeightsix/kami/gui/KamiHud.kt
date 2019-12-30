@@ -7,6 +7,7 @@ import imgui.classes.IO
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import net.minecraft.client.MinecraftClient
 import uno.glfw.GlfwWindow
 
@@ -29,11 +30,13 @@ object KamiHud {
     fun renderHud() {
         frame {
             if (!EnabledWidgets.hideAll) {
+                PinnableWidget.drawFadedBackground = false
                 for ((widget, open) in EnabledWidgets.widgets) {
                     if (open.get() && widget.pinned) {
                         widget.showWindow(open)
                     }
                 }
+                PinnableWidget.drawFadedBackground = true
             }
         }
     }

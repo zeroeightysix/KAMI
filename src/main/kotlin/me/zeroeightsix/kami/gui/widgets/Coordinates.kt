@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.gui.widgets
 
 import imgui.ImGui.sliderInt
 import imgui.ImGui.text
-import imgui.dsl.menu
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
 
@@ -16,7 +15,7 @@ object Coordinates : PinnableWidget("Coordinates") {
         text("z ${Wrapper.getMinecraft().player.pos.z.format(digits)}")
     }
 
-    override fun fillContextMenu() = menu("Style") {
+    override fun fillStyle() {
         sliderInt("Digits", ::digits, 0, 6)
     }
 
