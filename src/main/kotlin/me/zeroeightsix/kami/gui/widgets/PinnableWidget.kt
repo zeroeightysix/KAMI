@@ -43,7 +43,7 @@ abstract class PinnableWidget(val name: String) {
                 fillStyle()
             }
             fillContextMenu()
-            menuItem("Close", "CTRL+W") {
+            menuItem("Hide", "Ctrl+W") {
                 open.set(false)
             }
         }
