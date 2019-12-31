@@ -90,9 +90,6 @@ object KamiModules {
 
     }
 
-    /**
-     * @see OneModuleWindow
-     */
     class MultiModuleWindow(title: String, val modules: List<Module>) : ModuleWindow(title) {
 
         override fun fill() {
