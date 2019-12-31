@@ -27,6 +27,7 @@ object KamiHud {
         implGlfw = ImplGlfw(window, false, null)
         implGl3 = ImplGL3()
         io = ImGui.io
+        io.iniFilename = "kami-imgui.ini"
 
         val fontCfg = FontConfig()
         fontCfg.oversample put 1
