@@ -5,6 +5,8 @@ import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.KamiHud.implGl3
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.KamiDebugWindow
+import me.zeroeightsix.kami.gui.windows.KamiModules
+import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
@@ -42,8 +44,14 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         super.render(mouseX, mouseY, delta)
 
         KamiHud.frame {
+            // Draw the main menu bar.
             MenuBar()
+            // Debug window (theme, demo window)
             KamiDebugWindow()
+            // Draw all module windows
+            KamiModules()
+            // Draw the settings
+            KamiSettings()
 
             if (!EnabledWidgets.hideAll) {
                 for ((widget, open) in EnabledWidgets.widgets) {

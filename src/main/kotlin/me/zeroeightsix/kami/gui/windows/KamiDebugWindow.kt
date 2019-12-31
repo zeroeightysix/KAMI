@@ -76,7 +76,6 @@ object KamiDebugWindow {
         if (showDemoWindow) {
             showDemoWindow(::showDemoWindow)
         }
-
     }
 
     private fun styleColorsCherry() {
