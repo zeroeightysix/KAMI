@@ -5,8 +5,8 @@ import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.KamiHud.implGl3
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.KamiDebugWindow
-import me.zeroeightsix.kami.gui.windows.KamiModules
 import me.zeroeightsix.kami.gui.windows.KamiSettings
+import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
@@ -49,7 +49,7 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
             // Debug window (theme, demo window)
             KamiDebugWindow()
             // Draw all module windows
-            KamiModules()
+            Modules()
             // Draw the settings
             KamiSettings()
 
