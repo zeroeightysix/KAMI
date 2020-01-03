@@ -15,7 +15,7 @@ object KamiSettings {
             window("Settings", ::settingsWindowOpen) {
                 checkbox("Swap module list buttons", ::swapModuleListButtons) {}
                 sameLine()
-                demoDebugInformations.helpMarker("When enabled, left clicking modules will reveal their settings menu. Right clicking will toggle the module.")
+                demoDebugInformations.helpMarker("When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module.")
             }
         }
     }

@@ -35,8 +35,8 @@ object KamiModules {
         var clickedRight = false
 
         fun updateClicked() {
-            clickedLeft = isItemClicked(MouseButton.Left)
-            clickedRight = isItemClicked(MouseButton.Right)
+            clickedLeft = isItemClicked(if (KamiSettings.swapModuleListButtons) MouseButton.Left else MouseButton.Right)
+            clickedRight = isItemClicked(if (KamiSettings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
         if (treeNodeExV(label, nodeFlags, module.name)) {
