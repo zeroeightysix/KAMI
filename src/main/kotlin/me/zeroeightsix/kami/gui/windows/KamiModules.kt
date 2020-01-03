@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui.windows
 
+import glm_.vec2.Vec2
 import imgui.*
 import imgui.ImGui.beginChild
 import imgui.ImGui.currentWindow
@@ -8,6 +9,7 @@ import imgui.ImGui.isItemClicked
 import imgui.ImGui.pushItemWidth
 import imgui.ImGui.sameLine
 import imgui.ImGui.setDragDropPayload
+import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeExV
@@ -27,15 +29,22 @@ import me.zeroeightsix.kami.module.ModuleManager
 object KamiModules {
 
     private val windows = mutableListOf<ModuleWindow>(
-        MultiGroupWindow("All modules", ModuleManager.modules.groupByTo(mutableMapOf(), { it.category.getName() }))
+        MultiGroupWindow("All modules", ModuleManager.modules.groupBy {
+            it.category.getName()
+        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet().toMutableSet() }))
     )
     private val baseFlags = TreeNodeFlag.SpanFullWidth.i or TreeNodeFlag.OpenOnDoubleClick
     private val kamiModulePayload = "KAMI_MODULES"
     private lateinit var payload: ModulePayload
+    private var needsPayload = true
 
-    private fun collapsibleModule(module: Module, windowIterator: MutableListIterator<ModuleWindow>, source: ModuleWindow) {
+    /**
+     * Returns if this module has detached
+     */
+    private fun collapsibleModule(module: Module, windowIterator: MutableListIterator<ModuleWindow>, source: ModuleWindow): Boolean {
         val nodeFlags = if (!module.isEnabled) baseFlags else (baseFlags or TreeNodeFlag.Selected)
         val label = "${module.name}-node"
+        var detached = false
 
         // We don't want imgui to handle open/closing at all, so we hack out the behaviour
         val doubleClicked = ImGui.io.mouseDoubleClicked[0]
@@ -56,6 +65,7 @@ object KamiModules {
             popupContextItem("$label-popup") {
                 menuItem("Detach") {
                     windowIterator.add(OneModuleWindow(module.name, module))
+                    detached = true
                 }
             }
 
@@ -74,6 +84,8 @@ object KamiModules {
             window.dc.stateStorage[id] = !open
             window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
         }
+        
+        return detached
     }
 
     operator fun invoke() {
@@ -83,25 +95,30 @@ object KamiModules {
             iterator.next().draw(iterator)
         }
     }
-
-    abstract class ModuleWindow(val title: String) {
+    
+    abstract class ModuleWindow(val title: String, val pos: Vec2? = null) {
         
         var closed = false
 
         fun draw(windowIterator: MutableListIterator<ModuleWindow>) {
             if (closed) windowIterator.remove()
-            else
+            else {
+                pos?.let {
+                    setNextWindowPos(pos, Cond.Appearing)
+                }
+
                 window(title) {
                     fill(windowIterator)
                 }
+            }
         }
 
         protected abstract fun fill(windowIterator: MutableListIterator<ModuleWindow>)
-        abstract fun remove(modules: List<Module>)
+        abstract fun remove(modules: Set<Module>)
 
     }
 
-    class OneModuleWindow(title: String, val module: Module) : ModuleWindow(title) {
+    class OneModuleWindow(title: String, val module: Module, pos: Vec2? = null) : ModuleWindow(title, pos) {
 
         var moduleEnabled = module.isEnabled
 
@@ -116,66 +133,74 @@ object KamiModules {
             dragDropTarget {
                 ImGui.acceptDragDropPayload(kamiModulePayload)?.let {
                     // Upgrade from a OneModuleWindow to a MultiModuleWindow
-
-                    closed = true // removes this OneModuleWindow
-                    val list = payload.list
-                    list.add(0, module)
-                    val id = list.map { it.originalName }.joinToString("-")
-                    val multi = MultiModuleWindow("${list.size} modules##$id", list)
-                    payload.list = mutableListOf() // make sure the next drag & drop doesn't affect this instance of payload
+                    closed = true
+                    val pos = currentWindow.pos
+                    val set = payload.list
+                    set.add(module) // Add our one module to the set
+                    val id = set.map { it.originalName }.joinToString("-")
+                    val multi = MultiModuleWindow("${set.size} modules##$id", set, pos)
+                    needsPayload = true
                     windowIterator.add(multi)
                 }
             }
         }
 
-        override fun remove(modules: List<Module>) {
+        override fun remove(modules: Set<Module>) {
             closed = modules.contains(module)
         }
 
     }
 
-    class MultiModuleWindow(title: String, val modules: MutableList<Module>) : ModuleWindow(title) {
+    class MultiModuleWindow(title: String, val modules: MutableSet<Module>, pos: Vec2? = null) : ModuleWindow(title, pos) {
 
         override fun fill(windowIterator: MutableListIterator<ModuleWindow>) {
             beginChild("$title-child")
+            val detachedModules = mutableSetOf<Module>()
+            modules.forEach {
+                if (collapsibleModule(it, windowIterator, this)) {
+                    detachedModules.add(it)
+                }
+            }
+            remove(detachedModules)
+            endChild()
             dragDropTarget {
                 ImGui.acceptDragDropPayload(kamiModulePayload)?.let {
                     val list = payload.list
                     payload.source.remove(list) // remove the module(s) from the payload source
                     modules.addAll(list) // add them all to our modules
-                    list.clear() // clear the payload
+                    needsPayload = true
                 }
             }
-            modules.forEach {
-                collapsibleModule(it, windowIterator, this)
-            }
-            endChild()
         }
 
-        override fun remove(modules: List<Module>) {
+        override fun remove(modules: Set<Module>) {
             this.modules.removeAll(modules)
-            closed = modules.isEmpty()
+            closed = this.modules.isEmpty()
         }
 
     }
     
-    class MultiGroupWindow(title: String, val groups: MutableMap<String, MutableList<Module>>) : ModuleWindow(title) {
+    class MultiGroupWindow(title: String, val groups: MutableMap<String, MutableSet<Module>>, pos: Vec2? = null) : ModuleWindow(title, pos) {
 
         override fun fill(windowIterator: MutableListIterator<ModuleWindow>) {
+            val detachedModules = mutableSetOf<Module>()
             for ((group, list) in groups) {
                 collapsingHeader(group) {
                     if (list.isEmpty()) {
                         text("Ain't nobody here but us chickens.")
                     } else {
                         list.forEach {
-                            collapsibleModule(it, windowIterator, this)
+                            if (collapsibleModule(it, windowIterator, this)) {
+                                detachedModules.add(it)
+                            }
                         }
                     }
                 }
             }
+            remove(detachedModules)
         }
 
-        override fun remove(modules: List<Module>) {
+        override fun remove(modules: Set<Module>) {
             val iterator = groups.iterator()
             iterator.forEach {
                 it.value.removeAll(modules)
@@ -196,13 +221,16 @@ object KamiModules {
             demoDebugInformations.helpMarker("Start dragging from this question mark to merge this module into another window.")
             dragDropSource(DragDropFlag.SourceAllowNullID.i) {
                 setDragDropPayload(kamiModulePayload, "", 0)
-                payload = ModulePayload(mutableListOf(module), source)
+                if (needsPayload) {
+                    payload = ModulePayload(mutableSetOf(module), source)
+                    needsPayload = false
+                }
                 text("Merge")
             }
         }
 
     }
 
-    data class ModulePayload(var list: MutableList<Module>, val source: ModuleWindow)
+    data class ModulePayload(var list: MutableSet<Module>, val source: ModuleWindow)
 
 }
