@@ -15,7 +15,6 @@ import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
-import imgui.dsl.treeNode
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
@@ -31,7 +30,7 @@ object Modules {
         }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet() }))
     )
     private val newWindows = mutableSetOf<ModuleWindow>()
-    private val baseFlags = TreeNodeFlag.SpanFullWidth.i or TreeNodeFlag.OpenOnDoubleClick
+    private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick
 
     /**
      * Returns if this module has detached
@@ -166,8 +165,9 @@ object Modules {
                                 continue
                             }
 
-                            treeNode(group) {
+                            if (treeNodeExV("cat-$group-node", TreeNodeFlag.SpanFullWidth.i, group)) {
                                 iterateModules(set, group)
+                                treePop()
                             }
                         }
                     }
