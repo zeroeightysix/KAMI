@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.setting.impl.numerical;
 
+import imgui.ImGui;
 import me.zeroeightsix.kami.setting.converter.AbstractBoxedNumberConverter;
 import me.zeroeightsix.kami.setting.converter.BoxedIntegerConverter;
 
@@ -22,4 +23,8 @@ public class IntegerSetting extends NumberSetting<Integer> {
         return converter;
     }
 
+    @Override
+    protected boolean drawSettingsNumber() {
+        return ImGui.INSTANCE.dragInt(getName(), property, 1, 0, 0, "%d");
+    }
 }

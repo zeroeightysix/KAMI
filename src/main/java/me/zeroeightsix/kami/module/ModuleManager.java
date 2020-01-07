@@ -133,6 +133,10 @@ public class ModuleManager {
         boolean pressed = i != 0;
         InputUtil.KeyCode code = InputUtil.getKeyCode(key, scancode);
 
+        if (Wrapper.getMinecraft().currentScreen != null) {
+            return;
+        }
+
         if (key == 89 && scancode == 29) {
             if (KamiMod.getInstance().kamiGuiScreen == null) {
                 KamiMod.getInstance().kamiGuiScreen = new KamiGuiScreen();

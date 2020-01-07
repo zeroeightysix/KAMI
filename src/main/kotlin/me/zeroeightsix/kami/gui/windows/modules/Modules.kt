@@ -21,6 +21,7 @@ import imgui.internal.or
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.module.ModuleManager
+import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 
 object Modules {
 
@@ -84,13 +85,14 @@ object Modules {
         }
         if (open) {
             updateClicked()
-            ModuleSettings(module, source)
-            dragDropSource(DragDropFlag.SourceAllowNullID.i) {
-                setDragDropPayload(KAMI_MODULE_PAYLOAD, 0, 0) // no data
-                if (Payloads.needsPayload()) {
-                    Payloads.payload = ModulePayload(mutableSetOf(module), source)
+            ModuleSettings(module) {
+                dragDropSource(DragDropFlag.SourceAllowNullID.i) {
+                    setDragDropPayload(KAMI_MODULE_PAYLOAD, 0, 0) // no data
+                    if (Payloads.needsPayload()) {
+                        Payloads.payload = ModulePayload(mutableSetOf(module), source)
+                    }
+                    text("Merge")
                 }
-                text("Merge")
             }
 
             popupContextItem("$label-popup") {

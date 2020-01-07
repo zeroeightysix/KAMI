@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.setting;
 
 import com.google.common.base.Converter;
+import imgui.ImGui;
 import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.setting.builder.numerical.DoubleSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.numerical.FloatSettingBuilder;
@@ -12,12 +13,15 @@ import me.zeroeightsix.kami.setting.builder.primitive.EnumSettingBuilder;
 import me.zeroeightsix.kami.setting.builder.primitive.StringSettingBuilder;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
  * Created by 086 on 13/10/2018.
  */
 public class Settings {
+
+    private static final Consumer<Setting> DEFAULT_SHOW_SETTINGS = (setting) -> ImGui.INSTANCE.text(setting.getName() + " isn't editable.");
 
     public static FloatSettingBuilder floatBuilder() {
         return new FloatSettingBuilder();
@@ -100,7 +104,7 @@ public class Settings {
     }
 
 
-    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, BiConsumer<T, T> consumer, Predicate<T> visibilityPredicate) {
+    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, BiConsumer<T, T> consumer, Predicate<T> visibilityPredicate, Consumer<Setting> showSettings) {
         return new SettingBuilder<T>() {
             @Override
             public Setting<T> build() {
@@ -109,25 +113,34 @@ public class Settings {
                     public Converter converter() {
                         return converter;
                     }
+
+                    @Override
+                    public void drawSettings() {
+                        showSettings.accept(this);
+                    }
                 };
             }
         }.withName(name).withValue(initialValue).withConsumer(consumer).withVisibility(visibilityPredicate).withRestriction(restriction);
     }
 
-    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, BiConsumer<T, T> consumer, boolean hidden) {
-        return custom(name, initialValue, converter, restriction, consumer, t -> !hidden);
+    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, BiConsumer<T, T> consumer, boolean hidden, Consumer<Setting> showSettings) {
+        return custom(name, initialValue, converter, restriction, consumer, t -> !hidden, showSettings);
     }
 
-    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, boolean hidden) {
-        return custom(name, initialValue, converter, restriction, (t, t2) -> {}, hidden);
+    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Predicate<T> restriction, boolean hidden, Consumer<Setting> showSettings) {
+        return custom(name, initialValue, converter, restriction, (t, t2) -> {}, hidden, showSettings);
     }
 
-    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, boolean hidden) {
-        return custom(name, initialValue, converter, input -> true, (t, t2) -> {}, hidden);
+    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, boolean hidden, Consumer<Setting> showSettings) {
+        return custom(name, initialValue, converter, input -> true, (t, t2) -> {}, hidden, showSettings);
+    }
+
+    public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter, Consumer<Setting> showSettings) {
+        return custom(name, initialValue, converter, false, showSettings);
     }
 
     public static <T> SettingBuilder<T> custom(String name, T initialValue, Converter converter) {
-        return custom(name, initialValue, converter, input -> true, (t, t2) -> {}, false);
+        return custom(name, initialValue, converter, input -> true, (t, t2) -> {}, false, DEFAULT_SHOW_SETTINGS);
     }
 
 }
