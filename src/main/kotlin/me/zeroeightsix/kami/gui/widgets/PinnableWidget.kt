@@ -11,6 +11,7 @@ import imgui.dsl.menuItem
 import imgui.dsl.popupContextWindow
 import imgui.dsl.window
 import imgui.or
+import me.zeroeightsix.kami.gui.windows.KamiSettings
 import kotlin.reflect.KMutableProperty0
 
 abstract class PinnableWidget(val name: String) {
@@ -19,8 +20,6 @@ abstract class PinnableWidget(val name: String) {
     var corner = 0
     var background = false
 
-    val distance = 10f
-    
     companion object {
         var drawFadedBackground = true
     }
@@ -52,6 +51,7 @@ abstract class PinnableWidget(val name: String) {
     fun showWindow(open: KMutableProperty0<Boolean>) {
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (corner != -1) {
+            val distance = KamiSettings.borderOffset
             val windowPos = Vec2{ if (corner has it + 1) io.displaySize[it] - distance else distance }
             val windowPosPivot = Vec2(if (corner has 1) 1f else 0f, if (corner has 2) 1f else 0f)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)

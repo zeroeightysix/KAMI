@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.windows
 import glm_.vec4.Vec4
 import imgui.Col
 import imgui.ImGui
+import imgui.ImGui.dragFloat
 import imgui.ImGui.sameLine
 import imgui.api.demoDebugInformations
 import imgui.api.g
@@ -18,8 +19,9 @@ object KamiSettings {
     var hideModuleDescriptions = false
     var hideModuleMarker = false
     var styleIdx = 0
+    var borderOffset = 10f
 
-    val themes = listOf("Classic", "Dark", "Light", "Cherry")
+    private val themes = listOf("Classic", "Dark", "Light", "Cherry")
 
     operator fun invoke() {
         if (settingsWindowOpen) {
@@ -47,6 +49,10 @@ object KamiSettings {
                             3 -> styleColorsCherry()
                         }
                     }
+                }
+
+                collapsingHeader("Overlay") {
+                    dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
                 }
             }
         }
