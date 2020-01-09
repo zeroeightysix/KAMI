@@ -19,9 +19,9 @@ import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
 import me.zeroeightsix.kami.gui.windows.KamiSettings
+import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.module.ModuleManager
-import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 
 object Modules {
 
@@ -93,11 +93,11 @@ object Modules {
                     }
                     text("Merge")
                 }
-            }
 
-            popupContextItem("$label-popup") {
-                menuItem("Detach") {
-                    moduleWindow = ModuleWindow(module.name, module = module)
+                popupContextItem("$label-popup") {
+                    menuItem("Detach") {
+                        moduleWindow = ModuleWindow(module.name, module = module)
+                    }
                 }
             }
 
