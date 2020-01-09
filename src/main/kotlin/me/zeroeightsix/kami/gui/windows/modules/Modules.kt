@@ -28,7 +28,7 @@ object Modules {
     private val windows = mutableListOf(
         ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
             it.category.getName()
-        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet() }))
+        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet().toMutableSet() }))
     )
     private val newWindows = mutableSetOf<ModuleWindow>()
     private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick
@@ -64,9 +64,9 @@ object Modules {
                 val dModules = payload.set
 
                 // Start by removing the module(s) from the payload's source
-                val newDropSourceGroups = mutableMapOf<String, Set<Module>>()
+                val newDropSourceGroups = mutableMapOf<String, MutableSet<Module>>()
                 for ((group, set) in payload.source.groups) {
-                    val newSet = set.filter { !dModules.contains(it) }.toSet()
+                    val newSet = set.filter { !dModules.contains(it) }.toSet().toMutableSet()
                     if (newSet.isNotEmpty()) {
                         newDropSourceGroups[group] = newSet
                     }
@@ -127,9 +127,9 @@ object Modules {
         }
     }
 
-    class ModuleWindow(private val title: String, val pos: Vec2? = null, var groups: Map<String, Set<Module>> = mapOf()) {
+    class ModuleWindow(private val title: String, val pos: Vec2? = null, var groups: Map<String, MutableSet<Module>> = mapOf()) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", setOf(module))))
+        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableSetOf(module))))
 
         var closed = false
 
@@ -138,12 +138,14 @@ object Modules {
                 setNextWindowPos(pos, Cond.Appearing)
             }
             
-            fun iterateModules(set: Iterable<Module>, group: String) {
-                for (module in set) {
-                    val moduleWindow = collapsibleModule(module, this, group)
+            fun iterateModules(set: MutableSet<Module>, group: String): Boolean {
+                return set.removeIf {
+                    val moduleWindow = collapsibleModule(it, this, group)
                     moduleWindow?.let {
                         newWindows.add(moduleWindow)
+                        return@removeIf true
                     }
+                    return@removeIf false
                 }
             }
 
