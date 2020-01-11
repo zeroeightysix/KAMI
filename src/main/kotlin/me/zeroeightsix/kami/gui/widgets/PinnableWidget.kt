@@ -51,6 +51,7 @@ abstract class PinnableWidget(val name: String) {
     fun showWindow(open: KMutableProperty0<Boolean>) {
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (corner != -1) {
+            // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = KamiSettings.borderOffset
             val windowPos = Vec2{ if (corner has it + 1) io.displaySize[it] - distance else distance }
             val windowPosPivot = Vec2(if (corner has 1) 1f else 0f, if (corner has 2) 1f else 0f)
@@ -62,6 +63,7 @@ abstract class PinnableWidget(val name: String) {
                 setNextWindowBgAlpha(0.45f)
             } else flags = flags or WindowFlag.NoBackground
         }
+        preWindow()
 
         window(name, open, flags) {
             fillWindow(open)
@@ -74,5 +76,6 @@ abstract class PinnableWidget(val name: String) {
     protected abstract fun fillWindow(open: KMutableProperty0<Boolean>)
     protected open fun fillStyle() {}
     protected open fun fillContextMenu() {}
+    protected open fun preWindow() {}
 
 }

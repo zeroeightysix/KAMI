@@ -11,8 +11,13 @@ object EnabledWidgets {
 
     private var informationVisible = true
     private var coordinatesVisible = true
+    private var textVisible = true
 
-    internal val widgets = mapOf(Information to ::informationVisible, Coordinates to ::coordinatesVisible)
+    internal val widgets = mapOf(
+        Information to ::informationVisible,
+        Coordinates to ::coordinatesVisible,
+        Text to ::textVisible
+    )
 
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", EnabledWidgets::hideAll) {}
