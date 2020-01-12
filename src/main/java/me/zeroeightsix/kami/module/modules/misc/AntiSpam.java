@@ -295,7 +295,7 @@ public class AntiSpam extends Module {
                         "discord.gg",
                         "discord.io",
                         "discordapp.com",
-                        "invite.dd",
+                        "invite.gg",
                 };
 
         private static final String[] NUMBER_SUFFIX =
