@@ -9,6 +9,7 @@ import imgui.api.demoDebugInformations
 import imgui.dsl.checkbox
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import java.util.function.Supplier
@@ -33,8 +34,13 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
                     val scale = KamiHud.getScale()
                     val x = cmd.clipRect.x / scale + 4
                     var y = cmd.clipRect.y / scale + 4
-                    for (s in q) {
-                        Wrapper.getMinecraft().textRenderer.draw(s, x, y, 0xffffff)
+                    var xOffset = 0
+                    for (compiled in text) {
+                        for (command in compiled.parts) {
+                            val str = command.codes + command // toString is called here -> supplier.get()
+                            xOffset += Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, ColourUtils.changeAlpha(command.color, command.alpha))
+                        }
+                        xOffset = 0
                         y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
                     }
                 }
@@ -253,6 +259,12 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
             pushPart() // push remainder
             return parts
         }
+
+        override fun toString(): String {
+            var buf = ""
+            for (part in parts) buf += part.toString()
+            return buf
+        }
         
         data class Cmd(
             val supplier: Supplier<String>,
@@ -264,7 +276,17 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
             val italic: Boolean = false,
             val rainbow: Boolean = false,
             val alpha: Int = 0xFF
-        )
+        ) {
+            val codes: String = (if (obfuscated) "§k" else "") +
+                    (if (bold) "§l" else "") +
+                    (if (strike) "§m" else "") +
+                    (if (underline) "§n" else "") +
+                    (if (italic) "§o" else "")
+
+            override fun toString(): String {
+                return supplier.get()
+            }
+        }
     }
 
 }
