@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created 19 November 2019 by hub
- * Updated 12 Januar 2020 by hub
+ * Updated 12 January 2020 by hub
  */
 @Module.Info(name = "AntiSpam", category = Module.Category.MISC)
 public class AntiSpam extends Module {
