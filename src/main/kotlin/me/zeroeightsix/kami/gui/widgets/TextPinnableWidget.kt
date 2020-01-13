@@ -1,12 +1,15 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
+import imgui.ImGui
 import imgui.ImGui.currentWindow
 import imgui.ImGui.sameLine
 import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.text
 import imgui.api.demoDebugInformations
 import imgui.dsl.checkbox
+import imgui.dsl.menuItem
+import imgui.dsl.window
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.ColourUtils
@@ -15,10 +18,13 @@ import me.zeroeightsix.kami.util.Wrapper
 import java.util.function.Supplier
 import kotlin.reflect.KMutableProperty0
 
-open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> = arrayListOf()) : PinnableWidget(title) {
+open class TextPinnableWidget(val title: String, val litText: String = "") : PinnableWidget(title) {
 
     private var minecraftFont = false
     private val q = arrayListOf<String>()
+    private var editOpen = false
+    private var textMultiline = litText.toCharArray(CharArray(1024 * 16))
+    private var text: List<CompiledText> = litText.split("\n").toList().map { CompiledText(it) }
 
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
 
@@ -34,13 +40,14 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
                     val scale = KamiHud.getScale()
                     val x = cmd.clipRect.x / scale + 4
                     var y = cmd.clipRect.y / scale + 4
-                    var xOffset = 0
+                    var xOffset = 0f
                     for (compiled in text) {
                         for (command in compiled.parts) {
                             val str = command.codes + command // toString is called here -> supplier.get()
-                            xOffset += Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, ColourUtils.changeAlpha(command.color, command.alpha))
+                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, ColourUtils.changeAlpha(command.color, command.alpha)) - (x + xOffset)
+                            xOffset += width
                         }
-                        xOffset = 0
+                        xOffset = 0f
                         y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
                     }
                 }
@@ -53,6 +60,14 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
     }
 
     override fun preWindow() {
+        if (editOpen) {
+            window("Edit $title") {
+                if (ImGui.inputTextMultiline("##multiline-$title", textMultiline)) {
+                    text = textMultiline.asList().filter { it != 0.toChar() }.joinToString(separator = "").split("\n").toList().map { CompiledText(it) }
+                }
+            }
+        }
+
         q.clear()
 
         for (compiled in text) {
@@ -77,6 +92,12 @@ open class TextPinnableWidget(title: String, val text: ArrayList<CompiledText> =
         checkbox("Minecraft font", ::minecraftFont) {}
         sameLine()
         demoDebugInformations.helpMarker("Only visible when GUI is closed.")
+    }
+
+    override fun fillContextMenu() {
+        menuItem("Edit") {
+            editOpen = true
+        }
     }
     
     class CompiledText(text: String) {
