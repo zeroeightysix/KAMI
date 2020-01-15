@@ -1,8 +1,11 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
+import imgui.Col
 import imgui.ImGui
 import imgui.ImGui.currentWindow
+import imgui.ImGui.popStyleColor
+import imgui.ImGui.pushStyleColor
 import imgui.ImGui.sameLine
 import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.text
@@ -12,7 +15,6 @@ import imgui.dsl.menuItem
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
-import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import java.util.function.Supplier
@@ -26,6 +28,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
     private var textMultiline = litText.toCharArray(CharArray(1024 * 16))
     private var text: List<CompiledText> = litText.split("\n").toList().map { CompiledText(it) }
 
+    @ExperimentalUnsignedTypes
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
 
         val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
@@ -44,7 +47,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                     for (compiled in text) {
                         for (command in compiled.parts) {
                             val str = command.codes + command // toString is called here -> supplier.get()
-                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, ColourUtils.changeAlpha(command.color, command.alpha)) - (x + xOffset)
+                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.color) - (x + xOffset)
                             xOffset += width
                         }
                         xOffset = 0f
@@ -53,8 +56,16 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                 }
             })
         } else {
-            for (s in q) {
-                text(s)
+            for (compiled in text) {
+                var same = false
+                for (part in compiled.parts) {
+                    // imgui wants agbr colours
+                    pushStyleColor(Col.Text, part.agbr)
+                    if (same) sameLine()
+                    else same = true
+                    text(part.toString())
+                    popStyleColor()
+                }
             }
         }
     }
@@ -68,19 +79,13 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
             }
         }
 
-        q.clear()
-
-        for (compiled in text) {
-            val text = compiled.toString()
-            q.add(text)
-        }
-        
         val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
         if (minecraftFont && !guiOpen && text.isNotEmpty()) {
             val scale = KamiHud.getScale()
 
-            val width = (q.map {
-                Wrapper.getMinecraft().textRenderer.getStringWidth(it)
+            val width = (text.map {
+                val str = it.toString()
+                Wrapper.getMinecraft().textRenderer.getStringWidth(str)
             }.max()?.times(scale) ?: 0) + 24
             val height = (Wrapper.getMinecraft().textRenderer.fontHeight) * scale * text.size + 16
             setNextWindowSize(Vec2(width, height))
@@ -110,7 +115,6 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
         private fun String.toParts(colour: Int = 0xffffff): List<Cmd> {
             val parts = ArrayList<Cmd>()
             var colour = colour
-            var alpha = 0xff
 
             var buf = ""
             var escape = false
@@ -126,8 +130,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                 val cmd = Cmd(
                     supplier,
                     colour,
-                    obfuscated, bold, strike, underline, italic, rainbow,
-                    alpha
+                    obfuscated, bold, strike, underline, italic, rainbow
                 )
                 parts.add(cmd)
             }
@@ -218,12 +221,8 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                         }
 
                         when (colourBuf.length) {
-                            6 -> { // no alpha (format is #rrggbb[aa]
+                            6 -> { // no alpha (format is #rrggbb
                                 colour = Integer.decode("0x$colourBuf")
-                            }
-                            8 -> {
-                                colour = Integer.decode("0x${colourBuf.substring(0..5)}")
-                                alpha = Integer.decode("0x${colourBuf.substring(6)}")
                             }
                             else -> {
                                 // Invalid format! Ignore this colour.
@@ -295,8 +294,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
             val strike: Boolean = false,
             val underline: Boolean = false,
             val italic: Boolean = false,
-            val rainbow: Boolean = false,
-            val alpha: Int = 0xFF
+            val rainbow: Boolean = false
         ) {
             val codes: String = (if (obfuscated) "§k" else "") +
                     (if (bold) "§l" else "") +
@@ -304,6 +302,16 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                     (if (underline) "§n" else "") +
                     (if (italic) "§o" else "")
 
+            val agbr: Int
+            
+            init {
+                val a = 0xFF
+                val r = color shr 16 and 0xFF
+                val g = color shr 8 and 0xFF
+                val b = color and 0xFF
+                agbr = (a shl 24) or (b shl 16) or (g shl 8) or r
+            }
+            
             override fun toString(): String {
                 return supplier.get()
             }
