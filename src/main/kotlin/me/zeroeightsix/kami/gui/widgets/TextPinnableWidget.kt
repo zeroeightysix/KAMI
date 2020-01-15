@@ -22,11 +22,27 @@ import kotlin.reflect.KMutableProperty0
 
 open class TextPinnableWidget(val title: String, val litText: String = "") : PinnableWidget(title) {
 
+    companion object {
+        val standardFactory = { variable: String ->
+            when (variable) {
+                "x" -> Supplier { Wrapper.getMinecraft().player.x.toString() }
+                "y" -> Supplier { Wrapper.getMinecraft().player.y.toString() }
+                "z" -> Supplier { Wrapper.getMinecraft().player.z.toString() }
+                "yaw" -> Supplier { Wrapper.getMinecraft().player.yaw.toString() }
+                "pitch" -> Supplier { Wrapper.getMinecraft().player.pitch.toString() }
+                "tps" -> Supplier { LagCompensator.INSTANCE.tickRate.toString() }
+                "username" -> Supplier { Wrapper.getMinecraft().session.username }
+                // TODO: gametime, realtime, gameticks, anticheat
+                else -> null
+            }
+        }
+    }
+
     private var minecraftFont = false
     private val q = arrayListOf<String>()
     private var editOpen = false
     private var textMultiline = litText.toCharArray(CharArray(1024 * 16))
-    private var text: List<CompiledText> = litText.split("\n").toList().map { CompiledText(it) }
+    private var text: List<CompiledText> = litText.split("\n").toList().map { CompiledText(it, standardFactory) }
 
     @ExperimentalUnsignedTypes
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
@@ -69,12 +85,12 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
             }
         }
     }
-
+    
     override fun preWindow() {
         if (editOpen) {
             window("Edit $title") {
                 if (ImGui.inputTextMultiline("##multiline-$title", textMultiline)) {
-                    text = textMultiline.asList().filter { it != 0.toChar() }.joinToString(separator = "").split("\n").toList().map { CompiledText(it) }
+                    text = textMultiline.asList().filter { it != 0.toChar() }.joinToString(separator = "").split("\n").toList().map { CompiledText(it, standardFactory) }
                 }
             }
         }
@@ -105,7 +121,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
         }
     }
     
-    class CompiledText(text: String) {
+    class CompiledText(text: String, val supplierFactory: (String) -> Supplier<String>? = standardFactory) {
         val parts: List<Cmd>
 
         init {
@@ -244,17 +260,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                             }
                         }
 
-                        val supplier = when (varBuf) {
-                            "x" -> Supplier { Wrapper.getMinecraft().player.x.toString() }
-                            "y" -> Supplier { Wrapper.getMinecraft().player.y.toString() }
-                            "z" -> Supplier { Wrapper.getMinecraft().player.z.toString() }
-                            "yaw" -> Supplier { Wrapper.getMinecraft().player.yaw.toString() }
-                            "pitch" -> Supplier { Wrapper.getMinecraft().player.pitch.toString() }
-                            "tps" -> Supplier { LagCompensator.INSTANCE.tickRate.toString() }
-                            "username" -> Supplier { Wrapper.getMinecraft().session.username }
-                            // TODO: gametime, realtime, gameticks, anticheat
-                            else -> Supplier { "unknown variable" }
-                        }
+                        val supplier = supplierFactory(varBuf) ?: Supplier { "no such variable" }
                         pushPart(supplier)
                     }
                     '\\' -> { // Escape
