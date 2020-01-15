@@ -37,8 +37,7 @@ import static me.zeroeightsix.kami.util.BlockInteractionHelper.canBeClicked;
 import static me.zeroeightsix.kami.util.BlockInteractionHelper.faceVectorPacketInstant;
 
 /**
- * @author hub
- * @since 2019-8-6
+ * Created on 6 August 2019 by hub
  */
 @Module.Info(name = "AutoTrap", category = Module.Category.COMBAT)
 public class AutoTrap extends Module {
