@@ -15,8 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author hub
- * @since 2019-11-29
+ * Created on 29 November 2019 by hub
  */
 @Module.Info(name = "AutoReplenish", category = Module.Category.PLAYER, description = "Refills your Hotbar")
 public class AutoReplenish extends Module {
