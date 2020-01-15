@@ -61,7 +61,7 @@ open class TextPinnableWidget(val title: String, val litText: String = "") : Pin
                 for (part in compiled.parts) {
                     // imgui wants agbr colours
                     pushStyleColor(Col.Text, part.agbr)
-                    if (same) sameLine()
+                    if (same) sameLine(spacing = 0f)
                     else same = true
                     text(part.toString())
                     popStyleColor()
