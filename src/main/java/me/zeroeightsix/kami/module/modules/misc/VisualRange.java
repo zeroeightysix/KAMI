@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Created on 26 October 2019 by hub
- * Updated 12 January 2019 by hub
+ * Updated 12 January 2020 by hub
  */
 @Module.Info(name = "VisualRange", description = "Reports Players in VisualRange", category = Module.Category.MISC)
 public class VisualRange extends Module {
