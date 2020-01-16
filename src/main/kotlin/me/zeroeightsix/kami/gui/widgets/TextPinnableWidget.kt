@@ -8,6 +8,7 @@ import imgui.ImGui
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dummy
+import imgui.ImGui.inputText
 import imgui.ImGui.openPopup
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.pushStyleColor
@@ -38,6 +39,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
     private var editComboIndex = 0
+    private var editCharBuf = "Text".toCharArray(CharArray(512))
     
     @ExperimentalUnsignedTypes
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
@@ -113,8 +115,11 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             var index = 0
             for (compiled in iterator) {
                 for (part in compiled.parts) {
-                    button(part.toString()) {
+                    button("$part###part-button-${part.hashCode()}") {
                         editPart = part
+                        if (part is CompiledText.LiteralPart) {
+                            editCharBuf = part.string.toCharArray(CharArray(128))
+                        }
                     }
                     val lastButtonX2 = ImGui.itemRectMax.x
                     val nextButtonX2 = lastButtonX2 + ImGui.style.itemSpacing.x // Expected position if next button was on same line
@@ -169,6 +174,21 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                 if (editComboIndex == 0) {
                     if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
                         it.colour = col
+                    }
+                }
+
+                when (it) {
+                    is CompiledText.LiteralPart -> {
+                        if (inputText("Text", editCharBuf)) {
+                            var str = ""
+                            for (c in editCharBuf) {
+                                if (c != 0.toChar())
+                                    str += c
+                                else
+                                    break
+                            }
+                            it.string = str
+                        }
                     }
                 }
             }
@@ -230,7 +250,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
         }
         
         class LiteralPart(
-            val string: String,
+            var string: String,
             obfuscated: Boolean = false,
             bold: Boolean = false,
             strike: Boolean = false,
