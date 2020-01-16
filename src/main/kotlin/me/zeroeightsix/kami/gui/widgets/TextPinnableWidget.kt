@@ -215,6 +215,9 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                         ImGui.popTextWrapPos()
                         ImGui.endTooltip()
                     }
+                    button("Enable") {
+                        minecraftFont = true
+                    }
                 }
             }
         }
