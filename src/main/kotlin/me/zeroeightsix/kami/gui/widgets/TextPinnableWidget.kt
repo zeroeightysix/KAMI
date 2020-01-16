@@ -139,20 +139,14 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                     menuItem("Variable") {
 
                     }
-                    if (index != 0) {
-                        menu("Line") {
-                            menuItem("Before") {
-                                iterator.previous()
-                                iterator.add(CompiledText())
-                                iterator.next()
-                            }
-
-                            menuItem("After") {
-                                iterator.add(CompiledText())
-                            }
+                    menu("Line") {
+                        menuItem("Before") {
+                            iterator.previous()
+                            iterator.add(CompiledText())
+                            iterator.next()
                         }
-                    } else {
-                        menuItem("Line") {
+
+                        menuItem("After") {
                             iterator.add(CompiledText())
                         }
                     }
