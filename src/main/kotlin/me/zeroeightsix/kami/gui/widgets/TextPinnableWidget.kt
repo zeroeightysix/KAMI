@@ -115,11 +115,18 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             var index = 0
             for (compiled in iterator) {
                 for (part in compiled.parts) {
+                    val highlight = editPart == part
+                    if (highlight) {
+                        pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
+                    }
                     button("$part###part-button-${part.hashCode()}") {
                         editPart = part
                         if (part is CompiledText.LiteralPart) {
                             editCharBuf = part.string.toCharArray(CharArray(128))
                         }
+                    }
+                    if (highlight) {
+                        popStyleColor()
                     }
                     val lastButtonX2 = ImGui.itemRectMax.x
                     val nextButtonX2 = lastButtonX2 + ImGui.style.itemSpacing.x // Expected position if next button was on same line
