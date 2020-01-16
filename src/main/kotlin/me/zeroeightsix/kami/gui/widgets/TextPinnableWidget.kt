@@ -4,6 +4,7 @@ import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.Col
 import imgui.ColorEditFlag
+import imgui.ImGui
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dummy
@@ -16,6 +17,7 @@ import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.style
 import imgui.ImGui.text
+import imgui.ImGui.textDisabled
 import imgui.NUL
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
@@ -188,6 +190,32 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                         }
                     }
                 }
+
+                if (minecraftFont) {
+                    val bold = booleanArrayOf(it.bold)
+                    val italic = booleanArrayOf(it.italic)
+                    val underline = booleanArrayOf(it.underline)
+                    val strikethrough = booleanArrayOf(it.strike)
+                    val obfuscated = booleanArrayOf(it.obfuscated)
+                    if (ImGui.checkbox("Bold", bold)) it.bold = !it.bold
+                    sameLine()
+                    if (ImGui.checkbox("Italic", italic)) it.italic = !it.italic
+                    sameLine()
+                    if (ImGui.checkbox("Underline", underline)) it.underline = !it.underline
+                    sameLine()
+                    if (ImGui.checkbox("Striked", strikethrough)) it.strike = !it.strike
+                    sameLine()
+                    if (ImGui.checkbox("Obfuscated", obfuscated)) it.obfuscated = !it.obfuscated
+                } else {
+                    textDisabled("Styles disabled")
+                    if (ImGui.isItemHovered()) {
+                        ImGui.beginTooltip()
+                        ImGui.pushTextWrapPos(ImGui.fontSize * 35f)
+                        ImGui.textEx("Enable minecraft font rendering to enable styles")
+                        ImGui.popTextWrapPos()
+                        ImGui.endTooltip()
+                    }
+                }
             }
         }
     }
@@ -216,19 +244,45 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
         }
         
         abstract class Part(
-            obfuscated: Boolean = false,
-            bold: Boolean = false,
-            strike: Boolean = false,
-            underline: Boolean = false,
-            italic: Boolean = false,
+            var obfuscated: Boolean = false,
+            // _names because they have mirrors with custom setters in the class
+            _bold: Boolean = false,
+            _strike: Boolean = false,
+            _underline: Boolean = false,
+            _italic: Boolean = false,
             val rainbow: Boolean = false
         ) {
-            val codes: String = (if (obfuscated) "§k" else "") +
-                    (if (bold) "§l" else "") +
-                    (if (strike) "§m" else "") +
-                    (if (underline) "§n" else "") +
-                    (if (italic) "§o" else "")
+            private fun toCodes(): String {
+                return  (if (obfuscated) "§k" else "") +
+                        (if (bold) "§l" else "") +
+                        (if (strike) "§m" else "") +
+                        (if (underline) "§n" else "") +
+                        (if (italic) "§o" else "")
+            }
             
+            var codes: String = toCodes()
+
+            var bold: Boolean = _bold
+                set(value) {
+                    field = value
+                    codes = toCodes()
+                }
+            var strike: Boolean = _strike
+                set(value) {
+                    field = value
+                    codes = toCodes()
+                }
+            var underline: Boolean = _underline
+                set(value) {
+                    field = value
+                    codes = toCodes()
+                }
+            var italic: Boolean = _italic
+                set(value) {
+                    field = value
+                    codes = toCodes()
+                }
+
             private fun Vec4.toRGB(): Int {
                 val r = (x * 255.0F).toInt()
                 val g = (y * 255.0F).toInt()
@@ -237,10 +291,10 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             }
 
             var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
-            set(value) {
-                rgb = colour.toRGB()
-                field = value
-            }
+                set(value) {
+                    rgb = colour.toRGB()
+                    field = value
+                }
             var rgb: Int = this.colour.toRGB()
             
             abstract override fun toString(): String
