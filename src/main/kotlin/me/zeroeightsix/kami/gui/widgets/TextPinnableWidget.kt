@@ -4,7 +4,6 @@ import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.Col
 import imgui.ColorEditFlag
-import imgui.ImGui
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dummy
@@ -104,7 +103,6 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
 
     private fun editWindow() {
         window("Edit $title", ::editWindow) {
-            val windowVisibleX2 = ImGui.windowPos.x + ImGui.windowContentRegionMax.x
             if (text.isEmpty()) {
                 button("New line") {
                     text.add(CompiledText())
@@ -125,13 +123,10 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                             editCharBuf = part.string.toCharArray(CharArray(128))
                         }
                     }
+                    sameLine() // The next button should be on the same line
                     if (highlight) {
                         popStyleColor()
                     }
-                    val lastButtonX2 = ImGui.itemRectMax.x
-                    val nextButtonX2 = lastButtonX2 + ImGui.style.itemSpacing.x // Expected position if next button was on same line
-                    if (nextButtonX2 < windowVisibleX2)
-                        sameLine()
                 }
                 pushStyleColor(Col.Button, style.colors[Col.Button.i] * 0.7f)
                 button("+###plus-button-$index") {
@@ -168,7 +163,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                 
                 index++
             }
-            dummy(Vec2(0, 0))
+            dummy(Vec2(0, 0)) // Put a dummy widget here so the next widget isn't on the same line
             separator()
             editPart?.let {
                 val col = it.colour
