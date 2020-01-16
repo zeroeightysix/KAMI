@@ -58,12 +58,14 @@ abstract class PinnableWidget(val name: String) {
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
         }
+
+        preWindow()
+
         if (!background) {
             if (drawFadedBackground) {
                 setNextWindowBgAlpha(0.45f)
             } else flags = flags or WindowFlag.NoBackground
         }
-        preWindow()
 
         window(name, open, flags) {
             fillWindow(open)
