@@ -49,6 +49,8 @@ abstract class PinnableWidget(val name: String) {
     }
 
     fun showWindow(open: KMutableProperty0<Boolean>) {
+        preWindow()
+
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (corner != -1) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
@@ -58,8 +60,6 @@ abstract class PinnableWidget(val name: String) {
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
         }
-
-        preWindow()
 
         if (!background) {
             if (drawFadedBackground) {
