@@ -155,6 +155,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                 sameLine(spacing = 4f)
                 button("-###minus-button-$index") {
                     iterator.remove()
+                    editPart = null // In case the editPart was in this line. If it wasn't, we don't really care.
                 }
                 popStyleColor()
                 
