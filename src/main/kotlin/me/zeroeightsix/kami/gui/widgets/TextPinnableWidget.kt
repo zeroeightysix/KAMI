@@ -97,7 +97,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                 val str = it.toString()
                 Wrapper.getMinecraft().textRenderer.getStringWidth(str)
             }.max()?.times(scale) ?: 0) + 24
-            val height = (Wrapper.getMinecraft().textRenderer.fontHeight) * scale * text.size + 16
+            val height = (Wrapper.getMinecraft().textRenderer.fontHeight + 4) * scale * text.size + 8
             setNextWindowSize(Vec2(width, height))
         }
     }
