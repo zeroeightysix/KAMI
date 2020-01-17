@@ -137,7 +137,9 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                 popupContextItem("plus-popup-$index") {
                     menuItem("Text") {
                         val mutable = compiled.parts.toMutableList()
-                        mutable.add(CompiledText.LiteralPart("Text"))
+                        val part = CompiledText.LiteralPart("Text")
+                        mutable.add(part)
+                        editPart = part // we want to start editing this part immediately
                         compiled.parts = mutable
                     }
                     menuItem("Variable") {
