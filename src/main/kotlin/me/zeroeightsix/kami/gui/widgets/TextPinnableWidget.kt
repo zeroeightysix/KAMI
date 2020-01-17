@@ -203,7 +203,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                     sameLine()
                     if (ImGui.checkbox("Underline", underline)) it.underline = !it.underline
                     sameLine()
-                    if (ImGui.checkbox("Striked", strikethrough)) it.strike = !it.strike
+                    if (ImGui.checkbox("Cross out", strikethrough)) it.strike = !it.strike
                     sameLine()
                     if (ImGui.checkbox("Obfuscated", obfuscated)) it.obfuscated = !it.obfuscated
                 } else {
@@ -215,6 +215,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                         ImGui.popTextWrapPos()
                         ImGui.endTooltip()
                     }
+                    sameLine()
                     button("Enable") {
                         minecraftFont = true
                     }
