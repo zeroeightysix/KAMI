@@ -7,6 +7,7 @@ import imgui.ColorEditFlag
 import imgui.ImGui
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
+import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
 import imgui.ImGui.inputText
 import imgui.ImGui.openPopup
@@ -29,19 +30,40 @@ import imgui.dsl.popupContextItem
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
 
-open class TextPinnableWidget(private val title: String) : PinnableWidget(title) {
+open class TextPinnableWidget(private val title: String,
+                              private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf())) : PinnableWidget(title) {
 
     private var minecraftFont = false
     private var text: MutableList<CompiledText> = mutableListOf(CompiledText())
-    
+
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
-    private var editComboIndex = 0
+    private var editColourComboIndex = 0
+    private var editVarComboIndex = 0
     private var editCharBuf = "Text".toCharArray(CharArray(512))
-    
+    private var editDigits = 0
+
+    companion object {
+        private fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
+            val std = mutableMapOf(
+                Pair("none", { CompiledText.ConstantVariable("No variable selected")}),
+                Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
+                Pair("y", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.y }, 0) }),
+                Pair("z", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.z }, 0) }),
+                Pair("yaw", { CompiledText.NumericalVariable({ Wrapper.getPlayer().yaw.toDouble() }, 0) }),
+                Pair("pitch", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pitch.toDouble() }, 0) }),
+                Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0)}),
+                Pair("username", { CompiledText.ConstantVariable(Wrapper.getMinecraft().session.username) })
+            )
+            std.putAll(extra)
+            return std
+        }
+    }
+
     @ExperimentalUnsignedTypes
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
 
@@ -83,7 +105,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             }
         }
     }
-    
+
     override fun preWindow() {
         val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
 
@@ -105,6 +127,22 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
 
     private fun editWindow() {
         window("Edit $title", ::editWindow) {
+            fun setEditPart(part: CompiledText.Part) {
+                editPart = part
+                when (part) {
+                    is CompiledText.LiteralPart -> {
+                        editCharBuf = part.string.toCharArray(CharArray(128))
+                    }
+                    is CompiledText.VariablePart -> {
+                        when (val variable = part.variable) {
+                            is CompiledText.NumericalVariable -> {
+                                editDigits = variable.digits
+                            }
+                        }
+                    }
+                }
+            }
+
             if (text.isEmpty()) {
                 button("New line") {
                     text.add(CompiledText())
@@ -120,10 +158,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                         pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
                     }
                     button("$part###part-button-${part.hashCode()}") {
-                        editPart = part
-                        if (part is CompiledText.LiteralPart) {
-                            editCharBuf = part.string.toCharArray(CharArray(128))
-                        }
+                        setEditPart(part)
                     }
                     sameLine() // The next button should be on the same line
                     if (highlight) {
@@ -135,16 +170,14 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                     openPopup("plus-popup-$index")
                 }
                 popupContextItem("plus-popup-$index") {
-                    menuItem("Text") {
+                    fun addPart(part: CompiledText.Part) {
                         val mutable = compiled.parts.toMutableList()
-                        val part = CompiledText.LiteralPart("Text")
                         mutable.add(part)
-                        editPart = part // we want to start editing this part immediately
                         compiled.parts = mutable
+                        setEditPart(part)
                     }
-                    menuItem("Variable") {
-
-                    }
+                    menuItem("Text") { addPart(CompiledText.LiteralPart("Text")) }
+                    menuItem("Variable") { addPart(CompiledText.VariablePart(CompiledText.ConstantVariable("No variable selected"))) }
                     menu("Line") {
                         menuItem("Before") {
                             iterator.previous()
@@ -164,15 +197,15 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                     editPart = null // In case the editPart was in this line. If it wasn't, we don't really care.
                 }
                 popStyleColor()
-                
+
                 index++
             }
             dummy(Vec2(0, 0)) // Put a dummy widget here so the next widget isn't on the same line
             separator()
             editPart?.let {
                 val col = it.colour
-                combo("Colour mode", ::editComboIndex, "Static${NUL}Rainbow") {}
-                if (editComboIndex == 0) {
+                combo("Colour mode", ::editColourComboIndex, "Static${NUL}Rainbow") {}
+                if (editColourComboIndex == 0) {
                     if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
                         it.colour = col
                     }
@@ -189,6 +222,38 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                                     break
                             }
                             it.string = str
+                            sameLine()
+                            text("+")
+                            sameLine()
+                            val space = booleanArrayOf(it.extraspace)
+                            if (ImGui.checkbox("Space", space)) {
+                                it.extraspace = space[0]
+                            }
+                        }
+                    }
+                    is CompiledText.VariablePart -> {
+                        combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
+                            val selected: String = variableMap.keys.toList()[editVarComboIndex]
+                            val f: () -> CompiledText.Variable = variableMap[selected] ?: error("Invalid item selected")
+                            val v = f()
+                            if (v is CompiledText.NumericalVariable) {
+                                v.digits = editDigits
+                            }
+                            it.variable = v
+                        }
+                        sameLine()
+                        text("+")
+                        sameLine()
+                        val space = booleanArrayOf(it.extraspace)
+                        if (ImGui.checkbox("Space", space)) {
+                            it.extraspace = space[0]
+                        }
+                        when (val variable = it.variable) {
+                            is CompiledText.NumericalVariable -> {
+                                if (dragInt("Digits", ::editDigits, vSpeed = 0.1f, vMin = 0, vMax = 8)) {
+                                    variable.digits = editDigits
+                                }
+                            }
                         }
                     }
                 }
@@ -256,7 +321,8 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             _strike: Boolean = false,
             _underline: Boolean = false,
             _italic: Boolean = false,
-            val rainbow: Boolean = false
+            val rainbow: Boolean = false,
+            var extraspace: Boolean = true
         ) {
             private fun toCodes(): String {
                 return  (if (obfuscated) "§k" else "") +
@@ -265,7 +331,7 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                         (if (underline) "§n" else "") +
                         (if (italic) "§o" else "")
             }
-            
+
             var codes: String = toCodes()
 
             var bold: Boolean = _bold
@@ -302,8 +368,10 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
                     field = value
                 }
             var rgb: Int = this.colour.toRGB()
-            
-            abstract override fun toString(): String
+
+            override fun toString(): String {
+                return if (extraspace) " " else ""
+            }
         }
         
         class LiteralPart(
@@ -313,25 +381,43 @@ open class TextPinnableWidget(private val title: String) : PinnableWidget(title)
             strike: Boolean = false,
             underline: Boolean = false,
             italic: Boolean = false,
-            rainbow: Boolean = false
-        ) : Part(obfuscated, bold, strike, underline, italic, rainbow) {
+            rainbow: Boolean = false,
+            extraspace: Boolean = true
+        ) : Part(obfuscated, bold, strike, underline, italic, rainbow, extraspace) {
             override fun toString(): String {
-                return string
+                return string + super.toString()
             }
         }
-        
+
         class VariablePart(
-            val function: (Part) -> String,
+            var variable: Variable,
             obfuscated: Boolean = false,
             bold: Boolean = false,
             strike: Boolean = false,
             underline: Boolean = false,
             italic: Boolean = false,
             rainbow: Boolean = false,
-            digits: Int = 0
-        ): Part(obfuscated, bold, strike, underline, italic, rainbow) {
+            extraspace: Boolean = true
+        ): Part(obfuscated, bold, strike, underline, italic, rainbow, extraspace) {
             override fun toString(): String {
-                return function(this)
+                return variable.provide() + super.toString()
+            }
+        }
+
+        abstract class Variable {
+            abstract fun provide(): String
+        }
+        
+        class ConstantVariable(private val string: String): Variable() {
+            override fun provide(): String {
+                return string
+            }
+        }
+
+        class NumericalVariable(private val provider: () -> Double, var digits: Int = 0): Variable() {
+            override fun provide(): String {
+                val number = provider()
+                return String.format("%.${digits}f", number)
             }
         }
 
