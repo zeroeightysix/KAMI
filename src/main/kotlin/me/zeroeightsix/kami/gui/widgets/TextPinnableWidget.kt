@@ -2,9 +2,7 @@ package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
-import imgui.Col
-import imgui.ColorEditFlag
-import imgui.ImGui
+import imgui.*
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dragInt
@@ -19,7 +17,6 @@ import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.style
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
-import imgui.NUL
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
@@ -28,6 +25,7 @@ import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
 import imgui.dsl.window
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.LagCompensator
@@ -90,7 +88,7 @@ open class TextPinnableWidget(private val title: String,
                     for (compiled in text) {
                         for (command in compiled.parts) {
                             val str = command.codes + command // toString is called here -> supplier.get()
-                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.rgb) - (x + xOffset)
+                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
                             xOffset += width
                         }
                         xOffset = 0f
@@ -103,7 +101,7 @@ open class TextPinnableWidget(private val title: String,
                 var same = false
                 for (part in compiled.parts) {
                     // imgui wants agbr colours
-                    pushStyleColor(Col.Text, part.colour)
+                    pushStyleColor(Col.Text, part.currentColour())
                     if (same) sameLine(spacing = 0f)
                     else same = true
                     text(part.toString())
@@ -211,7 +209,9 @@ open class TextPinnableWidget(private val title: String,
             separator()
             editPart?.let {
                 val col = it.colour
-                combo("Colour mode", ::editColourComboIndex, "Static${NUL}Rainbow") {}
+                combo("Colour mode", ::editColourComboIndex, "Static${NUL}Rainbow") {
+                    it.rainbow = editColourComboIndex == 1
+                }
                 if (editColourComboIndex == 0) {
                     if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
                         it.colour = col
@@ -297,10 +297,9 @@ open class TextPinnableWidget(private val title: String,
         }
     }
 
-    internal fun getVariable(selected: String): CompiledText.Variable {
+    private fun getVariable(selected: String): CompiledText.Variable {
         val f: () -> CompiledText.Variable = variableMap[selected] ?: error("Invalid item selected")
-        val v = f()
-        return v
+        return f()
     }
 
     override fun fillStyle() {
@@ -333,7 +332,7 @@ open class TextPinnableWidget(private val title: String,
             _strike: Boolean = false,
             _underline: Boolean = false,
             _italic: Boolean = false,
-            val rainbow: Boolean = false,
+            var rainbow: Boolean = false,
             var extraspace: Boolean = true
         ) {
             private fun toCodes(): String {
@@ -383,6 +382,14 @@ open class TextPinnableWidget(private val title: String,
 
             override fun toString(): String {
                 return if (extraspace) " " else ""
+            }
+
+            fun currentColour(): Vec4 {
+                return if (rainbow) KamiMod.rainbow.vec4 else colour
+            }
+            
+            fun currentColourRGB(): Int {
+                return if (rainbow) KamiMod.rainbow else rgb
             }
         }
         

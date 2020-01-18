@@ -9,6 +9,7 @@ import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
+import me.zeroeightsix.kami.gui.windows.KamiSettings;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.SettingsRegister;
@@ -20,6 +21,7 @@ import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,6 +49,7 @@ public class KamiMod implements ModInitializer {
     private int displayWidth;
     private int displayHeight;
     public KamiGuiScreen kamiGuiScreen = null;
+    public static int rainbow = 0xFFFFFF; // This'll be updated every tick
 
     public CommandManager commandManager;
 
@@ -57,11 +60,20 @@ public class KamiMod implements ModInitializer {
             displayWidth = MinecraftClient.getInstance().window.getWidth();
             displayHeight = MinecraftClient.getInstance().window.getHeight();
         }
+
+        int speed = KamiSettings.INSTANCE.getRainbowSpeed();
+        float hue = (System.currentTimeMillis() % (360 * speed)) / (360f * speed);
+        rainbow = Color.HSBtoRGB(
+                hue,
+                KamiSettings.INSTANCE.getRainbowSaturation(),
+                KamiSettings.INSTANCE.getRainbowBrightness()
+        );
     });
 
     @Override
     public void onInitialize() {
         KamiMod.INSTANCE = this;
+        EVENT_BUS.subscribe(KamiMod.INSTANCE);
 
         KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
 

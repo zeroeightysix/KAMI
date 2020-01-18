@@ -4,6 +4,7 @@ import glm_.vec4.Vec4
 import imgui.Col
 import imgui.ImGui
 import imgui.ImGui.dragFloat
+import imgui.ImGui.dragInt
 import imgui.ImGui.sameLine
 import imgui.api.demoDebugInformations
 import imgui.api.g
@@ -20,6 +21,9 @@ object KamiSettings {
     var hideModuleMarker = false
     var styleIdx = 0
     var borderOffset = 10f
+    var rainbowSpeed = 32
+    var rainbowSaturation = 1f
+    var rainbowBrightness = 1f
 
     private val themes = listOf("Classic", "Dark", "Light", "Cherry")
 
@@ -48,6 +52,16 @@ object KamiSettings {
                             2 -> ImGui.styleColorsLight()
                             3 -> styleColorsCherry()
                         }
+                    }
+
+                    if (dragInt("Rainbow speed", ::rainbowSpeed, vSpeed = 0.1F, vMin = 1, vMax = 128)) {
+                        rainbowSpeed = rainbowSpeed.coerceAtLeast(1) // Do not let users custom edit this below 1
+                    }
+                    if (dragFloat("Rainbow saturation", ::rainbowSaturation, vSpeed = 0.01F, vMin = 0f, vMax = 1f)) {
+                        rainbowSaturation = rainbowSaturation.coerceIn(0f, 1f)
+                    }
+                    if (dragFloat("Rainbow brightness", ::rainbowBrightness, vSpeed = 0.01F, vMin = 0f, vMax = 1f)) {
+                        rainbowBrightness = rainbowBrightness.coerceIn(0f, 1f)
                     }
                 }
 
