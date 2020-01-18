@@ -1,24 +1,17 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import imgui.ImGui.sliderInt
-import imgui.ImGui.text
-import me.zeroeightsix.kami.util.Wrapper
-import kotlin.reflect.KMutableProperty0
-
-object Coordinates : PinnableWidget("Coordinates") {
-
-    var digits = 2;
-
-    override fun fillWindow(open: KMutableProperty0<Boolean>) {
-        text("x ${Wrapper.getMinecraft().player.pos.x.format(digits)}")
-        text("y ${Wrapper.getMinecraft().player.pos.y.format(digits)}")
-        text("z ${Wrapper.getMinecraft().player.pos.z.format(digits)}")
-    }
-
-    override fun fillStyle() {
-        sliderInt("Digits", ::digits, 0, 6)
-    }
-
-    private fun Double.format(digits: Int) = "%.${digits}f".format(this)
-
+object Coordinates : TextPinnableWidget("Coordinates", text = mutableListOf(
+    CompiledText(listOf(
+        CompiledText.LiteralPart("x"),
+        CompiledText.VariablePart(getVariable("x"), extraspace = false)
+    )),
+    CompiledText(listOf(
+        CompiledText.LiteralPart("y"),
+        CompiledText.VariablePart(getVariable("y"), extraspace = false)
+    )),
+    CompiledText(listOf(
+        CompiledText.LiteralPart("z"),
+        CompiledText.VariablePart(getVariable("z"), extraspace = false)
+    ))
+)) {
 }

@@ -35,10 +35,10 @@ import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
 
 open class TextPinnableWidget(private val title: String,
-                              private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf())) : PinnableWidget(title) {
+                              private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf()),
+                              private var text: MutableList<CompiledText> = mutableListOf(CompiledText())) : PinnableWidget(title) {
 
     private var minecraftFont = false
-    private var text: MutableList<CompiledText> = mutableListOf(CompiledText())
 
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
@@ -48,7 +48,9 @@ open class TextPinnableWidget(private val title: String,
     private var editDigits = 0
 
     companion object {
-        private fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
+        private var sVarMap: Map<String, () -> CompiledText.Variable>? = null
+
+        internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
             val std = mutableMapOf(
                 Pair("none", { CompiledText.ConstantVariable("No variable selected")}),
                 Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
@@ -60,11 +62,16 @@ open class TextPinnableWidget(private val title: String,
                 Pair("username", { CompiledText.ConstantVariable(Wrapper.getMinecraft().session.username) })
             )
             std.putAll(extra)
+            sVarMap = std
             return std
+        }
+        
+        internal fun getVariable(variable: String): CompiledText.Variable {
+            val f: () -> CompiledText.Variable = sVarMap!![variable] ?: error("Invalid item selected")
+            return f()
         }
     }
 
-    @ExperimentalUnsignedTypes
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
 
         val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
@@ -234,8 +241,7 @@ open class TextPinnableWidget(private val title: String,
                     is CompiledText.VariablePart -> {
                         combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
                             val selected: String = variableMap.keys.toList()[editVarComboIndex]
-                            val f: () -> CompiledText.Variable = variableMap[selected] ?: error("Invalid item selected")
-                            val v = f()
+                            val v = getVariable(selected)
                             if (v is CompiledText.NumericalVariable) {
                                 v.digits = editDigits
                             }
@@ -289,6 +295,12 @@ open class TextPinnableWidget(private val title: String,
                 }
             }
         }
+    }
+
+    internal fun getVariable(selected: String): CompiledText.Variable {
+        val f: () -> CompiledText.Variable = variableMap[selected] ?: error("Invalid item selected")
+        val v = f()
+        return v
     }
 
     override fun fillStyle() {
@@ -418,6 +430,12 @@ open class TextPinnableWidget(private val title: String,
             override fun provide(): String {
                 val number = provider()
                 return String.format("%.${digits}f", number)
+            }
+        }
+        
+        class StringVariable(private val provider: () -> String): Variable() {
+            override fun provide(): String {
+                return provider()
             }
         }
 
