@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.widgets
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
+import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dragInt
@@ -21,6 +22,7 @@ import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.combo
+import imgui.dsl.dragDropTarget
 import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
@@ -164,6 +166,15 @@ open class TextPinnableWidget(private val title: String,
                     }
                     button("$part###part-button-${part.hashCode()}") {
                         setEditPart(part)
+                    }
+                    dragDropTarget {
+                        acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
+                            val data = it.data!!
+                            part.colour = Vec4(data.asFloatBuffer()[0],
+                                data.asFloatBuffer()[1],
+                                data.asFloatBuffer()[2],
+                                part.colour.w)
+                        }
                     }
                     sameLine() // The next button should be on the same line
                     if (highlight) {
