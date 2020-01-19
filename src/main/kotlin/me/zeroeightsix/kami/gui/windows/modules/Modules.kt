@@ -18,6 +18,7 @@ import imgui.dsl.popupContextItem
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
+import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.module.Module
@@ -121,9 +122,11 @@ object Modules {
     }
 
     operator fun invoke() {
-        windows.removeIf(ModuleWindow::draw)
-        if (windows.addAll(newWindows)) {
-            newWindows.clear()
+        if (modulesOpen) {
+            windows.removeIf(ModuleWindow::draw)
+            if (windows.addAll(newWindows)) {
+                newWindows.clear()
+            }
         }
     }
 

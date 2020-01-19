@@ -1,10 +1,10 @@
 package me.zeroeightsix.kami.gui
 
+import imgui.ImGui
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.KamiHud.implGl3
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.windows.KamiDebugWindow
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.util.Texts.lit
@@ -13,8 +13,6 @@ import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
-
-    var demoWindowVisible = false
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
@@ -47,7 +45,9 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
             // Draw the main menu bar.
             MenuBar()
             // Debug window (theme, demo window)
-            KamiDebugWindow()
+            if (View.demoWindowVisible) {
+                ImGui.showDemoWindow(View::demoWindowVisible)
+            }
             // Draw all module windows
             Modules()
             // Draw the settings
