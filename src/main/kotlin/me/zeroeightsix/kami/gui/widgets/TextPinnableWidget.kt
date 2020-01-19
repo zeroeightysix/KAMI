@@ -90,7 +90,10 @@ open class TextPinnableWidget(private val title: String,
                     for (compiled in text) {
                         for (command in compiled.parts) {
                             val str = command.codes + command // toString is called here -> supplier.get()
-                            val width = Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                            val width = if (command.shadow)
+                                Wrapper.getMinecraft().textRenderer.drawWithShadow(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                            else
+                                Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
                             xOffset += width
                         }
                         xOffset = 0f
@@ -277,15 +280,18 @@ open class TextPinnableWidget(private val title: String,
                 }
 
                 if (minecraftFont) {
+                    val shadow = booleanArrayOf(it.shadow)
                     val bold = booleanArrayOf(it.bold)
                     val italic = booleanArrayOf(it.italic)
                     val underline = booleanArrayOf(it.underline)
                     val strikethrough = booleanArrayOf(it.strike)
                     val obfuscated = booleanArrayOf(it.obfuscated)
+                    if (ImGui.checkbox("Shadow", shadow)) it.shadow = !it.shadow
+                    sameLine()
                     if (ImGui.checkbox("Bold", bold)) it.bold = !it.bold
                     sameLine()
                     if (ImGui.checkbox("Italic", italic)) it.italic = !it.italic
-                    sameLine()
+                    // newline
                     if (ImGui.checkbox("Underline", underline)) it.underline = !it.underline
                     sameLine()
                     if (ImGui.checkbox("Cross out", strikethrough)) it.strike = !it.strike
@@ -344,6 +350,7 @@ open class TextPinnableWidget(private val title: String,
             _strike: Boolean = false,
             _underline: Boolean = false,
             _italic: Boolean = false,
+            var shadow: Boolean = true,
             var rainbow: Boolean = false,
             var extraspace: Boolean = true
         ) {
@@ -387,8 +394,8 @@ open class TextPinnableWidget(private val title: String,
 
             var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
                 set(value) {
-                    rgb = colour.toRGB()
                     field = value
+                    rgb = colour.toRGB()
                 }
             var rgb: Int = this.colour.toRGB()
 
@@ -412,9 +419,10 @@ open class TextPinnableWidget(private val title: String,
             strike: Boolean = false,
             underline: Boolean = false,
             italic: Boolean = false,
+            shadow: Boolean = true,
             rainbow: Boolean = false,
             extraspace: Boolean = true
-        ) : Part(obfuscated, bold, strike, underline, italic, rainbow, extraspace) {
+        ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             override fun toString(): String {
                 return string + super.toString()
             }
@@ -427,9 +435,10 @@ open class TextPinnableWidget(private val title: String,
             strike: Boolean = false,
             underline: Boolean = false,
             italic: Boolean = false,
+            shadow: Boolean = true,
             rainbow: Boolean = false,
             extraspace: Boolean = true
-        ): Part(obfuscated, bold, strike, underline, italic, rainbow, extraspace) {
+        ): Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             override fun toString(): String {
                 return variable.provide() + super.toString()
             }
