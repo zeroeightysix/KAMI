@@ -8,10 +8,14 @@ import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
+import imgui.ImGui.getMouseDragDelta
 import imgui.ImGui.inputText
+import imgui.ImGui.isItemActive
+import imgui.ImGui.isItemHovered
 import imgui.ImGui.openPopup
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.pushStyleColor
+import imgui.ImGui.resetMouseDragDelta
 import imgui.ImGui.sameLine
 import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowSize
@@ -163,7 +167,8 @@ open class TextPinnableWidget(private val title: String,
             val iterator = text.listIterator()
             var index = 0
             for (compiled in iterator) {
-                for (part in compiled.parts) {
+                val parts = compiled.parts
+                parts.forEachIndexed { n, part ->
                     val highlight = editPart == part
                     if (highlight) {
                         pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
@@ -171,6 +176,16 @@ open class TextPinnableWidget(private val title: String,
                     button("$part###part-button-${part.hashCode()}") {
                         setEditPart(part)
                     }
+
+                    if (isItemActive && !isItemHovered()) {
+                        val nNext = n + if (getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
+                        if (nNext in parts.indices) {
+                            parts[n] = parts[nNext]
+                            parts[nNext] = part
+                            resetMouseDragDelta()
+                        }
+                    }
+
                     dragDropTarget {
                         acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
                             val data = it.data!!
@@ -334,7 +349,7 @@ open class TextPinnableWidget(private val title: String,
     }
     
     class CompiledText(
-        var parts: List<Part> = listOf()
+        var parts: MutableList<Part> = mutableListOf()
     ) {
 
         override fun toString(): String {

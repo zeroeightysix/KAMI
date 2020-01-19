@@ -9,15 +9,15 @@ object Information : TextPinnableWidget("Information",
         Pair("kanji", { CompiledText.ConstantVariable(KamiMod.KAMI_KANJI) })
     )),
     mutableListOf(
-        CompiledText(listOf(
+        CompiledText(mutableListOf(
             CompiledText.VariablePart(getVariable("client")),
             CompiledText.VariablePart(getVariable("version"), extraspace = false)
         )),
-        CompiledText(listOf(
+        CompiledText(mutableListOf(
             CompiledText.LiteralPart("Welcome"),
             CompiledText.VariablePart(getVariable("username"), extraspace = false)
         )),
-        CompiledText(listOf(
+        CompiledText(mutableListOf(
             CompiledText.VariablePart(getVariable("tps")),
             CompiledText.LiteralPart("tps", extraspace = false)
         ))
