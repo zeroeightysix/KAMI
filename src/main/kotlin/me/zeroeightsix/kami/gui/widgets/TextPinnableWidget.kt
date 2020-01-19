@@ -136,6 +136,7 @@ open class TextPinnableWidget(private val title: String,
         window("Edit $title", ::editWindow) {
             fun setEditPart(part: CompiledText.Part) {
                 editPart = part
+                editColourComboIndex = if (part.rainbow) 1 else 0
                 when (part) {
                     is CompiledText.LiteralPart -> {
                         editCharBuf = part.string.toCharArray(CharArray(128))
