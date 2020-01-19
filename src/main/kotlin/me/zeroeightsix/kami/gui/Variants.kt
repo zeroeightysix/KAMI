@@ -10,12 +10,28 @@ import me.zeroeightsix.kami.gui.windows.KamiSettings.get
 object Themes {
 
     enum class Variants(val applyStyle: () -> Unit) {
-        CLASSIC({ ImGui.styleColorsClassic() }),
-        DARK({ ImGui.styleColorsDark() }),
-        LIGHT({ ImGui.styleColorsLight() }),
+        CLASSIC({
+            ImGui.styleColorsClassic()
+            resetSizes()
+        }),
+        DARK({
+            ImGui.styleColorsDark()
+            resetSizes()
+        }),
+        LIGHT({
+            ImGui.styleColorsLight()
+            resetSizes()
+        }),
         AQUA({ styleColorsAqua() }),
         INFERNO({ styleColorsInferno()}),
         CHERRY({ styleColorsCherry() })
+    }
+    
+    private fun resetSizes() {
+        ImGui.style.windowRounding = 7f
+        ImGui.style.frameRounding = 0f
+        ImGui.style.grabRounding = 0f
+        ImGui.style.childRounding = 0f
     }
     
     private fun styleColorsAqua() {
@@ -68,6 +84,8 @@ object Themes {
         colors[Col.NavWindowingHighlight.i] = Vec4(1.00, 1.00, 1.00, 0.70)
         colors[Col.NavWindowingDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.20)
         colors[Col.ModalWindowDimBg.i] = Vec4(0.20, 0.20, 0.20, 0.35)
+
+        resetSizes()
     }
     
     private fun styleColorsInferno() {
@@ -82,8 +100,8 @@ object Themes {
         colors[Col.FrameBg.i] = Vec4(0.48, 0.18, 0.16, 0.54)
         colors[Col.FrameBgHovered.i] = Vec4(0.57, 0.31, 0.29, 0.54)
         colors[Col.FrameBgActive.i] = Vec4(0.64, 0.42, 0.40, 0.54)
-        colors[Col.TitleBg.i] = Vec4(0.04, 0.04, 0.04, 1.00)
-        colors[Col.TitleBgActive.i] = Vec4(0.48, 0.19, 0.16, 0.80)
+        colors[Col.TitleBg.i] = Vec4(0.00, 0.00, 0.00, 0.90)
+        colors[Col.TitleBgActive.i] = Vec4(0.48, 0.19, 0.16, 0.88)
         colors[Col.TitleBgCollapsed.i] = Vec4(0.00, 0.00, 0.00, 0.51)
         colors[Col.MenuBarBg.i] = Vec4(0.14, 0.14, 0.14, 1.00)
         colors[Col.ScrollbarBg.i] = Vec4(0.02, 0.02, 0.02, 0.53)
@@ -120,6 +138,12 @@ object Themes {
         colors[Col.NavWindowingHighlight.i] = Vec4(1.00, 1.00, 1.00, 0.70)
         colors[Col.NavWindowingDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.20)
         colors[Col.ModalWindowDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.35)
+
+        resetSizes()
+        ImGui.style.windowRounding = 9f
+        ImGui.style.frameRounding = 5f
+        ImGui.style.grabRounding = 4f
+        ImGui.style.childRounding = 3f
     }
 
     private fun styleColorsCherry() {
@@ -173,6 +197,8 @@ object Themes {
             colors[Col.NavHighlight]          (colors[Col.HeaderHovered])
             colors[Col.ModalWindowDimBg]      (0.00f, 0.00f, 0.00f, 0.32f)
             // @formatter:on
+
+            resetSizes()
         }
     }
 
