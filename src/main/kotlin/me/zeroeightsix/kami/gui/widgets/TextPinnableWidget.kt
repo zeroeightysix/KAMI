@@ -241,13 +241,13 @@ open class TextPinnableWidget(private val title: String,
                                     break
                             }
                             it.string = str
-                            sameLine()
-                            text("+")
-                            sameLine()
-                            val space = booleanArrayOf(it.extraspace)
-                            if (ImGui.checkbox("Space", space)) {
-                                it.extraspace = space[0]
-                            }
+                        }
+                        sameLine()
+                        text("+")
+                        sameLine()
+                        val space = booleanArrayOf(it.extraspace)
+                        if (ImGui.checkbox("Space", space)) {
+                            it.extraspace = space[0]
                         }
                     }
                     is CompiledText.VariablePart -> {
