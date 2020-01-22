@@ -188,11 +188,7 @@ open class TextPinnableWidget(private val title: String,
 
                     dragDropTarget {
                         acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
-                            val data = it.data!!
-                            part.colour = Vec4(data.asFloatBuffer()[0],
-                                data.asFloatBuffer()[1],
-                                data.asFloatBuffer()[2],
-                                part.colour.w)
+                            part.colour = it.data!! as Vec4
                         }
                     }
                     sameLine() // The next button should be on the same line
