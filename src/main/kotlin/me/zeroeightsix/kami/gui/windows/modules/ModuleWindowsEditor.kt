@@ -20,7 +20,6 @@ import imgui.dsl.dragDropTarget
 import imgui.dsl.menu
 import imgui.dsl.menuBar
 import imgui.dsl.menuItem
-import imgui.dsl.treeNode
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 
@@ -62,7 +61,7 @@ object ModuleWindowsEditor {
                             // fix.
                             // not easy.
                             // i tried.
-                            treeNode(group.key) {
+                            treeNodeAlways(group.key, block = {
                                 group.value.forEachIndexed { n, module ->
                                     selectable(module.name)
                                     if (!rearrange) {
@@ -83,20 +82,21 @@ object ModuleWindowsEditor {
                                     }
 
                                 }
-                            }
-                            dragDropSource {
-                                setDragDropPayload(
-                                    KAMI_MODULE_PAYLOAD,
-                                    ModulePayload(group.value.toMutableSet(), window)
-                                )
-                                text("Group: ${group.key}")
-                            }
-                            dragDropTarget {
-                                acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                                    val payload = it.data!! as ModulePayload
-                                    payload.moveTo(window, group.key)
+                            }, always = {
+                                dragDropSource {
+                                    setDragDropPayload(
+                                        KAMI_MODULE_PAYLOAD,
+                                        ModulePayload(group.value.toMutableSet(), window, group.key)
+                                    )
+                                    text("Group: ${group.key}")
                                 }
-                            }
+                                dragDropTarget {
+                                    acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
+                                        val payload = it.data!! as ModulePayload
+                                        payload.moveTo(window, group.key)
+                                    }
+                                }
+                            })
                         }
                     }
                     nextColumn()
@@ -107,12 +107,21 @@ object ModuleWindowsEditor {
                         val payload = it.data!! as ModulePayload
                         val window = Modules.ModuleWindow(payload.inventName())
                         windows.add(window)
-                        payload.moveTo(window, "Group 1")
+                        payload.moveTo(window, payload.groupName ?: "Group 1")
                     }
                 }
                 columns(1)
             }
         }
+    }
+
+    inline fun treeNodeAlways(label: String, block: () -> Unit, always: () -> Unit = {}) {
+        if (ImGui.treeNode(label))
+            try { always(); block() } finally {
+                ImGui.treePop()
+            }
+        else
+            always()
     }
 
 }
