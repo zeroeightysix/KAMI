@@ -10,6 +10,7 @@ import imgui.dsl.checkbox
 import imgui.dsl.collapsingHeader
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.Themes
+import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
 object KamiSettings {
@@ -44,6 +45,12 @@ object KamiSettings {
 
                     button("Reset module windows") {
                         Modules.reset()
+                    }
+                    if (!ModuleWindowsEditor.open) {
+                        sameLine()
+                        button("Open module windows editor") {
+                            ModuleWindowsEditor.open = true
+                        }
                     }
                 }
 
