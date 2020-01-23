@@ -13,15 +13,15 @@ import me.zeroeightsix.kami.module.Module
 object ModuleSettings {
 
     operator fun invoke(module: Module, block: () -> Unit) {
-        val markerShown = !KamiSettings.hideModuleMarker
+        val editMarkerShown = !KamiSettings.oldModuleEditMode
         if (!KamiSettings.hideModuleDescriptions) {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
             textWrapped(module.description)
             popStyleColor()
-            if (markerShown)
+            if (editMarkerShown)
                 sameLine()
         }
-        if (markerShown) {
+        if (editMarkerShown) {
             helpMarker("Start dragging from this question mark to merge this module into another module window. Right click this question mark and press 'Detach' to seperate it into a new window.")
         }
         block()

@@ -26,7 +26,7 @@ import me.zeroeightsix.kami.module.ModuleManager
 
 object Modules {
 
-    private var windows = getDefaultWindows()
+    internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
     private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick
 
@@ -57,37 +57,15 @@ object Modules {
         val open = treeNodeExV(label, nodeFlags, module.name)
         dragDropTarget {
             acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                val payload = Payloads.payload!!
-                val dModules = payload.set
-
-                // Start by removing the module(s) from the payload's source
-                val newDropSourceGroups = mutableMapOf<String, MutableSet<Module>>()
-                for ((group, set) in payload.source.groups) {
-                    val newSet = set.filter { !dModules.contains(it) }.toSet().toMutableSet()
-                    if (newSet.isNotEmpty()) {
-                        newDropSourceGroups[group] = newSet
-                    }
-                }
-                payload.source.groups = newDropSourceGroups
-
-                // Add the modules to this window
-                val newTargetGroups = source.groups.toMutableMap()
-                val set = (newTargetGroups[sourceGroup] ?: error("No such group $sourceGroup")).toMutableSet()
-                set.addAll(dModules)
-                newTargetGroups[sourceGroup] = set
-                source.groups = newTargetGroups
-
-                Payloads.payload = null
+                val payload = it.data!! as ModulePayload
+                payload.moveTo(source, sourceGroup)
             }
         }
         if (open) {
             updateClicked()
             ModuleSettings(module) {
                 dragDropSource(DragDropFlag.SourceAllowNullID.i) {
-                    setDragDropPayload(KAMI_MODULE_PAYLOAD, 0, 0) // no data
-                    if (Payloads.needsPayload()) {
-                        Payloads.payload = ModulePayload(mutableSetOf(module), source)
-                    }
+                    setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), source))
                     text("Merge")
                 }
 
@@ -123,22 +101,24 @@ object Modules {
             if (windows.addAll(newWindows)) {
                 newWindows.clear()
             }
+
+            ModuleWindowsEditor()
         }
     }
 
     private fun getDefaultWindows() = mutableListOf(
         ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
             it.category.getName()
-        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet().toMutableSet() }))
+        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
     )
     
     fun reset() {
         windows = getDefaultWindows()
     }
 
-    class ModuleWindow(private val title: String, val pos: Vec2? = null, var groups: Map<String, MutableSet<Module>> = mapOf()) {
+    internal class ModuleWindow(internal val title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableSetOf(module))))
+        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
 
         var closed = false
 
@@ -147,8 +127,8 @@ object Modules {
                 setNextWindowPos(pos, Cond.Appearing)
             }
             
-            fun iterateModules(set: MutableSet<Module>, group: String): Boolean {
-                return set.removeIf {
+            fun iterateModules(list: MutableList<Module>, group: String): Boolean {
+                return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
                     moduleWindow?.let {
                         newWindows.add(moduleWindow)
@@ -173,13 +153,13 @@ object Modules {
                         iterateModules(group, entry.key)
                     }
                     else -> {
-                        for ((group, set) in groups) {
-                            if (set.isEmpty()) {
+                        for ((group, list) in groups) {
+                            if (list.isEmpty()) {
                                 continue
                             }
 
                             if (treeNodeExV("cat-$group-node", TreeNodeFlag.SpanFullWidth.i, group)) {
-                                iterateModules(set, group)
+                                iterateModules(list, group)
                                 treePop()
                             }
                         }

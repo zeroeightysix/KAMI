@@ -16,8 +16,8 @@ object KamiSettings {
     
     var settingsWindowOpen = false
     var swapModuleListButtons = false
+    var oldModuleEditMode = false
     var hideModuleDescriptions = false
-    var hideModuleMarker = false
     var styleIdx = 0
     var borderOffset = 10f
     var rainbowSpeed = 32
@@ -38,9 +38,9 @@ object KamiSettings {
                     sameLine()
                     demoDebugInformations.helpMarker("Hide module descriptions when its settings are opened.")
 
-                    checkbox("Hide help marker", ::hideModuleMarker) {}
+                    checkbox("Old edit method", ::oldModuleEditMode) {}
                     sameLine()
-                    demoDebugInformations.helpMarker("Hide the help marker (such as the one you are hovering right now) in module settings.")
+                    demoDebugInformations.helpMarker("Enable the old module edit method. A question mark will appear next to module descriptions that will allow you to merge or detach modules.")
 
                     button("Reset module windows") {
                         Modules.reset()
