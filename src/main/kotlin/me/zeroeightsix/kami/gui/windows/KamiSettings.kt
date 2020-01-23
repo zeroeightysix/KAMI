@@ -65,6 +65,4 @@ object KamiSettings {
         }
     }
 
-    operator fun <T> ArrayList<T>.get(col: Col): T = get(col.i)
-
 }
