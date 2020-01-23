@@ -109,6 +109,12 @@ object ModuleWindowsEditor {
                             })
                         }
                     }
+                    dragDropTarget {
+                        acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
+                            val payload = it.data!! as ModulePayload
+                            payload.moveTo(window, payload.groupName ?: "Group ${window.groups.size + 1}")
+                        }
+                    }
                     nextColumn()
                 }
                 child("new-window-child") {}
