@@ -9,6 +9,7 @@ import imgui.ImGui.sameLine
 import imgui.ImGui.selectable
 import imgui.ImGui.separator
 import imgui.ImGui.setDragDropPayload
+import imgui.ImGui.setNextItemWidth
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
 import imgui.MouseButton
@@ -46,7 +47,16 @@ object ModuleWindowsEditor {
                 val windows = Modules.windows
                 columns(windows.size + 1)
                 for (window in windows) {
-                    text(window.title)
+                    val buf = window.title.toCharArray(CharArray(128))
+                    setNextItemWidth(-1f)
+                    if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
+                        var title = ""
+                        for (c in buf) {
+                            if (c == 0.toChar()) break
+                            title += c
+                        }
+                        window.title = title
+                    }
                     nextColumn()
                 }
                 textDisabled("New window")
@@ -54,7 +64,7 @@ object ModuleWindowsEditor {
                 separator()
 
                 for (window in windows) {
-                    child("${window.title}-child") {
+                    child("${window.hashCode()}-child") {
                         for (group in window.groups) {
                             if (group.value.isEmpty()) continue
                             // TODO: Drag & drop buggy.
@@ -115,7 +125,7 @@ object ModuleWindowsEditor {
         }
     }
 
-    inline fun treeNodeAlways(label: String, block: () -> Unit, always: () -> Unit = {}) {
+    private inline fun treeNodeAlways(label: String, block: () -> Unit, always: () -> Unit = {}) {
         if (ImGui.treeNode(label))
             try { always(); block() } finally {
                 ImGui.treePop()
