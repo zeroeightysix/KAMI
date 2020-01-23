@@ -84,6 +84,13 @@ object ModuleWindowsEditor {
 
                                 }
                             }
+                            dragDropSource {
+                                setDragDropPayload(
+                                    KAMI_MODULE_PAYLOAD,
+                                    ModulePayload(group.value.toMutableSet(), window)
+                                )
+                                text("Group: ${group.key}")
+                            }
                             dragDropTarget {
                                 acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
                                     val payload = it.data!! as ModulePayload
