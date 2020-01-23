@@ -1,15 +1,16 @@
 package me.zeroeightsix.kami.gui.windows
 
-import imgui.Col
 import imgui.ImGui
 import imgui.ImGui.dragFloat
 import imgui.ImGui.dragInt
 import imgui.ImGui.sameLine
 import imgui.api.demoDebugInformations
+import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.collapsingHeader
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.Themes
+import me.zeroeightsix.kami.gui.windows.modules.Modules
 
 object KamiSettings {
     
@@ -40,6 +41,10 @@ object KamiSettings {
                     checkbox("Hide help marker", ::hideModuleMarker) {}
                     sameLine()
                     demoDebugInformations.helpMarker("Hide the help marker (such as the one you are hovering right now) in module settings.")
+
+                    button("Reset module windows") {
+                        Modules.reset()
+                    }
                 }
 
                 collapsingHeader("GUI") {

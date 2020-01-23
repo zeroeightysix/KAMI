@@ -5,7 +5,6 @@ import imgui.Col
 import imgui.ImGui
 import imgui.api.g
 import imgui.internal.lerp
-import me.zeroeightsix.kami.gui.windows.KamiSettings.get
 
 object Themes {
 

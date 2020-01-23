@@ -26,11 +26,7 @@ import me.zeroeightsix.kami.module.ModuleManager
 
 object Modules {
 
-    private val windows = mutableListOf(
-        ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
-            it.category.getName()
-        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet().toMutableSet() }))
-    )
+    private var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
     private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick
 
@@ -128,6 +124,16 @@ object Modules {
                 newWindows.clear()
             }
         }
+    }
+
+    private fun getDefaultWindows() = mutableListOf(
+        ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
+            it.category.getName()
+        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toSet().toMutableSet() }))
+    )
+    
+    fun reset() {
+        windows = getDefaultWindows()
     }
 
     class ModuleWindow(private val title: String, val pos: Vec2? = null, var groups: Map<String, MutableSet<Module>> = mapOf()) {
