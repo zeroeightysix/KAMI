@@ -13,7 +13,7 @@ import me.zeroeightsix.kami.module.Module
 object ModuleSettings {
 
     operator fun invoke(module: Module, block: () -> Unit) {
-        val editMarkerShown = !KamiSettings.oldModuleEditMode
+        val editMarkerShown = KamiSettings.oldModuleEditMode
         if (!KamiSettings.hideModuleDescriptions) {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
             textWrapped(module.description)
