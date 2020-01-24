@@ -147,10 +147,10 @@ object ModuleWindowsEditor {
                                     }
                                     menu("Sort") {
                                         menuItem("Alphabetically") {
-
+                                            group.value.sortBy { it.name }
                                         }
                                         menuItem("Reverse alphabetically") {
-
+                                            group.value.sortByDescending { it.name }
                                         }
                                     }
                                 }
