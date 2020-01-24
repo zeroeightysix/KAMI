@@ -5,6 +5,7 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.checkbox
 import imgui.ImGui.columns
 import imgui.ImGui.nextColumn
+import imgui.ImGui.openPopup
 import imgui.ImGui.sameLine
 import imgui.ImGui.selectable
 import imgui.ImGui.separator
@@ -12,22 +13,37 @@ import imgui.ImGui.setDragDropPayload
 import imgui.ImGui.setNextItemWidth
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
+import imgui.InputTextFlag
 import imgui.MouseButton
 import imgui.WindowFlag
 import imgui.api.demoDebugInformations
+import imgui.dsl.button
 import imgui.dsl.child
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menu
 import imgui.dsl.menuBar
 import imgui.dsl.menuItem
+import imgui.dsl.popupContextItem
+import imgui.dsl.popupModal
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
+import kotlin.collections.set
 
 object ModuleWindowsEditor {
 
     var open = false
     private var rearrange = false
+    private var modalPopup: (() -> Unit)? = null
+
+    private fun CharArray.backToString(): String {
+        var str = ""
+        for (c in this) {
+            if (c == 0.toChar()) break
+            str += c
+        }
+        return str
+    }
 
     operator fun invoke() {
         if (open) {
@@ -50,12 +66,7 @@ object ModuleWindowsEditor {
                     val buf = window.title.toCharArray(CharArray(128))
                     setNextItemWidth(-1f)
                     if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
-                        var title = ""
-                        for (c in buf) {
-                            if (c == 0.toChar()) break
-                            title += c
-                        }
-                        window.title = title
+                        window.title = buf.backToString()
                     }
                     nextColumn()
                 }
@@ -106,6 +117,43 @@ object ModuleWindowsEditor {
                                         payload.moveTo(window, group.key)
                                     }
                                 }
+                                popupContextItem("popup-${group.hashCode()}") {
+                                    menuItem("Rename") {
+                                        val name = group.key.toCharArray(CharArray(128))
+                                        modalPopup = {
+                                            fun rename() {
+                                                val name = name.backToString()
+                                                val mutable = window.groups.toMutableMap()
+                                                mutable.remove(group.key)
+                                                mutable[name] = group.value
+                                                window.groups = mutable
+                                                ImGui.closeCurrentPopup()
+                                                modalPopup = null
+                                            }
+                                            text("Rename to:")
+                                            setNextItemWidth(-1f)
+                                            if (ImGui.isWindowAppearing)
+                                                ImGui.setKeyboardFocusHere()
+                                            if (ImGui.inputText("", name, flags = InputTextFlag.EnterReturnsTrue.i)) {
+                                                rename()
+                                            }
+                                            button("Rename") { rename() }
+                                            sameLine()
+                                            button("Cancel") {
+                                                ImGui.closeCurrentPopup()
+                                                modalPopup = null
+                                            }
+                                        }
+                                    }
+                                    menu("Sort") {
+                                        menuItem("Alphabetically") {
+
+                                        }
+                                        menuItem("Reverse alphabetically") {
+
+                                        }
+                                    }
+                                }
                             })
                         }
                     }
@@ -128,6 +176,11 @@ object ModuleWindowsEditor {
                 }
                 columns(1)
             }
+        }
+        if (modalPopup != null)
+            openPopup("Rename group")
+        popupModal("Rename group", null, WindowFlag.AlwaysAutoResize.i) {
+            modalPopup?.let { it() }
         }
     }
 
