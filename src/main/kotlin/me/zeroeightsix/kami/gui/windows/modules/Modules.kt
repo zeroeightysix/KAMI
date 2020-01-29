@@ -15,7 +15,6 @@ import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
-import imgui.dsl.popupContextWindow
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
@@ -164,11 +163,6 @@ object Modules {
                                 treePop()
                             }
                         }
-                    }
-                }
-                popupContextWindow() {
-                    menuItem("Open editor", enabled = !ModuleWindowsEditor.open) {
-                        ModuleWindowsEditor.open = !ModuleWindowsEditor.open
                     }
                 }
             }
