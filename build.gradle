@@ -1,6 +1,7 @@
 plugins {
-    id 'fabric-loom' version '0.2.6-SNAPSHOT'
+    id 'fabric-loom'
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
@@ -12,6 +13,7 @@ minecraft {}
 
 repositories {
     jcenter()
+    mavenCentral()
     maven {
         name = "jitpack.io"
         url = "https://jitpack.io"
@@ -33,6 +35,20 @@ dependencies {
     compile(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
         exclude group: 'com.google.guava', module: 'guava'
     }
+
+    compile "com.github.kotlin-graphics:imgui:-SNAPSHOT"
+    compile 'com.github.kotlin-graphics:uno-sdk:f528113bf45e43406953d6881915467d85a20881'
+    compile 'com.github.kotlin-graphics.glm:glm:1b4ac18dd1a3c23440d3f33596688aac60bc0141'
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.3.61'
+
+    //compile 'com.github.kotlin-graphics:gli:2849d88aa4'
+//
+    //// imgui
+    //["imgui-core", "imgui-gl", "imgui-glfw"].each {
+    //    implementation("com.github.kotlin-graphics.imgui:$it:jdk8-SNAPSHOT") {
+    //        exclude group: "org.lwjgl"
+    //    }
+    //}
 }
 
 processResources {
@@ -83,3 +99,5 @@ task copy(type: Copy) {
     include '*-release.jar'
     into file(System.getProperty("user.home") + "/.minecraft/mods/1.12.2/")
 }
+
+compileKotlin.kotlinOptions.jvmTarget = "1.8"

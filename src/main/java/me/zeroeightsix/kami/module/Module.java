@@ -3,6 +3,8 @@ package me.zeroeightsix.kami.module;
 import com.google.common.base.Converter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import glm_.vec2.Vec2;
+import imgui.ImGui;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.setting.Setting;
@@ -27,8 +29,15 @@ public class Module {
     private final Setting<String> name = register(Settings.s("Name", originalName));
     private final String description = getAnnotation().description();
     private final Category category = getAnnotation().category();
-    private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter()).build());
-    private Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
+    private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter(), setting -> {
+        ImGui.INSTANCE.text("Bound to " + getBind().toString()); // TODO: Highlight bind in another color?
+        ImGui.INSTANCE.sameLine(0, -1);
+        if (ImGui.INSTANCE.button("Bind", new Vec2())) {
+            // TODO: Bind popup?
+            // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+        }
+    }).build());
+    public Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
     public boolean alwaysListening;
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 

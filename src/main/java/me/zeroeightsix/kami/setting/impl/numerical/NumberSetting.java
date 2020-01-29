@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.setting.impl.numerical;
 
+import imgui.MutableProperty0;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.converter.AbstractBoxedNumberConverter;
 
@@ -14,10 +15,14 @@ public abstract class NumberSetting<T extends Number> extends Setting<T> {
     private final T min;
     private final T max;
 
+    MutableProperty0<T> property;
+
     public NumberSetting(T value, Predicate<T> restriction, BiConsumer<T, T> consumer, String name, Predicate<T> visibilityPredicate, T min, T max) {
         super(value, restriction, consumer, name, visibilityPredicate);
         this.min = min;
         this.max = max;
+
+        property = new MutableProperty0<>(value);
     }
 
     /**
@@ -42,4 +47,18 @@ public abstract class NumberSetting<T extends Number> extends Setting<T> {
     public T getMin() {
         return min;
     }
+
+    @Override
+    public void drawSettings() {
+        // TODO: Calculate steps
+        if (drawSettingsNumber()) {
+            T value = property.get();
+            if (!setValue(value)) {
+                property.set(getValue());
+            }
+        }
+    }
+
+    protected abstract boolean drawSettingsNumber();
+
 }

@@ -7,6 +7,8 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.gui.KamiGuiScreen;
+import me.zeroeightsix.kami.gui.KamiHud;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.module.modules.ClickGUI;
 import me.zeroeightsix.kami.util.*;
@@ -42,12 +44,17 @@ public class ModuleManager {
     @EventHandler
     public Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
         onWorldRender(event);
+        KamiTessellator.releaseGL();
     });
 
     @EventHandler
     public Listener<RenderHudEvent> renderHudEventListener = new Listener<>(event -> {
         onRender();
-        KamiTessellator.releaseGL();
+
+        if (!(MinecraftClient.getInstance().currentScreen instanceof KamiGuiScreen)) {
+            KamiHud.INSTANCE.renderHud();
+        }
+//        KamiTessellator.releaseGL();
     });
 
     public static void updateLookup() {
@@ -125,6 +132,17 @@ public class ModuleManager {
     public static void onBind(int key, int scancode, int i) {
         boolean pressed = i != 0;
         InputUtil.KeyCode code = InputUtil.getKeyCode(key, scancode);
+
+        if (Wrapper.getMinecraft().currentScreen != null) {
+            return;
+        }
+
+        if (key == 89 && scancode == 29) {
+            if (KamiMod.getInstance().kamiGuiScreen == null) {
+                KamiMod.getInstance().kamiGuiScreen = new KamiGuiScreen();
+            }
+            Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen);
+        }
 
         modules.forEach(module -> {
             Bind bind = module.getBind();

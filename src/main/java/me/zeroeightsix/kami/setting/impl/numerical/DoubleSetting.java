@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.setting.impl.numerical;
 
+import imgui.ImGui;
+import imgui.InputTextFlag;
 import me.zeroeightsix.kami.setting.converter.AbstractBoxedNumberConverter;
 import me.zeroeightsix.kami.setting.converter.BoxedDoubleConverter;
 
@@ -20,6 +22,11 @@ public class DoubleSetting extends NumberSetting<Double> {
     @Override
     public AbstractBoxedNumberConverter converter() {
         return converter;
+    }
+
+    @Override
+    protected boolean drawSettingsNumber() {
+        return ImGui.INSTANCE.inputDouble(getName(), property, 1, 10, "%.1f", InputTextFlag.EnterReturnsTrue.i);
     }
 
 }

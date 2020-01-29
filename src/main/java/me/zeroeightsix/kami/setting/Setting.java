@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import imgui.ImGui;
 import me.zeroeightsix.kami.setting.converter.Convertable;
 
 import java.util.concurrent.CompletableFuture;
@@ -91,6 +92,13 @@ public abstract class Setting<T> implements ISettingUnknown, Convertable<T> {
 
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         return builder.buildFuture();
+    }
+
+    public void drawSettings() {
+        // Display a sorry 'not editable' text for settings that don't have imgui settings implemented.
+        // If you encounter this text when implementing a module with a custom setting type, don't change this method!
+        // Instead, implement it on the Setting class you're making.
+        ImGui.INSTANCE.text(getName() + " isn't editable.");
     }
 
     @Override
