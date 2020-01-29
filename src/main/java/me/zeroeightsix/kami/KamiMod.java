@@ -12,8 +12,6 @@ import me.zeroeightsix.kami.gui.KamiGuiScreen;
 import me.zeroeightsix.kami.gui.windows.KamiSettings;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
-import me.zeroeightsix.kami.plugin.PluginManager;
-import me.zeroeightsix.kami.plugin.example.SpammerPlugin;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
@@ -98,9 +96,6 @@ public class KamiMod implements ModInitializer {
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         ModuleManager.getModules().stream().filter(Module::isEnabled).forEach(Module::enable);
-
-        // TODO: Plugins
-        PluginManager.INSTANCE.registerPlugin(SpammerPlugin.INSTANCE);
 
         KamiMod.log.info("KAMI Mod initialized!\n");
     }

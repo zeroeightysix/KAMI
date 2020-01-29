@@ -14,7 +14,8 @@ import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
 object KamiSettings {
-    
+
+    var modifiersEnabled = false
     var settingsWindowOpen = false
     var swapModuleListButtons = false
     var oldModuleEditMode = false
@@ -72,6 +73,11 @@ object KamiSettings {
 
                 collapsingHeader("Overlay") {
                     dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+                }
+
+                collapsingHeader("In-game") {
+                    checkbox("Keybind modifiers", ::modifiersEnabled) {}
+                    demoDebugInformations.helpMarker("Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
                 }
             }
         }
