@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami.command.commands
+package me.zeroeightsix.kami.command
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType

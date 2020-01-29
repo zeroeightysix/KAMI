@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.command.Command
 import me.zeroeightsix.kami.command.KamiCommandSource
+import me.zeroeightsix.kami.command.PluginArgumentType
 import me.zeroeightsix.kami.plugin.Plugin
 import me.zeroeightsix.kami.util.Texts.*
 import net.minecraft.server.command.CommandSource
