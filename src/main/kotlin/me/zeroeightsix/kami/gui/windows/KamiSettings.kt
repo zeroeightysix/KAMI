@@ -77,6 +77,7 @@ object KamiSettings {
 
                 collapsingHeader("In-game") {
                     checkbox("Keybind modifiers", ::modifiersEnabled) {}
+                    sameLine()
                     demoDebugInformations.helpMarker("Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
                 }
             }
