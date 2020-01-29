@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.module.modules.misc;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zero.alpine.type.Cancellable;
 import me.zeroeightsix.kami.event.events.CloseScreenInPortalEvent;
 import me.zeroeightsix.kami.module.Module;
 
@@ -14,6 +13,6 @@ import me.zeroeightsix.kami.module.Module;
 public class PortalChat extends Module {
 
     @EventHandler
-    public Listener<CloseScreenInPortalEvent> closeScreenInPortalEventListener = new Listener<>(Cancellable::cancel);
+    public Listener<CloseScreenInPortalEvent> closeScreenInPortalEventListener = new Listener<>(event -> event.cancel());
 
 }

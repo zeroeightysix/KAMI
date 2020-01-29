@@ -1,18 +1,18 @@
 package me.zeroeightsix.kami.event.events;
 
 import me.zeroeightsix.kami.event.KamiEvent;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.Screen;
 
 public class CloseScreenInPortalEvent extends KamiEvent {
 
-    final ClientPlayerEntity entity;
+    final Screen screen;
 
-    public CloseScreenInPortalEvent(ClientPlayerEntity entity) {
-        this.entity = entity;
+    public CloseScreenInPortalEvent(Screen screen) {
+        this.screen = screen;
     }
 
-    public ClientPlayerEntity getEntity() {
-        return entity;
+    public Screen getScreen() {
+        return screen;
     }
 
 }

@@ -5,6 +5,8 @@ import me.zeroeightsix.kami.event.events.CloseScreenInPortalEvent;
 import me.zeroeightsix.kami.event.events.InputUpdateEvent;
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent;
 import me.zeroeightsix.kami.mixin.extend.ExtendedInput;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
@@ -28,12 +30,12 @@ public class MixinClientPlayerEntity {
         // we don't need to mutate input again as any listener that did mutate it, mutated the one minecraft uses
     }
 
-    @Redirect(method = "updateNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;closeContainer()V"))
-    public void closeContainer(ClientPlayerEntity thisEntity) {
-        CloseScreenInPortalEvent event = new CloseScreenInPortalEvent(thisEntity);
+    @Redirect(method = "updateNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;openScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
+    public void openScreen(MinecraftClient client, Screen screen) {
+        CloseScreenInPortalEvent event = new CloseScreenInPortalEvent(screen);
         KamiMod.EVENT_BUS.post(event);
         if (!event.isCancelled()) {
-            thisEntity.closeContainer();
+            client.openScreen(screen);
         }
     }
 
