@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import me.zeroeightsix.kami.command.commands.PluginCommand;
 import me.zeroeightsix.kami.command.commands.ToggleCommand;
 import me.zeroeightsix.kami.util.ClassFinder;
 import net.minecraft.server.command.CommandSource;
@@ -16,6 +17,7 @@ public class CommandManager {
 	public void generateCommands() {
 		this.commands.clear();
 		discoverCommands();
+		commands.add(PluginCommand.INSTANCE); // Kotlin objects don't have constructors
 		populateDispatcher(dispatcher = new CommandDispatcher<>());
 	}
 
