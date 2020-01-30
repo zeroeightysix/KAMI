@@ -43,6 +43,7 @@ public class MixinMinecraftClient {
         if (displayedEvent.isCancelled()) {
             info.cancel();
         }
+        guiScreenIn = displayedEvent.getScreen();
     }
 
     @Inject(method = "start", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;printCrashReport(Lnet/minecraft/util/crash/CrashReport;)V"))

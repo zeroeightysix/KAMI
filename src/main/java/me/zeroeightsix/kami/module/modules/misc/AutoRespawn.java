@@ -2,12 +2,17 @@ package me.zeroeightsix.kami.module.modules.misc;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.util.Texts;
+import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.util.Formatting;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by 086 on 9/04/2018.
@@ -27,11 +32,23 @@ public class AutoRespawn extends Module {
             return;
         }
 
-        if (deathCoords.getValue() && mc.player.getHealth() <= 0) {
-            Command.sendChatMessage(String.format("You died at x %d y %d z %d", (int) mc.player.x, (int) mc.player.y, (int) mc.player.z));
-        }
-
         if (respawn.getValue() || (antiGlitchScreen.getValue() && mc.player.getHealth() > 0)) {
+            if (deathCoords.getValue()) {
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
+                Wrapper.getPlayer().sendMessage(Texts.f(Formatting.GOLD, Texts.append(
+                        Texts.lit("You died at "),
+                        Texts.flit(Formatting.YELLOW, "x " + Math.floor(mc.player.x)),
+                        Texts.lit(", "),
+                        Texts.flit(Formatting.YELLOW, "y " + Math.floor(mc.player.y)),
+                        Texts.lit(", "),
+                        Texts.flit(Formatting.YELLOW, "z " + Math.floor(mc.player.z)),
+                        Texts.lit(" ("),
+                        Texts.flit(Formatting.AQUA, sdf.format(cal.getTime())),
+                        Texts.lit(").")
+                )));
+            }
             mc.player.requestRespawn();
             mc.openScreen(null);
         }
