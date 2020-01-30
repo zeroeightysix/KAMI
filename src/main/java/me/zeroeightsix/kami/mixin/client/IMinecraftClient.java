@@ -17,4 +17,7 @@ public interface IMinecraftClient {
     @Invoker
     void callDoAttack();
 
+    @Invoker
+    void callDoItemUse();
+
 }

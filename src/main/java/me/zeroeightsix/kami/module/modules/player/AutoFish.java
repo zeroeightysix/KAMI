@@ -24,13 +24,13 @@ public class AutoFish extends Module {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                ((IMinecraftClient) mc).callDoAttack();
+                ((IMinecraftClient) mc).callDoItemUse();
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                ((IMinecraftClient) mc).callDoAttack();
+                ((IMinecraftClient) mc).callDoItemUse();
             }).start();
         }
     });
