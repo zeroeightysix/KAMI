@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import net.minecraft.network.ClientConnection;
@@ -18,6 +20,14 @@ public class MixinClientConnection {
         PacketEvent.Receive receive = new PacketEvent.Receive(packet);
         KamiMod.EVENT_BUS.post(receive);
         if (receive.isCancelled())
+            info.cancel();
+    }
+
+    @Inject(method = "sendImmediately", at = @At("HEAD"), cancellable = true)
+    private void sendImmediately(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo info) {
+        PacketEvent.Send send = new PacketEvent.Send(packet);
+        KamiMod.EVENT_BUS.post(send);
+        if (send.isCancelled())
             info.cancel();
     }
 
