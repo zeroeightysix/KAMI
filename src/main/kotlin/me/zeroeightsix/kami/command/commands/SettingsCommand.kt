@@ -6,7 +6,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.command.*
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.module.ModulePlay
 import me.zeroeightsix.kami.setting.Setting
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
@@ -31,7 +31,7 @@ object SettingsCommand : Command() {
             LiteralArgumentBuilder.literal<CommandSource>("settings")
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("list").then(
-                        RequiredArgumentBuilder.argument<CommandSource, Module>(
+                        RequiredArgumentBuilder.argument<CommandSource, ModulePlay>(
                             "module",
                             ModuleArgumentType.module()
                         )
@@ -40,14 +40,14 @@ object SettingsCommand : Command() {
                                 val m =
                                     context.getArgument(
                                         "module",
-                                        Module::class.java
-                                    ) as Module
+                                        ModulePlay::class.java
+                                    ) as ModulePlay
                                 source.sendFeedback(
                                     Texts.i(
                                         Texts.append(
                                             Texts.flit(
                                                 Formatting.YELLOW,
-                                                m.name
+                                                m.name.value
                                             ),
                                             Texts.flit(
                                                 Formatting.GOLD,
@@ -99,7 +99,7 @@ object SettingsCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("set")
                         .then(
-                            RequiredArgumentBuilder.argument<CommandSource, Module>(
+                            RequiredArgumentBuilder.argument<CommandSource, ModulePlay>(
                                 "module",
                                 moduleArgumentType
                             )
@@ -117,8 +117,8 @@ object SettingsCommand : Command() {
                                                     val module =
                                                         context.getArgument(
                                                             "module",
-                                                            Module::class.java
-                                                        ) as Module
+                                                            ModulePlay::class.java
+                                                        ) as ModulePlay
                                                     val setting =
                                                         context.getArgument(
                                                             "setting",
@@ -147,7 +147,7 @@ object SettingsCommand : Command() {
                                                                 Texts.lit(" of module "),
                                                                 Texts.flit(
                                                                     Formatting.YELLOW,
-                                                                    module.name
+                                                                    module.name.value
                                                                 ),
                                                                 Texts.lit(" to "),
                                                                 Texts.flit(

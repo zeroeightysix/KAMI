@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-public class ModuleArgumentType implements ArgumentType<Module> {
+public class ModuleArgumentType implements ArgumentType<ModulePlay> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("Aura", "CameraClip", "Flight");
     public static final DynamicCommandExceptionType INVALID_MODULE_EXCEPTION = new DynamicCommandExceptionType((object) -> {
@@ -28,9 +28,9 @@ public class ModuleArgumentType implements ArgumentType<Module> {
     }
 
     @Override
-    public Module parse(StringReader reader) throws CommandSyntaxException {
+    public ModulePlay parse(StringReader reader) throws CommandSyntaxException {
         String string = reader.readUnquotedString();
-        Module module = ModuleManager.getModuleByName(string);
+        ModulePlay module = ModuleManager.getModuleByName(string);
         if (module == null) {
             throw INVALID_MODULE_EXCEPTION.create(string);
         }
@@ -39,7 +39,7 @@ public class ModuleArgumentType implements ArgumentType<Module> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(ModuleManager.getModules().stream().map(Module::getName), builder);
+        return CommandSource.suggestMatching(ModuleManager.getModules().stream().map(m -> m.getName().getValue()), builder);
     }
 
     @Override

@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -17,8 +17,8 @@ import net.minecraft.util.math.Vec3d;
 /**
  * Created by 086 on 22/12/2017.
  */
-@Module.Info(name = "Freecam", category = Module.Category.PLAYER, description = "Leave your body and trascend into the realm of the gods")
-public class Freecam extends Module {
+@ModulePlay.Info(name = "Freecam", category = ModulePlay.Category.PLAYER, description = "Leave your body and trascend into the realm of the gods")
+public class Freecam extends ModulePlay {
 
     private Setting<Integer> speed = register(Settings.i("Speed", 5)); // /100 in practice
 
@@ -31,7 +31,7 @@ public class Freecam extends Module {
     private Entity ridingEntity;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player != null) {
             isRidingEntity = mc.player.getVehicle() != null;
 
@@ -58,7 +58,7 @@ public class Freecam extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         PlayerEntity localPlayer = mc.player;
         if (localPlayer != null) {
             mc.player.setPositionAndAngles(x, y, z, yaw, pitch);

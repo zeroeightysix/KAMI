@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.module.modules.player;
 
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -21,14 +21,14 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Arrays;
 import java.util.List;
 
-@Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
-public class Scaffold extends Module {
+@ModulePlay.Info(name = "Scaffold", category = ModulePlay.Category.PLAYER)
+public class Scaffold extends ModulePlay {
 
     private List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST,
             Blocks.CHEST,
             Blocks.TRAPPED_CHEST);
 
-    private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2));
+    private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2).build());
 
     private boolean hasNeighbour(BlockPos blockPos) {
         for (Direction side : Direction.values()) {

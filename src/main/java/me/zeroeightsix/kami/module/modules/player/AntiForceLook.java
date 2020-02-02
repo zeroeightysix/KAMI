@@ -4,14 +4,14 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IPlayerPositionLookS2CPacket;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 
 /**
  * Created by 086 on 12/12/2017.
  */
-@Module.Info(name = "AntiForceLook", category = Module.Category.PLAYER)
-public class AntiForceLook extends Module {
+@ModulePlay.Info(name = "AntiForceLook", category = ModulePlay.Category.PLAYER)
+public class AntiForceLook extends ModulePlay {
 
     @EventHandler
     Listener<PacketEvent.Receive> receiveListener = new Listener<>(event -> {

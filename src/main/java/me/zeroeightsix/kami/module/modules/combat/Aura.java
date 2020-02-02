@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.module.modules.misc.AutoTool;
 import me.zeroeightsix.kami.setting.Setting;
@@ -24,8 +24,8 @@ import net.minecraft.world.RayTraceContext;
  * Created by 086 on 12/12/2017.
  * Updated by hub on 31 October 2019
  */
-@Module.Info(name = "Aura", category = Module.Category.COMBAT, description = "Hits entities around you")
-public class Aura extends Module {
+@ModulePlay.Info(name = "Aura", category = ModulePlay.Category.COMBAT, description = "Hits entities around you")
+public class Aura extends ModulePlay {
 
     private Setting<Boolean> attackPlayers = register(Settings.b("Players", true));
     private Setting<Boolean> attackMobs = register(Settings.b("Mobs", false));

@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
@@ -17,13 +17,13 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, Module> {
+public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, ModulePlay> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("enabled", "speed");
     public static final DynamicCommandExceptionType INVALID_SETTING_EXCEPTION = new DynamicCommandExceptionType((object) -> new LiteralText("Unknown setting '" + ((Object[]) object)[0] + "' for module '" + ((Object[]) object)[1]));
     public static final DynamicCommandExceptionType NO_MODULE_EXCEPTION = new DynamicCommandExceptionType((object) -> new LiteralText("No module found"));
 
-    public SettingArgumentType(ArgumentType<Module> dependantType, String dependantArgument, int shift) {
+    public SettingArgumentType(ArgumentType<ModulePlay> dependantType, String dependantArgument, int shift) {
         super(dependantType, dependantArgument, shift);
     }
 
@@ -33,16 +33,16 @@ public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, Mo
 
     @Override
     public Setting<T> parse(StringReader reader) throws CommandSyntaxException {
-        Module module = findDependencyValue(reader);
+        ModulePlay module = findDependencyValue(reader);
 
         if (module == null) {
             throw NO_MODULE_EXCEPTION.create(null);
         }
 
         String string = reader.readUnquotedString();
-        Optional<Setting> s = module.settingList.stream().filter(setting -> setting.getName().equalsIgnoreCase(string)).findAny();
+        Optional<Setting<?>> s = module.getSettingList().stream().filter(setting -> setting.getName().equalsIgnoreCase(string)).findAny();
         if (s.isPresent()) {
-            return s.get();
+            return (Setting<T>) s.get();
         } else {
             throw INVALID_SETTING_EXCEPTION.create(new Object[] {string, module});
         }
@@ -50,9 +50,9 @@ public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, Mo
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        Module m = findDependencyValue(context, Module.class);
+        ModulePlay m = findDependencyValue(context, ModulePlay.class);
         if (m != null) {
-            return CommandSource.suggestMatching(m.settingList.stream().map(Setting::getName), builder);
+            return CommandSource.suggestMatching(m.getSettingList().stream().map(Setting::getName), builder);
         } else {
             return null;
         }

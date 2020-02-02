@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.gui.screen.ConnectScreen;
@@ -15,8 +15,8 @@ import net.minecraft.client.options.ServerEntry;
 /**
  * Created by 086 on 9/04/2018.
  */
-@Module.Info(name = "AutoReconnect", description = "Automatically reconnects after being disconnected", category = Module.Category.MISC, alwaysListening = true)
-public class AutoReconnect extends Module {
+@ModulePlay.Info(name = "AutoReconnect", description = "Automatically reconnects after being disconnected", category = ModulePlay.Category.MISC, alwaysListening = true)
+public class AutoReconnect extends ModulePlay {
 
     private Setting<Integer> seconds = register(Settings.integerBuilder("Seconds").withValue(5).withMinimum(0).build());
     private static ServerEntry cServer;

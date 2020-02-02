@@ -3,15 +3,15 @@ package me.zeroeightsix.kami.module.modules.player;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.InputUpdateEvent;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 
 /**
  * Created by 086 on 16/12/2017.
  */
-@Module.Info(name = "AutoWalk", category = Module.Category.PLAYER)
-public class AutoWalk extends Module {
+@ModulePlay.Info(name = "AutoWalk", category = ModulePlay.Category.PLAYER)
+public class AutoWalk extends ModulePlay {
 
     private Setting<AutoWalkMode> mode = register(Settings.e("Mode", AutoWalkMode.FORWARD));
 

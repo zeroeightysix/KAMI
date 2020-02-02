@@ -9,25 +9,19 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
-import me.zeroeightsix.kami.setting.builder.SettingBuilder;
 import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by 086 on 23/08/2017.
  * Updated by hub on 3 November 2019
  */
-public class Module {
+public class ModulePlay extends Module {
 
-    private final String originalName = getAnnotation().name();
-    private final Setting<String> name = register(Settings.s("Name", originalName));
-    private final String description = getAnnotation().description();
     private final Category category = getAnnotation().category();
     private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter(), setting -> {
         ImGui.INSTANCE.text("Bound to " + getBind().toString()); // TODO: Highlight bind in another color?
@@ -37,15 +31,14 @@ public class Module {
             // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
         }
     }).build());
-    public Setting<Boolean> enabled = register(Settings.booleanBuilder("Enabled").withVisibility(aBoolean -> false).withValue(false).build());
     public boolean alwaysListening;
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
-    public List<Setting> settingList = new ArrayList<>();
-
-    public Module() {
+    public ModulePlay() {
         alwaysListening = getAnnotation().alwaysListening();
-        registerAll(bind, enabled);
+        registerAll(bind, getEnabled());
+        getName().setValue(getAnnotation().name());
+        setDescription(getAnnotation().description());
     }
 
     private Info getAnnotation() {
@@ -63,23 +56,13 @@ public class Module {
         return bind.getValue();
     }
 
-    public String getBindName() {
-        return bind.getValue().toString();
-    }
-
     public void setName(String name) {
-        this.name.setValue(name);
+        this.getName().setValue(name);
         ModuleManager.updateLookup();
     }
 
-    public String getOriginalName() {
-        return originalName;
-    }
-
-    public enum Category
-    {
+    public enum Category {
         COMBAT("Combat", false),
-        EXPLOITS("Exploits", false),
         RENDER("Render", false),
         MISC("Misc", false),
         PLAYER("Player", false),
@@ -108,16 +91,8 @@ public class Module {
     {
         String name();
         String description() default "Descriptionless";
-        Module.Category category();
+        ModulePlay.Category category();
         boolean alwaysListening() default false;
-    }
-
-    public String getName() {
-        return name.getValue();
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public Category getCategory() {
@@ -125,28 +100,31 @@ public class Module {
     }
 
     public boolean isEnabled() {
-        return enabled.getValue();
+        return getEnabled().getValue();
     }
-
-    protected void onEnable() {}
-    protected void onDisable() {}
 
     public void toggle() {
         setEnabled(!isEnabled());
     }
 
-    public void enable() {
-        enabled.setValue(true);
-        onEnable();
-        if (!alwaysListening)
-            KamiMod.EVENT_BUS.subscribe(this);
+    @Override
+    public boolean enable() {
+        if (super.enable()) {
+            if (!alwaysListening)
+                KamiMod.EVENT_BUS.subscribe(this);
+            return true;
+        }
+        return false;
     }
 
-    public void disable() {
-        enabled.setValue(false);
-        onDisable();
-        if (!alwaysListening)
-            KamiMod.EVENT_BUS.unsubscribe(this);
+    @Override
+    public boolean disable() {
+        if (super.disable()) {
+            if (!alwaysListening)
+                KamiMod.EVENT_BUS.unsubscribe(this);
+            return true;
+        }
+        return false;
     }
 
     public boolean isDisabled() {
@@ -154,7 +132,7 @@ public class Module {
     }
 
     public void setEnabled(boolean enabled) {
-        boolean prev = this.enabled.getValue();
+        boolean prev = this.getEnabled().getValue();
         if (prev != enabled)
             if (enabled)
                 enable();
@@ -177,20 +155,6 @@ public class Module {
             register(setting);
         }
     }
-
-    protected <T> Setting<T> register(Setting<T> setting) {
-        if (settingList == null) settingList = new ArrayList<>();
-        settingList.add(setting);
-        return SettingBuilder.register(setting, "modules." + originalName);
-    }
-
-    protected <T> Setting<T> register(SettingBuilder<T> builder) {
-        if (settingList == null) settingList = new ArrayList<>();
-        Setting<T> setting = builder.buildAndRegister("modules." + name);
-        settingList.add(setting);
-        return setting;
-    }
-
 
     private class BindConverter extends Converter<Bind, JsonElement> {
         @Override

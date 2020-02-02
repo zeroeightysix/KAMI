@@ -1,12 +1,12 @@
 package me.zeroeightsix.kami.module.modules.render;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 
 /**
  * @author 086 and IronException
  */
-@Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
-public class ChunkFinder extends Module {
+@ModulePlay.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = ModulePlay.Category.RENDER)
+public class ChunkFinder extends ModulePlay {
 
     /*private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
     private Setting<Boolean> relative = register(Settings.b("Relative", true));
@@ -72,7 +72,7 @@ public class ChunkFinder extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         logWriterClose();
         chunks.clear();
     }

@@ -40,7 +40,7 @@ class PluginArgumentType: ArgumentType<Plugin> {
         builder: SuggestionsBuilder?
     ): CompletableFuture<Suggestions?>? {
         return CommandSource.suggestMatching(
-            PluginManager.plugins.stream().map { obj: Plugin -> obj.name },
+            PluginManager.plugins.stream().map { obj: Plugin -> obj.name.value },
             builder
         )
     }

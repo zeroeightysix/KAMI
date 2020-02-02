@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.server.network.packet.ChatMessageC2SPacket;
@@ -12,8 +12,8 @@ import net.minecraft.server.network.packet.ChatMessageC2SPacket;
 /**
  * Created by 086 on 8/04/2018.
  */
-@Module.Info(name = "CustomChat", category = Module.Category.MISC, description = "Modifies your chat messages")
-public class CustomChat extends Module {
+@ModulePlay.Info(name = "CustomChat", category = ModulePlay.Category.MISC, description = "Modifies your chat messages")
+public class CustomChat extends ModulePlay {
 
     private Setting<Boolean> commands = register(Settings.b("Commands", false));
 

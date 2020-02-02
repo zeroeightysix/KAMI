@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.misc;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.render.entity.PlayerModelPart;
@@ -10,8 +10,8 @@ import java.util.Random;
 /**
  * Created by 086 on 30/01/2018.
  */
-@Module.Info(name = "SkinFlicker", description = "Toggle the jacket layer rapidly for a cool skin effect", category = Module.Category.MISC)
-public class SkinFlicker extends Module {
+@ModulePlay.Info(name = "SkinFlicker", description = "Toggle the jacket layer rapidly for a cool skin effect", category = ModulePlay.Category.MISC)
+public class SkinFlicker extends ModulePlay {
 
     private Setting<FlickerMode> mode = register(Settings.e("Mode", FlickerMode.HORIZONTAL));
     private Setting<Integer> slowness = register(Settings.integerBuilder().withName("Slowness").withValue(2).withMinimum(1).build());

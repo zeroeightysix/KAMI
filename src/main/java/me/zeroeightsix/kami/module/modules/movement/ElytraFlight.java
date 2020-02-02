@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -10,8 +10,8 @@ import net.minecraft.util.math.MathHelper;
 /**
  * Created by 086 on 11/04/2018.
  */
-@Module.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = Module.Category.MOVEMENT)
-public class ElytraFlight extends Module {
+@ModulePlay.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = ModulePlay.Category.MOVEMENT)
+public class ElytraFlight extends ModulePlay {
 
     private Setting<ElytraFlightMode> mode = register(Settings.e("Mode", ElytraFlightMode.BOOST));
 
@@ -46,7 +46,7 @@ public class ElytraFlight extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         if (mc.player.abilities.creativeMode) return;
         mc.player.abilities.flying = false;
     }

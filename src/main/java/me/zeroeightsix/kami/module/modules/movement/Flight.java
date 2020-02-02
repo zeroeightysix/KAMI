@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -11,14 +11,14 @@ import net.minecraft.util.math.Vec3d;
 /**
  * Created by 086 on 25/08/2017.
  */
-@Module.Info(category = Module.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
-public class Flight extends Module {
+@ModulePlay.Info(category = ModulePlay.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
+public class Flight extends ModulePlay {
 
     private Setting<Float> speed = register(Settings.f("Speed", 10));
     private Setting<FlightMode> mode = register(Settings.e("Mode", FlightMode.VANILLA));
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player == null) return;
         switch (mode.getValue()) {
             case VANILLA:
@@ -79,7 +79,7 @@ public class Flight extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         switch (mode.getValue()) {
             case VANILLA:
                 mc.player.abilities.flying = false;

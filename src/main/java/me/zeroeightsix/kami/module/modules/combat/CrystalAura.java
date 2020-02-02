@@ -1,13 +1,13 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 
 /**
  * Created by 086 on 28/12/2017.
  * Last Updated 29 June 2019 by hub
  */
-@Module.Info(name = "CrystalAura", category = Module.Category.COMBAT)
-public class CrystalAura extends Module {
+@ModulePlay.Info(name = "CrystalAura", category = ModulePlay.Category.COMBAT)
+public class CrystalAura extends ModulePlay {
 
     /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
     private Setting<Boolean> players = register(Settings.b("Players"));

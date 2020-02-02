@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import net.minecraft.client.network.packet.PlaySoundS2CPacket;
 import net.minecraft.item.Items;
 import net.minecraft.sound.SoundEvents;
@@ -12,8 +12,8 @@ import net.minecraft.sound.SoundEvents;
 /**
  * Created by 086 on 22/03/2018.
  */
-@Module.Info(name = "AutoFish", category = Module.Category.MISC, description = "Automatically catch fish")
-public class AutoFish extends Module {
+@ModulePlay.Info(name = "AutoFish", category = ModulePlay.Category.MISC, description = "Automatically catch fish")
+public class AutoFish extends ModulePlay {
 
     @EventHandler
     private Listener<PacketEvent.Receive> receiveListener = new Listener<>(event -> {

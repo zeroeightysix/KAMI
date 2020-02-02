@@ -1,12 +1,12 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 
 /**
  * Created by 086 on 22/01/2018.
  */
-@Module.Info(name = "AutoTotem", category = Module.Category.COMBAT)
-public class AutoTotem extends Module {
+@ModulePlay.Info(name = "AutoTotem", category = ModulePlay.Category.COMBAT)
+public class AutoTotem extends ModulePlay {
 
     /*int totems;
     boolean moving = false;

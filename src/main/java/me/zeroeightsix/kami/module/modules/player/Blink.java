@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.module.modules.player;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
@@ -15,8 +15,8 @@ import java.util.Queue;
  * Created by 086 on 24/01/2018.
  * Edited by Cuhnt on 30/7/2019
  */
-@Module.Info(name = "Blink", category = Module.Category.PLAYER)
-public class Blink extends Module {
+@ModulePlay.Info(name = "Blink", category = ModulePlay.Category.PLAYER)
+public class Blink extends ModulePlay {
 
     Queue<PlayerMoveC2SPacket> packets = new LinkedList<>();
     @EventHandler
@@ -29,7 +29,7 @@ public class Blink extends Module {
     private OtherClientPlayerEntity clonedPlayer;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player != null) {
             clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile());
             clonedPlayer.copyFrom(mc.player);
@@ -39,7 +39,7 @@ public class Blink extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         while (!packets.isEmpty())
             mc.getNetworkHandler().sendPacket(packets.poll());
 

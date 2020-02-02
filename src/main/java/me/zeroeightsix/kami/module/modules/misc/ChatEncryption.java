@@ -6,7 +6,7 @@ import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
 import me.zeroeightsix.kami.mixin.client.IChatMessageS2CPacket;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.network.packet.ChatMessageS2CPacket;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 /**
  * Created by 086 on 9/04/2018.
  */
-@Module.Info(name = "ChatEncryption", description = "Encrypts and decrypts chat messages (Delimiter %)", category = Module.Category.MISC)
-public class ChatEncryption extends Module {
+@ModulePlay.Info(name = "ChatEncryption", description = "Encrypts and decrypts chat messages (Delimiter %)", category = ModulePlay.Category.MISC)
+public class ChatEncryption extends ModulePlay {
 
     private Setting<EncryptionMode> mode = register(Settings.e("Mode", EncryptionMode.SHUFFLE));
     private Setting<Integer> key = register(Settings.i("Key", 6));

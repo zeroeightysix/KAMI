@@ -10,7 +10,7 @@ import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
 import me.zeroeightsix.kami.gui.windows.KamiSettings;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
@@ -95,7 +95,7 @@ public class KamiMod implements ModInitializer {
         ModuleManager.updateLookup(); // generate the lookup table after settings are loaded to make custom module names work
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
-        ModuleManager.getModules().stream().filter(Module::isEnabled).forEach(Module::enable);
+        ModuleManager.getModules().stream().filter(ModulePlay::isEnabled).forEach(ModulePlay::enable);
 
         KamiMod.log.info("KAMI Mod initialized!\n");
     }

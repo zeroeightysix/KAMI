@@ -1,13 +1,13 @@
 package me.zeroeightsix.kami.module.modules.player;
 
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 
 /**
  * @author 086
  */
-@Module.Info(name = "Fastbreak", category = Module.Category.PLAYER, description = "Nullifies block hit delay")
-public class Fastbreak extends Module {
+@ModulePlay.Info(name = "Fastbreak", category = ModulePlay.Category.PLAYER, description = "Nullifies block hit delay")
+public class Fastbreak extends ModulePlay {
 
     @Override
     public void onUpdate() {

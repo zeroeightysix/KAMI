@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.module.modules.player;
 
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.item.ItemGroup;
@@ -14,8 +14,8 @@ import java.util.Objects;
 /**
  * Created by 086 on 8/04/2018.
  */
-@Module.Info(name = "AutoEat", description = "Automatically eat when hungry", category = Module.Category.PLAYER)
-public class AutoEat extends Module {
+@ModulePlay.Info(name = "AutoEat", description = "Automatically eat when hungry", category = ModulePlay.Category.PLAYER)
+public class AutoEat extends ModulePlay {
 
     private int lastSlot = -1;
     private boolean eating = false;

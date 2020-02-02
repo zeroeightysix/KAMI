@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.module.modules.combat;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.EntityEvent;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -14,8 +14,8 @@ import net.minecraft.text.LiteralText;
 /**
  * Created by 086 on 9/04/2018.
  */
-@Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
-public class AutoLog extends Module {
+@ModulePlay.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = ModulePlay.Category.COMBAT)
+public class AutoLog extends ModulePlay {
 
     private Setting<Integer> health = register(Settings.integerBuilder("Health").withRange(0, 36).withValue(6).build());
     private boolean shouldLog = false;

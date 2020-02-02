@@ -21,8 +21,8 @@ import imgui.internal.or
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
-import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.module.ModuleManager
+import me.zeroeightsix.kami.module.ModulePlay
 
 object Modules {
 
@@ -34,7 +34,7 @@ object Modules {
      * Returns if this module has detached
      */
     private fun collapsibleModule(
-        module: Module,
+        module: ModulePlay,
         source: ModuleWindow,
         sourceGroup: String
     ): ModuleWindow? {
@@ -54,7 +54,7 @@ object Modules {
             clickedRight = isItemClicked(if (KamiSettings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeExV(label, nodeFlags, module.name)
+        val open = treeNodeExV(label, nodeFlags, module.name.value)
         dragDropTarget {
             acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
                 val payload = it.data!! as ModulePayload
@@ -71,7 +71,7 @@ object Modules {
 
                 popupContextItem("$label-popup") {
                     menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name, module = module)
+                        moduleWindow = ModuleWindow(module.name.value, module = module)
                     }
                 }
             }
@@ -116,9 +116,9 @@ object Modules {
         windows = getDefaultWindows()
     }
 
-    internal class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
+    internal class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<ModulePlay>> = mapOf()) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
+        constructor(title: String, pos: Vec2? = null, module: ModulePlay) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
 
         var closed = false
 
@@ -127,7 +127,7 @@ object Modules {
                 setNextWindowPos(pos, Cond.Appearing)
             }
             
-            fun iterateModules(list: MutableList<Module>, group: String): Boolean {
+            fun iterateModules(list: MutableList<ModulePlay>, group: String): Boolean {
                 return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
                     moduleWindow?.let {

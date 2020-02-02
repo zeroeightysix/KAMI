@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.player;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import net.minecraft.client.gui.screen.ingame.ContainerScreen54;
 import net.minecraft.container.SlotActionType;
 import net.minecraft.item.ArmorItem;
@@ -10,8 +10,8 @@ import net.minecraft.item.Items;
 /**
  * Created by 086 on 24/01/2018.
  */
-@Module.Info(name = "AutoArmour", category = Module.Category.PLAYER)
-public class AutoArmour extends Module {
+@ModulePlay.Info(name = "AutoArmour", category = ModulePlay.Category.PLAYER)
+public class AutoArmour extends ModulePlay {
 
     @Override
     public void onUpdate() {

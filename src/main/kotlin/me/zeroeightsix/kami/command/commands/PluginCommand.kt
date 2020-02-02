@@ -56,16 +56,16 @@ object PluginCommand : Command() {
     // thank english grammar for allowing us to use one parameter for word
     private fun toggle(word: String, pair: Pair<KamiCommandSource, Plugin>, enable: Boolean) {
         val (source, plugin) = pair
-        if (plugin.enabled != enable) {
-            plugin.enabled = enable
+        if (plugin.enabled.value != enable) {
+            plugin.enabled.value = enable
             source.sendFeedback(f(GOLD, append(
                 lit("${word.capitalize()}d plugin "),
-                flit(YELLOW, plugin.name)
+                flit(YELLOW, plugin.name.value)
             )))
         }
         else
             source.sendFeedback(f(GOLD, append(
-                flit(YELLOW, plugin.name),
+                flit(YELLOW, plugin.name.value),
                 lit(" is already ${word}d.")
             )))
     }

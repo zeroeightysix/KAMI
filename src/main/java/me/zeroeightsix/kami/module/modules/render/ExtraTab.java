@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.module.modules.render;
 
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
@@ -12,8 +12,8 @@ import net.minecraft.text.LiteralText;
 /**
  * Created by 086 on 8/04/2018.
  */
-@Module.Info(name = "ExtraTab", description = "Expands the player tab menu", category = Module.Category.RENDER)
-public class ExtraTab extends Module {
+@ModulePlay.Info(name = "ExtraTab", description = "Expands the player tab menu", category = ModulePlay.Category.RENDER)
+public class ExtraTab extends ModulePlay {
 
     public Setting<Integer> tabSize = register(Settings.integerBuilder("Players").withMinimum(1).withValue(80).build());
 

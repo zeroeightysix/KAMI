@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.module.modules.combat;
 
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.ModulePlay;
 import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -39,8 +39,8 @@ import static me.zeroeightsix.kami.module.modules.player.Scaffold.faceVectorPack
  * Created by hub on 7 August 2019
  * Updated by hub on 31 October 2019
  */
-@Module.Info(name = "Auto32k", category = Module.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
-public class Auto32k extends Module {
+@ModulePlay.Info(name = "Auto32k", category = ModulePlay.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
+public class Auto32k extends ModulePlay {
 
     private static final List<Block> blackList = Arrays.asList(
             Blocks.ENDER_CHEST,
@@ -74,7 +74,7 @@ public class Auto32k extends Module {
     private static boolean isSneaking;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
 
         if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
             this.disable();

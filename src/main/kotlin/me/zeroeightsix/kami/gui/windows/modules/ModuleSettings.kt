@@ -8,11 +8,11 @@ import imgui.ImGui.sameLine
 import imgui.ImGui.textWrapped
 import imgui.api.demoDebugInformations.Companion.helpMarker
 import me.zeroeightsix.kami.gui.windows.KamiSettings
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.module.ModulePlay
 
 object ModuleSettings {
 
-    operator fun invoke(module: Module, block: () -> Unit) {
+    operator fun invoke(module: ModulePlay, block: () -> Unit) {
         val editMarkerShown = KamiSettings.oldModuleEditMode
         if (!KamiSettings.hideModuleDescriptions) {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
