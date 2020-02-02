@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.ModulePlay;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.FeatureManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -21,8 +21,8 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Arrays;
 import java.util.List;
 
-@ModulePlay.Info(name = "Scaffold", category = ModulePlay.Category.PLAYER)
-public class Scaffold extends ModulePlay {
+@Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
+public class Scaffold extends Module {
 
     private List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST,
             Blocks.CHEST,
@@ -41,7 +41,7 @@ public class Scaffold extends ModulePlay {
 
     @Override
     public void onUpdate() {
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) return;
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future.getValue());
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();

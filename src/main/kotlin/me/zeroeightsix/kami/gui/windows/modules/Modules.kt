@@ -21,8 +21,8 @@ import imgui.internal.or
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
-import me.zeroeightsix.kami.module.ModuleManager
-import me.zeroeightsix.kami.module.ModulePlay
+import me.zeroeightsix.kami.module.FeatureManager
+import me.zeroeightsix.kami.module.Module
 
 object Modules {
 
@@ -34,7 +34,7 @@ object Modules {
      * Returns if this module has detached
      */
     private fun collapsibleModule(
-        module: ModulePlay,
+        module: Module,
         source: ModuleWindow,
         sourceGroup: String
     ): ModuleWindow? {
@@ -107,7 +107,7 @@ object Modules {
     }
 
     private fun getDefaultWindows() = mutableListOf(
-        ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
+        ModuleWindow("All modules", groups = FeatureManager.modules.groupBy {
             it.category.getName()
         }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
     )
@@ -116,9 +116,9 @@ object Modules {
         windows = getDefaultWindows()
     }
 
-    internal class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<ModulePlay>> = mapOf()) {
+    internal class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
 
-        constructor(title: String, pos: Vec2? = null, module: ModulePlay) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
+        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
 
         var closed = false
 
@@ -127,7 +127,7 @@ object Modules {
                 setNextWindowPos(pos, Cond.Appearing)
             }
             
-            fun iterateModules(list: MutableList<ModulePlay>, group: String): Boolean {
+            fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
                     moduleWindow?.let {

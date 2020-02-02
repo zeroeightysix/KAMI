@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.module.modules.movement;
 
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.CanBeSteeredEvent;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -17,8 +17,8 @@ import net.minecraft.world.chunk.EmptyChunk;
 /**
  * Created by 086 on 16/12/2017.
  */
-@ModulePlay.Info(name = "EntitySpeed", category = ModulePlay.Category.MOVEMENT, description = "Abuse client-sided movement to shape sound barrier breaking rideables")
-public class EntitySpeed extends ModulePlay {
+@Module.Info(name = "EntitySpeed", category = Module.Category.MOVEMENT, description = "Abuse client-sided movement to shape sound barrier breaking rideables")
+public class EntitySpeed extends Module {
 
     private Setting<Double> speed = register(Settings.d("Speed", 1d));
     private Setting<Boolean> antiStuck = register(Settings.b("AntiStuck"));

@@ -1,13 +1,13 @@
 package me.zeroeightsix.kami.module.modules.player;
 
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 
 /**
  * Created by 086 on 24/12/2017.
  */
-@ModulePlay.Info(name = "AutoJump", category = ModulePlay.Category.PLAYER, description = "Automatically jumps if possible")
-public class AutoJump extends ModulePlay {
+@Module.Info(name = "AutoJump", category = Module.Category.PLAYER, description = "Automatically jumps if possible")
+public class AutoJump extends Module {
 
     @Override
     public void onUpdate() {

@@ -6,8 +6,8 @@ import me.zeroeightsix.kami.event.KamiEvent;
 import me.zeroeightsix.kami.event.events.AddCollisionBoxToListEvent;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
-import me.zeroeightsix.kami.module.ModulePlay;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.FeatureManager;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.FluidBlock;
@@ -22,14 +22,14 @@ import net.minecraft.world.EmptyBlockView;
 /**
  * Created by 086 on 11/12/2017.
  */
-@ModulePlay.Info(name = "Jesus", description = "Allows you to walk on water", category = ModulePlay.Category.MOVEMENT)
-public class Jesus extends ModulePlay {
+@Module.Info(name = "Jesus", description = "Allows you to walk on water", category = Module.Category.MOVEMENT)
+public class Jesus extends Module {
 
     private static final Box WATER_WALK_AA = new Box(0.D, 0.D, 0.D, 1.D, 0.99D, 1.D);
 
     @Override
     public void onUpdate() {
-        if (!ModuleManager.isModuleEnabled("Freecam")) {
+        if (!FeatureManager.isModuleEnabled("Freecam")) {
             if (EntityUtil.isInWater(mc.player) && !mc.player.isSneaking()) {
                 EntityUtil.updateVelocityY(mc.player, 0.1);
                 if (mc.player.getVehicle() != null && !(mc.player.getVehicle() instanceof BoatEntity)) {

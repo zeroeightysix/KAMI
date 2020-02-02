@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.module.modules.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
@@ -12,8 +12,8 @@ import net.minecraft.item.ItemStack;
 /**
  * Created by 086 on 24/01/2018.
  */
-@ModulePlay.Info(name = "ArmourHUD", category = ModulePlay.Category.RENDER)
-public class ArmourHUD extends ModulePlay {
+@Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
+public class ArmourHUD extends Module {
 
     private static ItemRenderer itemRender = MinecraftClient.getInstance().getItemRenderer();
 

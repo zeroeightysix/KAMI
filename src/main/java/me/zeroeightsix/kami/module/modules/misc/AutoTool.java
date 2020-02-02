@@ -6,7 +6,7 @@ import me.zeroeightsix.kami.event.events.PlayerAttackBlockEvent;
 import me.zeroeightsix.kami.event.events.PlayerAttackEntityEvent;
 import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager;
 import me.zeroeightsix.kami.mixin.client.IMiningToolItem;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -18,8 +18,8 @@ import net.minecraft.item.SwordItem;
 /**
  * Created by 086 on 2/10/2018.
  */
-@ModulePlay.Info(name = "AutoTool", description = "Automatically switch to the best tools when mining or attacking", category = ModulePlay.Category.MISC)
-public class AutoTool extends ModulePlay {
+@Module.Info(name = "AutoTool", description = "Automatically switch to the best tools when mining or attacking", category = Module.Category.MISC)
+public class AutoTool extends Module {
 
     @EventHandler
     private Listener<PlayerAttackBlockEvent> leftClickListener = new Listener<>(event -> {

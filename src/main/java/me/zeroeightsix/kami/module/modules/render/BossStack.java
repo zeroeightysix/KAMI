@@ -1,14 +1,14 @@
 package me.zeroeightsix.kami.module.modules.render;
 
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 
 /**
  * Created by 086 on 25/01/2018.
  */
-@ModulePlay.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = ModulePlay.Category.MISC)
-public class BossStack extends ModulePlay {
+@Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
+public class BossStack extends Module {
 
     private Setting<BossStackMode> mode = register(Settings.e("Mode", BossStackMode.STACK));
     private Setting<Double> scale = Settings.d("Scale", .5d);

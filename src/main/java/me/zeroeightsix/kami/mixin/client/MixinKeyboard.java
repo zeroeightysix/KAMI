@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.FeatureManager;
 import net.minecraft.client.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,7 +12,7 @@ public class MixinKeyboard {
 
     @Inject(method = "onKey", at = @At(value = "RETURN", ordinal = 4), require = 1)
     public void onKey(long window, int key, int scancode, int i, int j, CallbackInfo info) {
-        ModuleManager.onBind(key, scancode, i);
+        FeatureManager.onBind(key, scancode, i);
     }
 
 }

@@ -4,7 +4,7 @@ import me.zeroeightsix.kami.setting.Setting
 import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.setting.builder.SettingBuilder
 
-open class Module(private val originalName: String = "No name", var description: String = "No description") {
+open class Feature(private val originalName: String = "No name", var description: String = "No description") {
 
     var enabled: Setting<Boolean> = register(
         Settings.booleanBuilder("Enabled").withVisibility { false }.withValue(false).build()

@@ -7,8 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import me.zeroeightsix.kami.module.ModulePlay;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.FeatureManager;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
 
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-public class ModuleArgumentType implements ArgumentType<ModulePlay> {
+public class ModuleArgumentType implements ArgumentType<Module> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("Aura", "CameraClip", "Flight");
     public static final DynamicCommandExceptionType INVALID_MODULE_EXCEPTION = new DynamicCommandExceptionType((object) -> {
@@ -28,9 +28,9 @@ public class ModuleArgumentType implements ArgumentType<ModulePlay> {
     }
 
     @Override
-    public ModulePlay parse(StringReader reader) throws CommandSyntaxException {
+    public Module parse(StringReader reader) throws CommandSyntaxException {
         String string = reader.readUnquotedString();
-        ModulePlay module = ModuleManager.getModuleByName(string);
+        Module module = FeatureManager.getModuleByName(string);
         if (module == null) {
             throw INVALID_MODULE_EXCEPTION.create(string);
         }
@@ -39,7 +39,7 @@ public class ModuleArgumentType implements ArgumentType<ModulePlay> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(ModuleManager.getModules().stream().map(m -> m.getName().getValue()), builder);
+        return CommandSource.suggestMatching(FeatureManager.getModules().stream().map(m -> m.getName().getValue()), builder);
     }
 
     @Override

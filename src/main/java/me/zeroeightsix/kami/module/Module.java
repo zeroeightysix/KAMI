@@ -20,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by 086 on 23/08/2017.
  * Updated by hub on 3 November 2019
  */
-public class ModulePlay extends Module {
+public class Module extends Feature {
 
     private final Category category = getAnnotation().category();
     private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter(), setting -> {
@@ -34,7 +34,7 @@ public class ModulePlay extends Module {
     public boolean alwaysListening;
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
-    public ModulePlay() {
+    public Module() {
         alwaysListening = getAnnotation().alwaysListening();
         registerAll(bind, getEnabled());
         getName().setValue(getAnnotation().name());
@@ -58,7 +58,7 @@ public class ModulePlay extends Module {
 
     public void setName(String name) {
         this.getName().setValue(name);
-        ModuleManager.updateLookup();
+        FeatureManager.updateLookup();
     }
 
     public enum Category {
@@ -91,7 +91,7 @@ public class ModulePlay extends Module {
     {
         String name();
         String description() default "Descriptionless";
-        ModulePlay.Category category();
+        Module.Category category();
         boolean alwaysListening() default false;
     }
 

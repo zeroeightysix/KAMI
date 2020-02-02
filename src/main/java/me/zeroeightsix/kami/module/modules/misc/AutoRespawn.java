@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.module.modules.misc;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Texts;
@@ -18,8 +18,8 @@ import java.util.Calendar;
  * Created by 086 on 9/04/2018.
  * Updated 16 November 2019 by hub
  */
-@ModulePlay.Info(name = "AutoRespawn", description = "Respawn utility", category = ModulePlay.Category.MISC)
-public class AutoRespawn extends ModulePlay {
+@Module.Info(name = "AutoRespawn", description = "Respawn utility", category = Module.Category.MISC)
+public class AutoRespawn extends Module {
 
     private Setting<Boolean> respawn = register(Settings.b("Respawn", true));
     private Setting<Boolean> deathCoords = register(Settings.b("DeathCoords", false));

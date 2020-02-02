@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -17,8 +17,8 @@ import net.minecraft.util.math.Vec3d;
 /**
  * Created by 086 on 22/12/2017.
  */
-@ModulePlay.Info(name = "Freecam", category = ModulePlay.Category.PLAYER, description = "Leave your body and trascend into the realm of the gods")
-public class Freecam extends ModulePlay {
+@Module.Info(name = "Freecam", category = Module.Category.PLAYER, description = "Leave your body and trascend into the realm of the gods")
+public class Freecam extends Module {
 
     private Setting<Integer> speed = register(Settings.i("Speed", 5)); // /100 in practice
 

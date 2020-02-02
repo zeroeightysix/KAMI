@@ -7,7 +7,7 @@ import com.mojang.brigadier.context.CommandContext
 import me.zeroeightsix.kami.command.Command
 import me.zeroeightsix.kami.command.KamiCommandSource
 import me.zeroeightsix.kami.command.ModuleArgumentType
-import me.zeroeightsix.kami.module.ModulePlay
+import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Formatting
@@ -20,7 +20,7 @@ object ToggleCommand : Command() {
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("toggle")
                 .then(
-                    RequiredArgumentBuilder.argument<CommandSource, ModulePlay>(
+                    RequiredArgumentBuilder.argument<CommandSource, Module>(
                         "module",
                         ModuleArgumentType.module()
                     )
@@ -28,7 +28,7 @@ object ToggleCommand : Command() {
                             val m =
                                 context.getArgument(
                                     "module",
-                                    ModulePlay::class.java
+                                    Module::class.java
                                 )
                             m.toggle()
                             (context.source as KamiCommandSource).sendFeedback(

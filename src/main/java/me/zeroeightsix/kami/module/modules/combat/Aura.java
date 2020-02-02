@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
-import me.zeroeightsix.kami.module.ModulePlay;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.FeatureManager;
 import me.zeroeightsix.kami.module.modules.misc.AutoTool;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -24,8 +24,8 @@ import net.minecraft.world.RayTraceContext;
  * Created by 086 on 12/12/2017.
  * Updated by hub on 31 October 2019
  */
-@ModulePlay.Info(name = "Aura", category = ModulePlay.Category.COMBAT, description = "Hits entities around you")
-public class Aura extends ModulePlay {
+@Module.Info(name = "Aura", category = Module.Category.COMBAT, description = "Hits entities around you")
+public class Aura extends Module {
 
     private Setting<Boolean> attackPlayers = register(Settings.b("Players", true));
     private Setting<Boolean> attackMobs = register(Settings.b("Mobs", false));
@@ -94,7 +94,7 @@ public class Aura extends ModulePlay {
                     // We want to skip this if switchTo32k.getValue() is true,
                     // because it only accounts for tools and weapons.
                     // Maybe someone could refactor this later? :3
-                    if (!switchTo32k.getValue() && ModuleManager.isModuleEnabled("AutoTool")) {
+                    if (!switchTo32k.getValue() && FeatureManager.isModuleEnabled("AutoTool")) {
                         AutoTool.equipBestWeapon();
                     }
                     attack(target);

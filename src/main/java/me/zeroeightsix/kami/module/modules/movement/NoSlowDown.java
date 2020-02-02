@@ -4,14 +4,14 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.EntityBlockCollisionEvent;
 import me.zeroeightsix.kami.event.events.InputUpdateEvent;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import net.minecraft.block.SoulSandBlock;
 
 /**
  * Created by 086 on 15/12/2017.
  */
-@ModulePlay.Info(name = "NoSlowDown", category = ModulePlay.Category.MOVEMENT)
-public class NoSlowDown extends ModulePlay {
+@Module.Info(name = "NoSlowDown", category = Module.Category.MOVEMENT)
+public class NoSlowDown extends Module {
 
     @EventHandler
     private Listener<InputUpdateEvent> eventListener = new Listener<>(event -> {

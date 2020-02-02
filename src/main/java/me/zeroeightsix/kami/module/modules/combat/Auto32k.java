@@ -2,8 +2,8 @@ package me.zeroeightsix.kami.module.modules.combat;
 
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.ModulePlay;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.FeatureManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
@@ -39,8 +39,8 @@ import static me.zeroeightsix.kami.module.modules.player.Scaffold.faceVectorPack
  * Created by hub on 7 August 2019
  * Updated by hub on 31 October 2019
  */
-@ModulePlay.Info(name = "Auto32k", category = ModulePlay.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
-public class Auto32k extends ModulePlay {
+@Module.Info(name = "Auto32k", category = Module.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
+public class Auto32k extends Module {
 
     private static final List<Block> blackList = Arrays.asList(
             Blocks.ENDER_CHEST,
@@ -76,7 +76,7 @@ public class Auto32k extends ModulePlay {
     @Override
     public void onEnable() {
 
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
             this.disable();
             return;
         }
@@ -130,7 +130,7 @@ public class Auto32k extends ModulePlay {
 
         int range = (int) Math.ceil(placeRange.getValue());
 
-        CrystalAura crystalAura = (CrystalAura) ModuleManager.getModuleByName("CrystalAura");
+        CrystalAura crystalAura = (CrystalAura) FeatureManager.getModuleByName("CrystalAura");
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
         List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
 
@@ -254,7 +254,7 @@ public class Auto32k extends ModulePlay {
     @Override
     public void onUpdate() {
 
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
             return;
         }
 
@@ -287,7 +287,7 @@ public class Auto32k extends ModulePlay {
             // method_2906: click window
             mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura.getValue()) {
-                ModuleManager.getModuleByName("Aura").enable();
+                FeatureManager.getModuleByName("Aura").enable();
             }
             this.disable();
         }

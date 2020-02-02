@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.module.modules.render;
 
 import me.zeroeightsix.kami.event.events.RenderEvent;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.util.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.hit.BlockHitResult;
@@ -15,8 +15,8 @@ import java.util.stream.StreamSupport;
 /**
  * Created by 086 on 28/12/2017.
  */
-@ModulePlay.Info(name = "Trajectories", category = ModulePlay.Category.RENDER)
-public class Trajectories extends ModulePlay {
+@Module.Info(name = "Trajectories", category = Module.Category.RENDER)
+public class Trajectories extends Module {
     ArrayList<Vec3d> positions = new ArrayList<>();
     HueCycler cycler = new HueCycler(100);
     

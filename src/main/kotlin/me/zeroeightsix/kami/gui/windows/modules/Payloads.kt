@@ -1,11 +1,11 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import me.zeroeightsix.kami.module.ModulePlay
+import me.zeroeightsix.kami.module.Module
 
-internal data class ModulePayload(val modules: MutableSet<ModulePlay>, val source: Modules.ModuleWindow, val groupName: String? = null) {
+internal data class ModulePayload(val modules: MutableSet<Module>, val source: Modules.ModuleWindow, val groupName: String? = null) {
     fun moveTo(target: Modules.ModuleWindow, targetGroup: String) {
         // Start by removing the module(s) from the payload's source
-        val newSourceGroups = mutableMapOf<String, MutableList<ModulePlay>>()
+        val newSourceGroups = mutableMapOf<String, MutableList<Module>>()
         for ((group, list) in source.groups) {
             val newList = list.filter { !this.modules.contains(it) }.toMutableList()
             if (newList.isNotEmpty()) {

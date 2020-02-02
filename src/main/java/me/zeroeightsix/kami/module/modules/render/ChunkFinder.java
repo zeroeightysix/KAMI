@@ -1,12 +1,12 @@
 package me.zeroeightsix.kami.module.modules.render;
 
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 
 /**
  * @author 086 and IronException
  */
-@ModulePlay.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = ModulePlay.Category.RENDER)
-public class ChunkFinder extends ModulePlay {
+@Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
+public class ChunkFinder extends Module {
 
     /*private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
     private Setting<Boolean> relative = register(Settings.b("Relative", true));

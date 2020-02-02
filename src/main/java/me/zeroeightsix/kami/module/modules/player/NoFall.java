@@ -1,12 +1,12 @@
 package me.zeroeightsix.kami.module.modules.player;
 
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 
 /**
  * Created by 086 on 19/11/2017.
  */
-@ModulePlay.Info(category = ModulePlay.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
-public class NoFall extends ModulePlay {
+@Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
+public class NoFall extends Module {
 
     /*private Setting<Boolean> packet = register(Settings.b("Packet", false));
     private Setting<Boolean> bucket = register(Settings.b("Bucket", true));

@@ -26,7 +26,7 @@ import java.util.function.Consumer
 /**
  * Created by 086 on 23/08/2017.
  */
-object ModuleManager {
+object FeatureManager {
     @EventHandler
     var clientTickListener =
         Listener(EventHook<TickEvent.Client> {
@@ -57,11 +57,11 @@ object ModuleManager {
     }
 
     @JvmStatic
-    var modules = ArrayList<ModulePlay>()
+    var modules = ArrayList<Module>()
     /**
      * Lookup map for getting by name
      */
-    var lookup = HashMap<String, ModulePlay>()
+    var lookup = HashMap<String, Module>()
 
     @JvmStatic
     fun updateLookup() {
@@ -71,14 +71,14 @@ object ModuleManager {
 
     fun onUpdate() {
         modules.stream()
-            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-            .forEach { module: ModulePlay -> module.onUpdate() }
+            .filter { module: Module -> module.alwaysListening || module.isEnabled }
+            .forEach { module: Module -> module.onUpdate() }
     }
 
     fun onRender() {
         modules.stream()
-            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-            .forEach { module: ModulePlay -> module.onRender() }
+            .filter { module: Module -> module.alwaysListening || module.isEnabled }
+            .forEach { module: Module -> module.onRender() }
     }
 
     fun onWorldRender(event: RenderEvent.World) {
@@ -100,8 +100,8 @@ object ModuleManager {
             EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.partialTicks)
         MinecraftClient.getInstance().profiler.pop()
         modules.stream()
-            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-            .forEach { module: ModulePlay ->
+            .filter { module: Module -> module.alwaysListening || module.isEnabled }
+            .forEach { module: Module ->
                 MinecraftClient.getInstance().profiler.push(module.name.value)
                 module.onWorldRender(event)
                 MinecraftClient.getInstance().profiler.pop()
@@ -132,7 +132,7 @@ object ModuleManager {
             }
             Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
         }
-        modules.forEach(Consumer { module: ModulePlay ->
+        modules.forEach(Consumer { module: Module ->
             val bind = module.bind
             if ((bind.binding as IKeyBinding).keyCode == code) {
                 (bind.binding as IKeyBinding).setPressed(pressed)
@@ -144,7 +144,7 @@ object ModuleManager {
     }
 
     @JvmStatic
-    fun getModuleByName(name: String): ModulePlay? {
+    fun getModuleByName(name: String): Module? {
         return lookup[name.toLowerCase()]
         //        return getModules().stream().filter(module -> module.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
@@ -158,11 +158,11 @@ object ModuleManager {
 
 private fun initPlay() {
     ClassFinder.findClasses(
-        ClickGUI::class.java.getPackage().name, ModulePlay::class.java
+        ClickGUI::class.java.getPackage().name, Module::class.java
     ).forEach {
         try {
-            val module = it.getConstructor().newInstance() as ModulePlay
-            ModuleManager.modules.add(module)
+            val module = it.getConstructor().newInstance() as Module
+            FeatureManager.modules.add(module)
             // lookup.put(module.getName().toLowerCase(), module);
         } catch (e: InvocationTargetException) {
             e.cause!!.printStackTrace()
@@ -174,5 +174,5 @@ private fun initPlay() {
     }
 
     KamiMod.log.info("Modules initialised")
-    ModuleManager.modules.sortWith(Comparator.comparing { m: ModulePlay -> m.name.value })
+    FeatureManager.modules.sortWith(Comparator.comparing { m: Module -> m.name.value })
 }

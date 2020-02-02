@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.module.modules.player;
 
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.util.math.MathHelper;
@@ -8,8 +8,8 @@ import net.minecraft.util.math.MathHelper;
 /**
  * Created by 086 on 16/12/2017.
  */
-@ModulePlay.Info(name = "PitchLock", category = ModulePlay.Category.PLAYER)
-public class PitchLock extends ModulePlay {
+@Module.Info(name = "PitchLock", category = Module.Category.PLAYER)
+public class PitchLock extends Module {
     private Setting<Boolean> auto = register(Settings.b("Auto", true));
     private Setting<Float> pitch = register(Settings.f("Pitch", 180));
     private Setting<Integer> slice = register(Settings.i("Slice", 8));

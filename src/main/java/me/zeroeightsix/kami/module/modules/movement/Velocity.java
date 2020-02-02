@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.MoveEntityFluidEvent;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.mixin.client.IEntityVelocityUpdateS2CPacket;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.network.packet.EntityVelocityUpdateS2CPacket;
@@ -17,8 +17,8 @@ import net.minecraft.client.network.packet.ExplosionS2CPacket;
 /**
  * Created by 086 on 16/11/2017.
  */
-@ModulePlay.Info(name = "Velocity", description = "Modify knockback impact", category = ModulePlay.Category.MOVEMENT)
-public class Velocity extends ModulePlay {
+@Module.Info(name = "Velocity", description = "Modify knockback impact", category = Module.Category.MOVEMENT)
+public class Velocity extends Module {
 
     private Setting<Float> horizontal = register(Settings.f("Horizontal", 0));
     private Setting<Float> vertical = register(Settings.f("Vertical", 0));

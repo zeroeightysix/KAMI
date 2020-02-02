@@ -1,13 +1,13 @@
 package me.zeroeightsix.kami.module.modules.player;
 
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.ModulePlay;
+import me.zeroeightsix.kami.module.Module;
 
 /**
  * @author 086
  */
-@ModulePlay.Info(name = "Fastplace", category = ModulePlay.Category.PLAYER, description = "Nullifies block place delay")
-public class Fastplace extends ModulePlay {
+@Module.Info(name = "Fastplace", category = Module.Category.PLAYER, description = "Nullifies block place delay")
+public class Fastplace extends Module {
 
     @Override
     public void onUpdate() {
