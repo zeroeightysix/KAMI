@@ -26,7 +26,7 @@ import java.util.function.Consumer
 /**
  * Created by 086 on 23/08/2017.
  */
-class ModuleManager {
+object ModuleManager {
     @EventHandler
     var clientTickListener =
         Listener(EventHook<TickEvent.Client> {
@@ -44,7 +44,7 @@ class ModuleManager {
     @EventHandler
     var renderHudEventListener =
         Listener(
-            EventHook<RenderHudEvent> { event: RenderHudEvent? ->
+            EventHook<RenderHudEvent> {
                 onRender()
                 if (MinecraftClient.getInstance().currentScreen !is KamiGuiScreen) {
                     renderHud()
@@ -52,128 +52,127 @@ class ModuleManager {
             }
         )
 
-    companion object {
-        @JvmStatic
-        var modules = ArrayList<ModulePlay>()
-        /**
-         * Lookup map for getting by name
-         */
-        var lookup = HashMap<String, ModulePlay>()
+    fun initialize() {
+        initPlay()
+    }
 
-        @JvmStatic
-        fun updateLookup() {
-            lookup.clear()
-            for (m in modules) lookup[m.name.value.toLowerCase()] = m
-        }
+    @JvmStatic
+    var modules = ArrayList<ModulePlay>()
+    /**
+     * Lookup map for getting by name
+     */
+    var lookup = HashMap<String, ModulePlay>()
 
-        @JvmStatic
-        fun initialize(): ModuleManager {
-            val classList =
-                ClassFinder.findClasses(
-                    ClickGUI::class.java.getPackage().name, ModulePlay::class.java
-                )
-            classList.forEach(Consumer { aClass: Class<*> ->
-                try {
-                    val module = aClass.getConstructor().newInstance() as ModulePlay
-                    modules.add(module)
-                    // lookup.put(module.getName().toLowerCase(), module);
-                } catch (e: InvocationTargetException) {
-                    e.cause!!.printStackTrace()
-                    System.err.println("Couldn't initiate module " + aClass.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    System.err.println("Couldn't initiate module " + aClass.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
-                }
-            })
-            KamiMod.log.info("Modules initialised")
-            modules.sortWith(Comparator.comparing { m: ModulePlay -> m.name.value })
-            return ModuleManager()
-        }
+    @JvmStatic
+    fun updateLookup() {
+        lookup.clear()
+        for (m in modules) lookup[m.name.value.toLowerCase()] = m
+    }
 
-        fun onUpdate() {
-            modules.stream()
-                .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-                .forEach { module: ModulePlay -> module.onUpdate() }
-        }
+    fun onUpdate() {
+        modules.stream()
+            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
+            .forEach { module: ModulePlay -> module.onUpdate() }
+    }
 
-        fun onRender() {
-            modules.stream()
-                .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-                .forEach { module: ModulePlay -> module.onRender() }
-        }
+    fun onRender() {
+        modules.stream()
+            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
+            .forEach { module: ModulePlay -> module.onRender() }
+    }
 
-        fun onWorldRender(event: RenderEvent.World) {
-            MinecraftClient.getInstance().profiler.push("kami")
-            MinecraftClient.getInstance().profiler.push("setup")
-            GlStateManager.disableTexture()
-            GlStateManager.enableBlend()
-            GlStateManager.disableAlphaTest()
-            GlStateManager.blendFuncSeparate(
-                GL11.GL_SRC_ALPHA,
-                GL11.GL_ONE_MINUS_SRC_ALPHA,
-                1,
-                0
-            )
-            GlStateManager.shadeModel(GL11.GL_SMOOTH)
-            GlStateManager.disableDepthTest()
-            GlStateManager.lineWidth(1f)
-            val renderPos =
-                EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.partialTicks)
-            MinecraftClient.getInstance().profiler.pop()
-            modules.stream()
-                .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
-                .forEach { module: ModulePlay ->
-                    MinecraftClient.getInstance().profiler.push(module.name.value)
-                    module.onWorldRender(event)
-                    MinecraftClient.getInstance().profiler.pop()
-                }
-            MinecraftClient.getInstance().profiler.push("release")
-            GlStateManager.lineWidth(1f)
-            GlStateManager.shadeModel(GL11.GL_FLAT)
-            GlStateManager.disableBlend()
-            GlStateManager.enableAlphaTest()
-            GlStateManager.enableTexture()
-            GlStateManager.enableDepthTest()
-            GlStateManager.enableCull()
-            KamiTessellator.releaseGL()
-            MinecraftClient.getInstance().profiler.pop()
-            MinecraftClient.getInstance().profiler.pop()
-        }
-
-        @JvmStatic
-        fun onBind(key: Int, scancode: Int, i: Int) {
-            val pressed = i != 0
-            val code = InputUtil.getKeyCode(key, scancode)
-            if (Wrapper.getMinecraft().currentScreen != null) {
-                return
+    fun onWorldRender(event: RenderEvent.World) {
+        MinecraftClient.getInstance().profiler.push("kami")
+        MinecraftClient.getInstance().profiler.push("setup")
+        GlStateManager.disableTexture()
+        GlStateManager.enableBlend()
+        GlStateManager.disableAlphaTest()
+        GlStateManager.blendFuncSeparate(
+            GL11.GL_SRC_ALPHA,
+            GL11.GL_ONE_MINUS_SRC_ALPHA,
+            1,
+            0
+        )
+        GlStateManager.shadeModel(GL11.GL_SMOOTH)
+        GlStateManager.disableDepthTest()
+        GlStateManager.lineWidth(1f)
+        val renderPos =
+            EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.partialTicks)
+        MinecraftClient.getInstance().profiler.pop()
+        modules.stream()
+            .filter { module: ModulePlay -> module.alwaysListening || module.isEnabled }
+            .forEach { module: ModulePlay ->
+                MinecraftClient.getInstance().profiler.push(module.name.value)
+                module.onWorldRender(event)
+                MinecraftClient.getInstance().profiler.pop()
             }
-            if (key == 89 && scancode == 29) {
-                if (KamiMod.getInstance().kamiGuiScreen == null) {
-                    KamiMod.getInstance().kamiGuiScreen = KamiGuiScreen()
-                }
-                Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
+        MinecraftClient.getInstance().profiler.push("release")
+        GlStateManager.lineWidth(1f)
+        GlStateManager.shadeModel(GL11.GL_FLAT)
+        GlStateManager.disableBlend()
+        GlStateManager.enableAlphaTest()
+        GlStateManager.enableTexture()
+        GlStateManager.enableDepthTest()
+        GlStateManager.enableCull()
+        KamiTessellator.releaseGL()
+        MinecraftClient.getInstance().profiler.pop()
+        MinecraftClient.getInstance().profiler.pop()
+    }
+
+    @JvmStatic
+    fun onBind(key: Int, scancode: Int, i: Int) {
+        val pressed = i != 0
+        val code = InputUtil.getKeyCode(key, scancode)
+        if (Wrapper.getMinecraft().currentScreen != null) {
+            return
+        }
+        if (key == 89 && scancode == 29) {
+            if (KamiMod.getInstance().kamiGuiScreen == null) {
+                KamiMod.getInstance().kamiGuiScreen = KamiGuiScreen()
             }
-            modules.forEach(Consumer { module: ModulePlay ->
-                val bind = module.bind
-                if ((bind.binding as IKeyBinding).keyCode == code) {
-                    (bind.binding as IKeyBinding).setPressed(pressed)
-                }
-                if (module.bind.isDown) {
-                    module.toggle()
-                }
-            })
+            Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
         }
+        modules.forEach(Consumer { module: ModulePlay ->
+            val bind = module.bind
+            if ((bind.binding as IKeyBinding).keyCode == code) {
+                (bind.binding as IKeyBinding).setPressed(pressed)
+            }
+            if (module.bind.isDown) {
+                module.toggle()
+            }
+        })
+    }
 
-        @JvmStatic
-        fun getModuleByName(name: String): ModulePlay? {
-            return lookup[name.toLowerCase()]
-            //        return getModules().stream().filter(module -> module.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-        }
+    @JvmStatic
+    fun getModuleByName(name: String): ModulePlay? {
+        return lookup[name.toLowerCase()]
+        //        return getModules().stream().filter(module -> module.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
 
-        @JvmStatic
-        fun isModuleEnabled(moduleName: String): Boolean {
-            val m = getModuleByName(moduleName) ?: return false
-            return m.isEnabled
+    @JvmStatic
+    fun isModuleEnabled(moduleName: String): Boolean {
+        val m = getModuleByName(moduleName) ?: return false
+        return m.isEnabled
+    }
+}
+
+private fun initPlay() {
+    ClassFinder.findClasses(
+        ClickGUI::class.java.getPackage().name, ModulePlay::class.java
+    ).forEach {
+        try {
+            val module = it.getConstructor().newInstance() as ModulePlay
+            ModuleManager.modules.add(module)
+            // lookup.put(module.getName().toLowerCase(), module);
+        } catch (e: InvocationTargetException) {
+            e.cause!!.printStackTrace()
+            System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
         }
     }
+
+    KamiMod.log.info("Modules initialised")
+    ModuleManager.modules.sortWith(Comparator.comparing { m: ModulePlay -> m.name.value })
 }

@@ -77,7 +77,8 @@ public class KamiMod implements ModInitializer {
 
         KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
 
-        ModuleManager manager = ModuleManager.initialize();
+        ModuleManager manager = ModuleManager.INSTANCE;
+        manager.initialize();
         EVENT_BUS.subscribe(manager);
 
         ModuleManager.getModules().stream().filter(module -> module.alwaysListening).forEach(EVENT_BUS::subscribe);
