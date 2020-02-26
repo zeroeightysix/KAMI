@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -14,8 +17,8 @@ public class PitchLock extends Module {
     private Setting<Float> pitch = register(Settings.f("Pitch", 180));
     private Setting<Integer> slice = register(Settings.i("Slice", 8));
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (slice.getValue() == 0) return;
         if (auto.getValue()) {
             int angle = 360 / slice.getValue();
@@ -26,5 +29,6 @@ public class PitchLock extends Module {
         } else {
             mc.player.pitch = MathHelper.clamp(pitch.getValue() - 180, -180, 180);
         }
-    }
+    });
+
 }

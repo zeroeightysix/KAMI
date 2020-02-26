@@ -1,7 +1,10 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
-import me.zeroeightsix.kami.module.Module;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.modules.misc.AutoTool;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -39,8 +42,8 @@ public class Aura extends Module {
 
     private int waitCounter;
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (!mc.player.isAlive()) {
             return;
         }
@@ -102,8 +105,7 @@ public class Aura extends Module {
                 }
             }
         }
-
-    }
+    });
 
     private boolean checkSharpness(ItemStack stack) {
         CompoundTag tag = stack.getTag();

@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.FeatureManager;
@@ -39,8 +42,8 @@ public class Scaffold extends Module {
         return false;
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future.getValue());
         BlockPos blockPos = new BlockPos(vec3d).down();
@@ -106,7 +109,7 @@ public class Scaffold extends Module {
 
         // reset slot
         Wrapper.getPlayer().inventory.selectedSlot = oldSlot;
-    }
+    });
 
     public static boolean placeBlockScaffold(BlockPos pos) {
         Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().x,

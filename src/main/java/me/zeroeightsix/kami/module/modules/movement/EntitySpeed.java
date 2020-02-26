@@ -1,7 +1,9 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
+import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.CanBeSteeredEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -30,8 +32,8 @@ public class EntitySpeed extends Module {
         register(opacity);
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if ((mc.world != null) && (mc.player.getVehicle() != null)) {
             Entity riding = mc.player.getVehicle();
             if (riding instanceof PigEntity || riding instanceof HorseBaseEntity) {
@@ -40,7 +42,7 @@ public class EntitySpeed extends Module {
                 steerBoat(getBoat());
             }
         }
-    }
+    });
 
     private void steerEntity(Entity entity) {
         if (!flight.getValue()) {

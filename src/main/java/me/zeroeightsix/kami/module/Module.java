@@ -47,7 +47,6 @@ public class Module extends ListeningFeature {
         throw new IllegalStateException("No Annotation on class " + this.getClass().getCanonicalName() + "!");
     }
 
-    public void onUpdate() {}
     public void onRender() {}
     public void onWorldRender(RenderEvent event) {}
 

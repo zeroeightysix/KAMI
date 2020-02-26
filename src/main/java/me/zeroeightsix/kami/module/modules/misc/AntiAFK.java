@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.misc;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -19,8 +22,8 @@ public class AntiAFK extends Module {
 
     private Random random = new Random();
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (mc.interactionManager.isBreakingBlock()) return;
 
         if (mc.player.age % 40 == 0 && swing.getValue())
@@ -31,5 +34,6 @@ public class AntiAFK extends Module {
         if (!(swing.getValue() || turn.getValue()) && mc.player.age % 80 == 0) {
             mc.player.jump();
         }
-    }
+    });
+
 }

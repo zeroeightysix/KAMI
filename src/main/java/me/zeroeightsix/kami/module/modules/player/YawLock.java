@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -14,8 +17,8 @@ public class YawLock extends Module {
     private Setting<Float> yaw = register(Settings.f("Yaw", 180));
     private Setting<Integer> slice = register(Settings.i("Slice", 8));
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (slice.getValue() == 0) return;
         if (auto.getValue()) {
             int angle = 360 / slice.getValue();
@@ -26,5 +29,5 @@ public class YawLock extends Module {
         } else {
             mc.player.yaw = MathHelper.clamp(yaw.getValue() - 180, -180, 180);
         }
-    }
+    });
 }

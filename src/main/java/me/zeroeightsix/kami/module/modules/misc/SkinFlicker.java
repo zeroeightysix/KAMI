@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.misc;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -37,8 +40,8 @@ public class SkinFlicker extends Module {
     private Random r = new Random();
     private int len = PlayerModelPart.values().length;
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         switch (mode.getValue()) {
             case RANDOM:
                 if (mc.player.age % slowness.getValue() != 0) return;
@@ -54,7 +57,7 @@ public class SkinFlicker extends Module {
                 }
                 mc.options.setPlayerModelPart(mode.getValue() == FlickerMode.VERTICAL ? PARTS_VERTICAL[i] : PARTS_HORIZONTAL[i], on);
         }
-    }
+    });
 
     public static enum FlickerMode {
         HORIZONTAL, VERTICAL, RANDOM

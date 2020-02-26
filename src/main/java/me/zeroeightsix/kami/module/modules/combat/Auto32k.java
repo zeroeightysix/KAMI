@@ -1,9 +1,12 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
@@ -251,9 +254,8 @@ public class Auto32k extends Module {
 
     }
 
-    @Override
-    public void onUpdate() {
-
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
             return;
         }
@@ -291,8 +293,7 @@ public class Auto32k extends Module {
             }
             this.disable();
         }
-
-    }
+    });
 
     private boolean isAreaPlaceable(BlockPos blockPos) {
         for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
