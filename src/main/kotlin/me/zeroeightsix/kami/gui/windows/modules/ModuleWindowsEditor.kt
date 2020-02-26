@@ -63,10 +63,10 @@ object ModuleWindowsEditor {
                 val windows = Modules.windows
                 columns(windows.size + 1)
                 for (window in windows) {
-                    val buf = window.title.toCharArray(CharArray(128))
+                    val buf = window.title
                     setNextItemWidth(-1f)
                     if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
-                        window.title = buf.backToString()
+                        window.title = buf
                     }
                     nextColumn()
                 }
@@ -119,10 +119,9 @@ object ModuleWindowsEditor {
                                 }
                                 popupContextItem("popup-${group.hashCode()}") {
                                     menuItem("Rename") {
-                                        val name = group.key.toCharArray(CharArray(128))
+                                        val name = group.key
                                         modalPopup = {
                                             fun rename() {
-                                                val name = name.backToString()
                                                 val mutable = window.groups.toMutableMap()
                                                 mutable.remove(group.key)
                                                 mutable[name] = group.value
