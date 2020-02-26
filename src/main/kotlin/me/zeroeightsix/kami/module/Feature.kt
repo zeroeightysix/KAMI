@@ -7,7 +7,12 @@ import me.zeroeightsix.kami.setting.builder.SettingBuilder
 open class Feature(private val originalName: String = "No name", var description: String = "No description") {
 
     var enabled: Setting<Boolean> = register(
-        Settings.booleanBuilder("Enabled").withVisibility { false }.withValue(false).build()
+        Settings.booleanBuilder("Enabled").withVisibility { false }.withValue(false).withConsumer { old, new ->
+            if (old != new) {
+                if (new) onEnable()
+                else onDisable()
+            }
+        }.build()
     )
     var settingList = mutableListOf<Setting<*>>()
     val name = register(
@@ -20,24 +25,22 @@ open class Feature(private val originalName: String = "No name", var description
      * @return Whether or not the module was enabled
      */
     open fun enable(): Boolean {
-        if (!enabled) {
-            enabled.value = true
-            onEnable()
-            return true
-        }
-        return false
+        if (enabled.value) return false
+        enabled.value = true
+        return true
     }
 
     /**
      * @return Whether or not the module was disabled
      */
     open fun disable(): Boolean {
-        if (enabled.value) {
-            enabled.value = false
-            onDisable()
-            return true
-        }
-        return false
+        if (!enabled) return false
+        enabled.value = false
+        return true
+    }
+
+    open fun toggle() {
+        enabled.value = !enabled
     }
 
     open fun onEnable() {}
@@ -47,6 +50,14 @@ open class Feature(private val originalName: String = "No name", var description
         if (settingList == null) settingList = mutableListOf()
         settingList.add(setting)
         return SettingBuilder.register<T>(setting, "modules.$originalName")
+    }
+
+    fun isDisabled(): Boolean {
+        return !enabled
+    }
+
+    fun isEnabled(): Boolean {
+        return enabled.value
     }
 
 }

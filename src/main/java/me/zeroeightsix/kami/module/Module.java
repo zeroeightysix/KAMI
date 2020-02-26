@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import glm_.vec2.Vec2;
 import imgui.ImGui;
-import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -20,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by 086 on 23/08/2017.
  * Updated by hub on 3 November 2019
  */
-public class Module extends Feature {
+public class Module extends ListeningFeature {
 
     private final Category category = getAnnotation().category();
     private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter(), setting -> {
@@ -31,12 +30,12 @@ public class Module extends Feature {
             // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
         }
     }).build());
-    public boolean alwaysListening;
+
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public Module() {
-        alwaysListening = getAnnotation().alwaysListening();
         registerAll(bind, getEnabled());
+        setAlwaysListening(getAnnotation().alwaysListening());
         getName().setValue(getAnnotation().name());
         setDescription(getAnnotation().description());
     }
@@ -99,38 +98,6 @@ public class Module extends Feature {
         return category;
     }
 
-    public boolean isEnabled() {
-        return getEnabled().getValue();
-    }
-
-    public void toggle() {
-        setEnabled(!isEnabled());
-    }
-
-    @Override
-    public boolean enable() {
-        if (super.enable()) {
-            if (!alwaysListening)
-                KamiMod.EVENT_BUS.subscribe(this);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean disable() {
-        if (super.disable()) {
-            if (!alwaysListening)
-                KamiMod.EVENT_BUS.unsubscribe(this);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isDisabled() {
-        return !isEnabled();
-    }
-
     public void setEnabled(boolean enabled) {
         boolean prev = this.getEnabled().getValue();
         if (prev != enabled)
@@ -142,12 +109,6 @@ public class Module extends Feature {
 
     public String getHudInfo() {
         return null;
-    }
-
-    protected final void setAlwaysListening(boolean alwaysListening) {
-        this.alwaysListening = alwaysListening;
-        if (alwaysListening) KamiMod.EVENT_BUS.subscribe(this);
-        if (!alwaysListening && isDisabled()) KamiMod.EVENT_BUS.unsubscribe(this);
     }
 
     protected void registerAll(Setting... settings) {
@@ -163,8 +124,6 @@ public class Module extends Feature {
             array.add(bind.isAlt());
             array.add(bind.isCtrl());
             array.add(bind.isShift());
-//            array.add(bind.getKey());
-//            array.add(bind.getScancode());
             //TODO
             return array;
         }

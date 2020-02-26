@@ -20,13 +20,21 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 import org.lwjgl.opengl.GL11
 import java.lang.reflect.InvocationTargetException
-import java.util.*
-import java.util.function.Consumer
 
 /**
  * Created by 086 on 23/08/2017.
  */
 object FeatureManager {
+
+    val features = mutableListOf<Feature>()
+    // Because we also handle module-only events (deprecated), we pre-sort them.
+    @Deprecated("Use events instead.")
+    val modules = mutableListOf<Module>()
+    /**
+     * Lookup map for getting by name
+     */
+    var lookup = mutableMapOf<String, Feature>()
+    
     @EventHandler
     var clientTickListener =
         Listener(EventHook<TickEvent.Client> {
@@ -41,6 +49,7 @@ object FeatureManager {
                 KamiTessellator.releaseGL()
             }
         )
+
     @EventHandler
     var renderHudEventListener =
         Listener(
@@ -57,30 +66,26 @@ object FeatureManager {
     }
 
     @JvmStatic
-    var modules = ArrayList<Module>()
-    /**
-     * Lookup map for getting by name
-     */
-    var lookup = HashMap<String, Module>()
-
-    @JvmStatic
     fun updateLookup() {
         lookup.clear()
-        for (m in modules) lookup[m.name.value.toLowerCase()] = m
+        for (m in features) lookup[m.name.value.toLowerCase()] = m
     }
 
+    @Deprecated(message = "Use event listeners instead.")
     fun onUpdate() {
         modules.stream()
-            .filter { module: Module -> module.alwaysListening || module.isEnabled }
-            .forEach { module: Module -> module.onUpdate() }
+            .filter { it.alwaysListening || it.isEnabled() }
+            .forEach { it.onUpdate() }
     }
 
+    @Deprecated(message = "Use event listeners instead.")
     fun onRender() {
         modules.stream()
-            .filter { module: Module -> module.alwaysListening || module.isEnabled }
-            .forEach { module: Module -> module.onRender() }
+            .filter { it.alwaysListening || it.isEnabled() }
+            .forEach { it.onRender() }
     }
 
+    @Deprecated(message = "Use event listeners instead.")
     fun onWorldRender(event: RenderEvent.World) {
         MinecraftClient.getInstance().profiler.push("kami")
         MinecraftClient.getInstance().profiler.push("setup")
@@ -100,10 +105,10 @@ object FeatureManager {
             EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.partialTicks)
         MinecraftClient.getInstance().profiler.pop()
         modules.stream()
-            .filter { module: Module -> module.alwaysListening || module.isEnabled }
-            .forEach { module: Module ->
-                MinecraftClient.getInstance().profiler.push(module.name.value)
-                module.onWorldRender(event)
+            .filter { it.alwaysListening || it.isEnabled() }
+            .forEach {
+                MinecraftClient.getInstance().profiler.push(it.name.value)
+                it.onWorldRender(event)
                 MinecraftClient.getInstance().profiler.pop()
             }
         MinecraftClient.getInstance().profiler.push("release")
@@ -132,47 +137,55 @@ object FeatureManager {
             }
             Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
         }
-        modules.forEach(Consumer { module: Module ->
-            val bind = module.bind
+        modules.stream().forEach {
+            val bind = it.bind
             if ((bind.binding as IKeyBinding).keyCode == code) {
                 (bind.binding as IKeyBinding).setPressed(pressed)
             }
-            if (module.bind.isDown) {
-                module.toggle()
+            if (it.bind.isDown) {
+                it.toggle()
             }
-        })
+        }
     }
 
     @JvmStatic
     fun getModuleByName(name: String): Module? {
-        return lookup[name.toLowerCase()]
-        //        return getModules().stream().filter(module -> module.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return lookup[name.toLowerCase()] as Module
+    }
+
+    fun addFeature(feature: Feature): Boolean {
+        return features.add(feature)
+    }
+
+    fun removeFeature(feature: Feature): Boolean {
+        return features.remove(feature)
     }
 
     @JvmStatic
     fun isModuleEnabled(moduleName: String): Boolean {
         val m = getModuleByName(moduleName) ?: return false
-        return m.isEnabled
+        return m.isEnabled()
     }
-}
 
-private fun initPlay() {
-    ClassFinder.findClasses(
-        ClickGUI::class.java.getPackage().name, Module::class.java
-    ).forEach {
-        try {
-            val module = it.getConstructor().newInstance() as Module
-            FeatureManager.modules.add(module)
-            // lookup.put(module.getName().toLowerCase(), module);
-        } catch (e: InvocationTargetException) {
-            e.cause!!.printStackTrace()
-            System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+    private fun initPlay() {
+        ClassFinder.findClasses(
+            ClickGUI::class.java.getPackage().name, Module::class.java
+        ).forEach {
+            try {
+                val module = it.getConstructor().newInstance() as Module
+                features.add(module)
+                modules.add(module)
+            } catch (e: InvocationTargetException) {
+                e.cause!!.printStackTrace()
+                System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+            }
         }
+
+        KamiMod.log.info("Modules initialised")
+        features.sortWith(compareBy { it.name.value })
     }
 
-    KamiMod.log.info("Modules initialised")
-    FeatureManager.modules.sortWith(Comparator.comparing { m: Module -> m.name.value })
 }

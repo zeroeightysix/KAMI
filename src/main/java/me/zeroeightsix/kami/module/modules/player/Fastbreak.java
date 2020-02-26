@@ -11,7 +11,7 @@ public class Fastbreak extends Module {
 
     @Override
     public void onUpdate() {
-        ((IMinecraftClient) mc.interactionManager).setItemUseCooldown(0);
+        ((IMinecraftClient) mc).setItemUseCooldown(0);
     }
 
 }

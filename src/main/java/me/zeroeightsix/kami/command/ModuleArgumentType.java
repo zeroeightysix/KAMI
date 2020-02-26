@@ -39,7 +39,7 @@ public class ModuleArgumentType implements ArgumentType<Module> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(FeatureManager.getModules().stream().map(m -> m.getName().getValue()), builder);
+        return CommandSource.suggestMatching(FeatureManager.INSTANCE.getFeatures().stream().map(m -> m.getName().getValue()), builder);
     }
 
     @Override
