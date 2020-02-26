@@ -41,8 +41,8 @@ object ToggleCommand : Command() {
                                         ),
                                         Texts.lit(", now "),
                                         Texts.flit(
-                                            if (m.isEnabled) Formatting.GREEN else Formatting.RED,
-                                            if (m.isEnabled) "ON" else "OFF"
+                                            if (m.isEnabled()) Formatting.GREEN else Formatting.RED,
+                                            if (m.isEnabled()) "ON" else "OFF"
                                         )
                                     )
                                 )
