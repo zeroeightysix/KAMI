@@ -7,7 +7,6 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.RenderHudEvent
-import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud.renderHud
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
@@ -36,12 +35,6 @@ object FeatureManager {
     var lookup = mutableMapOf<String, Feature>()
     
     @EventHandler
-    var clientTickListener =
-        Listener(EventHook<TickEvent.Client> {
-            if (Wrapper.getPlayer() == null) return@EventHook
-            onUpdate()
-        })
-    @EventHandler
     var worldRenderListener =
         Listener(
             EventHook { event: RenderEvent.World ->
@@ -69,13 +62,6 @@ object FeatureManager {
     fun updateLookup() {
         lookup.clear()
         for (m in features) lookup[m.name.value.toLowerCase()] = m
-    }
-
-    @Deprecated(message = "Use event listeners instead.")
-    fun onUpdate() {
-        modules.stream()
-            .filter { it.alwaysListening || it.isEnabled() }
-            .forEach { it.onUpdate() }
     }
 
     @Deprecated(message = "Use event listeners instead.")

@@ -11,15 +11,13 @@ open class ListeningFeature(originalName: String = "No name", description: Strin
             else if (!value && isDisabled()) KamiMod.EVENT_BUS.unsubscribe(this)
         }
 
-    override fun enable() = if (super.enable()) {
+    override fun onEnable() {
         if (!alwaysListening) KamiMod.EVENT_BUS.subscribe(this)
-        true
-    } else false
+    }
 
-    override fun disable() = if (super.disable()) {
+    override fun onDisable() {
         if (!alwaysListening) KamiMod.EVENT_BUS.unsubscribe(this)
-        true
-    } else false
+    }
 
     override fun isAlwaysListening(): Boolean = alwaysListening
 

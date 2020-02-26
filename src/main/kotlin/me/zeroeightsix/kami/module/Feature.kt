@@ -24,7 +24,7 @@ open class Feature(private val originalName: String = "No name", var description
     /**
      * @return Whether or not the module was enabled
      */
-    open fun enable(): Boolean {
+    fun enable(): Boolean {
         if (enabled.value) return false
         enabled.value = true
         return true
@@ -33,7 +33,7 @@ open class Feature(private val originalName: String = "No name", var description
     /**
      * @return Whether or not the module was disabled
      */
-    open fun disable(): Boolean {
+    fun disable(): Boolean {
         if (!enabled) return false
         enabled.value = false
         return true
