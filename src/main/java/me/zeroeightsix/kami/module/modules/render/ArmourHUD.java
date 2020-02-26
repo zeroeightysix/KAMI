@@ -1,6 +1,9 @@
 package me.zeroeightsix.kami.module.modules.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -19,8 +22,8 @@ public class ArmourHUD extends Module {
 
     private Setting<Boolean> damage = register(Settings.b("Damage", false));
 
-    @Override
-    public void onRender() {
+    @EventHandler
+    public Listener<RenderHudEvent> renderListener = new Listener<>(event -> {
         GlStateManager.enableTexture();
 
         int i = MinecraftClient.getInstance().window.getScaledWidth() / 2;
@@ -54,5 +57,6 @@ public class ArmourHUD extends Module {
 
         GlStateManager.enableDepthTest();
         GlStateManager.disableLighting();
-    }
+    });
+
 }

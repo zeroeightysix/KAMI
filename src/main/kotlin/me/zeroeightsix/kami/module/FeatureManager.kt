@@ -6,9 +6,7 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.RenderEvent
-import me.zeroeightsix.kami.event.events.RenderHudEvent
 import me.zeroeightsix.kami.gui.KamiGuiScreen
-import me.zeroeightsix.kami.gui.KamiHud.renderHud
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.module.modules.ClickGUI
 import me.zeroeightsix.kami.util.ClassFinder
@@ -43,17 +41,6 @@ object FeatureManager {
             }
         )
 
-    @EventHandler
-    var renderHudEventListener =
-        Listener(
-            EventHook<RenderHudEvent> {
-                onRender()
-                if (MinecraftClient.getInstance().currentScreen !is KamiGuiScreen) {
-                    renderHud()
-                }
-            }
-        )
-
     fun initialize() {
         initPlay()
     }
@@ -62,13 +49,6 @@ object FeatureManager {
     fun updateLookup() {
         lookup.clear()
         for (m in features) lookup[m.name.value.toLowerCase()] = m
-    }
-
-    @Deprecated(message = "Use event listeners instead.")
-    fun onRender() {
-        modules.stream()
-            .filter { it.alwaysListening || it.isEnabled() }
-            .forEach { it.onRender() }
     }
 
     @Deprecated(message = "Use event listeners instead.")
