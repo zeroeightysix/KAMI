@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zero.alpine.listener.EventHandler;
@@ -8,6 +9,7 @@ import me.zero.alpine.type.EventPriority;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
+import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
@@ -19,12 +21,14 @@ import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
+import me.zeroeightsix.kami.util.KamiTessellator;
 import me.zeroeightsix.kami.util.LagCompensator;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -81,6 +85,40 @@ public class KamiMod implements ModInitializer {
             KamiHud.INSTANCE.renderHud();
         }
     }, EventPriority.LOW);
+
+    @EventHandler
+    private Listener<RenderEvent.World> preWorldListener = new Listener<>(event -> {
+        MinecraftClient.getInstance().getProfiler().push("kami");
+        MinecraftClient.getInstance().getProfiler().push("setup");
+        GlStateManager.disableTexture();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlphaTest();
+        GlStateManager.blendFuncSeparate(
+                GL11.GL_SRC_ALPHA,
+                GL11.GL_ONE_MINUS_SRC_ALPHA,
+                1,
+                0
+        );
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GlStateManager.disableDepthTest();
+        GlStateManager.lineWidth(1f);
+        MinecraftClient.getInstance().getProfiler().pop();
+    }, EventPriority.HIGHEST);
+
+    @EventHandler
+    public Listener<RenderEvent.World> postWorldListener = new Listener<>(event -> {
+        MinecraftClient.getInstance().getProfiler().push("release");
+        GlStateManager.lineWidth(1f);
+        GlStateManager.shadeModel(GL11.GL_FLAT);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableTexture();
+        GlStateManager.enableDepthTest();
+        GlStateManager.enableCull();
+        KamiTessellator.releaseGL();
+        MinecraftClient.getInstance().getProfiler().pop();
+        MinecraftClient.getInstance().getProfiler().pop();
+    }, EventPriority.LOWEST);
 
     @Override
     public void onInitialize() {

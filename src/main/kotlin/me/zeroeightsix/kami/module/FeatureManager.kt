@@ -1,21 +1,12 @@
 package me.zeroeightsix.kami.module
 
-import com.mojang.blaze3d.platform.GlStateManager
-import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
-import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.module.modules.ClickGUI
 import me.zeroeightsix.kami.util.ClassFinder
-import me.zeroeightsix.kami.util.EntityUtil
-import me.zeroeightsix.kami.util.KamiTessellator
 import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
-import org.lwjgl.opengl.GL11
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -32,15 +23,6 @@ object FeatureManager {
      */
     var lookup = mutableMapOf<String, Feature>()
     
-    @EventHandler
-    var worldRenderListener =
-        Listener(
-            EventHook { event: RenderEvent.World ->
-                onWorldRender(event)
-                KamiTessellator.releaseGL()
-            }
-        )
-
     fun initialize() {
         initPlay()
     }
@@ -49,45 +31,6 @@ object FeatureManager {
     fun updateLookup() {
         lookup.clear()
         for (m in features) lookup[m.name.value.toLowerCase()] = m
-    }
-
-    @Deprecated(message = "Use event listeners instead.")
-    fun onWorldRender(event: RenderEvent.World) {
-        MinecraftClient.getInstance().profiler.push("kami")
-        MinecraftClient.getInstance().profiler.push("setup")
-        GlStateManager.disableTexture()
-        GlStateManager.enableBlend()
-        GlStateManager.disableAlphaTest()
-        GlStateManager.blendFuncSeparate(
-            GL11.GL_SRC_ALPHA,
-            GL11.GL_ONE_MINUS_SRC_ALPHA,
-            1,
-            0
-        )
-        GlStateManager.shadeModel(GL11.GL_SMOOTH)
-        GlStateManager.disableDepthTest()
-        GlStateManager.lineWidth(1f)
-        val renderPos =
-            EntityUtil.getInterpolatedPos(Wrapper.getPlayer(), event.partialTicks)
-        MinecraftClient.getInstance().profiler.pop()
-        modules.stream()
-            .filter { it.alwaysListening || it.isEnabled() }
-            .forEach {
-                MinecraftClient.getInstance().profiler.push(it.name.value)
-                it.onWorldRender(event)
-                MinecraftClient.getInstance().profiler.pop()
-            }
-        MinecraftClient.getInstance().profiler.push("release")
-        GlStateManager.lineWidth(1f)
-        GlStateManager.shadeModel(GL11.GL_FLAT)
-        GlStateManager.disableBlend()
-        GlStateManager.enableAlphaTest()
-        GlStateManager.enableTexture()
-        GlStateManager.enableDepthTest()
-        GlStateManager.enableCull()
-        KamiTessellator.releaseGL()
-        MinecraftClient.getInstance().profiler.pop()
-        MinecraftClient.getInstance().profiler.pop()
     }
 
     @JvmStatic

@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import glm_.vec2.Vec2;
 import imgui.ImGui;
-import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Bind;
@@ -46,8 +45,6 @@ public class Module extends ListeningFeature {
         }
         throw new IllegalStateException("No Annotation on class " + this.getClass().getCanonicalName() + "!");
     }
-
-    public void onWorldRender(RenderEvent event) {}
 
     public Bind getBind() {
         return bind.getValue();
