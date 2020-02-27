@@ -4,19 +4,23 @@ import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zero.alpine.type.EventPriority;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.CommandManager;
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
+import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
+import me.zeroeightsix.kami.gui.KamiHud;
 import me.zeroeightsix.kami.gui.windows.KamiSettings;
 import me.zeroeightsix.kami.module.Feature;
-import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
+import me.zeroeightsix.kami.util.Wrapper;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
@@ -70,6 +74,13 @@ public class KamiMod implements ModInitializer {
                 KamiSettings.INSTANCE.getRainbowBrightness()
         );
     });
+
+    @EventHandler
+    public Listener<RenderHudEvent> hudEventListener = new Listener<>(event -> {
+        if (!(Wrapper.getMinecraft().currentScreen instanceof KamiGuiScreen)) {
+            KamiHud.INSTANCE.renderHud();
+        }
+    }, EventPriority.LOW);
 
     @Override
     public void onInitialize() {
