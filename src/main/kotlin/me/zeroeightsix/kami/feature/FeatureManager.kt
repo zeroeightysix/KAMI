@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature
 
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.command.Command
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.module.Module
@@ -77,28 +78,39 @@ object FeatureManager {
     private fun initFeatures() {
         val reflections = Reflections()
         Stream.concat(
-            reflections.getSubTypesOf(Module::class.java).stream(),
+            Stream.concat(
+                reflections.getSubTypesOf(Module::class.java).stream(),
+                reflections.getSubTypesOf(Command::class.java).stream()
+            ),
             reflections.getTypesAnnotatedWith(FindFeature::class.java).stream()
         ).forEach {
-            fun tryErr(block: () -> Unit) {
+            fun tryErr(block: () -> Unit, or: () -> Unit) {
                 try {
                     block()
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+                    try {
+                        or()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+                    }
                 }
             }
-            tryErr {
+            tryErr( {
                 val feature = it.getConstructor().newInstance() as Feature
                 features.add(feature)
-                tryErr {
-                    val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
-                    features.add(instFeature)
-                }
-            }
+            }, {
+                val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
+                features.add(instFeature)
+            })
         }
 
         KamiMod.log.info("Features initialised")
+
+        features.filterIsInstance<Command>().forEach {
+            it.register(Command.dispatcher)
+        }
+
         features.sortWith(compareBy { it.name.value })
     }
 

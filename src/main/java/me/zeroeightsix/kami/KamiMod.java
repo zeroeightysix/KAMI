@@ -3,11 +3,10 @@ package me.zeroeightsix.kami;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.command.CommandManager;
-import me.zeroeightsix.kami.gui.KamiGuiScreen;
 import me.zeroeightsix.kami.feature.Feature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
+import me.zeroeightsix.kami.gui.KamiGuiScreen;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
@@ -43,8 +42,6 @@ public class KamiMod implements ModInitializer {
     public KamiGuiScreen kamiGuiScreen = null;
     public static int rainbow = 0xFFFFFF; // This'll be updated every tick
 
-    public CommandManager commandManager;
-
     @Override
     public void onInitialize() {
         KamiMod.INSTANCE = this;
@@ -60,10 +57,6 @@ public class KamiMod implements ModInitializer {
                 .filter(feature -> feature instanceof Listening && ((Listening) feature).isAlwaysListening())
                 .forEach(EVENT_BUS::subscribe);
         LagCompensator.INSTANCE = new LagCompensator();
-
-        commandManager = new CommandManager();
-        commandManager.generateCommands();
-        KamiMod.log.info("Commands initialised");
 
         Friends.initFriends();
         SettingsRegister.register("commandPrefix", Command.commandPrefix);
@@ -143,10 +136,6 @@ public class KamiMod implements ModInitializer {
 
     public static KamiMod getInstance() {
         return INSTANCE;
-    }
-
-    public CommandManager getCommandManager() {
-        return commandManager;
     }
 
 }

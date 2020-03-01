@@ -5,7 +5,6 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
-import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.command.KamiCommandSource;
 import me.zeroeightsix.kami.util.Wrapper;
@@ -39,7 +38,7 @@ public abstract class MixinChatScreen {
         int i;
         if (stringReader.canRead() && stringReader.peek() == Command.getCommandPrefix()) {
             stringReader.skip();
-            CommandDispatcher<CommandSource> commandDispatcher = KamiMod.getInstance().getCommandManager().dispatcher;
+            CommandDispatcher<CommandSource> commandDispatcher = Command.dispatcher;
             if (this.parseResults == null) {
                 this.parseResults = commandDispatcher.parse(stringReader, Wrapper.getPlayer().networkHandler.getCommandSource());
             }
@@ -66,7 +65,7 @@ public abstract class MixinChatScreen {
             message = message.substring(1); // cut off command prefix
 
             try {
-                KamiMod.getInstance().getCommandManager().dispatcher.execute(message, new KamiCommandSource(Wrapper.getMinecraft().getNetworkHandler(), Wrapper.getMinecraft()));
+                Command.dispatcher.execute(message, new KamiCommandSource(Wrapper.getMinecraft().getNetworkHandler(), Wrapper.getMinecraft()));
             } catch (CommandSyntaxException e) {
                 Wrapper.getPlayer().sendMessage(new LiteralText(e.getMessage()).setStyle((new Style()).setColor(Formatting.RED)));
             }
