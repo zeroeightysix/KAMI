@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import net.minecraft.client.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

@@ -5,7 +5,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;

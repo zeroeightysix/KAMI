@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.plugin
 
-import me.zeroeightsix.kami.module.Feature
-import me.zeroeightsix.kami.module.FeatureManager
+import me.zeroeightsix.kami.feature.Feature
+import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.module.Module
 
 open class Plugin(name: String, description: String, val modules: List<Module> = listOf()):

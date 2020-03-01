@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import net.minecraft.network.NetworkState;
 import net.minecraft.server.network.packet.HandshakeC2SPacket;
 import net.minecraft.util.PacketByteBuf;

@@ -21,7 +21,7 @@ import imgui.internal.or
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
-import me.zeroeightsix.kami.module.FeatureManager
+import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.module.Module
 
 object Modules {

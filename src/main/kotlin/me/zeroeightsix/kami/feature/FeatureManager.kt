@@ -1,8 +1,9 @@
-package me.zeroeightsix.kami.module
+package me.zeroeightsix.kami.feature
 
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
+import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.module.modules.ClickGUI
 import me.zeroeightsix.kami.util.ClassFinder
 import me.zeroeightsix.kami.util.Wrapper

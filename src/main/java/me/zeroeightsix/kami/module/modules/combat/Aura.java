@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.module.modules.combat;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.modules.misc.AutoTool;
 import me.zeroeightsix.kami.setting.Setting;

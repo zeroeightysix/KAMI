@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.module;
 
+import me.zeroeightsix.kami.feature.FeatureManager;
+import me.zeroeightsix.kami.feature.ListeningFeature;
 import me.zeroeightsix.kami.setting.Setting;
 import net.minecraft.client.MinecraftClient;
 

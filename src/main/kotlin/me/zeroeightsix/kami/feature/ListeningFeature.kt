@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami.module
+package me.zeroeightsix.kami.feature
 
 import com.google.common.base.Converter
 import com.google.gson.JsonArray
@@ -17,7 +17,8 @@ open class ListeningFeature(
     description: String = "No description",
     hidden: Boolean = false,
     _alwaysListening: Boolean = false
-) : Feature(originalName, description, hidden), Listening {
+) : Feature(originalName, description, hidden),
+    Listening {
 
     var alwaysListening = _alwaysListening
         set(value) {
@@ -26,7 +27,8 @@ open class ListeningFeature(
             else if (!value && isDisabled()) KamiMod.EVENT_BUS.unsubscribe(this)
         }
     val bindSetting = register(
-        Settings.custom("Bind", Bind.none(), BindConverter(),
+        Settings.custom("Bind", Bind.none(),
+            BindConverter(),
             {
                 text("Bound to " + getBind().toString()) // TODO: Highlight bind in another color?
                 sameLine(0, -1)

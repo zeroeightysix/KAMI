@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
 

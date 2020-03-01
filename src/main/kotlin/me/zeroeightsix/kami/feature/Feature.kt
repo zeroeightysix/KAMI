@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami.module
+package me.zeroeightsix.kami.feature
 
 import me.zeroeightsix.kami.setting.Setting
 import me.zeroeightsix.kami.setting.Settings

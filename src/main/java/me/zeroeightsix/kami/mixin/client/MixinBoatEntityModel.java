@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.modules.movement.EntitySpeed;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.render.entity.model.BoatEntityModel;

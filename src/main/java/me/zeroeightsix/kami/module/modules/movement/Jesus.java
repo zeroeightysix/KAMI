@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.FeatureManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.FluidBlock;
