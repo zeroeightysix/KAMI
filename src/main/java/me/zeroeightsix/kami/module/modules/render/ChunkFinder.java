@@ -72,7 +72,7 @@ public class ChunkFinder extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         logWriterClose();
         chunks.clear();
     }

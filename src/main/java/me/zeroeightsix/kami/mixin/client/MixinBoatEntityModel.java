@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.modules.movement.EntitySpeed;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.render.entity.model.BoatEntityModel;
@@ -19,7 +19,7 @@ public class MixinBoatEntityModel {
 
     @Inject(method = "method_17071", at = @At("HEAD"))
     public void render(BoatEntity boatEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, CallbackInfo info) {
-        if (Wrapper.getPlayer().getVehicle() == boatEntity && ModuleManager.isModuleEnabled("EntitySpeed")) {
+        if (Wrapper.getPlayer().getVehicle() == boatEntity && FeatureManager.isModuleEnabled("EntitySpeed")) {
             GlStateManager.color4f(1, 1, 1, EntitySpeed.getOpacity());
             GlStateManager.enableBlend();
         }

@@ -48,7 +48,7 @@ open class TextPinnableWidget(private val title: String,
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
     private var editVarComboIndex = 0
-    private var editCharBuf = "Text".toCharArray(CharArray(512))
+    private var editCharBuf = "Text"
     private var editDigits = 0
 
     companion object {
@@ -146,7 +146,7 @@ open class TextPinnableWidget(private val title: String,
                 editColourComboIndex = if (part.rainbow) 1 else 0
                 when (part) {
                     is CompiledText.LiteralPart -> {
-                        editCharBuf = part.string.toCharArray(CharArray(128))
+                        editCharBuf = part.string
                     }
                     is CompiledText.VariablePart -> {
                         when (val variable = part.variable) {

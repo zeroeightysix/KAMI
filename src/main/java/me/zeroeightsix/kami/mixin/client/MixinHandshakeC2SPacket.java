@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import net.minecraft.network.NetworkState;
 import net.minecraft.server.network.packet.HandshakeC2SPacket;
 import net.minecraft.util.PacketByteBuf;
@@ -27,7 +27,7 @@ public class MixinHandshakeC2SPacket {
 
     @Inject(method = "write", at = @At(value = "HEAD"), cancellable = true)
     public void writePacketData(PacketByteBuf buf, CallbackInfo info) {
-        if (ModuleManager.isModuleEnabled("FakeVanilla")) {
+        if (FeatureManager.isModuleEnabled("FakeVanilla")) {
             info.cancel();
             buf.writeVarInt(version);
             buf.writeString(address);

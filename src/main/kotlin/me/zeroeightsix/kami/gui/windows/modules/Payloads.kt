@@ -29,7 +29,7 @@ internal data class ModulePayload(val modules: MutableSet<Module>, val source: M
         if (groupName != null)
             return groupName
         return when (modules.size) {
-            1 -> modules.find { true }!!.name
+            1 -> modules.find { true }!!.name.value
             else -> "${modules.size} modules"
         }
     }

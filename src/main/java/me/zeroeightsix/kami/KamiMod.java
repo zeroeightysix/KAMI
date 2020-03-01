@@ -2,26 +2,19 @@ package me.zeroeightsix.kami;
 
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
-import me.zeroeightsix.kami.command.CommandManager;
-import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.feature.Feature;
+import me.zeroeightsix.kami.feature.FeatureManager;
+import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
-import me.zeroeightsix.kami.gui.windows.KamiSettings;
-import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,29 +39,8 @@ public class KamiMod implements ModInitializer {
     public static final EventBus EVENT_BUS = new EventManager();
     private static KamiMod INSTANCE;
 
-    private int displayWidth;
-    private int displayHeight;
     public KamiGuiScreen kamiGuiScreen = null;
     public static int rainbow = 0xFFFFFF; // This'll be updated every tick
-
-    public CommandManager commandManager;
-
-    @EventHandler
-    private Listener<TickEvent.Client> clientTickListener = new Listener<>(event -> {
-        if (MinecraftClient.getInstance().window.getWidth() != displayWidth || MinecraftClient.getInstance().window.getHeight() != displayHeight) {
-            KamiMod.EVENT_BUS.post(new DisplaySizeChangedEvent());
-            displayWidth = MinecraftClient.getInstance().window.getWidth();
-            displayHeight = MinecraftClient.getInstance().window.getHeight();
-        }
-
-        int speed = KamiSettings.INSTANCE.getRainbowSpeed();
-        float hue = (System.currentTimeMillis() % (360 * speed)) / (360f * speed);
-        rainbow = Color.HSBtoRGB(
-                hue,
-                KamiSettings.INSTANCE.getRainbowSaturation(),
-                KamiSettings.INSTANCE.getRainbowBrightness()
-        );
-    });
 
     @Override
     public void onInitialize() {
@@ -77,25 +49,24 @@ public class KamiMod implements ModInitializer {
 
         KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
 
-        ModuleManager manager = ModuleManager.initialize();
-        EVENT_BUS.subscribe(manager);
+        FeatureManager manager = FeatureManager.INSTANCE;
+        manager.initialize();
 
-        ModuleManager.getModules().stream().filter(module -> module.alwaysListening).forEach(EVENT_BUS::subscribe);
+        FeatureManager.INSTANCE.getFeatures()
+                .stream()
+                .filter(feature -> feature instanceof Listening && ((Listening) feature).isAlwaysListening())
+                .forEach(EVENT_BUS::subscribe);
         LagCompensator.INSTANCE = new LagCompensator();
-
-        commandManager = new CommandManager();
-        commandManager.generateCommands();
-        KamiMod.log.info("Commands initialised");
 
         Friends.initFriends();
         SettingsRegister.register("commandPrefix", Command.commandPrefix);
         loadConfiguration();
         KamiMod.log.info("Settings loaded");
 
-        ModuleManager.updateLookup(); // generate the lookup table after settings are loaded to make custom module names work
+        FeatureManager.updateLookup(); // generate the lookup table after settings are loaded to make custom module names work
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
-        ModuleManager.getModules().stream().filter(Module::isEnabled).forEach(Module::enable);
+        FeatureManager.INSTANCE.getFeatures().stream().filter(Feature::isEnabled).forEach(Feature::enable);
 
         KamiMod.log.info("KAMI Mod initialized!\n");
     }
@@ -165,10 +136,6 @@ public class KamiMod implements ModInitializer {
 
     public static KamiMod getInstance() {
         return INSTANCE;
-    }
-
-    public CommandManager getCommandManager() {
-        return commandManager;
     }
 
 }

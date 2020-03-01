@@ -1,9 +1,12 @@
 package me.zeroeightsix.kami.module.modules.combat;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.ModuleManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
@@ -74,9 +77,9 @@ public class Auto32k extends Module {
     private static boolean isSneaking;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
 
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
             this.disable();
             return;
         }
@@ -130,7 +133,7 @@ public class Auto32k extends Module {
 
         int range = (int) Math.ceil(placeRange.getValue());
 
-        CrystalAura crystalAura = (CrystalAura) ModuleManager.getModuleByName("CrystalAura");
+        CrystalAura crystalAura = (CrystalAura) FeatureManager.getModuleByName("CrystalAura");
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
         List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
 
@@ -251,10 +254,9 @@ public class Auto32k extends Module {
 
     }
 
-    @Override
-    public void onUpdate() {
-
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
             return;
         }
 
@@ -287,12 +289,11 @@ public class Auto32k extends Module {
             // method_2906: click window
             mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura.getValue()) {
-                ModuleManager.getModuleByName("Aura").enable();
+                FeatureManager.getModuleByName("Aura").enable();
             }
             this.disable();
         }
-
-    }
+    });
 
     private boolean isAreaPlaceable(BlockPos blockPos) {
         for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {

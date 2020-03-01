@@ -1,7 +1,10 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
+import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.CanBeSteeredEvent;
+import me.zeroeightsix.kami.event.events.RenderHudEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -30,8 +33,8 @@ public class EntitySpeed extends Module {
         register(opacity);
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if ((mc.world != null) && (mc.player.getVehicle() != null)) {
             Entity riding = mc.player.getVehicle();
             if (riding instanceof PigEntity || riding instanceof HorseBaseEntity) {
@@ -40,7 +43,7 @@ public class EntitySpeed extends Module {
                 steerBoat(getBoat());
             }
         }
-    }
+    });
 
     private void steerEntity(Entity entity) {
         if (!flight.getValue()) {
@@ -92,13 +95,13 @@ public class EntitySpeed extends Module {
         boat.setVelocity(EntityUtil.getRelativeX(yaw) * speed.getValue(), boat.getVelocity().y, EntityUtil.getRelativeZ(yaw) * speed.getValue());
     }
 
-    @Override
-    public void onRender() {
+    @EventHandler
+    public Listener<RenderHudEvent> renderListener = new Listener<>(event -> {
         BoatEntity boat = getBoat();
         if (boat == null) return;
         boat.yaw = mc.player.yaw;
         boat.setInputs(false, false, false, false); // Make sure the boat doesn't turn etc (params: isLeftDown, isRightDown, isForwardDown, isBackDown)
-    }
+    });
 
     private BoatEntity getBoat() {
         if (mc.player.getVehicle() != null && mc.player.getVehicle() instanceof BoatEntity)

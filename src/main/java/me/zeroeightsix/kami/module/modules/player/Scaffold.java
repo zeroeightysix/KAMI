@@ -1,8 +1,11 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -28,7 +31,7 @@ public class Scaffold extends Module {
             Blocks.CHEST,
             Blocks.TRAPPED_CHEST);
 
-    private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2));
+    private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2).build());
 
     private boolean hasNeighbour(BlockPos blockPos) {
         for (Direction side : Direction.values()) {
@@ -39,9 +42,9 @@ public class Scaffold extends Module {
         return false;
     }
 
-    @Override
-    public void onUpdate() {
-        if (isDisabled() || mc.player == null || ModuleManager.isModuleEnabled("Freecam")) return;
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future.getValue());
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();
@@ -106,7 +109,7 @@ public class Scaffold extends Module {
 
         // reset slot
         Wrapper.getPlayer().inventory.selectedSlot = oldSlot;
-    }
+    });
 
     public static boolean placeBlockScaffold(BlockPos pos) {
         Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().x,

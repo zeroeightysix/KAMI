@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import me.zeroeightsix.kami.KamiMod;
+import me.zeroeightsix.kami.feature.Feature;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
@@ -12,8 +13,13 @@ import net.minecraft.text.Text;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Command {
-	
+public abstract class Command extends Feature {
+
+	public Command() {
+		super("", "", true);
+	}
+
+	public static CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
 	public static char SECTION_SIGN = '\u00A7';
 	public static Setting<Character> commandPrefix = Settings.c("commandPrefix", '.');
 

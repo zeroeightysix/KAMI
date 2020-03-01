@@ -40,9 +40,9 @@ public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, Mo
         }
 
         String string = reader.readUnquotedString();
-        Optional<Setting> s = module.settingList.stream().filter(setting -> setting.getName().equalsIgnoreCase(string)).findAny();
+        Optional<Setting<?>> s = module.getSettingList().stream().filter(setting -> setting.getName().equalsIgnoreCase(string)).findAny();
         if (s.isPresent()) {
-            return s.get();
+            return (Setting<T>) s.get();
         } else {
             throw INVALID_SETTING_EXCEPTION.create(new Object[] {string, module});
         }
@@ -52,7 +52,7 @@ public class SettingArgumentType<T> extends DependantArgumentType<Setting<T>, Mo
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         Module m = findDependencyValue(context, Module.class);
         if (m != null) {
-            return CommandSource.suggestMatching(m.settingList.stream().map(Setting::getName), builder);
+            return CommandSource.suggestMatching(m.getSettingList().stream().map(Setting::getName), builder);
         } else {
             return null;
         }

@@ -29,7 +29,7 @@ public class Blink extends Module {
     private OtherClientPlayerEntity clonedPlayer;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player != null) {
             clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile());
             clonedPlayer.copyFrom(mc.player);
@@ -39,7 +39,7 @@ public class Blink extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         while (!packets.isEmpty())
             mc.getNetworkHandler().sendPacket(packets.poll());
 

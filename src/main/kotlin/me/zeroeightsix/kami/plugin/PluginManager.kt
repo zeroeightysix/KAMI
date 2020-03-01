@@ -4,7 +4,7 @@ object PluginManager {
 
     val plugins: MutableList<Plugin> = mutableListOf()
 
-    fun getPlugin(name: String) = plugins.find { it.name == name }
+    fun getPlugin(name: String) = plugins.find { it.name.value == name }
 
     fun registerPlugin(plugin: Plugin) {
         plugins.add(plugin)

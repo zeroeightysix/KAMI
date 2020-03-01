@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import net.minecraft.client.gui.screen.ingame.ContainerScreen54;
 import net.minecraft.container.SlotActionType;
@@ -13,8 +16,8 @@ import net.minecraft.item.Items;
 @Module.Info(name = "AutoArmour", category = Module.Category.PLAYER)
 public class AutoArmour extends Module {
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (mc.player.age % 2 == 0) return;
         // check screen
         if(mc.currentScreen instanceof ContainerScreen54)
@@ -87,6 +90,6 @@ public class AutoArmour extends Module {
                 break;
             }
         }
+    });
 
-    }
 }

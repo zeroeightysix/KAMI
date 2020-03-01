@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.player;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.module.Module;
@@ -21,11 +24,11 @@ public class AutoEat extends Module {
     private boolean eating = false;
 
     private boolean isValid(ItemStack stack, int food) {
-        return stack.getItem().getGroup() == ItemGroup.FOOD && (20-food)>= Objects.requireNonNull(stack.getItem().getFoodComponent()).getHunger();
+        return stack.getItem().getGroup() == ItemGroup.FOOD && (20 - food) >= Objects.requireNonNull(stack.getItem().getFoodComponent()).getHunger();
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (eating && !mc.player.isUsingItem()) {
             if (lastSlot != -1) {
                 mc.player.inventory.selectedSlot = lastSlot;
@@ -43,7 +46,7 @@ public class AutoEat extends Module {
             eating = true;
             KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
             ((IMinecraftClient) mc).callDoAttack();
-        }else{
+        } else {
             for (int i = 0; i < 9; i++) {
                 if (isValid(mc.player.inventory.getInvStack(i), stats.getFoodLevel())) {
                     lastSlot = mc.player.inventory.selectedSlot;
@@ -55,5 +58,6 @@ public class AutoEat extends Module {
                 }
             }
         }
-    }
+    });
+
 }

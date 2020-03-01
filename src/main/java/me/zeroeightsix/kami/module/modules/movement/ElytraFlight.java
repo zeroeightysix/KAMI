@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -15,8 +18,8 @@ public class ElytraFlight extends Module {
 
     private Setting<ElytraFlightMode> mode = register(Settings.e("Mode", ElytraFlightMode.BOOST));
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (!mc.player.isFallFlying()) return;
         switch (mode.getValue()) {
             case BOOST:
@@ -43,10 +46,10 @@ public class ElytraFlight extends Module {
             case FLY:
                 mc.player.abilities.flying = true;
         }
-    }
+    });
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         if (mc.player.abilities.creativeMode) return;
         mc.player.abilities.flying = false;
     }

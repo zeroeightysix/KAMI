@@ -47,7 +47,7 @@ object SettingsCommand : Command() {
                                         Texts.append(
                                             Texts.flit(
                                                 Formatting.YELLOW,
-                                                m.name
+                                                m.name.value
                                             ),
                                             Texts.flit(
                                                 Formatting.GOLD,
@@ -147,7 +147,7 @@ object SettingsCommand : Command() {
                                                                 Texts.lit(" of module "),
                                                                 Texts.flit(
                                                                     Formatting.YELLOW,
-                                                                    module.name
+                                                                    module.name.value
                                                                 ),
                                                                 Texts.lit(" to "),
                                                                 Texts.flit(

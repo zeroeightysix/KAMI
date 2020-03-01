@@ -4,6 +4,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -31,7 +32,7 @@ public class Freecam extends Module {
     private Entity ridingEntity;
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player != null) {
             isRidingEntity = mc.player.getVehicle() != null;
 
@@ -58,7 +59,7 @@ public class Freecam extends Module {
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         PlayerEntity localPlayer = mc.player;
         if (localPlayer != null) {
             mc.player.setPositionAndAngles(x, y, z, yaw, pitch);
@@ -77,14 +78,14 @@ public class Freecam extends Module {
         }
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         mc.player.abilities.flying = true;
         mc.player.abilities.setFlySpeed(speed.getValue() / 100f);
         mc.player.noClip = true;
         mc.player.onGround = false;
         mc.player.fallDistance = 0;
-    }
+    });
 
     @EventHandler
     private Listener<PlayerMoveEvent> moveListener = new Listener<>(event -> {

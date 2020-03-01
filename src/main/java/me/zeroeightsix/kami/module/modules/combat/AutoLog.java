@@ -3,8 +3,9 @@ package me.zeroeightsix.kami.module.modules.combat;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.EntityEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.MinecraftClient;
@@ -41,17 +42,17 @@ public class AutoLog extends Module {
         }
     });*/ //TODO
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (shouldLog) {
             shouldLog = false;
             if (System.currentTimeMillis() - lastLog < 2000) return;
             MinecraftClient.getInstance().getNetworkHandler().onDisconnect(new DisconnectS2CPacket(new LiteralText("AutoLogged")));
         }
-    }
+    });
 
     private void log() {
-        ModuleManager.getModuleByName("AutoReconnect").disable();
+        FeatureManager.getModuleByName("AutoReconnect").disable();
         shouldLog = true;
         lastLog = System.currentTimeMillis();
     }

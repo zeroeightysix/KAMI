@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.feature.FeatureManager;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
 
@@ -30,7 +30,7 @@ public class ModuleArgumentType implements ArgumentType<Module> {
     @Override
     public Module parse(StringReader reader) throws CommandSyntaxException {
         String string = reader.readUnquotedString();
-        Module module = ModuleManager.getModuleByName(string);
+        Module module = FeatureManager.getModuleByName(string);
         if (module == null) {
             throw INVALID_MODULE_EXCEPTION.create(string);
         }
@@ -39,7 +39,7 @@ public class ModuleArgumentType implements ArgumentType<Module> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(ModuleManager.getModules().stream().map(Module::getName), builder);
+        return CommandSource.suggestMatching(FeatureManager.INSTANCE.getFeatures().stream().map(m -> m.getName().getValue()), builder);
     }
 
     @Override

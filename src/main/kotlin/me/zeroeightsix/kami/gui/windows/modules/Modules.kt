@@ -9,7 +9,7 @@ import imgui.ImGui.setDragDropPayload
 import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
-import imgui.ImGui.treeNodeExV
+import imgui.ImGui.treeNodeEx
 import imgui.ImGui.treePop
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
@@ -21,8 +21,8 @@ import imgui.internal.or
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
+import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.module.Module
-import me.zeroeightsix.kami.module.ModuleManager
 
 object Modules {
 
@@ -38,7 +38,7 @@ object Modules {
         source: ModuleWindow,
         sourceGroup: String
     ): ModuleWindow? {
-        val nodeFlags = if (!module.isEnabled) baseFlags else (baseFlags or TreeNodeFlag.Selected)
+        val nodeFlags = if (!module.enabled.value) baseFlags else (baseFlags or TreeNodeFlag.Selected)
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
@@ -54,7 +54,7 @@ object Modules {
             clickedRight = isItemClicked(if (KamiSettings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeExV(label, nodeFlags, module.name)
+        val open = treeNodeEx(label, nodeFlags, module.name.value)
         dragDropTarget {
             acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
                 val payload = it.data!! as ModulePayload
@@ -71,7 +71,7 @@ object Modules {
 
                 popupContextItem("$label-popup") {
                     menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name, module = module)
+                        moduleWindow = ModuleWindow(module.name.value, module = module)
                     }
                 }
             }
@@ -83,7 +83,7 @@ object Modules {
         ImGui.io.mouseDoubleClicked[0] = doubleClicked
 
         if (clickedLeft) {
-            module.isEnabled = !module.isEnabled
+            module.toggle()
         } else if (clickedRight) {
             val id = currentWindow.getId(label)
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
@@ -107,7 +107,7 @@ object Modules {
     }
 
     private fun getDefaultWindows() = mutableListOf(
-        ModuleWindow("All modules", groups = ModuleManager.modules.groupBy {
+        ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
             it.category.getName()
         }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
     )
@@ -158,7 +158,7 @@ object Modules {
                                 continue
                             }
 
-                            if (treeNodeExV("cat-$group-node", TreeNodeFlag.SpanFullWidth.i, group)) {
+                            if (treeNodeEx("cat-$group-node", TreeNodeFlag.SpanFullWidth.i, group)) {
                                 iterateModules(list, group)
                                 treePop()
                             }

@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.module.modules.render;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.util.*;
@@ -20,8 +22,8 @@ public class Trajectories extends Module {
     ArrayList<Vec3d> positions = new ArrayList<>();
     HueCycler cycler = new HueCycler(100);
     
-    @Override
-    public void onWorldRender(RenderEvent event) {
+    @EventHandler
+    public Listener<RenderEvent.World> worldListener = new Listener<>(event -> {
         try {
             StreamSupport.stream(mc.world.getEntities().spliterator(), false)
                     .filter(entity -> entity instanceof LivingEntity)
@@ -86,5 +88,6 @@ public class Trajectories extends Module {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    });
+
 }

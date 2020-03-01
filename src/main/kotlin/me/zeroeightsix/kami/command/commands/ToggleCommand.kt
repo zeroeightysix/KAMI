@@ -37,12 +37,12 @@ object ToggleCommand : Command() {
                                         Texts.lit("Toggled module "),
                                         Texts.flit(
                                             Formatting.YELLOW,
-                                            m.name
+                                            m.name.value
                                         ),
                                         Texts.lit(", now "),
                                         Texts.flit(
-                                            if (m.isEnabled) Formatting.GREEN else Formatting.RED,
-                                            if (m.isEnabled) "ON" else "OFF"
+                                            if (m.isEnabled()) Formatting.GREEN else Formatting.RED,
+                                            if (m.isEnabled()) "ON" else "OFF"
                                         )
                                     )
                                 )

@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.movement;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -18,7 +21,7 @@ public class Flight extends Module {
     private Setting<FlightMode> mode = register(Settings.e("Mode", FlightMode.VANILLA));
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         if (mc.player == null) return;
         switch (mode.getValue()) {
             case VANILLA:
@@ -29,8 +32,8 @@ public class Flight extends Module {
         }
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         switch (mode.getValue()) {
             case STATIC:
                 mc.player.abilities.flying = false;
@@ -76,10 +79,10 @@ public class Flight extends Module {
                 mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y - 42069, mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
                 break;
         }
-    }
+    });
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         switch (mode.getValue()) {
             case VANILLA:
                 mc.player.abilities.flying = false;

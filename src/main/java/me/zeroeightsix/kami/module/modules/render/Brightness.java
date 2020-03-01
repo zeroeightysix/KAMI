@@ -1,5 +1,8 @@
 package me.zeroeightsix.kami.module.modules.render;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
@@ -47,20 +50,20 @@ public class Brightness extends Module {
     }
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         super.onEnable();
         addTransition(true);
     }
 
     @Override
-    protected void onDisable() {
+    public void onDisable() {
         setAlwaysListening(true);
         super.onDisable();
         addTransition(false);
     }
 
-    @Override
-    public void onUpdate() {
+    @EventHandler
+    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
         if (inTransition) {
             if (transitionStack.isEmpty()) {
                 inTransition = false;
@@ -70,7 +73,7 @@ public class Brightness extends Module {
                 currentBrightness = transitionStack.pop();
             }
         }
-    }
+    });
 
     private float[] createTransition(int length, boolean upwards, Function<Float, Float> function) {
         float[] transition = new float[length];
