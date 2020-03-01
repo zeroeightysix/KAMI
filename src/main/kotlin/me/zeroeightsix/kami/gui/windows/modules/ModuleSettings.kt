@@ -8,7 +8,7 @@ import imgui.ImGui.sameLine
 import imgui.ImGui.textWrapped
 import imgui.api.demoDebugInformations.Companion.helpMarker
 import me.zeroeightsix.kami.gui.windows.KamiSettings
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.feature.module.Module
 
 object ModuleSettings {
 

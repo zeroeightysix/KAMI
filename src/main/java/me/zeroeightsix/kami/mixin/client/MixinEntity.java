@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.MoveEntityFluidEvent;
-import me.zeroeightsix.kami.module.modules.movement.SafeWalk;
+import me.zeroeightsix.kami.feature.module.movement.SafeWalk;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;

@@ -4,7 +4,7 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.CameraHurtEvent;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
-import me.zeroeightsix.kami.module.modules.misc.NoEntityTrace;
+import me.zeroeightsix.kami.feature.module.misc.NoEntityTrace;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;

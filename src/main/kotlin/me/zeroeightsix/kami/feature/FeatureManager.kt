@@ -1,10 +1,10 @@
 package me.zeroeightsix.kami.feature
 
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.command.Command
+import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.InputUtil
 import org.reflections.Reflections

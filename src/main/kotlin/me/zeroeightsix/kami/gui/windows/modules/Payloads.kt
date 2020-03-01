@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.feature.module.Module
 
 internal data class ModulePayload(val modules: MutableSet<Module>, val source: Modules.ModuleWindow, val groupName: String? = null) {
     fun moveTo(target: Modules.ModuleWindow, targetGroup: String) {

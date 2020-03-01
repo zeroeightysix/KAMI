@@ -22,7 +22,7 @@ import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.feature.FeatureManager
-import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.feature.module.Module
 
 object Modules {
 

@@ -2,7 +2,7 @@ package me.zeroeightsix.kami;
 
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
-import me.zeroeightsix.kami.command.Command;
+import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.Feature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
