@@ -1,12 +1,10 @@
 package me.zeroeightsix.kami.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import me.zeroeightsix.kami.command.commands.ToggleCommand;
-import me.zeroeightsix.kami.util.ClassFinder;
 import net.minecraft.server.command.CommandSource;
+import org.reflections.Reflections;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 public class CommandManager {
 	
@@ -26,8 +24,8 @@ public class CommandManager {
 	}
 
 	private void discoverCommands() {
-		Set<Class> classList = ClassFinder.findClasses(ToggleCommand.class.getPackage().getName(), Command.class);
-		for (Class s : classList) {
+		Reflections reflections = new Reflections();
+		reflections.getSubTypesOf(Command.class).forEach(s -> {
 			if (Command.class.isAssignableFrom(s)){
 				try {
 					Command command = (Command) s.getDeclaredField("INSTANCE").get(null);
@@ -37,7 +35,7 @@ public class CommandManager {
 					System.err.println("Couldn't initiate command " + s.getSimpleName() + "! Err: " + e.getClass().getSimpleName() + ", message: " + e.getMessage());
 				}
 			}
-		}
+		});
 	}
 
 	public ArrayList<Command> getCommands() {

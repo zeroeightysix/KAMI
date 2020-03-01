@@ -4,8 +4,6 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.module.Module
-import me.zeroeightsix.kami.module.modules.ClickGUI
-import me.zeroeightsix.kami.util.ClassFinder
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.InputUtil
 import org.reflections.Reflections
@@ -79,9 +77,7 @@ object FeatureManager {
     private fun initFeatures() {
         val reflections = Reflections()
         Stream.concat(
-            ClassFinder.findClasses(
-                ClickGUI::class.java.getPackage().name, Module::class.java
-            ).stream(),
+            reflections.getSubTypesOf(Module::class.java).stream(),
             reflections.getTypesAnnotatedWith(FindFeature::class.java).stream()
         ).forEach {
             fun tryErr(block: () -> Unit) {
