@@ -8,7 +8,9 @@ import me.zeroeightsix.kami.module.modules.ClickGUI
 import me.zeroeightsix.kami.util.ClassFinder
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.InputUtil
+import org.reflections.Reflections
 import java.lang.reflect.InvocationTargetException
+import java.util.stream.Stream
 
 /**
  * Created by 086 on 23/08/2017.
@@ -22,7 +24,7 @@ object FeatureManager {
     var lookup = mutableMapOf<String, Feature>()
     
     fun initialize() {
-        initPlay()
+        initFeatures()
     }
 
     @JvmStatic
@@ -75,19 +77,31 @@ object FeatureManager {
         return m.isEnabled()
     }
 
-    private fun initPlay() {
-        ClassFinder.findClasses(
-            ClickGUI::class.java.getPackage().name, Module::class.java
+    private fun initFeatures() {
+        val reflections = Reflections()
+        Stream.concat(
+            ClassFinder.findClasses(
+                ClickGUI::class.java.getPackage().name, Module::class.java
+            ).stream(),
+            reflections.getTypesAnnotatedWith(FindFeature::class.java).stream()
         ).forEach {
             try {
-                val module = it.getConstructor().newInstance() as Module
-                features.add(module)
+                val feature = it.getConstructor().newInstance() as Feature
+                features.add(feature)
+            } catch (e: NoSuchMethodException) {
+                try {
+                    val feature = it.getDeclaredField("INSTANCE").get(null) as Feature
+                    features.add(feature)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+                }
             } catch (e: InvocationTargetException) {
                 e.cause!!.printStackTrace()
-                System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+                System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
             } catch (e: Exception) {
                 e.printStackTrace()
-                System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+                System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
             }
         }
 
