@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.feature.FeatureManager;
+import me.zeroeightsix.kami.module.modules.Freecam;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.FluidBlock;
@@ -30,7 +30,7 @@ public class Jesus extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
-        if (!FeatureManager.isModuleEnabled("Freecam")) {
+        if (!Freecam.INSTANCE.isEnabled()) {
             if (EntityUtil.isInWater(mc.player) && !mc.player.isSneaking()) {
                 EntityUtil.updateVelocityY(mc.player, 0.1);
                 if (mc.player.getVehicle() != null && !(mc.player.getVehicle() instanceof BoatEntity)) {

@@ -7,13 +7,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.feature.FeatureManager;
+import me.zeroeightsix.kami.module.Module;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.text.LiteralText;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ModuleArgumentType implements ArgumentType<Module> {
@@ -30,11 +31,16 @@ public class ModuleArgumentType implements ArgumentType<Module> {
     @Override
     public Module parse(StringReader reader) throws CommandSyntaxException {
         String string = reader.readUnquotedString();
-        Module module = FeatureManager.getModuleByName(string);
-        if (module == null) {
+        Optional<Module> module = FeatureManager.INSTANCE.getFeatures()
+                .stream()
+                .filter(feature -> feature instanceof Module)
+                .map(feature -> (Module) feature)
+                .filter(module1 -> module1.getName().getValue().equals(string))
+                .findAny();
+        if (!module.isPresent()) {
             throw INVALID_MODULE_EXCEPTION.create(string);
         }
-        return module;
+        return module.get();
     }
 
     @Override

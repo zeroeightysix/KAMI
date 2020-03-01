@@ -1,28 +1,36 @@
-package me.zeroeightsix.kami.module.modules.render;
+package me.zeroeightsix.kami.module.modules
 
-import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
-import me.zeroeightsix.kami.util.EntityUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import me.zeroeightsix.kami.module.Module
+import me.zeroeightsix.kami.setting.Settings
+import me.zeroeightsix.kami.util.EntityUtil
+import net.minecraft.entity.Entity
+import net.minecraft.entity.player.PlayerEntity
 
 /**
  * Created by 086 on 12/12/2017.
  */
-@Module.Info(name = "Chams", category = Module.Category.RENDER, description = "See entities through walls")
-public class Chams extends Module {
+@Module.Info(
+    name = "Chams",
+    category = Module.Category.RENDER,
+    description = "See entities through walls"
+)
+object Chams : Module() {
+    private val players =
+        Settings.b("Players", true)
+    private val animals =
+        Settings.b("Animals", false)
+    private val mobs =
+        Settings.b("Mobs", false)
 
-    private static Setting<Boolean> players = Settings.b("Players", true);
-    private static Setting<Boolean> animals = Settings.b("Animals", false);
-    private static Setting<Boolean> mobs = Settings.b("Mobs", false);
-
-    public Chams() {
-        registerAll(players, animals, mobs);
+    fun renderChams(entity: Entity?): Boolean {
+        return if (entity is PlayerEntity) players.value else if (EntityUtil.isPassive(entity)) animals.value else mobs.value
     }
 
-    public static boolean renderChams(Entity entity) {
-        return (entity instanceof PlayerEntity ? players.getValue() : (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue()));
+    init {
+        registerAll(
+            players,
+            animals,
+            mobs
+        )
     }
-
 }

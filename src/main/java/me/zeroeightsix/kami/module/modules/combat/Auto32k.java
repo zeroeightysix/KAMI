@@ -5,8 +5,8 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.command.Command;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.modules.Freecam;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
@@ -79,7 +79,7 @@ public class Auto32k extends Module {
     @Override
     public void onEnable() {
 
-        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
+        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) {
             this.disable();
             return;
         }
@@ -133,7 +133,7 @@ public class Auto32k extends Module {
 
         int range = (int) Math.ceil(placeRange.getValue());
 
-        CrystalAura crystalAura = (CrystalAura) FeatureManager.getModuleByName("CrystalAura");
+        CrystalAura crystalAura = CrystalAura.INSTANCE;
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
         List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
 
@@ -256,7 +256,7 @@ public class Auto32k extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
-        if (isDisabled() || mc.player == null || FeatureManager.isModuleEnabled("Freecam")) {
+        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) {
             return;
         }
 
@@ -289,7 +289,7 @@ public class Auto32k extends Module {
             // method_2906: click window
             mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura.getValue()) {
-                FeatureManager.getModuleByName("Aura").enable();
+                Aura.INSTANCE.enable();
             }
             this.disable();
         }

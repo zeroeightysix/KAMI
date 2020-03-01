@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.module.modules.render.Chams;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.entity.LivingEntity;
@@ -18,7 +17,7 @@ public class MixinRenderLiving {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void injectChamsPre(LivingEntity entity, float limbAngle, float limbDistance, float age, float headYaw, float headPitch, float scale, CallbackInfo info) {
-        if (FeatureManager.isModuleEnabled("Chams") && Chams.renderChams(entity)) {
+        if (Chams.INSTANCE.isEnabled() && Chams.INSTANCE.renderChams(entity)) {
             GL11.glEnable(32823);
             GL11.glPolygonOffset(1.0f, -1000000.0f);
         }
@@ -26,7 +25,7 @@ public class MixinRenderLiving {
 
     @Inject(method = "render", at = @At("RETURN"))
     private <S extends LivingEntity> void injectChamsPost(S entity, float limbAngle, float limbDistance, float age, float headYaw, float headPitch, float scale, CallbackInfo info) {
-        if (FeatureManager.isModuleEnabled("Chams") && Chams.renderChams(entity)) {
+        if (Chams.INSTANCE.isEnabled() && Chams.INSTANCE.renderChams(entity)) {
             GL11.glPolygonOffset(1.0f, 1000000.0f);
             GL11.glDisable(32823);
         }

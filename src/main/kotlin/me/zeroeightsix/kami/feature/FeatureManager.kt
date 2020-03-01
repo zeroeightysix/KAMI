@@ -16,19 +16,9 @@ import java.util.stream.Stream
 object FeatureManager {
 
     val features = mutableListOf<Feature>()
-    /**
-     * Lookup map for getting by name
-     */
-    var lookup = mutableMapOf<String, Feature>()
-    
+
     fun initialize() {
         initFeatures()
-    }
-
-    @JvmStatic
-    fun updateLookup() {
-        lookup.clear()
-        for (m in features) lookup[m.name.value.toLowerCase()] = m
     }
 
     @JvmStatic
@@ -56,23 +46,12 @@ object FeatureManager {
         }
     }
 
-    @JvmStatic
-    fun getModuleByName(name: String): Module? {
-        return lookup[name.toLowerCase()] as Module
-    }
-
     fun addFeature(feature: Feature): Boolean {
         return features.add(feature)
     }
 
     fun removeFeature(feature: Feature): Boolean {
         return features.remove(feature)
-    }
-
-    @JvmStatic
-    fun isModuleEnabled(moduleName: String): Boolean {
-        val m = getModuleByName(moduleName) ?: return false
-        return m.isEnabled()
     }
 
     private fun initFeatures() {

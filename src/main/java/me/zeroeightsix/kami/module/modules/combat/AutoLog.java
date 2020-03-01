@@ -5,7 +5,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.module.Module;
-import me.zeroeightsix.kami.feature.FeatureManager;
+import me.zeroeightsix.kami.module.modules.AutoReconnect;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.MinecraftClient;
@@ -52,7 +52,7 @@ public class AutoLog extends Module {
     });
 
     private void log() {
-        FeatureManager.getModuleByName("AutoReconnect").disable();
+        AutoReconnect.INSTANCE.disable();
         shouldLog = true;
         lastLog = System.currentTimeMillis();
     }

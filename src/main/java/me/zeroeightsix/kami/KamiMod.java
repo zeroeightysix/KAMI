@@ -63,8 +63,6 @@ public class KamiMod implements ModInitializer {
         loadConfiguration();
         KamiMod.log.info("Settings loaded");
 
-        FeatureManager.updateLookup(); // generate the lookup table after settings are loaded to make custom module names work
-
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         FeatureManager.INSTANCE.getFeatures().stream().filter(Feature::isEnabled).forEach(Feature::enable);
 

@@ -1,15 +1,16 @@
-package me.zeroeightsix.kami.module.modules.combat;
+package me.zeroeightsix.kami.module.modules.combat
 
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.Module
 
 /**
  * Created by 086 on 28/12/2017.
  * Last Updated 29 June 2019 by hub
  */
-@Module.Info(name = "CrystalAura", category = Module.Category.COMBAT)
-public class CrystalAura extends Module {
-
-    /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
+@Module.Info(
+    name = "CrystalAura",
+    category = Module.Category.COMBAT
+)
+object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
     private Setting<Boolean> players = register(Settings.b("Players"));
     private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
     private Setting<Boolean> animals = register(Settings.b("Animals", false));
@@ -90,7 +91,7 @@ public class CrystalAura extends Module {
                 }
             }
         }
-		
+
         boolean offhand = false;
         if (mc.player.getOffHandStack().getItem() == Items.END_CRYSTAL) {
             offhand = true;
@@ -245,7 +246,8 @@ public class CrystalAura extends Module {
         float damage = (float) ((int) ((v * v + v) / 2.0D * 7.0D * (double) doubleExplosionSize + 1.0D));
         double finald = 1;
         /*if (entity instanceof EntityLivingBase)
-            finald = getBlastReduction((EntityLivingBase) entity,getDamageMultiplied(damage));*//*
+            finald = getBlastReduction((EntityLivingBase) entity,getDamageMultiplied(damage));*/
+/*
         if (entity instanceof EntityLivingBase) {
             finald = getBlastReduction((EntityLivingBase) entity, getDamageMultiplied(damage), new Explosion(mc.world, null, x, y, z, 6F, false, true));
         }
@@ -320,5 +322,6 @@ public class CrystalAura extends Module {
         render = null;
         renderEnt = null;
         resetRotation();
-    }*/ //TODO
+    }*/*/
+//TODO
 }

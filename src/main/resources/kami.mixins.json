@@ -30,7 +30,6 @@
     "MixinEntityRenderer",
     "MixinGameRenderer",
     "MixinGuiPlayerTabOverlay",
-    "MixinHandshakeC2SPacket",
     "MixinInput",
     "MixinKeyboard",
     "MixinLightmapTextureManager",

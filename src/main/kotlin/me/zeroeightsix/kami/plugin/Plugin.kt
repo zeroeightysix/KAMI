@@ -10,13 +10,11 @@ open class Plugin(name: String, description: String, val modules: List<Module> =
     override fun onEnable() {
         super.onEnable()
         modules.forEach { FeatureManager.addFeature(it) }
-        FeatureManager.updateLookup()
     }
 
     override fun onDisable() {
         super.onDisable()
         modules.forEach { FeatureManager.removeFeature(it) }
-        FeatureManager.updateLookup()
     }
 
 }
