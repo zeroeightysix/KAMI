@@ -51,7 +51,7 @@ Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
 
 To ask for help, join the [Discord](http://discord.gg/9hvwgeg)
 
-If you experience an issue and it's not listed there, please [open a new issue](../../issues/new) and a contributor will help you further.
+If you experience an issue and it's not listed there, please [open a new issue](../../issues/new/choose) and a contributor will help you further.
 
 ## Contributing
 
