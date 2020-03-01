@@ -120,7 +120,7 @@ gradlew.bat build
 
 To copy on windows run `autocopy.bat`
 
-If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\` folder of a Minecraft instance that has forge installed.
+If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\` folder of a Minecraft instance that has Fabric installed.
 
 Note: This assumes your Minecraft folder is in the default location under your %appdata% folder.
 
