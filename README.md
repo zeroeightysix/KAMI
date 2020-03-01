@@ -71,6 +71,7 @@ Of-course you can also use a Gradle installation if you for some reason want ano
 ```
 ./gradlew setupDecompWorkspace
 ```
+
 Import KAMI into your IDE of choice. 
 
 If you use IntelliJ, import from the `build.gradle` file and run `./gradlew genIntellijRuns`
@@ -82,6 +83,7 @@ If you do not wish to run from an IDE, use `./gradlew runClient` to run KAMI.
 ### Building
 #### Linux
 You can build by running these commands (without the <>) in a terminal.
+
 ```
 git clone -b fabric-1.14 https://github.com/zeroeightysix/KAMI/
 cd KAMI
@@ -89,13 +91,16 @@ cd KAMI
 chmod +x gradlew
 ./gradlew <args>
 ```
+
 Possible arguments:
+
 ```
 build
 mkdir
 rmOld
 copy
 ```
+
 If you use more than one then it must be in that order. 
 
 Build is required, `mkdir` makes the `mods/` directory, `rmOld` removes old versions of KAMI<sup>\[1]</sup> in that directory, and `copy` copies the build release to the `mods/` directory. 
@@ -104,7 +109,7 @@ Build is required, `mkdir` makes the `mods/` directory, `rmOld` removes old vers
 
 If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods/` folder of a Minecraft instance that has Fabric installed.
 
-Note: This assumes your minecraft folder is in the default location under your home folder.
+Note: This assumes your Minecraft folder is in the default location under your home folder.
 
 #### Windows
 You can build by running these commands in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
@@ -115,9 +120,9 @@ gradlew.bat build
 
 To copy on windows run `autocopy.bat`
 
-If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\` folder of a minecraft instance that has forge installed.
+If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\` folder of a Minecraft instance that has forge installed.
 
-Note: This assumes your minecraft folder is in the default location under your %appdata% folder.
+Note: This assumes your Minecraft folder is in the default location under your %appdata% folder.
 
 ## Thank you
 [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
