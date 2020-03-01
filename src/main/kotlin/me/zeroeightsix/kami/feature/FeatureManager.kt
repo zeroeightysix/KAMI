@@ -9,7 +9,6 @@ import me.zeroeightsix.kami.util.ClassFinder
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.InputUtil
 import org.reflections.Reflections
-import java.lang.reflect.InvocationTargetException
 import java.util.stream.Stream
 
 /**
@@ -85,27 +84,25 @@ object FeatureManager {
             ).stream(),
             reflections.getTypesAnnotatedWith(FindFeature::class.java).stream()
         ).forEach {
-            try {
-                val feature = it.getConstructor().newInstance() as Feature
-                features.add(feature)
-            } catch (e: NoSuchMethodException) {
+            fun tryErr(block: () -> Unit) {
                 try {
-                    val feature = it.getDeclaredField("INSTANCE").get(null) as Feature
-                    features.add(feature)
+                    block()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
                 }
-            } catch (e: InvocationTargetException) {
-                e.cause!!.printStackTrace()
-                System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                System.err.println("Couldn't initiate feature " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
+            }
+            tryErr {
+                val feature = it.getConstructor().newInstance() as Feature
+                features.add(feature)
+                tryErr {
+                    val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
+                    features.add(instFeature)
+                }
             }
         }
 
-        KamiMod.log.info("Modules initialised")
+        KamiMod.log.info("Features initialised")
         features.sortWith(compareBy { it.name.value })
     }
 
