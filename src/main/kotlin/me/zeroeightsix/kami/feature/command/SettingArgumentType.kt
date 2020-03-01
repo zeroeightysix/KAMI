@@ -35,7 +35,7 @@ class SettingArgumentType<T>(
         return if (s.isPresent) {
             s.get() as Setting<T>
         } else {
-            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module))
+            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name.value))
         }
     }
 
@@ -56,12 +56,8 @@ class SettingArgumentType<T>(
         val INVALID_SETTING_EXCEPTION =
             DynamicCommandExceptionType(Function { `object`: Any ->
                 LiteralText(
-                    "Unknown setting '" + (`object` as Array<*>)[0] + "' for module '" + `object`[1]
+                    "Unknown setting '" + (`object` as Array<*>)[0] + "' for module " + `object`[1]
                 )
-            })
-        val NO_MODULE_EXCEPTION =
-            DynamicCommandExceptionType(Function {
-                LiteralText("No module found")
             })
 
         fun setting(
