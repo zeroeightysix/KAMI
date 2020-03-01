@@ -19,8 +19,8 @@ object PluginCommand : Command() {
         Function { o: Any -> LiteralText(o.toString()) }
     )
 
-    override fun register(dispatcher: CommandDispatcher<CommandSource>?) {
-        dispatcher!!.register(
+    override fun register(dispatcher: CommandDispatcher<CommandSource>) {
+        dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("plugins")
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("enable")

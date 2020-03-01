@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -105,12 +106,12 @@ object SettingsCommand : Command() {
                                 .then(
                                     RequiredArgumentBuilder.argument<CommandSource, Setting<Any>>(
                                         "setting",
-                                        settingArgumentType
+                                        settingArgumentType as ArgumentType<Setting<Any>>
                                     )
                                         .then(
                                             RequiredArgumentBuilder.argument<CommandSource, String>(
                                                 "value",
-                                                SettingValueArgumentType.value(settingArgumentType, "setting", 1)
+                                                SettingValueArgumentType.value(settingArgumentType as ArgumentType<Setting<*>>, "setting", 1)
                                             )
                                                 .executes { context: CommandContext<CommandSource> ->
                                                     val module =

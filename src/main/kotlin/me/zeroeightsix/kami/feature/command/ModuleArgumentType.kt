@@ -1,56 +1,54 @@
-package me.zeroeightsix.kami.feature.command;
+package me.zeroeightsix.kami.feature.command
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import me.zeroeightsix.kami.feature.FeatureManager;
-import me.zeroeightsix.kami.feature.module.Module;
-import net.minecraft.server.command.CommandSource;
-import net.minecraft.text.LiteralText;
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import me.zeroeightsix.kami.feature.Feature
+import me.zeroeightsix.kami.feature.FeatureManager.features
+import me.zeroeightsix.kami.feature.module.Module
+import net.minecraft.server.command.CommandSource
+import net.minecraft.text.LiteralText
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.function.Function
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
-public class ModuleArgumentType implements ArgumentType<Module> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("Aura", "CameraClip", "Flight");
-    public static final DynamicCommandExceptionType INVALID_MODULE_EXCEPTION = new DynamicCommandExceptionType((object) -> {
-        return new LiteralText("Unknown module '" + object + "'");
-    });
-
-    public static ModuleArgumentType module() {
-        return new ModuleArgumentType();
-    }
-
-    @Override
-    public Module parse(StringReader reader) throws CommandSyntaxException {
-        String string = reader.readUnquotedString();
-        Optional<Module> module = FeatureManager.INSTANCE.getFeatures()
-                .stream()
-                .filter(feature -> feature instanceof Module)
-                .map(feature -> (Module) feature)
-                .filter(module1 -> module1.getName().getValue().equals(string))
-                .findAny();
-        if (!module.isPresent()) {
-            throw INVALID_MODULE_EXCEPTION.create(string);
+class ModuleArgumentType : ArgumentType<Module> {
+    @Throws(CommandSyntaxException::class)
+    override fun parse(reader: StringReader): Module {
+        val string = reader.readUnquotedString()
+        try {
+            return features.filterIsInstance<Module>().first { it.name.value == string }
+        } catch (e: NoSuchElementException) {
+            throw INVALID_MODULE_EXCEPTION.create(string)
         }
-        return module.get();
     }
 
-    @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(FeatureManager.INSTANCE.getFeatures().stream().map(m -> m.getName().getValue()), builder);
+    override fun <S> listSuggestions(
+        context: CommandContext<S>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> {
+        return CommandSource.suggestMatching(
+            features.stream().map { m: Feature -> m.name.value }, builder
+        )
     }
 
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
+    override fun getExamples(): Collection<String> {
+        return EXAMPLES
     }
 
+    companion object {
+        private val EXAMPLES: Collection<String> = listOf("Aura", "CameraClip", "Flight")
+        val INVALID_MODULE_EXCEPTION =
+            DynamicCommandExceptionType(Function { `object`: Any ->
+                LiteralText("Unknown module '$`object`'")
+            })
+
+        fun module(): ModuleArgumentType {
+            return ModuleArgumentType()
+        }
+    }
 }
