@@ -4,7 +4,9 @@ import me.zeroeightsix.kami.setting.Setting
 import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.setting.builder.SettingBuilder
 
-open class Feature(private val originalName: String = "No name", var description: String = "No description") {
+open class Feature(private val originalName: String = "No name",
+                   var description: String = "No description",
+                   val hidden: Boolean = false) {
 
     var settingList = mutableListOf<Setting<*>>()
     var enabled: Setting<Boolean> = register(

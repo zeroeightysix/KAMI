@@ -15,8 +15,9 @@ import net.minecraft.client.util.InputUtil
 open class ListeningFeature(
     originalName: String = "No name",
     description: String = "No description",
+    hidden: Boolean = false,
     _alwaysListening: Boolean = false
-) : Feature(originalName, description), Listening {
+) : Feature(originalName, description, hidden), Listening {
 
     var alwaysListening = _alwaysListening
         set(value) {
