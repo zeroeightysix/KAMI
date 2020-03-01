@@ -8,7 +8,7 @@
 Forge 1.12.2 (currently `master`) is in slowed development. 
 Fabric 1.14.4 (currently `fabric-1.14`) is in active development. 
 
-Please note Baritone is not included in 1.12.2 forge. Get it [from here](https://github.com/cabaletta/baritone/releases).
+Please note Baritone is not included in 1.12.2 Forge. Get it [from here](https://github.com/cabaletta/baritone/releases).
 
 ## Preview
 
@@ -129,4 +129,6 @@ Note: This assumes your Minecraft folder is in the default location under your %
 
 [ronmamo](https://github.com/ronmamo/) for [Reflections](https://github.com/ronmamo/reflections)
 
-The [minecraft forge team](https://github.com/MinecraftForge) for [forge](https://files.minecraftforge.net/)
+The [Minecraft Forge team](https://github.com/MinecraftForge) for [Forge](https://files.minecraftforge.net/)
+
+The [Fabric Team](https://github.com/FabricMC) for [Fabric](https://github.com/FabricMC/fabric-loader) and [Yarn](https://github.com/FabricMC/yarn)
