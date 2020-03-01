@@ -107,7 +107,7 @@ object Modules {
     }
 
     private fun getDefaultWindows() = mutableListOf(
-        ModuleWindow("All modules", groups = FeatureManager.modules.groupBy {
+        ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
             it.category.getName()
         }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
     )

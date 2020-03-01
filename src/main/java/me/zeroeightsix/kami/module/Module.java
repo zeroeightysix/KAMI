@@ -1,15 +1,7 @@
 package me.zeroeightsix.kami.module;
 
-import com.google.common.base.Converter;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import glm_.vec2.Vec2;
-import imgui.ImGui;
 import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
-import me.zeroeightsix.kami.util.Bind;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.InputUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,19 +13,10 @@ import java.lang.annotation.RetentionPolicy;
 public class Module extends ListeningFeature {
 
     private final Category category = getAnnotation().category();
-    private Setting<Bind> bind = register(Settings.custom("Bind", Bind.none(), new BindConverter(), setting -> {
-        ImGui.INSTANCE.text("Bound to " + getBind().toString()); // TODO: Highlight bind in another color?
-        ImGui.INSTANCE.sameLine(0, -1);
-        if (ImGui.INSTANCE.button("Bind", new Vec2())) {
-            // TODO: Bind popup?
-            // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-        }
-    }).build());
-
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public Module() {
-        registerAll(bind, getEnabled());
+        registerAll(getBindSetting(), getEnabled());
         setAlwaysListening(getAnnotation().alwaysListening());
         getName().setValue(getAnnotation().name());
         setDescription(getAnnotation().description());
@@ -44,10 +27,6 @@ public class Module extends ListeningFeature {
             return getClass().getAnnotation(Info.class);
         }
         throw new IllegalStateException("No Annotation on class " + this.getClass().getCanonicalName() + "!");
-    }
-
-    public Bind getBind() {
-        return bind.getValue();
     }
 
     public void setName(String name) {
@@ -112,26 +91,4 @@ public class Module extends ListeningFeature {
         }
     }
 
-    private class BindConverter extends Converter<Bind, JsonElement> {
-        @Override
-        protected JsonElement doForward(Bind bind) {
-            JsonArray array = new JsonArray();
-            array.add(bind.isAlt());
-            array.add(bind.isCtrl());
-            array.add(bind.isShift());
-            //TODO
-            return array;
-        }
-
-        @Override
-        protected Bind doBackward(JsonElement jsonElement) {
-            JsonArray array = jsonElement.getAsJsonArray();
-            boolean alt = array.get(0).getAsBoolean();
-            boolean ctrl = array.get(1).getAsBoolean();
-            boolean shift = array.get(2).getAsBoolean();
-            int key = array.get(2).getAsInt();
-            int scancode = array.get(3).getAsInt();
-            return new Bind(ctrl, alt, shift, InputUtil.getKeyCode(key, scancode));
-        }
-    }
 }

@@ -17,7 +17,7 @@ import me.zeroeightsix.kami.gui.KamiHud;
 import me.zeroeightsix.kami.gui.windows.KamiSettings;
 import me.zeroeightsix.kami.module.Feature;
 import me.zeroeightsix.kami.module.FeatureManager;
-import me.zeroeightsix.kami.module.Module;
+import me.zeroeightsix.kami.module.Listening;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
@@ -131,7 +131,10 @@ public class KamiMod implements ModInitializer {
         manager.initialize();
         EVENT_BUS.subscribe(manager);
 
-        FeatureManager.INSTANCE.getModules().stream().filter(Module::isAlwaysListening).forEach(EVENT_BUS::subscribe);
+        FeatureManager.INSTANCE.getFeatures()
+                .stream()
+                .filter(feature -> feature instanceof Listening && ((Listening) feature).isAlwaysListening())
+                .forEach(EVENT_BUS::subscribe);
         LagCompensator.INSTANCE = new LagCompensator();
 
         commandManager = new CommandManager();

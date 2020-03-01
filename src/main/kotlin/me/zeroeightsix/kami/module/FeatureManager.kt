@@ -15,9 +15,6 @@ import java.lang.reflect.InvocationTargetException
 object FeatureManager {
 
     val features = mutableListOf<Feature>()
-    // Because we also handle module-only events (deprecated), we pre-sort them.
-    @Deprecated("Use events instead.")
-    val modules = mutableListOf<Module>()
     /**
      * Lookup map for getting by name
      */
@@ -46,12 +43,13 @@ object FeatureManager {
             }
             Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
         }
-        modules.stream().forEach {
-            val bind = it.bind
+        features.filter { it is Listening }.forEach {
+            val l = it as Listening
+            val bind = l.getBind()
             if ((bind.binding as IKeyBinding).keyCode == code) {
                 (bind.binding as IKeyBinding).setPressed(pressed)
             }
-            if (it.bind.isDown) {
+            if (bind.isDown) {
                 it.toggle()
             }
         }
@@ -83,7 +81,6 @@ object FeatureManager {
             try {
                 val module = it.getConstructor().newInstance() as Module
                 features.add(module)
-                modules.add(module)
             } catch (e: InvocationTargetException) {
                 e.cause!!.printStackTrace()
                 System.err.println("Couldn't initiate module " + it.simpleName + "! Err: " + e.javaClass.simpleName + ", message: " + e.message)
