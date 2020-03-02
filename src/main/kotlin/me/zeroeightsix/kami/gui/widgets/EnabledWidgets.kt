@@ -7,7 +7,7 @@ import imgui.dsl.menuItem
 
 object EnabledWidgets {
 
-    var hideAll = false;
+    var hideAll = false
 
     private var informationVisible = true
     private var coordinatesVisible = true

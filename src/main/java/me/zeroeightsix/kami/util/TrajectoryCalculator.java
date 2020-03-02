@@ -156,7 +156,7 @@ public class TrajectoryCalculator {
             Entity collidingEntity = null;
             double currentDistance = 0.0d;
             // Get all possible collision entities disregarding the local thePlayer
-            List<Entity> collisionEntities = this.shooter.world.getEntities(this.shooter, this.boundingBox.expand(this.motion.x, this.motion.y, this.motion.z).expand(1.0D, 1.0D, 1.0D));;
+            List<Entity> collisionEntities = this.shooter.world.getEntities(this.shooter, this.boundingBox.expand(this.motion.x, this.motion.y, this.motion.z).expand(1.0D, 1.0D, 1.0D));
 
             if (collisionEntities.size() > 0) collidingEntity = collisionEntities.get(0);
 

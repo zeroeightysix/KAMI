@@ -86,7 +86,7 @@ object ModuleWindowsEditor {
                                 group.value.forEachIndexed { n, module ->
                                     selectable(module.name.value)
                                     if (!rearrange) {
-                                        dragDropSource() {
+                                        dragDropSource {
                                             setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), window))
                                             text(module.name.value)
                                         }

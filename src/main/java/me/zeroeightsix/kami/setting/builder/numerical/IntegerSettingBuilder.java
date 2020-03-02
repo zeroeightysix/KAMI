@@ -22,7 +22,7 @@ public class IntegerSettingBuilder extends NumericalSettingBuilder<Integer> {
 
     @Override
     public NumericalSettingBuilder withName(String name) {
-        return (IntegerSettingBuilder) super.withName(name);
+        return super.withName(name);
     }
 
     @Override

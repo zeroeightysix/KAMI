@@ -40,7 +40,7 @@ public class KamiTessellator extends Tessellator {
     }
 
     public static void begin(int mode) {
-        INSTANCE.getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
+        getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
     }
 
     public static void release() {

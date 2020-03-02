@@ -110,7 +110,7 @@ public class Brightness extends Module {
     }
 
     public enum Transition {
-        LINEAR, SINE;
+        LINEAR, SINE
 
     }
 }

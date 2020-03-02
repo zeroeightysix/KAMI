@@ -31,17 +31,17 @@ public class Velocity extends Module {
                 if (velocity.getId() == mc.player.getEntityId()) {
                     if (horizontal.getValue() == 0 && vertical.getValue() == 0) event.cancel();
                     IEntityVelocityUpdateS2CPacket xyz = (IEntityVelocityUpdateS2CPacket) velocity;
-                    xyz.setVelocityX((int) (xyz.getVelocityX() * horizontal.getValue()));;
+                    xyz.setVelocityX((int) (xyz.getVelocityX() * horizontal.getValue()));
                     xyz.setVelocityY((int) (xyz.getVelocityY() * vertical.getValue()));
-                    xyz.setVelocityZ((int) (xyz.getVelocityZ() * horizontal.getValue()));;
+                    xyz.setVelocityZ((int) (xyz.getVelocityZ() * horizontal.getValue()));
                 }
             } else if (event.getPacket() instanceof ExplosionS2CPacket) {
                 if (horizontal.getValue() == 0 && vertical.getValue() == 0) event.cancel();
                 IPlayerMoveC2SPacket xyz = (IPlayerMoveC2SPacket) event.getPacket();
                 xyz.setX(xyz.getX() );
-                xyz.setX((int) (xyz.getX() * horizontal.getValue()));;
+                xyz.setX((int) (xyz.getX() * horizontal.getValue()));
                 xyz.setY((int) (xyz.getY() * vertical.getValue()));
-                xyz.setZ((int) (xyz.getZ() * horizontal.getValue()));;
+                xyz.setZ((int) (xyz.getZ() * horizontal.getValue()));
             }
         }
     });

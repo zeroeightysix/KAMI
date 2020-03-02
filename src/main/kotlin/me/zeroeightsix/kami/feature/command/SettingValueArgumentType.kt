@@ -26,7 +26,7 @@ class SettingValueArgumentType(
         val setting = findDependencyValue(reader)
         val string = reader.readUnquotedString()
         try {
-            val v = setting!!.convertFromString(string)
+            val v = setting.convertFromString(string)
             return string
         } catch (ignored: Exception) {
         }

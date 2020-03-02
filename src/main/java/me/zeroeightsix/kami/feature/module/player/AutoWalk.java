@@ -27,7 +27,7 @@ public class AutoWalk extends Module {
         }
     });
 
-    private static enum AutoWalkMode {
+    private enum AutoWalkMode {
         FORWARD, BACKWARDS
     }
 

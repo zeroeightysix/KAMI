@@ -59,7 +59,7 @@ public class SkinFlicker extends Module {
         }
     });
 
-    public static enum FlickerMode {
+    public enum FlickerMode {
         HORIZONTAL, VERTICAL, RANDOM
     }
 

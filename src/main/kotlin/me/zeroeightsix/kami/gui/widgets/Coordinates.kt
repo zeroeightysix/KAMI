@@ -13,5 +13,4 @@ object Coordinates : TextPinnableWidget("Coordinates", text = mutableListOf(
         CompiledText.LiteralPart("z"),
         CompiledText.VariablePart(getVariable("z"), extraspace = false)
     ))
-)) {
-}
+))

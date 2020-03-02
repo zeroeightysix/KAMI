@@ -134,7 +134,7 @@ object SettingsCommand : Command() {
                                                     } catch (e: Exception) {
                                                         throw FAILED_EXCEPTION.create("Couldn't convert value from string to setting value (this shouldn't happen)")
                                                     }
-                                                    setting.setValue(value)
+                                                    setting.value = value
                                                     (context.source as KamiCommandSource).sendFeedback(
                                                         Texts.f(
                                                             Formatting.GOLD,
