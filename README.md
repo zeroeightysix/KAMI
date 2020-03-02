@@ -5,10 +5,7 @@
 
 ## A Minecraft utility mod for anarchy servers.
 
-Forge 1.12.2 (currently `master`) is in slowed development. 
-Fabric 1.14.4 (currently `fabric-1.14`) is in active development. 
-
-Please note Baritone is not included in 1.12.2 Forge. Get it [from here](https://github.com/cabaletta/baritone/releases).
+The Fabric 1.14.4 version is in active development. 
 
 ## Preview
 
