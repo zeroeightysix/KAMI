@@ -71,19 +71,6 @@ public class Module extends ListeningFeature {
         return category;
     }
 
-    public void setEnabled(boolean enabled) {
-        boolean prev = this.getEnabled().getValue();
-        if (prev != enabled)
-            if (enabled)
-                enable();
-            else
-                disable();
-    }
-
-    public String getHudInfo() {
-        return null;
-    }
-
     protected void registerAll(Setting... settings) {
         for (Setting setting : settings) {
             register(setting);
