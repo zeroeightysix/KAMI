@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.feature.module;
 
-import me.zeroeightsix.kami.feature.ListeningFeature;
-import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.feature.FullFeature;
 import net.minecraft.client.MinecraftClient;
 
 import java.lang.annotation.Retention;
@@ -11,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by 086 on 23/08/2017.
  * Updated by hub on 3 November 2019
  */
-public class Module extends ListeningFeature {
+public class Module extends FullFeature {
 
     private final Category category = getAnnotation().category();
     protected static final MinecraftClient mc = MinecraftClient.getInstance();

@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.RenderHudEvent
 import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.feature.FindFeature
-import me.zeroeightsix.kami.feature.ListeningFeature
+import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud.renderHud
 import me.zeroeightsix.kami.gui.windows.KamiSettings.rainbowBrightness
@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 @FindFeature
-object PrepHandler : ListeningFeature(hidden = true, _alwaysListening = true) {
+object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
 
     private var displayWidth = 0
     private var displayHeight = 0

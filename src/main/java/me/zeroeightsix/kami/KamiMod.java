@@ -3,7 +3,7 @@ package me.zeroeightsix.kami;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.command.Command;
-import me.zeroeightsix.kami.feature.Feature;
+import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.gui.KamiGuiScreen;
@@ -64,7 +64,7 @@ public class KamiMod implements ModInitializer {
         KamiMod.log.info("Settings loaded");
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
-        FeatureManager.INSTANCE.getFeatures().stream().filter(Feature::isEnabled).forEach(Feature::enable);
+        FeatureManager.INSTANCE.getFeatures().stream().filter(AbstractFeature::isEnabled).forEach(AbstractFeature::enable);
 
         KamiMod.log.info("KAMI Mod initialized!\n");
     }

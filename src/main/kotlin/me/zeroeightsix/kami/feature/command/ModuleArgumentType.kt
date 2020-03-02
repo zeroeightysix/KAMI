@@ -7,8 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FeatureManager.features
+import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.module.Module
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -32,7 +32,7 @@ class ModuleArgumentType : ArgumentType<Module> {
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         return CommandSource.suggestMatching(
-            features.stream().map { m: Feature -> m.name.value }, builder
+            features.filterIsInstance<FullFeature>().map { it.name.value }, builder
         )
     }
 

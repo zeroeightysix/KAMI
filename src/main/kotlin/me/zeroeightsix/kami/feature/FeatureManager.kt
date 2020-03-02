@@ -2,9 +2,9 @@ package me.zeroeightsix.kami.feature
 
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.command.Command
+import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
-import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.InputUtil
 import org.reflections.Reflections
@@ -15,7 +15,7 @@ import java.util.stream.Stream
  */
 object FeatureManager {
 
-    val features = mutableListOf<Feature>()
+    val features = mutableListOf<AbstractFeature>()
 
     fun initialize() {
         initFeatures()
@@ -46,11 +46,11 @@ object FeatureManager {
         }
     }
 
-    fun addFeature(feature: Feature): Boolean {
+    fun addFeature(feature: AbstractFeature): Boolean {
         return features.add(feature)
     }
 
-    fun removeFeature(feature: Feature): Boolean {
+    fun removeFeature(feature: AbstractFeature): Boolean {
         return features.remove(feature)
     }
 
@@ -76,10 +76,10 @@ object FeatureManager {
                 }
             }
             tryErr( {
-                val feature = it.getConstructor().newInstance() as Feature
+                val feature = it.getConstructor().newInstance() as AbstractFeature
                 features.add(feature)
             }, {
-                val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
+                val instFeature = it.getDeclaredField("INSTANCE").get(null) as AbstractFeature
                 features.add(instFeature)
             })
         }
@@ -90,7 +90,9 @@ object FeatureManager {
             it.register(Command.dispatcher)
         }
 
-        features.sortWith(compareBy { it.name.value })
+        features.sortWith(compareBy {
+            if (it is FullFeature) it.name.value else false
+        })
     }
 
 }
