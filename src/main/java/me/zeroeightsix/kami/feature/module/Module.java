@@ -71,10 +71,4 @@ public class Module extends ListeningFeature {
         return category;
     }
 
-    protected void registerAll(Setting... settings) {
-        for (Setting setting : settings) {
-            register(setting);
-        }
-    }
-
 }

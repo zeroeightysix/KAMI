@@ -14,22 +14,11 @@ import net.minecraft.entity.player.PlayerEntity
     description = "See entities through walls"
 )
 object Chams : Module() {
-    private val players =
-        Settings.b("Players", true)
-    private val animals =
-        Settings.b("Animals", false)
-    private val mobs =
-        Settings.b("Mobs", false)
+    private val players = register(Settings.b("Players", true))
+    private val animals = register(Settings.b("Animals", false))
+    private val mobs = register(Settings.b("Mobs", false))
 
     fun renderChams(entity: Entity?): Boolean {
         return if (entity is PlayerEntity) players.value else if (EntityUtil.isPassive(entity)) animals.value else mobs.value
-    }
-
-    init {
-        registerAll(
-            players,
-            animals,
-            mobs
-        )
     }
 }
