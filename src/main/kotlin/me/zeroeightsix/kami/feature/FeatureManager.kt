@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.feature
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.feature.plugin.Plugin
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.util.Wrapper
@@ -17,8 +18,15 @@ object FeatureManager {
 
     val features = mutableListOf<AbstractFeature>()
 
+    val modules get() = features.filterIsInstance<Module>()
+    val plugins get() = features.filterIsInstance<Plugin>()
+
     fun initialize() {
         initFeatures()
+    }
+
+    fun <T : FullFeature> List<T>.getByName(name: String): T? {
+        return this.firstOrNull { it.name.value == name }
     }
 
     @JvmStatic
@@ -91,7 +99,7 @@ object FeatureManager {
         }
 
         features.sortWith(compareBy {
-            if (it is FullFeature) it.name.value else false
+            if (it is FullFeature) it.name.value else null
         })
     }
 

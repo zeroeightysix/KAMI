@@ -50,9 +50,4 @@ public class Blink extends Module {
         }
     }
 
-    @Override
-    public String getHudInfo() {
-        return String.valueOf(packets.size());
-    }
-
 }

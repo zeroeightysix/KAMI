@@ -6,8 +6,9 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.FeatureManager.getByName
 import me.zeroeightsix.kami.feature.plugin.Plugin
-import me.zeroeightsix.kami.feature.plugin.PluginManager
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
@@ -29,8 +30,8 @@ class PluginArgumentType: ArgumentType<Plugin> {
     override fun parse(reader: StringReader?): Plugin {
         val reader: StringReader = reader!!
         val str = reader.readUnquotedString()
-        PluginManager.getPlugin(str)?.let {
-            return it
+        FeatureManager.plugins.getByName(str)?.let {
+            return@let it
         }
         throw invalidPluginException.create(str)
     }
@@ -40,7 +41,7 @@ class PluginArgumentType: ArgumentType<Plugin> {
         builder: SuggestionsBuilder?
     ): CompletableFuture<Suggestions?>? {
         return CommandSource.suggestMatching(
-            PluginManager.plugins.stream().map { obj: Plugin -> obj.name.value },
+            FeatureManager.plugins.stream().map { obj: Plugin -> obj.name.value },
             builder
         )
     }
