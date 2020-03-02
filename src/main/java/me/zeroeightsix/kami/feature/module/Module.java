@@ -17,7 +17,6 @@ public class Module extends ListeningFeature {
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public Module() {
-        registerAll(getBindSetting(), getEnabled());
         setAlwaysListening(getAnnotation().alwaysListening());
         getName().setValue(getAnnotation().name());
         setDescription(getAnnotation().description());
