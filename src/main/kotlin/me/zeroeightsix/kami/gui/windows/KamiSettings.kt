@@ -12,6 +12,7 @@ import imgui.dsl.window
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import kotlin.reflect.KMutableProperty0
 
 object KamiSettings {
 
@@ -20,30 +21,38 @@ object KamiSettings {
     var swapModuleListButtons = false
     var oldModuleEditMode = false
     var hideModuleDescriptions = false
-    var styleIdx = 0
+    private var styleIdx = 0
     var borderOffset = 10f
     var rainbowSpeed = 32
     var rainbowSaturation = 1f
     var rainbowBrightness = 1f
+    private var experimental = false
+    var interactOutsideGUI = false
 
     private val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
     operator fun invoke() {
+        fun setting(label: String, checked: KMutableProperty0<Boolean>, description: String) {
+            checkbox(label, checked) {}
+            sameLine()
+            demoDebugInformations.helpMarker(description)
+        }
+
         if (settingsWindowOpen) {
             window("Settings", ::settingsWindowOpen) {
+                setting(
+                    "Experimental features",
+                    ::experimental,
+                    "Shows settings that are considered experimental or buggy"
+                )
                 collapsingHeader("Module windows") {
-                    checkbox("Swap list buttons", ::swapModuleListButtons) {}
-                    sameLine()
-                    demoDebugInformations.helpMarker("When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module.")
-
-                    checkbox("Hide descriptions", ::hideModuleDescriptions) {}
-                    sameLine()
-                    demoDebugInformations.helpMarker("Hide module descriptions when its settings are opened.")
-
-                    checkbox("Old edit method", ::oldModuleEditMode) {}
-                    sameLine()
-                    demoDebugInformations.helpMarker("Enable the old module edit method. A question mark will appear next to module descriptions that will allow you to merge or detach modules.")
-
+                    setting(
+                        "Swap list buttons",
+                        ::swapModuleListButtons,
+                        "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
+                    )
+                    setting("Hide descriptions", ::hideModuleDescriptions, "Hide module descriptions when its settings are opened.")
+                    setting("Old edit method", ::oldModuleEditMode,"Enable the old module edit method. A question mark will appear next to module descriptions that will allow you to merge or detach modules.")
                     button("Reset module windows") {
                         Modules.reset()
                     }
@@ -69,6 +78,10 @@ object KamiSettings {
                     if (dragFloat("Rainbow brightness", ::rainbowBrightness, vSpeed = 0.01F, vMin = 0f, vMax = 1f)) {
                         rainbowBrightness = rainbowBrightness.coerceIn(0f, 1f)
                     }
+
+                    if (experimental) {
+                        setting("Always interactable GUI", ::interactOutsideGUI, "Allows you to interact with the GUI at any time, e.g. when chat is opened, or the game is paused.")
+                    }
                 }
 
                 collapsingHeader("Overlay") {
@@ -76,9 +89,7 @@ object KamiSettings {
                 }
 
                 collapsingHeader("In-game") {
-                    checkbox("Keybind modifiers", ::modifiersEnabled) {}
-                    sameLine()
-                    demoDebugInformations.helpMarker("Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
+                    setting("Keybind modifiers", ::modifiersEnabled, "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
                 }
             }
         }

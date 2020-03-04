@@ -1,8 +1,10 @@
 package me.zeroeightsix.kami.gui
 
+import imgui.ConfigFlag
 import imgui.ImGui
 import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
+import imgui.wo
 import me.zeroeightsix.kami.gui.KamiHud.implGl3
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.KamiSettings
@@ -13,7 +15,7 @@ import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
-
+    
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
         if (!returned) {
@@ -63,8 +65,18 @@ class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         }
     }
 
-    fun reload() {
-        implGl3 = ImplGL3()
+    override fun onClose() {
+        if (KamiSettings.interactOutsideGUI) {
+            ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
+        } else {
+            ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
+        }
+        super.onClose()
+    }
+
+    override fun init() {
+        super.init()
+        ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
     }
 
 }
