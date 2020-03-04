@@ -85,7 +85,7 @@ object Modules {
         if (clickedLeft) {
             module.toggle()
         } else if (clickedRight) {
-            val id = currentWindow.getId(label)
+            val id = currentWindow.getID(label)
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
             val window = currentWindow
             window.dc.stateStorage[id] = !open
