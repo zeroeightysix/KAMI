@@ -28,6 +28,7 @@ object KamiSettings {
     var rainbowBrightness = 1f
     private var experimental = false
     var interactOutsideGUI = false
+    var hudWithDebug = false
 
     private val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
@@ -81,6 +82,7 @@ object KamiSettings {
 
                     if (experimental) {
                         setting("Always interactable GUI", ::interactOutsideGUI, "Allows you to interact with the GUI at any time, e.g. when chat is opened, or the game is paused.")
+                        setting("Show HUD with debug screen", ::hudWithDebug, "Shows the HUD even when the debug screen is open")
                     }
                 }
 

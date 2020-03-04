@@ -14,6 +14,7 @@ import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud.renderHud
+import me.zeroeightsix.kami.gui.windows.KamiSettings
 import me.zeroeightsix.kami.gui.windows.KamiSettings.rainbowBrightness
 import me.zeroeightsix.kami.gui.windows.KamiSettings.rainbowSaturation
 import me.zeroeightsix.kami.gui.windows.KamiSettings.rainbowSpeed
@@ -52,7 +53,7 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
     var hudEventListener =
         Listener(
             EventHook<RenderHudEvent> {
-                if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen) {
+                if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen && (KamiSettings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
                     renderHud()
                 }
             }, EventPriority.LOW
