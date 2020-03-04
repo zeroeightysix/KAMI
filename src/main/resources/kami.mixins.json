@@ -10,6 +10,7 @@
     "IEntityRenderDispatcher",
     "IEntitySelector",
     "IEntityVelocityUpdateS2CPacket",
+    "IGameRenderer",
     "IKeyBinding",
     "IMinecraftClient",
     "IMiningToolItem",
