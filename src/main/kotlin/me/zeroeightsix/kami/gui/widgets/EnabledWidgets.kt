@@ -11,10 +11,12 @@ object EnabledWidgets {
 
     private var informationVisible = true
     private var coordinatesVisible = true
+    private var activeModulesVisible = true
 
     internal val widgets = mapOf(
         Information to ::informationVisible,
-        Coordinates to ::coordinatesVisible
+        Coordinates to ::coordinatesVisible,
+        ActiveModules to ::activeModulesVisible
     )
 
     operator fun invoke() = menu("Overlay") {
