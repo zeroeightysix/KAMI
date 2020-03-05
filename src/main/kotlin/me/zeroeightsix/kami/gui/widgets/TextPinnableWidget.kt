@@ -118,6 +118,7 @@ open class TextPinnableWidget(private val title: String,
                 }
             })
         } else {
+            var empty = guiOpen
             for (compiled in text) {
                 var same = false
                 for (part in compiled.parts) {
@@ -125,9 +126,18 @@ open class TextPinnableWidget(private val title: String,
                     pushStyleColor(Col.Text, part.currentColour())
                     if (same) sameLine(spacing = 0f)
                     else same = true
-                    text(part.toString())
+                    val str = part.toString()
+                    val notBlank = str.isNotBlank()
+                    if (empty && notBlank) empty = false
+                    if (notBlank)
+                        text(str)
                     popStyleColor()
                 }
+            }
+            if (empty) {
+                pushStyleColor(Col.Text, ImGui.style.colors[Col.TextDisabled])
+                text("$title (empty)")
+                popStyleColor()
             }
         }
     }
