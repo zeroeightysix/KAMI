@@ -53,14 +53,14 @@ open class TextPinnableWidget(private val title: String,
 
         internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
             val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
-                Pair("none", { CompiledText.ConstantVariable("No variable selected")}),
+                Pair("none", { CompiledText.ConstantVariable(string = "No variable selected")}),
                 Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
                 Pair("y", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.y }, 0) }),
                 Pair("z", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.z }, 0) }),
                 Pair("yaw", { CompiledText.NumericalVariable({ Wrapper.getPlayer().yaw.toDouble() }, 0) }),
                 Pair("pitch", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pitch.toDouble() }, 0) }),
                 Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0)}),
-                Pair("username", { CompiledText.ConstantVariable(Wrapper.getMinecraft().session.username) })
+                Pair("username", { CompiledText.ConstantVariable(string = Wrapper.getMinecraft().session.username) })
             )
             std.putAll(extra)
             sVarMap = std
@@ -90,12 +90,27 @@ open class TextPinnableWidget(private val title: String,
                     var xOffset = 0f
                     for (compiled in text) {
                         for (command in compiled.parts) {
-                            val str = command.codes + command // toString is called here -> supplier.get()
-                            val width = if (command.shadow)
-                                Wrapper.getMinecraft().textRenderer.drawWithShadow(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
-                            else
-                                Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
-                            xOffset += width
+                            if (command.multiline) {
+                                val codes = command.codes
+                                var lastWidth = 0f
+                                command.toString().split("\n").forEach {
+                                    val width = if (command.shadow)
+                                        Wrapper.getMinecraft().textRenderer.drawWithShadow(codes + it, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                    else
+                                        Wrapper.getMinecraft().textRenderer.draw(codes + it, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                    lastWidth = width
+                                    y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                                }
+                                xOffset += lastWidth
+                                y -= Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                            } else {
+                                val str = command.codes + command // toString is called here -> supplier.get()
+                                val width = if (command.shadow)
+                                    Wrapper.getMinecraft().textRenderer.drawWithShadow(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                else
+                                    Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                xOffset += width
+                            }
                         }
                         xOffset = 0f
                         y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
@@ -205,7 +220,7 @@ open class TextPinnableWidget(private val title: String,
                         setEditPart(part)
                     }
                     menuItem("Text") { addPart(CompiledText.LiteralPart("Text")) }
-                    menuItem("Variable") { addPart(CompiledText.VariablePart(CompiledText.ConstantVariable("No variable selected"))) }
+                    menuItem("Variable") { addPart(CompiledText.VariablePart(CompiledText.ConstantVariable(string = "No variable selected"))) }
                     menu("Line") {
                         menuItem("Before") {
                             iterator.previous()
@@ -326,6 +341,7 @@ open class TextPinnableWidget(private val title: String,
                         (if (italic) "§o" else "")
             }
 
+            abstract val multiline: Boolean
             var codes: String = toCodes()
 
             var bold: Boolean = _bold
@@ -390,6 +406,7 @@ open class TextPinnableWidget(private val title: String,
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             private var editCharBuf = "Text"
+            override val multiline = false
 
             override fun toString(): String {
                 return string + super.toString()
@@ -430,6 +447,9 @@ open class TextPinnableWidget(private val title: String,
             private var editVarComboIndex = 0
             private var editDigits = 0
 
+            override val multiline: Boolean
+                get() = variable.multiline
+
             override fun toString(): String {
                 return variable.provide() + super.toString()
             }
@@ -461,23 +481,31 @@ open class TextPinnableWidget(private val title: String,
         }
 
         abstract class Variable {
+            abstract val multiline: Boolean
+
             abstract fun provide(): String
         }
         
-        class ConstantVariable(private val string: String): Variable() {
+        class ConstantVariable(_multiline: Boolean = false, private val string: String): Variable() {
+            override val multiline = _multiline
+
             override fun provide(): String {
                 return string
             }
         }
 
         class NumericalVariable(private val provider: () -> Double, var digits: Int = 0): Variable() {
+            override val multiline = false
+
             override fun provide(): String {
                 val number = provider()
                 return String.format("%.${digits}f", number)
             }
         }
-        
-        class StringVariable(private val provider: () -> String): Variable() {
+
+        class StringVariable(_multiline: Boolean = false, private val provider: () -> String): Variable() {
+            override val multiline = _multiline
+
             override fun provide(): String {
                 return provider()
             }

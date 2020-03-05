@@ -4,9 +4,9 @@ import me.zeroeightsix.kami.KamiMod
 
 object Information : TextPinnableWidget("Information",
     extendStd(mapOf(
-        Pair("version", { CompiledText.ConstantVariable(KamiMod.MODVER) }),
-        Pair("client", { CompiledText.ConstantVariable(KamiMod.MODNAME) }),
-        Pair("kanji", { CompiledText.ConstantVariable(KamiMod.KAMI_KANJI) })
+        Pair("version", { CompiledText.ConstantVariable(string = KamiMod.MODVER) }),
+        Pair("client", { CompiledText.ConstantVariable(string = KamiMod.MODNAME) }),
+        Pair("kanji", { CompiledText.ConstantVariable(string = KamiMod.KAMI_KANJI) })
     )),
     mutableListOf(
         CompiledText(mutableListOf(
