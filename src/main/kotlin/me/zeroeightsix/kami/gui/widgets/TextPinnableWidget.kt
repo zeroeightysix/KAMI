@@ -47,15 +47,12 @@ open class TextPinnableWidget(private val title: String,
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
-    private var editVarComboIndex = 0
-    private var editCharBuf = "Text"
-    private var editDigits = 0
 
     companion object {
         private var sVarMap: Map<String, () -> CompiledText.Variable>? = null
 
         internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
-            val std = mutableMapOf(
+            val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
                 Pair("none", { CompiledText.ConstantVariable("No variable selected")}),
                 Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
                 Pair("y", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.y }, 0) }),
@@ -144,18 +141,18 @@ open class TextPinnableWidget(private val title: String,
             fun setEditPart(part: CompiledText.Part) {
                 editPart = part
                 editColourComboIndex = if (part.rainbow) 1 else 0
-                when (part) {
-                    is CompiledText.LiteralPart -> {
-                        editCharBuf = part.string
-                    }
-                    is CompiledText.VariablePart -> {
-                        when (val variable = part.variable) {
-                            is CompiledText.NumericalVariable -> {
-                                editDigits = variable.digits
-                            }
-                        }
-                    }
-                }
+                //when (part) {
+                //    is CompiledText.LiteralPart -> {
+                //        editCharBuf = part.string
+                //    }
+                //    is CompiledText.VariablePart -> {
+                //        when (val variable = part.variable) {
+                //            is CompiledText.NumericalVariable -> {
+                //                editDigits = variable.digits
+                //            }
+                //        }
+                //    }
+                //}
             }
 
             if (text.isEmpty()) {
@@ -244,51 +241,7 @@ open class TextPinnableWidget(private val title: String,
                     }
                 }
 
-                when (it) {
-                    is CompiledText.LiteralPart -> {
-                        if (inputText("Text", editCharBuf)) {
-                            var str = ""
-                            for (c in editCharBuf) {
-                                if (c != 0.toChar())
-                                    str += c
-                                else
-                                    break
-                            }
-                            it.string = str
-                        }
-                        sameLine()
-                        text("+")
-                        sameLine()
-                        val space = booleanArrayOf(it.extraspace)
-                        if (ImGui.checkbox("Space", space)) {
-                            it.extraspace = space[0]
-                        }
-                    }
-                    is CompiledText.VariablePart -> {
-                        combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
-                            val selected: String = variableMap.keys.toList()[editVarComboIndex]
-                            val v = getVariable(selected)
-                            if (v is CompiledText.NumericalVariable) {
-                                v.digits = editDigits
-                            }
-                            it.variable = v
-                        }
-                        sameLine()
-                        text("+")
-                        sameLine()
-                        val space = booleanArrayOf(it.extraspace)
-                        if (ImGui.checkbox("Space", space)) {
-                            it.extraspace = space[0]
-                        }
-                        when (val variable = it.variable) {
-                            is CompiledText.NumericalVariable -> {
-                                if (dragInt("Digits", ::editDigits, vSpeed = 0.1f, vMin = 0, vMax = 8)) {
-                                    variable.digits = editDigits
-                                }
-                            }
-                        }
-                    }
-                }
+                it.edit(variableMap)
 
                 if (minecraftFont) {
                     val shadow = booleanArrayOf(it.shadow)
@@ -421,6 +374,8 @@ open class TextPinnableWidget(private val title: String,
             fun currentColourRGB(): Int {
                 return if (rainbow) KamiMod.rainbow else rgb
             }
+
+            abstract fun edit(variableMap: Map<String, () -> Variable>)
         }
         
         class LiteralPart(
@@ -434,8 +389,30 @@ open class TextPinnableWidget(private val title: String,
             rainbow: Boolean = false,
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
+            private var editCharBuf = "Text"
+
             override fun toString(): String {
                 return string + super.toString()
+            }
+
+            override fun edit(variableMap: Map<String, () -> Variable>) {
+                if (inputText("Text", editCharBuf)) {
+                    var str = ""
+                    for (c in editCharBuf) {
+                        if (c != 0.toChar())
+                            str += c
+                        else
+                            break
+                    }
+                    string = str
+                }
+                sameLine()
+                text("+")
+                sameLine()
+                val space = booleanArrayOf(extraspace)
+                if (ImGui.checkbox("Space", space)) {
+                    extraspace = space[0]
+                }
             }
         }
 
@@ -450,8 +427,36 @@ open class TextPinnableWidget(private val title: String,
             rainbow: Boolean = false,
             extraspace: Boolean = true
         ): Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
+            private var editVarComboIndex = 0
+            private var editDigits = 0
+
             override fun toString(): String {
                 return variable.provide() + super.toString()
+            }
+
+            override fun edit(variableMap: Map<String, () -> Variable>) {
+                combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
+                    val selected: String = variableMap.keys.toList()[editVarComboIndex]
+                    val v = getVariable(selected)
+                    if (v is NumericalVariable) {
+                        v.digits = editDigits
+                    }
+                    variable = v
+                }
+                sameLine()
+                text("+")
+                sameLine()
+                val space = booleanArrayOf(extraspace)
+                if (ImGui.checkbox("Space", space)) {
+                    extraspace = space[0]
+                }
+                when (val variable = variable) {
+                    is NumericalVariable -> {
+                        if (dragInt("Digits", ::editDigits, vSpeed = 0.1f, vMin = 0, vMax = 8)) {
+                            variable.digits = editDigits
+                        }
+                    }
+                }
             }
         }
 
