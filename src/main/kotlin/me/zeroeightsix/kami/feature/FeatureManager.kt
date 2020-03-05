@@ -37,10 +37,7 @@ object FeatureManager {
             return
         }
         if (key == 89 && scancode == 29) {
-            if (KamiMod.getInstance().kamiGuiScreen == null) {
-                KamiMod.getInstance().kamiGuiScreen = KamiGuiScreen()
-            }
-            Wrapper.getMinecraft().openScreen(KamiMod.getInstance().kamiGuiScreen)
+            Wrapper.getMinecraft().openScreen(KamiGuiScreen)
         }
         features.filter { it is Listening }.forEach {
             val l = it as Listening

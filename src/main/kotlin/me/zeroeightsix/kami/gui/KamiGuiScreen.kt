@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
-class KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
+object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
