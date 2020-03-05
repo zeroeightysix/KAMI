@@ -415,7 +415,6 @@ open class TextPinnableWidget(private val title: String,
             rainbow: Boolean = false,
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
-            private var editCharBuf = "Text"
             override val multiline = false
 
             override fun toString(): String {
@@ -423,11 +422,12 @@ open class TextPinnableWidget(private val title: String,
             }
 
             override fun edit(variableMap: Map<String, () -> Variable>) {
-                if (inputText("Text", editCharBuf)) {
+                val buf = string.toByteArray(ByteArray(string.length + 2))
+                if (inputText("Text", buf)) {
                     var str = ""
-                    for (c in editCharBuf) {
-                        if (c != 0.toChar())
-                            str += c
+                    for (c in buf) {
+                        if (c != 0.toByte())
+                            str += c.toChar()
                         else
                             break
                     }
