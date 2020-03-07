@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import imgui.ImGui
+import imgui.*
 import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.checkbox
 import imgui.ImGui.columns
@@ -13,9 +13,6 @@ import imgui.ImGui.setDragDropPayload
 import imgui.ImGui.setNextItemWidth
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
-import imgui.InputTextFlag
-import imgui.MouseButton
-import imgui.WindowFlag
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.child
@@ -29,6 +26,7 @@ import imgui.dsl.popupModal
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import kotlin.collections.set
+import kotlin.text.toByteArray
 
 object ModuleWindowsEditor {
 
@@ -36,11 +34,11 @@ object ModuleWindowsEditor {
     private var rearrange = false
     private var modalPopup: (() -> Unit)? = null
 
-    private fun CharArray.backToString(): String {
+    private fun ByteArray.backToString(): String {
         var str = ""
         for (c in this) {
-            if (c == 0.toChar()) break
-            str += c
+            if (c == 0.toByte()) break
+            str += c.toChar()
         }
         return str
     }
@@ -63,10 +61,10 @@ object ModuleWindowsEditor {
                 val windows = Modules.windows
                 columns(windows.size + 1)
                 for (window in windows) {
-                    val buf = window.title
+                    val buf = window.title.toByteArray(ByteArray(window.title.length + 2))
                     setNextItemWidth(-1f)
                     if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
-                        window.title = buf
+                        window.title = buf.backToString()
                     }
                     nextColumn()
                 }
@@ -119,7 +117,7 @@ object ModuleWindowsEditor {
                                 }
                                 popupContextItem("popup-${group.hashCode()}") {
                                     menuItem("Rename") {
-                                        val name = group.key
+                                        var name = group.key
                                         modalPopup = {
                                             fun rename() {
                                                 val mutable = window.groups.toMutableMap()
@@ -133,7 +131,9 @@ object ModuleWindowsEditor {
                                             setNextItemWidth(-1f)
                                             if (ImGui.isWindowAppearing)
                                                 ImGui.setKeyboardFocusHere()
+                                            val buf = name.toByteArray(ByteArray(name.length + 2))
                                             if (ImGui.inputText("", name, flags = InputTextFlag.EnterReturnsTrue.i)) {
+                                                name = buf.backToString()
                                                 rename()
                                             }
                                             button("Rename") { rename() }

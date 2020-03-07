@@ -38,9 +38,11 @@ import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
 
-open class TextPinnableWidget(private val title: String,
-                              private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf()),
-                              private var text: MutableList<CompiledText> = mutableListOf(CompiledText())) : PinnableWidget(title) {
+open class TextPinnableWidget(
+    private val title: String,
+    private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf()),
+    private var text: MutableList<CompiledText> = mutableListOf(CompiledText())
+) : PinnableWidget(title) {
 
     private var minecraftFont = true
 
@@ -53,20 +55,20 @@ open class TextPinnableWidget(private val title: String,
 
         internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
             val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
-                Pair("none", { CompiledText.ConstantVariable(string = "No variable selected")}),
+                Pair("none", { CompiledText.ConstantVariable(string = "No variable selected") }),
                 Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
                 Pair("y", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.y }, 0) }),
                 Pair("z", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.z }, 0) }),
                 Pair("yaw", { CompiledText.NumericalVariable({ Wrapper.getPlayer().yaw.toDouble() }, 0) }),
                 Pair("pitch", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pitch.toDouble() }, 0) }),
-                Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0)}),
+                Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0) }),
                 Pair("username", { CompiledText.ConstantVariable(string = Wrapper.getMinecraft().session.username) })
             )
             std.putAll(extra)
             sVarMap = std
             return std
         }
-        
+
         internal fun getVariable(variable: String): CompiledText.Variable {
             val f: () -> CompiledText.Variable = sVarMap!![variable] ?: error("Invalid item selected")
             return f()
@@ -95,9 +97,19 @@ open class TextPinnableWidget(private val title: String,
                                 var lastWidth = 0f
                                 command.toString().split("\n").forEach {
                                     val width = if (command.shadow)
-                                        Wrapper.getMinecraft().textRenderer.drawWithShadow(codes + it, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                        Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                            codes + it,
+                                            x + xOffset,
+                                            y,
+                                            command.currentColourRGB()
+                                        ) - (x + xOffset)
                                     else
-                                        Wrapper.getMinecraft().textRenderer.draw(codes + it, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                        Wrapper.getMinecraft().textRenderer.draw(
+                                            codes + it,
+                                            x + xOffset,
+                                            y,
+                                            command.currentColourRGB()
+                                        ) - (x + xOffset)
                                     lastWidth = width
                                     y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
                                 }
@@ -106,9 +118,19 @@ open class TextPinnableWidget(private val title: String,
                             } else {
                                 val str = command.codes + command // toString is called here -> supplier.get()
                                 val width = if (command.shadow)
-                                    Wrapper.getMinecraft().textRenderer.drawWithShadow(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                    Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                        str,
+                                        x + xOffset,
+                                        y,
+                                        command.currentColourRGB()
+                                    ) - (x + xOffset)
                                 else
-                                    Wrapper.getMinecraft().textRenderer.draw(str, x + xOffset, y, command.currentColourRGB()) - (x + xOffset)
+                                    Wrapper.getMinecraft().textRenderer.draw(
+                                        str,
+                                        x + xOffset,
+                                        y,
+                                        command.currentColourRGB()
+                                    ) - (x + xOffset)
                                 xOffset += width
                             }
                         }
@@ -153,10 +175,17 @@ open class TextPinnableWidget(private val title: String,
             val scale = KamiHud.getScale()
 
             val width = (text.map {
-                val str = it.toString()
-                Wrapper.getMinecraft().textRenderer.getStringWidth(str)
+                it.parts.sumBy { part ->
+                    if (part.multiline)
+                        part.toString().split("\n").map { slice -> Wrapper.getMinecraft().textRenderer.getStringWidth(slice) }.max() ?: 0
+                    else
+                        Wrapper.getMinecraft().textRenderer.getStringWidth(part.toString())
+                }
             }.max()?.times(scale) ?: 0) + 24
-            val height = (Wrapper.getMinecraft().textRenderer.fontHeight + 4) * scale * text.size + 8
+            val lines = (text.map {
+                it.parts.map { part -> if (part.multiline) part.toString().split("\n").size - 1 else 0 }.sum() + 1
+            }).sum()
+            val height = (Wrapper.getMinecraft().textRenderer.fontHeight + 4) * scale * lines + 8
             setNextWindowSize(Vec2(width, height))
         }
     }
@@ -166,18 +195,6 @@ open class TextPinnableWidget(private val title: String,
             fun setEditPart(part: CompiledText.Part) {
                 editPart = part
                 editColourComboIndex = if (part.rainbow) 1 else 0
-                //when (part) {
-                //    is CompiledText.LiteralPart -> {
-                //        editCharBuf = part.string
-                //    }
-                //    is CompiledText.VariablePart -> {
-                //        when (val variable = part.variable) {
-                //            is CompiledText.NumericalVariable -> {
-                //                editDigits = variable.digits
-                //            }
-                //        }
-                //    }
-                //}
             }
 
             if (text.isEmpty()) {
@@ -321,7 +338,7 @@ open class TextPinnableWidget(private val title: String,
             editWindow = true
         }
     }
-    
+
     class CompiledText(
         var parts: MutableList<Part> = mutableListOf()
     ) {
@@ -331,7 +348,7 @@ open class TextPinnableWidget(private val title: String,
             for (part in parts) buf += part.toString()
             return buf
         }
-        
+
         abstract class Part(
             var obfuscated: Boolean = false,
             // _names because they have mirrors with custom setters in the class
@@ -344,7 +361,7 @@ open class TextPinnableWidget(private val title: String,
             var extraspace: Boolean = true
         ) {
             private fun toCodes(): String {
-                return  (if (obfuscated) "§k" else "") +
+                return (if (obfuscated) "§k" else "") +
                         (if (bold) "§l" else "") +
                         (if (strike) "§m" else "") +
                         (if (underline) "§n" else "") +
@@ -396,14 +413,14 @@ open class TextPinnableWidget(private val title: String,
             fun currentColour(): Vec4 {
                 return if (rainbow) KamiMod.rainbow.vec4 else colour
             }
-            
+
             fun currentColourRGB(): Int {
                 return if (rainbow) KamiMod.rainbow else rgb
             }
 
             abstract fun edit(variableMap: Map<String, () -> Variable>)
         }
-        
+
         class LiteralPart(
             var string: String,
             obfuscated: Boolean = false,
@@ -453,7 +470,7 @@ open class TextPinnableWidget(private val title: String,
             shadow: Boolean = true,
             rainbow: Boolean = false,
             extraspace: Boolean = true
-        ): Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
+        ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             private var editVarComboIndex = 0
             private var editDigits = 0
 
@@ -495,8 +512,8 @@ open class TextPinnableWidget(private val title: String,
 
             abstract fun provide(): String
         }
-        
-        class ConstantVariable(_multiline: Boolean = false, private val string: String): Variable() {
+
+        class ConstantVariable(_multiline: Boolean = false, private val string: String) : Variable() {
             override val multiline = _multiline
 
             override fun provide(): String {
@@ -504,7 +521,7 @@ open class TextPinnableWidget(private val title: String,
             }
         }
 
-        class NumericalVariable(private val provider: () -> Double, var digits: Int = 0): Variable() {
+        class NumericalVariable(private val provider: () -> Double, var digits: Int = 0) : Variable() {
             override val multiline = false
 
             override fun provide(): String {
@@ -513,7 +530,7 @@ open class TextPinnableWidget(private val title: String,
             }
         }
 
-        class StringVariable(_multiline: Boolean = false, private val provider: () -> String): Variable() {
+        class StringVariable(_multiline: Boolean = false, private val provider: () -> String) : Variable() {
             override val multiline = _multiline
 
             override fun provide(): String {
