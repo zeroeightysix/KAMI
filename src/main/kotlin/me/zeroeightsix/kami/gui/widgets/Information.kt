@@ -21,4 +21,4 @@ object Information : TextPinnableWidget("Information",
             CompiledText.VariablePart(getVariable("tps")),
             CompiledText.LiteralPart("tps", extraspace = false)
         ))
-    ))
+    ), position = Position.TOP_LEFT)

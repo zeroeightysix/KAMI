@@ -41,8 +41,9 @@ import kotlin.reflect.KMutableProperty0
 open class TextPinnableWidget(
     private val title: String,
     private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf()),
-    private var text: MutableList<CompiledText> = mutableListOf(CompiledText())
-) : PinnableWidget(title) {
+    private var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
+    position: Position = Position.TOP_LEFT
+) : PinnableWidget(title, position) {
 
     private var minecraftFont = true
 

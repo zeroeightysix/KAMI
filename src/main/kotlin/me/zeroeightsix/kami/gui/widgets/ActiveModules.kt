@@ -14,5 +14,5 @@ object ActiveModules : TextPinnableWidget("Active modules", variableMap = extend
             CompiledText.VariablePart(getVariable("modules"), extraspace = false)
         )
     )
-)) {
+), position = Position.TOP_RIGHT) {
 }

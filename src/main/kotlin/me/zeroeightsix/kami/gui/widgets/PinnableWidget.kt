@@ -14,10 +14,9 @@ import imgui.or
 import me.zeroeightsix.kami.gui.windows.KamiSettings
 import kotlin.reflect.KMutableProperty0
 
-abstract class PinnableWidget(val name: String) {
+abstract class PinnableWidget(val name: String, private var position: Position = Position.TOP_LEFT) {
 
     var pinned = false
-    var corner = 0
     var background = false
 
     companion object {
@@ -31,11 +30,11 @@ abstract class PinnableWidget(val name: String) {
             }
             menu("Position") {
                 // Shamelessly stolen from SimpleOverlay
-                menuItem("Custom", "", corner == -1) { corner = -1 }
-                menuItem("Top-left", "", corner == 0) { corner = 0 }
-                menuItem("Top-right", "", corner == 1) { corner = 1 }
-                menuItem("Bottom-left", "", corner == 2) { corner = 2 }
-                menuItem("Bottom-right", "", corner == 3) { corner = 3 }
+                menuItem("Custom", "", position == Position.CUSTOM) { position = Position.CUSTOM }
+                menuItem("Top-left", "", position == Position.TOP_LEFT) { position = Position.TOP_LEFT }
+                menuItem("Top-right", "", position == Position.TOP_RIGHT) { position = Position.TOP_RIGHT }
+                menuItem("Bottom-left", "", position == Position.BOTTOM_LEFT) { position = Position.BOTTOM_LEFT }
+                menuItem("Bottom-right", "", position == Position.BOTTOM_RIGHT) { position = Position.BOTTOM_RIGHT }
             }
             menu("Style") {
                 menuItem("Background", "", background) { background = !background }
@@ -52,11 +51,17 @@ abstract class PinnableWidget(val name: String) {
         preWindow()
 
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
-        if (corner != -1) {
+        if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = KamiSettings.borderOffset
-            val windowPos = Vec2{ if (corner has it + 1) io.displaySize[it] - distance else distance }
-            val windowPosPivot = Vec2(if (corner has 1) 1f else 0f, if (corner has 2) 1f else 0f)
+            val windowPos = Vec2{ if ((it == 0 && (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) || (it == 1 && (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT)))) io.displaySize[it] - distance else distance }
+            val windowPosPivot = when (position) {
+                Position.TOP_LEFT -> Vec2(0, 0)
+                Position.TOP_RIGHT -> Vec2(1, 0)
+                Position.BOTTOM_LEFT -> Vec2(0, 1)
+                Position.BOTTOM_RIGHT -> Vec2(1, 1)
+                else -> Vec2(0, 0)
+            }
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
         }
@@ -79,5 +84,9 @@ abstract class PinnableWidget(val name: String) {
     protected open fun fillStyle() {}
     protected open fun fillContextMenu() {}
     protected open fun preWindow() {}
+
+    public enum class Position {
+        CUSTOM, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    }
 
 }
