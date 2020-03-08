@@ -54,14 +54,8 @@ abstract class PinnableWidget(val name: String, private var position: Position =
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = KamiSettings.borderOffset
-            val windowPos = Vec2{ if ((it == 0 && (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) || (it == 1 && (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT)))) io.displaySize[it] - distance else distance }
-            val windowPosPivot = when (position) {
-                Position.TOP_LEFT -> Vec2(0, 0)
-                Position.TOP_RIGHT -> Vec2(1, 0)
-                Position.BOTTOM_LEFT -> Vec2(0, 1)
-                Position.BOTTOM_RIGHT -> Vec2(1, 1)
-                else -> Vec2(0, 0)
-            }
+            val windowPos = Vec2(if (position.left) distance else io.displaySize[0] - distance, if (position.top) distance else io.displaySize[1] - distance)
+            val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
         }
@@ -85,8 +79,8 @@ abstract class PinnableWidget(val name: String, private var position: Position =
     protected open fun fillContextMenu() {}
     protected open fun preWindow() {}
 
-    public enum class Position {
-        CUSTOM, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    public enum class Position(val top: Boolean, val left: Boolean) {
+        CUSTOM(false, false), TOP_LEFT(true, true), TOP_RIGHT(true, false), BOTTOM_LEFT(false, true), BOTTOM_RIGHT(false, false)
     }
 
 }
