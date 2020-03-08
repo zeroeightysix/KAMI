@@ -28,7 +28,7 @@ public class AutoEat extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (eating && !mc.player.isUsingItem()) {
             if (lastSlot != -1) {
                 mc.player.inventory.selectedSlot = lastSlot;

@@ -63,7 +63,7 @@ public class Brightness extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (inTransition) {
             if (transitionStack.isEmpty()) {
                 inTransition = false;

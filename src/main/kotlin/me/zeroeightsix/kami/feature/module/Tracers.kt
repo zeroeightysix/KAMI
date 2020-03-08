@@ -72,7 +72,7 @@ object Tracers : Module() {
 
     @EventHandler
     val updateListener = Listener(
-        EventHook<TickEvent.Client> {
+        EventHook<TickEvent.Client.InGame> {
             cycler.next()
         }
     )

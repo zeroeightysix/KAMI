@@ -33,7 +33,7 @@ public class Flight extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         switch (mode.getValue()) {
             case STATIC:
                 mc.player.abilities.flying = false;

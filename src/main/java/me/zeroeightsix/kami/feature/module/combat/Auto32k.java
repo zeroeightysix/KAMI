@@ -256,8 +256,8 @@ public class Auto32k extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
-        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+        if (isDisabled() || Freecam.INSTANCE.isEnabled()) {
             return;
         }
 

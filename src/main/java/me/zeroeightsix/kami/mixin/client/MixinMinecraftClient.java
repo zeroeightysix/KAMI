@@ -23,11 +23,14 @@ public class MixinMinecraftClient {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/DisableableProfiler;push(Ljava/lang/String;)V", ordinal = 0), cancellable = true)
     public void tick(CallbackInfo info) {
-        TickEvent.Client clientEvent = new TickEvent.Client();
-        KamiMod.EVENT_BUS.post(clientEvent);
-        if (clientEvent.isCancelled()) {
-            info.cancel();
+        TickEvent.Client event;
+        if (Wrapper.getMinecraft().player != null && Wrapper.getMinecraft().world != null) {
+            event = new TickEvent.Client.InGame();
+        } else {
+            event = new TickEvent.Client.OutOfGame();
         }
+        KamiMod.EVENT_BUS.post(event);
+        if (event.isCancelled()) info.cancel();
     }
 
     @Inject(method = "openScreen", at = @At("HEAD"), cancellable = true)

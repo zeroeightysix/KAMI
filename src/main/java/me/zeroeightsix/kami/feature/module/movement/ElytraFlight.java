@@ -19,7 +19,7 @@ public class ElytraFlight extends Module {
     private Setting<ElytraFlightMode> mode = register(Settings.e("Mode", ElytraFlightMode.BOOST));
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (!mc.player.isFallFlying()) return;
         switch (mode.getValue()) {
             case BOOST:

@@ -43,7 +43,7 @@ public class AutoLog extends Module {
     });*/ //TODO
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (shouldLog) {
             shouldLog = false;
             if (System.currentTimeMillis() - lastLog < 2000) return;

@@ -18,6 +18,17 @@ public class TickEvent extends KamiEvent {
         public Client() {
             super(Stage.CLIENT);
         }
+
+        /**
+         * This exists because many listeners for TickEvents will perform player null checks.
+         * This event is ensured to only fire when the player and world is not null.
+         */
+        public static class InGame extends Client {}
+
+        /**
+         * @see InGame
+         */
+        public static class OutOfGame extends Client {}
     }
 
 }

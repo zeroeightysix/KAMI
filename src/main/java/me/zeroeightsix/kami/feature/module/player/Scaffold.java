@@ -43,8 +43,8 @@ public class Scaffold extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
-        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) return;
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+        if (isDisabled() || Freecam.INSTANCE.isEnabled()) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future.getValue());
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();

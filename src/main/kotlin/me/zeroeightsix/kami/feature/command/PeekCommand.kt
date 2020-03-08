@@ -61,7 +61,7 @@ object PeekCommand : Command() {
 
     @EventHandler
     var tickListener = Listener(
-        EventHook<TickEvent.Client> {
+        EventHook<TickEvent.Client.InGame> {
             if (sb != null) {
                 val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateContainer(
                     -1,

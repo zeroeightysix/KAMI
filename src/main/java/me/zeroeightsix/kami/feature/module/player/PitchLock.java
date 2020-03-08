@@ -18,7 +18,7 @@ public class PitchLock extends Module {
     private Setting<Integer> slice = register(Settings.i("Slice", 8));
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (slice.getValue() == 0) return;
         if (auto.getValue()) {
             int angle = 360 / slice.getValue();

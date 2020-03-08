@@ -13,7 +13,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 public class Fastbreak extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         ((IMinecraftClient) mc).setItemUseCooldown(0);
     });
 

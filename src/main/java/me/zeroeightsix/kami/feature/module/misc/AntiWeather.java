@@ -12,7 +12,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 public class AntiWeather extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (isDisabled()) return;
         if (mc.world.isRaining())
             mc.world.setRainGradient(0);

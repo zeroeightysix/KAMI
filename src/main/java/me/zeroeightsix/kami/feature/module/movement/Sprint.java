@@ -12,7 +12,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 public class Sprint extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         try {
             if (!mc.player.horizontalCollision && mc.player.forwardSpeed > 0)
                 mc.player.setSprinting(true);

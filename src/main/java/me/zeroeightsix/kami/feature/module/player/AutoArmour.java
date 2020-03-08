@@ -17,7 +17,7 @@ import net.minecraft.item.Items;
 public class AutoArmour extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (mc.player.age % 2 == 0) return;
         // check screen
         if(mc.currentScreen instanceof ContainerScreen54)

@@ -94,7 +94,7 @@ object Freecam : Module() {
     @EventHandler
     private val updateListener =
         Listener(
-            EventHook<TickEvent.Client> { event: TickEvent.Client? ->
+            EventHook<TickEvent.Client.InGame> { event: TickEvent.Client.InGame? ->
                 mc.player.abilities.flying = true
                 mc.player.abilities.flySpeed = speed.value / 100f
                 mc.player.noClip = true

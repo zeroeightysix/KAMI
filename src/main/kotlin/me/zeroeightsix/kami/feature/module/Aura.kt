@@ -52,7 +52,7 @@ object Aura : Module() {
     private var waitCounter = 0
     @EventHandler
     private val updateListener =
-        Listener(EventHook<TickEvent.Client> { event: TickEvent.Client? ->
+        Listener(EventHook<TickEvent.Client.InGame> {
             if (!mc.player.isAlive) {
                 return@EventHook
             }

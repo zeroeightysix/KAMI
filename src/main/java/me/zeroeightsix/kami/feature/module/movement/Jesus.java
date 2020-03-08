@@ -29,7 +29,7 @@ public class Jesus extends Module {
     private static final Box WATER_WALK_AA = new Box(0.D, 0.D, 0.D, 1.D, 0.99D, 1.D);
 
     @EventHandler
-    private Listener<TickEvent.Client> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (!Freecam.INSTANCE.isEnabled()) {
             if (EntityUtil.isInWater(mc.player) && !mc.player.isSneaking()) {
                 EntityUtil.updateVelocityY(mc.player, 0.1);
