@@ -28,9 +28,8 @@ import java.nio.file.Paths;
  */
 public class KamiMod implements ModInitializer {
 
-    public static final String MODID = "kami";
     public static final String MODNAME = "KAMI";
-    public static final String MODVER = "b9";
+    public static final String MODVER = "fabric-1.14.4-debug";
     public static final String KAMI_KANJI = "\u795E";
     private static final String KAMI_CONFIG_NAME_DEFAULT = "KAMIConfig.json";
 
