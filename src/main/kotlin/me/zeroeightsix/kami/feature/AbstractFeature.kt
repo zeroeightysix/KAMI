@@ -1,10 +1,8 @@
 package me.zeroeightsix.kami.feature
 
-abstract class AbstractFeature(val hidden: Boolean = false) {
+import me.zeroeightsix.kami.then
 
-    fun <T> Boolean.then(block: () -> T): T? {
-        return if (this) block() else null
-    }
+abstract class AbstractFeature(val hidden: Boolean = false) {
 
     /**
      * @return Whether or not the module was enabled
