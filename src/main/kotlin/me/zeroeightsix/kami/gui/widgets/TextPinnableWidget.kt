@@ -34,7 +34,7 @@ import imgui.dsl.window
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
-import me.zeroeightsix.kami.to
+import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
@@ -474,7 +474,9 @@ open class TextPinnableWidget(
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             private var editVarComboIndex = 0
-            private var editDigits = (variable is NumericalVariable).to((variable as NumericalVariable).digits, 0)
+            private var editDigits = (variable is NumericalVariable).then(
+                { (variable as NumericalVariable).digits }, { 0 }
+            )
 
             override val multiline: Boolean
                 get() = variable.multiline
