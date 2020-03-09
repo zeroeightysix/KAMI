@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.gui.widgets
 
+import com.google.common.collect.Iterables
+import com.google.common.collect.Iterators
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
@@ -31,12 +33,12 @@ import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
 import imgui.dsl.window
-import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
-import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
+import kotlin.collections.map
 import kotlin.reflect.KMutableProperty0
 
 open class TextPinnableWidget(
@@ -117,6 +119,7 @@ open class TextPinnableWidget(
                                 }
                                 xOffset += lastWidth
                                 y -= Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                                command.resetMultilinePattern()
                             } else {
                                 val str = command.codes + command // toString is called here -> supplier.get()
                                 val width = if (command.shadow)
@@ -156,6 +159,8 @@ open class TextPinnableWidget(
                     if (notBlank)
                         text(str)
                     popStyleColor()
+
+                    if (part.multiline) part.resetMultilinePattern()
                 }
             }
             if (empty) {
@@ -196,7 +201,7 @@ open class TextPinnableWidget(
         window("Edit $title", ::editWindow) {
             fun setEditPart(part: CompiledText.Part) {
                 editPart = part
-                editColourComboIndex = if (part.rainbow) 1 else 0
+                editColourComboIndex = CompiledText.Part.ColourMode.values().indexOf(part.colourMode)
             }
 
             if (text.isEmpty()) {
@@ -276,13 +281,22 @@ open class TextPinnableWidget(
             separator()
             editPart?.let {
                 val col = it.colour
-                combo("Colour mode", ::editColourComboIndex, "Static${NUL}Rainbow") {
-                    it.rainbow = editColourComboIndex == 1
+                combo("Colour mode", ::editColourComboIndex, it.multiline.to(CompiledText.Part.ColourMode.listMultiline, CompiledText.Part.ColourMode.listNormal) ) {
+                    it.colourMode = CompiledText.Part.ColourMode.values()[editColourComboIndex]
                 }
-                if (editColourComboIndex == 0) {
-                    if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
-                        it.colour = col
+
+                when (it.colourMode) {
+                    CompiledText.Part.ColourMode.STATIC -> {
+                        if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
+                            it.colour = col
+                        }
                     }
+                    CompiledText.Part.ColourMode.ALTERNATING -> {
+                        it.colours.forEachIndexed { i, vec ->
+                            colorEditVec4("Colour $i", vec, flags = ColorEditFlag.NoAlpha.i)
+                        }
+                    }
+                    else -> {}
                 }
 
                 it.edit(variableMap)
@@ -323,11 +337,6 @@ open class TextPinnableWidget(
         }
     }
 
-    private fun getVariable(selected: String): CompiledText.Variable {
-        val f: () -> CompiledText.Variable = variableMap[selected] ?: error("Invalid item selected")
-        return f()
-    }
-
     override fun fillStyle() {
         super.fillStyle()
         checkbox("Minecraft font", ::minecraftFont) {}
@@ -359,7 +368,7 @@ open class TextPinnableWidget(
             _underline: Boolean = false,
             _italic: Boolean = false,
             var shadow: Boolean = true,
-            var rainbow: Boolean = false,
+            var colourMode: ColourMode = ColourMode.STATIC,
             var extraspace: Boolean = true
         ) {
             private fun toCodes(): String {
@@ -401,25 +410,53 @@ open class TextPinnableWidget(
                 return (r shl 16) or (g shl 8) or b
             }
 
+            // Static colour
             var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
                 set(value) {
                     field = value
                     rgb = colour.toRGB()
                 }
-            var rgb: Int = this.colour.toRGB()
+            private var rgb: Int = this.colour.toRGB()
+            
+            // Alternating colour
+            var colours = mutableListOf(
+                Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                Vec4(0.5f, 0.5f, 0.5f, 1.0f)
+            )
+            val coloursIterator = colours.cyclingIterator()
 
             override fun toString(): String {
                 return if (extraspace) " " else ""
             }
 
             fun currentColour(): Vec4 {
-                return if (rainbow) KamiMod.rainbow.vec4 else colour
+                return when (colourMode) {
+                    ColourMode.STATIC -> colour
+                    ColourMode.RAINBOW -> KamiMod.rainbow.vec4
+                    ColourMode.ALTERNATING -> coloursIterator.next()
+                }
             }
 
             fun currentColourRGB(): Int {
-                return if (rainbow) KamiMod.rainbow else rgb
+                return currentColour().toRGB()
             }
 
+            /**
+             * For parts that might have a coloured pattern; this method must be called when you're done drawing that part.
+             */
+            fun resetMultilinePattern() {
+                coloursIterator.reset()
+            }
+
+            enum class ColourMode(private val multilineExclusive: Boolean = false) {
+                STATIC, RAINBOW, ALTERNATING(true);
+
+                companion object {
+                    val listNormal = values().filter { !it.multilineExclusive }.joinToString("$NUL") { it.name.toLowerCase().capitalize() }
+                    val listMultiline = values().joinToString("$NUL") { it.name.toLowerCase().capitalize() }
+                }
+            }
+            
             abstract fun edit(variableMap: Map<String, () -> Variable>)
         }
 
@@ -431,9 +468,9 @@ open class TextPinnableWidget(
             underline: Boolean = false,
             italic: Boolean = false,
             shadow: Boolean = true,
-            rainbow: Boolean = false,
+            colourMode: ColourMode = ColourMode.STATIC,
             extraspace: Boolean = true
-        ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
+        ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
             override val multiline = false
 
             override fun toString(): String {
@@ -470,9 +507,9 @@ open class TextPinnableWidget(
             underline: Boolean = false,
             italic: Boolean = false,
             shadow: Boolean = true,
-            rainbow: Boolean = false,
+            colourMode: ColourMode = ColourMode.STATIC,
             extraspace: Boolean = true
-        ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
+        ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
             private var editVarComboIndex = 0
             private var editDigits = (variable is NumericalVariable).then(
                 { (variable as NumericalVariable).digits }, { 0 }
