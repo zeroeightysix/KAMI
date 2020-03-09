@@ -2,16 +2,20 @@ package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
 import imgui.Cond
+import imgui.ImGui
 import imgui.ImGui.io
 import imgui.ImGui.setNextWindowBgAlpha
 import imgui.ImGui.setNextWindowPos
 import imgui.WindowFlag
+import imgui.api.g
 import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextWindow
 import imgui.dsl.window
 import imgui.or
+import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.windows.KamiSettings
+import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
 
 abstract class PinnableWidget(val name: String, private var position: Position = Position.TOP_LEFT) {
@@ -54,7 +58,8 @@ abstract class PinnableWidget(val name: String, private var position: Position =
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = KamiSettings.borderOffset
-            val windowPos = Vec2(if (position.left) distance else io.displaySize[0] - distance, if (position.top) distance else io.displaySize[1] - distance)
+            val topDistance = if (Wrapper.getMinecraft().currentScreen is KamiGuiScreen) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y) else distance
+            val windowPos = Vec2(if (position.left) distance else io.displaySize[0] - distance, if (position.top) topDistance else io.displaySize[1] - distance)
             val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
             flags = flags or WindowFlag.NoMove
