@@ -3,11 +3,14 @@ package me.zeroeightsix.kami.gui.windows
 import imgui.ImGui
 import imgui.ImGui.dragFloat
 import imgui.ImGui.dragInt
+import imgui.ImGui.popID
+import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.collapsingHeader
+import imgui.dsl.combo
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
@@ -70,6 +73,8 @@ object KamiSettings {
                         Themes.Variants.values()[styleIdx].applyStyle()
                     }
 
+                    showFontSelector("Font###kami-settings-font-selector")
+
                     if (dragInt("Rainbow speed", ::rainbowSpeed, vSpeed = 0.1F, vMin = 1, vMax = 128)) {
                         rainbowSpeed = rainbowSpeed.coerceAtLeast(1) // Do not let users custom edit this below 1
                     }
@@ -94,6 +99,19 @@ object KamiSettings {
                     setting("Keybind modifiers", ::modifiersEnabled, "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
                 }
             }
+        }
+    }
+
+    private fun showFontSelector(label: String) {
+        val fontCurrent = ImGui.font
+        if (ImGui.beginCombo(label, fontCurrent.debugName)) {
+            for (font in ImGui.io.fonts.fonts) {
+                pushID(font)
+                if (ImGui.selectable(font.debugName, font === fontCurrent))
+                    ImGui.io.fontDefault = font
+                popID()
+            }
+            ImGui.endCombo()
         }
     }
 
