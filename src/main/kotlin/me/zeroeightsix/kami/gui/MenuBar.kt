@@ -24,8 +24,10 @@ object MenuBar {
             menuItem("Modules", "", selected = modulesOpen) {
                 modulesOpen = !modulesOpen
             }
-            menuItem("Demo window", "", selected = demoWindowVisible) {
-                demoWindowVisible = !demoWindowVisible
+            if (KamiSettings.demoWindowVisible) {
+                menuItem("Demo window", "", selected = demoWindowVisible) {
+                    demoWindowVisible = !demoWindowVisible
+                }
             }
         }
     }
