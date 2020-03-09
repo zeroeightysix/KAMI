@@ -31,23 +31,25 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
     private var displayHeight = 0
 
     @EventHandler
-    private val clientTickListener =
-        Listener(
-            EventHook<TickEvent.Client> {
-                if (MinecraftClient.getInstance().window.width != displayWidth || MinecraftClient.getInstance().window.height != displayHeight) {
-                    KamiMod.EVENT_BUS.post(DisplaySizeChangedEvent())
-                    displayWidth = MinecraftClient.getInstance().window.width
-                    displayHeight = MinecraftClient.getInstance().window.height
-                }
-                val speed = rainbowSpeed
-                val hue = System.currentTimeMillis() % (360 * speed) / (360f * speed)
-                KamiMod.rainbow = Color.HSBtoRGB(
-                    hue,
-                    rainbowSaturation,
-                    rainbowBrightness
-                )
-            }
+    private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() } )
+    
+    @EventHandler
+    private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() } )
+    
+    private fun update() {
+        if (MinecraftClient.getInstance().window.width != displayWidth || MinecraftClient.getInstance().window.height != displayHeight) {
+            KamiMod.EVENT_BUS.post(DisplaySizeChangedEvent())
+            displayWidth = MinecraftClient.getInstance().window.width
+            displayHeight = MinecraftClient.getInstance().window.height
+        }
+        val speed = rainbowSpeed
+        val hue = System.currentTimeMillis() % (360 * speed) / (360f * speed)
+        KamiMod.rainbow = Color.HSBtoRGB(
+            hue,
+            rainbowSaturation,
+            rainbowBrightness
         )
+    }
 
     @EventHandler
     var hudEventListener =
