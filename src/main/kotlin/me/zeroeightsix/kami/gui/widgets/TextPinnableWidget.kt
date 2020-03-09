@@ -34,6 +34,7 @@ import imgui.dsl.window
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.reflect.KMutableProperty0
@@ -462,7 +463,7 @@ open class TextPinnableWidget(
         }
 
         class VariablePart(
-            var variable: Variable,
+            private var variable: Variable,
             obfuscated: Boolean = false,
             bold: Boolean = false,
             strike: Boolean = false,
@@ -473,7 +474,7 @@ open class TextPinnableWidget(
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, rainbow, extraspace) {
             private var editVarComboIndex = 0
-            private var editDigits = 0
+            private var editDigits = (variable is NumericalVariable).to((variable as NumericalVariable).digits, 0)
 
             override val multiline: Boolean
                 get() = variable.multiline
@@ -485,7 +486,7 @@ open class TextPinnableWidget(
             override fun edit(variableMap: Map<String, () -> Variable>) {
                 combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
                     val selected: String = variableMap.keys.toList()[editVarComboIndex]
-                    val v = getVariable(selected)
+                    val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
                     if (v is NumericalVariable) {
                         v.digits = editDigits
                     }
