@@ -44,7 +44,7 @@ public class KamiMod implements ModInitializer {
         KamiMod.INSTANCE = this;
         EVENT_BUS.subscribe(KamiMod.INSTANCE);
 
-        KamiMod.log.info("\n\nInitializing KAMI " + MODVER);
+        KamiMod.log.info("Initialising " + MODNAME + " " + MODVER);
 
         FeatureManager manager = FeatureManager.INSTANCE;
         manager.initialize();
@@ -63,7 +63,7 @@ public class KamiMod implements ModInitializer {
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         FeatureManager.INSTANCE.getFeatures().stream().filter(AbstractFeature::isEnabled).forEach(AbstractFeature::enable);
 
-        KamiMod.log.info("KAMI Mod initialized!\n");
+        KamiMod.log.info(MODNAME + " initialised");
     }
 
     public static String getConfigName() {
