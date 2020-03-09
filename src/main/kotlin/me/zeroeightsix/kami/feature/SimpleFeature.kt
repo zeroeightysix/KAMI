@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.feature
 
+import me.zeroeightsix.kami.then
+
 open class SimpleFeature(_enabled: Boolean = false, hidden: Boolean) : AbstractFeature(hidden) {
 
     var enabled = _enabled
