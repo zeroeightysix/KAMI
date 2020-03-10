@@ -20,6 +20,7 @@
     "MixinBlockState",
     "MixinBoatEntityModel",
     "MixinBossBarHud",
+    "MixinCamera",
     "MixinChatScreen",
     "MixinClientConnection",
     "MixinClientPlayerEntity",
