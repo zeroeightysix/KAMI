@@ -214,32 +214,40 @@ open class TextPinnableWidget(
             var index = 0
             for (compiled in iterator) {
                 val parts = compiled.parts
-                parts.forEachIndexed { n, part ->
-                    val highlight = editPart == part
-                    if (highlight) {
-                        pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
-                    }
-                    button("${part.editLabel}###part-button-${part.hashCode()}") {
-                        setEditPart(part)
-                    }
-
-                    if (isItemActive && !isItemHovered()) {
-                        val nNext = n + if (getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
-                        if (nNext in parts.indices) {
-                            parts[n] = parts[nNext]
-                            parts[nNext] = part
-                            resetMouseDragDelta()
+                with (parts.listIterator()) {
+                    forEachRemainingIndexed { n, part ->
+                        val highlight = editPart == part
+                        if (highlight) {
+                            pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
                         }
-                    }
-
-                    dragDropTarget {
-                        acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
-                            part.colour = it.data!! as Vec4
+                        button("${part.editLabel}###part-button-${part.hashCode()}") {
+                            setEditPart(part)
                         }
-                    }
-                    sameLine() // The next button should be on the same line
-                    if (highlight) {
-                        popStyleColor()
+                        popupContextItem {
+                            menuItem("Remove") {
+                                remove()
+                            }
+
+                        }
+
+                        if (isItemActive && !isItemHovered()) {
+                            val nNext = n + if (getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
+                            if (nNext in parts.indices) {
+                                parts[n] = parts[nNext]
+                                parts[nNext] = part
+                                resetMouseDragDelta()
+                            }
+                        }
+
+                        dragDropTarget {
+                            acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
+                                part.colour = it.data!! as Vec4
+                            }
+                        }
+                        sameLine() // The next button should be on the same line
+                        if (highlight) {
+                            popStyleColor()
+                        }
                     }
                 }
                 pushStyleColor(Col.Button, style.colors[Col.Button.i] * 0.7f)
@@ -295,6 +303,8 @@ open class TextPinnableWidget(
                         it.colours.forEachIndexed { i, vec ->
                             colorEditVec4("Colour $i", vec, flags = ColorEditFlag.NoAlpha.i)
                         }
+
+                        // TODO: Allow colours to be added / removed
                     }
                     else -> {}
                 }

@@ -9,6 +9,14 @@ fun <T> Boolean.then(block: () -> T): T? {
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
 fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
 
+fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -> Unit) {
+    var index = startAt
+    while (hasNext()) {
+        action(index, next())
+        index++
+    }
+}
+
 /**
  * Returns a resettable, infinitely cycling iterator over this iterable.
  * Please note this will throw an exception if the underlying collection is empty.
