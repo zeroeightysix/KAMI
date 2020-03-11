@@ -560,6 +560,7 @@ open class TextPinnableWidget(
                         }
                     }
                 }
+                variable.edit(variableMap)
             }
         }
 
@@ -568,6 +569,7 @@ open class TextPinnableWidget(
             open val editLabel: String
                 get() = provide()
             abstract fun provide(): String
+            open fun edit(variableMap: Map<String, () -> Variable>) {}
         }
 
         class ConstantVariable(_multiline: Boolean = false, private val string: String) : Variable() {

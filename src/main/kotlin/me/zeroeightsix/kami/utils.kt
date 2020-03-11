@@ -9,6 +9,15 @@ fun <T> Boolean.then(block: () -> T): T? {
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
 fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
 
+fun ByteArray.backToString(): String {
+    var str = ""
+    for (c in this) {
+        if (c == 0.toByte()) break
+        str += c.toChar()
+    }
+    return str
+}
+
 fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -> Unit) {
     var index = startAt
     while (hasNext()) {

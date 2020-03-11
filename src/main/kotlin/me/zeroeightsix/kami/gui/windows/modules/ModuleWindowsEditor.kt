@@ -24,24 +24,15 @@ import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
 import imgui.dsl.popupModal
 import imgui.dsl.window
+import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import kotlin.collections.set
-import kotlin.text.toByteArray
 
 object ModuleWindowsEditor {
 
     var open = false
     private var rearrange = false
     private var modalPopup: (() -> Unit)? = null
-
-    private fun ByteArray.backToString(): String {
-        var str = ""
-        for (c in this) {
-            if (c == 0.toByte()) break
-            str += c.toChar()
-        }
-        return str
-    }
 
     operator fun invoke() {
         if (open) {

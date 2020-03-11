@@ -1,6 +1,8 @@
 package me.zeroeightsix.kami.feature.module;
 
 import me.zeroeightsix.kami.feature.FullFeature;
+import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.MinecraftClient;
 
 import java.lang.annotation.Retention;
@@ -14,6 +16,11 @@ public class Module extends FullFeature {
 
     private final Category category = getAnnotation().category();
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
+
+    public Setting<Boolean> showInActiveModules = register(Settings.booleanBuilder("Show in active modules")
+            .withVisibility(aBoolean -> false)
+            .withValue(true)
+            .build());
 
     public Module() {
         setAlwaysListening(getAnnotation().alwaysListening());
