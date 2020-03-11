@@ -16,6 +16,6 @@ public class EnumSettingBuilder<T extends Enum> extends SettingBuilder<T> {
 
     @Override
     public Setting<T> build() {
-        return new EnumSetting<>(initialValue, predicate(), consumer(), name, visibilityPredicate(), clazz);
+        return new EnumSetting(initialValue, predicate(), consumer(), name, visibilityPredicate(), clazz);
     }
 }
