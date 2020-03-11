@@ -13,6 +13,7 @@ import imgui.dsl.collapsingHeader
 import imgui.dsl.combo
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.Themes
+import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import kotlin.reflect.KMutableProperty0
@@ -95,6 +96,7 @@ object KamiSettings {
 
                 collapsingHeader("Overlay") {
                     dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+                    EnabledWidgets.enabledButtons()
                 }
 
                 collapsingHeader("In-game") {

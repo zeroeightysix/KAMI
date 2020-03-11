@@ -22,11 +22,7 @@ object EnabledWidgets {
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", EnabledWidgets::hideAll) {}
         separator()
-        for ((widget, open) in widgets) {
-            menuItem(widget.name, "", open.get(), !hideAll) {
-                open.set(!open.get())
-            }
-        }
+        enabledButtons()
         separator()
         menuItem("Pin all") {
             widgets.keys.forEach {
@@ -36,6 +32,14 @@ object EnabledWidgets {
         menuItem("Unpin all") {
             widgets.keys.forEach {
                 it.pinned = false
+            }
+        }
+    }
+
+    fun enabledButtons() {
+        for ((widget, open) in widgets) {
+            menuItem(widget.name, "", open.get(), !hideAll) {
+                open.set(!open.get())
             }
         }
     }
