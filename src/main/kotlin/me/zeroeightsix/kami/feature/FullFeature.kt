@@ -44,7 +44,7 @@ open class FullFeature(
         ).build()
     )
     val name = register(
-        Settings.stringBuilder("Name").withValue(originalName).withRestriction { it.isNotEmpty() }.build()
+        Settings.stringBuilder("Name").withValue(originalName).withRestriction { it.isNotEmpty() }.withVisibility { false }.build()
     )
     var enabled: Setting<Boolean> = register(
         Settings.booleanBuilder("Enabled").withVisibility { false }.withValue(false).withConsumer { old, new ->
