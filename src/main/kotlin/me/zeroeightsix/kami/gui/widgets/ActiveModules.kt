@@ -4,8 +4,10 @@ import me.zeroeightsix.kami.feature.FeatureManager
 
 object ActiveModules : TextPinnableWidget("Active modules", variableMap = extendStd(mapOf(
     "modules" to {
-        CompiledText.StringVariable(_multiline = true) {
+        object : CompiledText.StringVariable(_multiline = true, provider = {
             FeatureManager.modules.filter { it.isEnabled() }.joinToString("\n") { it.name.value }
+        }) {
+            override var editLabel: String = "(active modules)"
         }
     }
 )), text = mutableListOf(

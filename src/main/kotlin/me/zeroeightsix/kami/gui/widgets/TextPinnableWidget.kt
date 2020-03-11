@@ -219,7 +219,7 @@ open class TextPinnableWidget(
                     if (highlight) {
                         pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
                     }
-                    button("$part###part-button-${part.hashCode()}") {
+                    button("${part.editLabel}###part-button-${part.hashCode()}") {
                         setEditPart(part)
                     }
 
@@ -379,6 +379,8 @@ open class TextPinnableWidget(
                         (if (italic) "§o" else "")
             }
 
+            open val editLabel: String
+                get() = toString()
             abstract val multiline: Boolean
             var codes: String = toCodes()
 
@@ -518,6 +520,9 @@ open class TextPinnableWidget(
             override val multiline: Boolean
                 get() = variable.multiline
 
+            override val editLabel: String
+                get() = variable.editLabel + super.toString()
+
             override fun toString(): String {
                 return variable.provide() + super.toString()
             }
@@ -550,7 +555,8 @@ open class TextPinnableWidget(
 
         abstract class Variable {
             abstract val multiline: Boolean
-
+            open val editLabel: String
+                get() = provide()
             abstract fun provide(): String
         }
 
@@ -571,7 +577,7 @@ open class TextPinnableWidget(
             }
         }
 
-        class StringVariable(_multiline: Boolean = false, private val provider: () -> String) : Variable() {
+        open class StringVariable(_multiline: Boolean = false, private val provider: () -> String) : Variable() {
             override val multiline = _multiline
 
             override fun provide(): String {
