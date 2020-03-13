@@ -2,12 +2,10 @@ package me.zeroeightsix.kami.gui
 
 import imgui.ConfigFlag
 import imgui.ImGui
-import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import imgui.wo
-import me.zeroeightsix.kami.gui.KamiHud.implGl3
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.windows.KamiSettings
+import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
@@ -53,7 +51,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
             // Draw all module windows
             Modules()
             // Draw the settings
-            KamiSettings()
+            GraphicalSettings()
 
             if (!EnabledWidgets.hideAll) {
                 for ((widget, open) in EnabledWidgets.widgets) {
@@ -66,7 +64,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     }
 
     override fun onClose() {
-        if (KamiSettings.interactOutsideGUI) {
+        if (GraphicalSettings.interactOutsideGUI) {
             ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
         } else {
             ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i

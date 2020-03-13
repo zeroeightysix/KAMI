@@ -18,7 +18,7 @@ import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import kotlin.reflect.KMutableProperty0
 
-object KamiSettings {
+object GraphicalSettings {
 
     var modifiersEnabled = false
     var settingsWindowOpen = false
