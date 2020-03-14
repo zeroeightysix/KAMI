@@ -11,6 +11,7 @@ import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.ImGui.treePop
+import imgui.Jdsl.collapsingHeader
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
@@ -158,9 +159,8 @@ object Modules {
                                 continue
                             }
 
-                            if (treeNodeEx("cat-$group-node", TreeNodeFlag.SpanFullWidth.i, group)) {
+                            collapsingHeader(group, TreeNodeFlag.SpanFullWidth.i) {
                                 iterateModules(list, group)
-                                treePop()
                             }
                         }
                     }
