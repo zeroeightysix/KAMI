@@ -21,14 +21,20 @@ abstract class DependantArgumentType<T, D>(
         return context.getArgument(dependantArgument, clazz)
     }
 
-    private fun rewind(reader: StringReader, words: Int) {
+    private fun rewind(reader: StringReader, words: Int, readQuotes: Boolean = true) {
         var words = words
         reader.cursor = 0.coerceAtLeast(reader.cursor - 1)
         while (words > 0) {
             reader.cursor = 0.coerceAtLeast(reader.cursor - 1) // Move to the end of the previous argument
+            var quoted = reader.peek() == '"'
             // Move to the front of the previous argument
-            while (reader.cursor > 0 && reader.peek() != ' ') {
+            while (reader.cursor > 0) {
                 reader.cursor = reader.cursor - 1
+                val prev = reader.peek()
+                if (quoted && prev == '"' && reader.cursor > 0) { // Unescaped quote found
+                    reader.cursor--
+                    if (reader.peek() != '\\') break
+                } else if (!quoted && prev == ' ') break
             }
             words--
         }

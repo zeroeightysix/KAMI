@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.StringReader.isQuotedStringStart
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -27,7 +28,10 @@ class SettingArgumentType<T>(
     @Throws(CommandSyntaxException::class)
     override fun parse(reader: StringReader): Setting<T> {
         val module = findDependencyValue(reader)
-        val string = reader.readUnquotedString()
+        val string = when (isQuotedStringStart(reader.peek())) {
+            true -> reader.readQuotedString()
+            false -> reader.readUnquotedString()
+        }
         val s = module.settingList.stream()
             .filter { setting: Setting<*> ->
                 setting.name.equals(string, ignoreCase = true)
@@ -44,7 +48,11 @@ class SettingArgumentType<T>(
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions>? {
         val m = findDependencyValue(context, Module::class.java)
-        return CommandSource.suggestMatching(m.settingList.stream().map { obj: Setting<*> -> obj.name }, builder)
+        fun String.quoteIfNecessary(): String {
+            if (contains(' ')) return "\"$this\""
+            return this
+        }
+        return CommandSource.suggestMatching(m.settingList.stream().map { obj: Setting<*> -> obj.name.quoteIfNecessary() }, builder)
     }
 
     override fun getExamples(): Collection<String> {
