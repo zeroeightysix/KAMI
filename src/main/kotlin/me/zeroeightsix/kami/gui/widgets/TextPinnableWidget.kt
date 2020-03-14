@@ -39,6 +39,8 @@ import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.Wrapper
 import kotlin.collections.map
+import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.reflect.KMutableProperty0
 
 open class TextPinnableWidget(
@@ -490,16 +492,9 @@ open class TextPinnableWidget(
             }
 
             override fun edit(variableMap: Map<String, () -> Variable>) {
-                val buf = string.toByteArray(ByteArray(string.length + 2))
+                val buf = string.toByteArray(ByteArray((((floor((abs((string.length - 4) / 256) + 1).toDouble()))) * 256).toInt()))
                 if (inputText("Text", buf)) {
-                    var str = ""
-                    for (c in buf) {
-                        if (c != 0.toByte())
-                            str += c.toChar()
-                        else
-                            break
-                    }
-                    string = str
+                    string = buf.backToString()
                 }
                 sameLine()
                 text("+")
