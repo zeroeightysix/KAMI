@@ -24,6 +24,7 @@ public class Module extends FullFeature {
 
     public Module() {
         setAlwaysListening(getAnnotation().alwaysListening());
+        setOriginalName(getAnnotation().name());
         getName().setValue(getAnnotation().name());
         setDescription(getAnnotation().description());
     }

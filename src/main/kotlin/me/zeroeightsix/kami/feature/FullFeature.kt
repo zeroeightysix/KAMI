@@ -18,7 +18,7 @@ import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
 open class FullFeature(
-    private val originalName: String = "No name",
+    protected var originalName: String = "No name",
     var description: String = "No description",
     hidden: Boolean = false,
     _alwaysListening: Boolean = false
