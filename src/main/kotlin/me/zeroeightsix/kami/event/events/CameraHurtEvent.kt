@@ -1,13 +1,5 @@
-package me.zeroeightsix.kami.event.events;
+package me.zeroeightsix.kami.event.events
 
-import me.zeroeightsix.kami.event.KamiEvent;
+import me.zeroeightsix.kami.event.KamiEvent
 
-public class CameraHurtEvent extends KamiEvent {
-
-    final float tickDelta;
-
-    public CameraHurtEvent(float tickDelta) {
-        this.tickDelta = tickDelta;
-    }
-
-}
+class CameraHurtEvent(val tickDelta: Float) : KamiEvent()

@@ -16,7 +16,7 @@ public abstract class MixinMobEntity {
     public void canBeControlledByRider(CallbackInfoReturnable<Boolean> returnable) {
         CanBeSteeredEvent event = new CanBeSteeredEvent((MobEntity) (Object) this, returnable.getReturnValue());
         KamiMod.EVENT_BUS.post(event);
-        returnable.setReturnValue(!event.isCancelled() && event.canBeSteered());
+        returnable.setReturnValue(!event.isCancelled() && event.getCanBeSteered());
     }
 
     @Shadow

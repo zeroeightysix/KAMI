@@ -1,9 +1,5 @@
-package me.zeroeightsix.kami.event.events;
+package me.zeroeightsix.kami.event.events
 
-import me.zeroeightsix.kami.event.KamiEvent;
+import me.zeroeightsix.kami.event.KamiEvent
 
-public class RenderHudEvent extends KamiEvent {
-
-
-
-}
+class RenderHudEvent : KamiEvent()

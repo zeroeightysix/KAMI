@@ -113,7 +113,7 @@ object EntitySpeed : Module() {
 
     @EventHandler
     var eventListener = Listener(
-        EventHook { event: CanBeSteeredEvent -> event.setCanBeSteered(event.canBeSteered() || isEnabled()) }
+        EventHook { event: CanBeSteeredEvent -> event.canBeSteered = event.canBeSteered || isEnabled() }
     )
 
     private val boat: BoatEntity?

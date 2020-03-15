@@ -1,64 +1,38 @@
-package me.zeroeightsix.kami.event.events;
+package me.zeroeightsix.kami.event.events
 
-import me.zeroeightsix.kami.event.KamiEvent;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.util.math.Vec3d;
+import me.zeroeightsix.kami.event.KamiEvent
+import net.minecraft.client.render.BufferBuilder
+import net.minecraft.client.render.Tessellator
+import net.minecraft.util.math.Vec3d
 
 /**
  * Created by 086 on 10/12/2017.
  * https://github.com/fr1kin/ForgeHax/blob/4697e629f7fa4f85faa66f9ac080573407a6d078/src/main/java/com/matt/forgehax/events/RenderEvent.java
  */
-public class RenderEvent extends KamiEvent {
+open class RenderEvent private constructor(private val stage: Stage) : KamiEvent() {
 
-    private final Stage stage;
-
-    private RenderEvent(Stage stage) {
-        this.stage = stage;
-    }
-
-    public enum Stage {
+    enum class Stage {
         WORLD, SCREEN
     }
 
-    public static class Screen extends RenderEvent {
-        public Screen() {
-            super(Stage.SCREEN);
-        }
-    }
+    class Screen : RenderEvent(Stage.SCREEN)
+    class World(val tessellator: Tessellator, val renderPos: Vec3d) :
+        RenderEvent(Stage.WORLD) {
 
-    public static class World extends RenderEvent {
+        val buffer: BufferBuilder
+            get() = tessellator.bufferBuilder
 
-        private final Tessellator tessellator;
-        private final Vec3d renderPos;
-
-        public World(Tessellator tessellator, Vec3d renderPos) {
-            super(Stage.WORLD);
-            this.tessellator = tessellator;
-            this.renderPos = renderPos;
-            setEra(Era.POST);
+        fun setTranslation(translation: Vec3d) {
+            buffer.setOffset(-translation.x, -translation.y, -translation.z)
         }
 
-        public Tessellator getTessellator() {
-            return tessellator;
+        fun resetTranslation() {
+            setTranslation(renderPos)
         }
 
-        public BufferBuilder getBuffer() {
-            return tessellator.getBufferBuilder();
+        init {
+            era = Era.POST
         }
-
-        public Vec3d getRenderPos() {
-            return renderPos;
-        }
-
-        public void setTranslation(Vec3d translation) {
-            getBuffer().setOffset(-translation.x, -translation.y, -translation.z);
-        }
-
-        public void resetTranslation() {
-            setTranslation(renderPos);
-        }
-
     }
 
 }
