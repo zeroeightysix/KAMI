@@ -1,8 +1,15 @@
 package me.zeroeightsix.kami.feature.module.render;
 
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.RenderBossBarEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
+import net.minecraft.client.gui.hud.ClientBossBar;
+
+import java.util.HashMap;
+import java.util.WeakHashMap;
 
 /**
  * Created by 086 on 25/01/2018.
@@ -10,77 +17,47 @@ import me.zeroeightsix.kami.setting.Settings;
 @Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
 public class BossStack extends Module {
 
-    private Setting<BossStackMode> mode = register(Settings.e("Mode", BossStackMode.STACK));
-    private Setting<Double> scale = Settings.d("Scale", .5d);
+    private Setting<Boolean> remove = register(Settings.b("Hide boss bars", false));
+    private Setting<Boolean> fold = register(Settings.booleanBuilder("Fold").withVisibility(b -> !remove.getValue()).withValue(true).build());
+    private Setting<Integer> spacing = register(Settings.integerBuilder("Spacing offset").withVisibility(d -> !remove.getValue()).withValue(0).build());
 
-    //private static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
+    public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
 
-    /*public static void render(RenderGameOverlayEvent.Post event) {
-        if (mode.getValue() == BossStackMode.MINIMIZE) {
-            Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
-            if (map == null) return;
-            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
-            int i = scaledresolution.getScaledWidth();
-            int j = 12;
-
-            for (Map.Entry<UUID, BossInfoClient> entry : map.entrySet()) {
-                BossInfoClient info = entry.getValue();
-                String text = info.getName().getFormattedText();
-
-                int k = (int) ((i / scale.getValue()) / 2 - 91);
-                GL11.glScaled(scale.getValue(), scale.getValue(), 1);
-                if (!event.isCanceled()) {
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
-                    MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
-                    MinecraftClient.getInstance().textRenderer.drawWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().textRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
-                }
-                GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + MinecraftClient.getInstance().textRenderer.FONT_HEIGHT;
-            }
-        } else if (mode.getValue() == BossStackMode.STACK) {
-            Map<UUID, BossInfoClient> map = MinecraftClient.getInstance().ingameGUI.getBossOverlay().mapBossInfos;
-            HashMap<String, Pair<BossInfoClient, Integer>> to = new HashMap<>();
-
-            for (Map.Entry<UUID, BossInfoClient> entry : map.entrySet()) {
-                String s = entry.getValue().getName().getFormattedText();
-                if (to.containsKey(s)) {
-                    Pair<BossInfoClient, Integer> p = to.get(s);
-                    p = new Pair<>(p.getKey(), p.getValue() + 1);
-                    to.put(s, p);
-                } else {
-                    Pair<BossInfoClient, Integer> p = new Pair<>(entry.getValue(), 1);
-                    to.put(s, p);
-                }
-            }
-
-            ScaledResolution scaledresolution = new ScaledResolution(MinecraftClient.getInstance());
-            int i = scaledresolution.getScaledWidth();
-            int j = 12;
-
-            for (Map.Entry<String, Pair<BossInfoClient, Integer>> entry : to.entrySet()) {
-                String text = entry.getKey();
-                BossInfoClient info = entry.getValue().getKey();
-                int a = entry.getValue().getValue();
-                text += " x" + a;
-
-                int k = (int) ((i / scale.getValue()) / 2 - 91);
-                GL11.glScaled(scale.getValue(), scale.getValue(), 1);
-                if (!event.isCanceled()) {
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    MinecraftClient.getInstance().getTextureManager().bindTexture(GUI_BARS_TEXTURES);
-                    MinecraftClient.getInstance().ingameGUI.getBossOverlay().render(k, j, info);
-                    MinecraftClient.getInstance().textRenderer.drawWithShadow(text, (float) ((i / scale.getValue()) / 2 - MinecraftClient.getInstance().textRenderer.getStringWidth(text) / 2), (float) (j - 9), 16777215);
-                }
-                GL11.glScaled(1d / scale.getValue(), 1d / scale.getValue(), 1);
-                j += 10 + MinecraftClient.getInstance().textRenderer.FONT_HEIGHT;
-            }
+    @EventHandler
+    private Listener<RenderBossBarEvent.GetIterator> getIteratorListener = new Listener<>(event -> {
+        if (remove.getValue()) {
+            event.cancel();
+            return;
         }
-        return;
-    }*/
 
-    private enum BossStackMode {
-        REMOVE, STACK, MINIMIZE
-    }
+        if (fold.getValue()) {
+            HashMap<String, ClientBossBar> chosenBarMap = new HashMap<>();
+            event.getIterator().forEachRemaining(bar -> {
+                String name = bar.getName().asString();
+                if (chosenBarMap.containsKey(name)) {
+                    barMap.compute(chosenBarMap.get(name), (clientBossBar, integer) -> (integer == null) ? 2 : integer + 1);
+                } else {
+                    chosenBarMap.put(name, bar);
+                }
+            });
+            event.setIterator(chosenBarMap.values().iterator());
+        }
+    });
+
+    @EventHandler
+    private Listener<RenderBossBarEvent.GetText> getTextListener = new Listener<>(event -> {
+        if (BossStack.barMap.isEmpty()) return;
+        ClientBossBar bar = event.getBossBar();
+        Integer integer = barMap.get(bar);
+        barMap.remove(bar);
+        if (integer != null) {
+            event.setText(event.getText().copy().append(" x" + integer));
+        }
+    });
+
+    @EventHandler
+    private Listener<RenderBossBarEvent.Spacing> spacingListener = new Listener<>(event -> {
+        event.setSpacing(event.getSpacing() - spacing.getValue());
+    });
 
 }

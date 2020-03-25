@@ -39,6 +39,11 @@ public class KamiMod implements ModInitializer {
 
     public static int rainbow = 0xFFFFFF; // This'll be updated every tick
 
+    public static <T> T postEvent(T event) {
+        KamiMod.EVENT_BUS.post(event);
+        return event;
+    }
+
     @Override
     public void onInitialize() {
         KamiMod.INSTANCE = this;

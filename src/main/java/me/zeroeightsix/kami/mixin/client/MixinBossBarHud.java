@@ -4,24 +4,39 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.RenderBossBarEvent;
 import net.minecraft.client.gui.hud.BossBarHud;
 import net.minecraft.client.gui.hud.ClientBossBar;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 @Mixin(BossBarHud.class)
 public class MixinBossBarHud {
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;", shift = At.Shift.BY, by = 3), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onRender(CallbackInfo info, int i, int j, Iterator var3, ClientBossBar clientBossBar) {
-        RenderBossBarEvent event = new RenderBossBarEvent(clientBossBar);
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Ljava/util/Collection;iterator()Ljava/util/Iterator;"))
+    public Iterator<ClientBossBar> onRender(Collection<ClientBossBar> collection) {
+        RenderBossBarEvent.GetIterator event = new RenderBossBarEvent.GetIterator(collection.iterator());
         KamiMod.EVENT_BUS.post(event);
         if (event.isCancelled()) {
-            info.cancel();
+            return Collections.emptyIterator();
         }
+        return event.getIterator();
+    }
+
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ClientBossBar;getName()Lnet/minecraft/text/Text;"))
+    public Text onAsFormattedString(ClientBossBar clientBossBar) {
+        RenderBossBarEvent.GetText text = KamiMod.postEvent(new RenderBossBarEvent.GetText(clientBossBar, clientBossBar.getName()));
+        return text.getText();
+    }
+
+    @ModifyConstant(method = "render", constant = @Constant(intValue = 9, log = true, ordinal = 1))
+    public int modifySpacingConstant(int j) {
+        return KamiMod.postEvent(new RenderBossBarEvent.Spacing(j)).getSpacing();
     }
 
 }
