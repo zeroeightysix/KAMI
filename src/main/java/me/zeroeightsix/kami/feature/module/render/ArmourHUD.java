@@ -8,6 +8,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
+import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.item.ItemStack;
@@ -18,12 +19,12 @@ import net.minecraft.item.ItemStack;
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
 public class ArmourHUD extends Module {
 
-    private static ItemRenderer itemRender = MinecraftClient.getInstance().getItemRenderer();
-
     private Setting<Boolean> damage = register(Settings.b("Damage", false));
 
     @EventHandler
     public Listener<RenderHudEvent> renderListener = new Listener<>(event -> {
+        ItemRenderer itemRenderer = Wrapper.getMinecraft().getItemRenderer();
+
         GlStateManager.enableTexture();
 
         int i = MinecraftClient.getInstance().window.getScaledWidth() / 2;
@@ -35,10 +36,10 @@ public class ArmourHUD extends Module {
             int x = i - 90 + (9 - iteration) * 20 + 2;
             GlStateManager.enableDepthTest();
 
-            itemRender.zOffset = 200F;
-            itemRender.renderGuiItemOverlay(mc.textRenderer, is, x, y);
-            itemRender.renderGuiItem(is, x, y);
-            itemRender.zOffset = 0F;
+            itemRenderer.zOffset = 200F;
+            itemRenderer.renderGuiItemOverlay(mc.textRenderer, is, x, y);
+            itemRenderer.renderGuiItem(is, x, y);
+            itemRenderer.zOffset = 0F;
 
             GlStateManager.enableTexture();
             GlStateManager.disableLighting();
