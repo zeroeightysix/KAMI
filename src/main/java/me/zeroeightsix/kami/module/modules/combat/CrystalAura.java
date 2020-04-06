@@ -296,7 +296,7 @@ public class CrystalAura extends Module {
             damage = damage * (1.0F - f / 25.0F);
 
             if (entity.isPotionActive(Potion.getPotionById(11))) {
-                damage = damage - (damage / 4);
+                damage = damage - (damage / 5);
             }
 
             return damage;
