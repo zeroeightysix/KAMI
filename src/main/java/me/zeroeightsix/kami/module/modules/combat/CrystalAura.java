@@ -156,7 +156,7 @@ public class CrystalAura extends Module {
                     double self = calculateDamage(blockPos.x + .5, blockPos.y + 1, blockPos.z + .5, mc.player);
                     // If this deals more damage to ourselves than it does to our target, continue. This is only ignored if the crystal is sure to kill our target but not us.
                     // Also continue if our crystal is going to hurt us.. alot
-                    if ((self > d && !(d > ((EntityLivingBase) entity).getHealth())) || self + .5 > mc.player.getHealth()) {
+                    if ((self > d && !(d > ((EntityLivingBase) entity).getHealth() + ((EntityLivingBase) entity).getAbsorptionAmount())) || self + .5 > mc.player.getHealth() + mc.player.getAbsorptionAmount()) {
                         continue;
                     }
                     damage = d;
