@@ -299,7 +299,6 @@ public class CrystalAura extends Module {
                 damage = damage - (damage / 4);
             }
 
-            damage = Math.max(damage, 0.0F);
             return damage;
         }
         damage = CombatRules.getDamageAfterAbsorb(damage, (float) entity.getTotalArmorValue(), (float) entity.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
