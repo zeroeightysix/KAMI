@@ -1,29 +1,34 @@
 package me.zeroeightsix.kami.feature.module.player;
 
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * Created by 086 on 19/11/2017.
  */
 @Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
+@Settings(onlyAnnotated = true)
 public class NoFall extends Module {
 
-    /*private Setting<Boolean> packet = register(Settings.b("Packet", false));
-    private Setting<Boolean> bucket = register(Settings.b("Bucket", true));
-    private Setting<Integer> distance = register(Settings.i("Distance", 15));
+    /*@Setting(name = "Packet")
+private boolean packet = false;
+    @Setting(name = "Bucket")
+private boolean bucket = true;
+    @Setting(name = "Distance")
+private int distance = 15;
 
     private long last = 0;
 
     @EventHandler
     public Listener<PacketEvent.Send> sendListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof PlayerMoveC2SPacket && packet.getValue()) {
+        if (event.getPacket() instanceof PlayerMoveC2SPacket && packet) {
             ((IPlayerMoveC2SPacket) event.getPacket()).setOnGround(true);
         }
     });
 
     @Override
     public void onUpdate() {
-        if (bucket.getValue() && mc.player.fallDistance >= distance.getValue() && !EntityUtil.isAboveWater(mc.player) && System.currentTimeMillis() - last > 100) {
+        if (bucket && mc.player.fallDistance >= distance && !EntityUtil.isAboveWater(mc.player) && System.currentTimeMillis() - last > 100) {
             Vec3d posVec = mc.player.getPos();
             RayTraceResult result = mc.world.rayTraceBlocks(posVec, posVec.add(0, -5.33f, 0), true, true, false);
             if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {

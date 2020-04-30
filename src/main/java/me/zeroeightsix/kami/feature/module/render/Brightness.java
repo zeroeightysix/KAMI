@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.render;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 
 import java.util.Stack;
 import java.util.function.Function;
@@ -15,11 +15,16 @@ import java.util.function.Function;
  * @see me.zeroeightsix.kami.mixin.client.MixinEntityRenderer
  */
 @Module.Info(name = "Brightness", description = "Makes everything brighter!", category = Module.Category.RENDER)
+@Settings(onlyAnnotated = true)
 public class Brightness extends Module {
 
-    private Setting<Boolean> transition = register(Settings.b("Transition", true));
-    private Setting<Float> seconds = register(Settings.floatBuilder("Seconds").withMinimum(0f).withMaximum(10f).withValue(1f).withVisibility(o -> transition.getValue()).build());
-    private Setting<Transition> mode = register(Settings.enumBuilder(Transition.class).withName("Mode").withValue(Transition.SINE).withVisibility(o -> transition.getValue()).build());
+    @Setting(name = "Transition")
+    private boolean transition = true;
+    @Setting(name = "Seconds")
+    // TODO: Visibility attribute (only if transition==true)
+    private @Setting.Constrain.Range(min = 0, max = 10) float seconds = 1;
+    @Setting(name = "Mode")
+    private Transition mode = Transition.SINE;
 
     private Stack<Float> transitionStack = new Stack<>();
 
@@ -27,10 +32,10 @@ public class Brightness extends Module {
     private static boolean inTransition = false;
 
     private void addTransition(boolean isUpwards) {
-        if (transition.getValue()) {
-            int length = (int) (seconds.getValue() * 20);
+        if (transition) {
+            int length = (int) (seconds * 20);
             float[] values;
-            switch (mode.getValue()) {
+            switch (mode) {
                 case LINEAR:
                     values = linear(length, isUpwards);
                     break;

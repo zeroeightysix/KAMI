@@ -6,8 +6,6 @@ import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.feature.command.Command;
-import me.zeroeightsix.kami.setting.SettingsRegister;
-import me.zeroeightsix.kami.setting.config.Configuration;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;

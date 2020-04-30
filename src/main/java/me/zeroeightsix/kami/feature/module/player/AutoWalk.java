@@ -2,22 +2,24 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.InputUpdateEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 
 /**
  * Created by 086 on 16/12/2017.
  */
 @Module.Info(name = "AutoWalk", category = Module.Category.PLAYER)
+@Settings(onlyAnnotated = true)
 public class AutoWalk extends Module {
 
-    private Setting<AutoWalkMode> mode = register(Settings.e("Mode", AutoWalkMode.FORWARD));
+    @Setting(name = "Mode")
+    private AutoWalkMode mode = AutoWalkMode.FORWARD;
 
     @EventHandler
     private Listener<InputUpdateEvent> inputUpdateEventListener = new Listener<>(event -> {
-        switch (mode.getValue()) {
+        switch (mode) {
             case FORWARD:
                 event.getNewState().movementForward = 1;
                 break;

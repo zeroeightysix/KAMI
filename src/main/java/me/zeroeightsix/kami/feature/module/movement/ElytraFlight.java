@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.server.network.packet.ClientCommandC2SPacket;
 import net.minecraft.util.math.MathHelper;
@@ -14,14 +14,16 @@ import net.minecraft.util.math.MathHelper;
  * Created by 086 on 11/04/2018.
  */
 @Module.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = Module.Category.MOVEMENT)
+@Settings(onlyAnnotated = true)
 public class ElytraFlight extends Module {
 
-    private Setting<ElytraFlightMode> mode = register(Settings.e("Mode", ElytraFlightMode.BOOST));
+    @Setting(name = "Mode")
+    private ElytraFlightMode mode = ElytraFlightMode.BOOST;
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (!mc.player.isFallFlying()) return;
-        switch (mode.getValue()) {
+        switch (mode) {
             case BOOST:
                 if(mc.player.isInWater())
                 {

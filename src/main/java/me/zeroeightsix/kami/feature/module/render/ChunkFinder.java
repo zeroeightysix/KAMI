@@ -1,19 +1,24 @@
 package me.zeroeightsix.kami.feature.module.render;
 
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * @author 086 and IronException
  */
 @Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
+@Settings(onlyAnnotated = true)
 public class ChunkFinder extends Module {
 
-    /*private Setting<Integer> yOffset = register(Settings.i("Y Offset", 0));
-    private Setting<Boolean> relative = register(Settings.b("Relative", true));
-    private Setting<Boolean> saveNewChunks = register(Settings.b("Save New Chunks", false));
-    private Setting<SaveOption> saveOption = register(Settings.enumBuilder(SaveOption.class).withValue(SaveOption.extraFolder).withName("Save Option").withVisibility(aBoolean -> saveNewChunks.getValue()).build());
-    private Setting<Boolean> saveInRegionFolder = register(Settings.booleanBuilder("In Region").withValue(false).withVisibility(aBoolean -> saveNewChunks.getValue()).build());
-    private Setting<Boolean> alsoSaveNormalCoords = register(Settings.booleanBuilder("Save Normal Coords").withValue(false).withVisibility(aBoolean -> saveNewChunks.getValue()).build());
+    /*@Setting(name = "Y Offset")
+private int yOffset = 0;
+    @Setting(name = "Relative")
+private boolean relative = true;
+    @Setting(name = "Save New Chunks")
+private boolean saveNewChunks = false;
+    private Setting<SaveOption> saveOption = register(Settings.enumBuilder(SaveOption.class).withValue(SaveOption.extraFolder).withName("Save Option").withVisibility(aBoolean -> saveNewChunks).build());
+    private Setting<Boolean> saveInRegionFolder = register(Settings.booleanBuilder("In Region").withValue(false).withVisibility(aBoolean -> saveNewChunks).build());
+    private Setting<Boolean> alsoSaveNormalCoords = register(Settings.booleanBuilder("Save Normal Coords").withValue(false).withVisibility(aBoolean -> saveNewChunks).build());
 
     private LastSetting lastSetting = new LastSetting();
     private PrintWriter logWriter;
@@ -64,11 +69,11 @@ public class ChunkFinder extends Module {
         }
 
         double x = mc.getEntityRenderManager().renderPosX;
-        double y = relative.getValue() ? 0 : -mc.getEntityRenderManager().renderPosY;
+        double y = relative ? 0 : -mc.getEntityRenderManager().renderPosY;
         double z = mc.getEntityRenderManager().renderPosZ;
-        GL11.glTranslated(-x, y + yOffset.getValue(), -z);
+        GL11.glTranslated(-x, y + yOffset, -z);
         GL11.glCallList(list);
-        GL11.glTranslated(x, -(y + yOffset.getValue()), z);
+        GL11.glTranslated(x, -(y + yOffset), z);
     }
 
     @Override
@@ -82,7 +87,7 @@ public class ChunkFinder extends Module {
         if (!event.getPacket().isFullChunk()) {
             chunks.add(event.getChunk());
             dirty = true;
-            if(saveNewChunks.getValue()) {
+            if(saveNewChunks) {
                 saveNewChunk(event.getChunk());
             }
         }
@@ -95,7 +100,7 @@ public class ChunkFinder extends Module {
     
     private String getNewChunkInfo(Chunk chunk) {
         String rV = String.format("%d,%d,%d", System.currentTimeMillis(), chunk.x, chunk.z);
-        if(alsoSaveNormalCoords.getValue()){
+        if(alsoSaveNormalCoords){
             rV += String.format(",%d,%d", chunk.x * 16 + 8, chunk.z * 16 + 8);
         }
         return rV;
@@ -114,7 +119,7 @@ public class ChunkFinder extends Module {
         try {
             logWriter = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)), true);
             String head = "timestamp,ChunkX,ChunkZ";
-            if (alsoSaveNormalCoords.getValue()) {
+            if (alsoSaveNormalCoords) {
                 head += ",x coordinate,z coordinate";
             }
             logWriter.println(head);
@@ -157,7 +162,7 @@ public class ChunkFinder extends Module {
         }
         
         // maybe we want to save it in region folder
-        if(saveInRegionFolder.getValue()) {
+        if(saveInRegionFolder) {
             file = new File(file, "region");
         }
         
@@ -184,7 +189,7 @@ public class ChunkFinder extends Module {
     private Path makeMultiplayerDirectory(){
         File rV = MinecraftClient.getInstance().gameDir;
         String folderName;
-        switch(saveOption.getValue()){
+        switch(saveOption){
                 case liteLoaderWdl: // make folder structure like liteLoader
                     folderName = mc.getCurrentServerData().serverName;
                     
@@ -294,13 +299,13 @@ public class ChunkFinder extends Module {
 
         public boolean testChange() {
             // these somehow include the test wether its null
-            if (saveOption.getValue() != lastSaveOption) {
+            if (saveOption != lastSaveOption) {
                 return true;
             }
-            if (saveInRegionFolder.getValue() != lastInRegion) {
+            if (saveInRegionFolder != lastInRegion) {
                 return true;
             }
-            if (alsoSaveNormalCoords.getValue() != lastSaveNormal) {
+            if (alsoSaveNormalCoords != lastSaveNormal) {
                 return true;
             }
             if(dimension != mc.player.dimension) {
@@ -313,9 +318,9 @@ public class ChunkFinder extends Module {
         }
 
         private void update() {
-            lastSaveOption = saveOption.getValue();
-            lastInRegion = saveInRegionFolder.getValue();
-            lastSaveNormal = alsoSaveNormalCoords.getValue();
+            lastSaveOption = saveOption;
+            lastInRegion = saveInRegionFolder;
+            lastSaveNormal = alsoSaveNormalCoords;
             dimension = mc.player.dimension;
             ip = mc.getCurrentServerEntry().address;
         }

@@ -3,8 +3,9 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.fiber.api.annotation.Setting
+import me.zeroeightsix.fiber.api.annotation.Settings
 import me.zeroeightsix.kami.event.events.TickEvent
-import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.LagCompensator
@@ -18,38 +19,42 @@ import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.RayTraceContext
 
-/**
- * Created by 086 on 12/12/2017.
- * Updated by hub on 31 October 2019
- */
 @Module.Info(
     name = "Aura",
     category = Module.Category.COMBAT,
     description = "Hits entities around you"
 )
+@Settings(onlyAnnotated = true)
 object Aura : Module() {
-    private val attackPlayers =
-        register(Settings.b("Players", true))
-    private val attackMobs =
-        register(Settings.b("Mobs", false))
-    private val attackAnimals =
-        register(Settings.b("Animals", false))
-    private val hitRange =
-        register(Settings.d("Hit Range", 5.5))
-    private val ignoreWalls =
-        register(Settings.b("Ignore Walls", true))
-    private val waitMode =
-        register(Settings.e<WaitMode>("Mode",
-            WaitMode.DYNAMIC
-        ))
-    private val waitTick = register(
-        Settings.integerBuilder("Tick Delay").withMinimum(0).withValue(3).withVisibility { o: Int? -> waitMode.value == WaitMode.STATIC }.build()
-    )
-    private val switchTo32k =
-        register(Settings.b("32k Switch", true))
-    private val onlyUse32k =
-        register(Settings.b("32k Only", false))
+
+    @Setting(name = "Players")
+    private var attackPlayers = true
+
+    @Setting(name = "Mobs")
+    private var attackMobs = false
+
+    @Setting(name = "Animals")
+    private var attackAnimals = false
+
+    @Setting(name = "Hit Range")
+    private var hitRange: Double = 5.5
+
+    @Setting(name = "Ignore Walls")
+    private var ignoreWalls = true
+
+    @Setting(name = "Mode")
+    private val waitMode = WaitMode.DYNAMIC
+
+    @Setting(name = "Tick Delay") // TODO: Visibility attribute (mode==STATIC)
+    private val waitTick: @Setting.Constrain.Range(min = 0.0, max = 3.0) Int = 3
+
+    @Setting(name = "32k Switch")
+    private var switchTo32k = true
+
+    @Setting(name = "32k Only")
+    private var onlyUse32k = false
     private var waitCounter = 0
+
     @EventHandler
     private val updateListener =
         Listener(EventHook<TickEvent.Client.InGame> {
@@ -61,15 +66,15 @@ object Aura : Module() {
             if (mc.player.isUsingItem && !shield) {
                 return@EventHook
             }
-            if (waitMode.value == WaitMode.DYNAMIC) {
+            if (waitMode == WaitMode.DYNAMIC) {
                 if (mc.player.getAttackCooldownProgress(lagComp) < 1) { // TODO: Is the right function?
                     return@EventHook
                 } else if (mc.player.age % 2 != 0) {
                     return@EventHook
                 }
             }
-            if (waitMode.value == WaitMode.STATIC && waitTick.value > 0) {
-                waitCounter = if (waitCounter < waitTick.value) {
+            if (waitMode == WaitMode.STATIC && waitTick > 0) {
+                waitCounter = if (waitCounter < waitTick) {
                     waitCounter++
                     return@EventHook
                 } else {
@@ -83,33 +88,33 @@ object Aura : Module() {
                 if (target === mc.player) {
                     continue
                 }
-                if (mc.player.distanceTo(target) > hitRange.value) {
+                if (mc.player.distanceTo(target) > hitRange) {
                     continue
                 }
                 if ((target as LivingEntity).health <= 0) {
                     continue
                 }
-                if (waitMode.value == WaitMode.DYNAMIC && target.hurtTime != 0) {
+                if (waitMode == WaitMode.DYNAMIC && target.hurtTime != 0) {
                     continue
                 }
-                if (!ignoreWalls.value && !mc.player.canSee(target) && !canEntityFeetBeSeen(
+                if (!ignoreWalls && !mc.player.canSee(target) && !canEntityFeetBeSeen(
                         target
                     )
                 ) {
                     continue  // If walls is on & you can't see the feet or head of the target, skip. 2 raytraces needed
                 }
-                if (attackPlayers.value && target is PlayerEntity && !Friends.isFriend(target.getName().string)) {
+                if (attackPlayers && target is PlayerEntity && !Friends.isFriend(target.getName().string)) {
                     attack(target)
                     return@EventHook
                 } else {
-                    if (if (EntityUtil.isPassive(target)) attackAnimals.value else EntityUtil.isMobAggressive(
+                    if (if (EntityUtil.isPassive(target)) attackAnimals else EntityUtil.isMobAggressive(
                             target
-                        ) && attackMobs.value
+                        ) && attackMobs
                     ) {
-                        // We want to skip this if switchTo32k.getValue() is true,
+                        // We want to skip this if switchTo32k is true,
                         // because it only accounts for tools and weapons.
                         // Maybe someone could refactor this later? :3
-                        if (!switchTo32k.value && AutoTool.isEnabled()) {
+                        if (!switchTo32k && AutoTool.isEnabled()) {
                             AutoTool.equipBestWeapon()
                         }
                         attack(target)
@@ -138,7 +143,7 @@ object Aura : Module() {
         if (checkSharpness(mc.player.activeItem)) {
             holding32k = true
         }
-        if (switchTo32k.value && !holding32k) {
+        if (switchTo32k && !holding32k) {
             var newSlot = -1
             for (i in 0..8) {
                 val stack = mc.player.inventory.getInvStack(i)
@@ -155,7 +160,7 @@ object Aura : Module() {
                 holding32k = true
             }
         }
-        if (onlyUse32k.value && !holding32k) {
+        if (onlyUse32k && !holding32k) {
             return
         }
         mc.interactionManager.attackEntity(
@@ -166,7 +171,7 @@ object Aura : Module() {
     }
 
     private val lagComp: Float
-        private get() = if (waitMode.value == WaitMode.DYNAMIC) {
+        private get() = if (waitMode == WaitMode.DYNAMIC) {
             -(20 - LagCompensator.INSTANCE.tickRate)
         } else 0.0f
 

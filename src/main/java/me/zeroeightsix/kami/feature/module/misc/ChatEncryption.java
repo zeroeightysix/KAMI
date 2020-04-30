@@ -2,13 +2,13 @@ package me.zeroeightsix.kami.feature.module.misc;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.feature.command.Command;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.feature.command.Command;
+import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
 import me.zeroeightsix.kami.mixin.client.IChatMessageS2CPacket;
-import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.client.network.packet.ChatMessageS2CPacket;
 import net.minecraft.server.network.packet.ChatMessageC2SPacket;
 import net.minecraft.text.LiteralText;
@@ -23,11 +23,15 @@ import java.util.stream.Collectors;
  * Created by 086 on 9/04/2018.
  */
 @Module.Info(name = "ChatEncryption", description = "Encrypts and decrypts chat messages (Delimiter %)", category = Module.Category.MISC)
+@Settings(onlyAnnotated = true)
 public class ChatEncryption extends Module {
 
-    private Setting<EncryptionMode> mode = register(Settings.e("Mode", EncryptionMode.SHUFFLE));
-    private Setting<Integer> key = register(Settings.i("Key", 6));
-    private Setting<Boolean> delim = register(Settings.b("Delimiter", true));
+    @Setting(name = "Mode")
+    private EncryptionMode mode = EncryptionMode.SHUFFLE;
+    @Setting(name = "Key")
+    private int key = 6;
+    @Setting(name = "Delimiter")
+    private boolean delim = true;
 
     private final Pattern CHAT_PATTERN = Pattern.compile("<.*?> ");
 
@@ -37,18 +41,18 @@ public class ChatEncryption extends Module {
     private Listener<PacketEvent.Send> sendListener = new Listener<>(event -> {
         if (event.getPacket() instanceof ChatMessageC2SPacket) {
             String s = ((ChatMessageC2SPacket) event.getPacket()).getChatMessage();
-            if (delim.getValue()) {
+            if (delim) {
                 if (!s.startsWith("%")) return;
                 s = s.substring(1);
             }
             StringBuilder builder = new StringBuilder();
-            switch (mode.getValue()) {
+            switch (mode) {
                 case SHUFFLE:
-                    builder.append(shuffle(key.getValue(), s));
+                    builder.append(shuffle(key, s));
                     builder.append("\uD83D\uDE4D");
                     break;
                 case SHIFT:
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + key.getValue())));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value + key)));
                     builder.append("\uD83D\uDE48");
                     break;
             }
@@ -76,16 +80,16 @@ public class ChatEncryption extends Module {
             }
 
             StringBuilder builder = new StringBuilder();
-            switch (mode.getValue()) {
+            switch (mode) {
                 case SHUFFLE:
                     if (!s.endsWith("\uD83D\uDE4D")) return;
                     s = s.substring(0, s.length() - 2);
-                    builder.append(unshuffle(key.getValue(), s));
+                    builder.append(unshuffle(key, s));
                     break;
                 case SHIFT:
                     if (!s.endsWith("\uD83D\uDE48")) return;
                     s = s.substring(0, s.length() - 2);
-                    s.chars().forEachOrdered(value -> builder.append((char) (value - key.getValue())));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value - key)));
                     break;
             }
 

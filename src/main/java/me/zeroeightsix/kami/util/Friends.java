@@ -27,18 +27,18 @@ public class Friends {
     }
 
     public static boolean isFriend(String name) {
-        return friends.getValue().stream().anyMatch(friend -> friend.getName().equalsIgnoreCase(name));
+        return friends.stream().anyMatch(friend -> friend.getName().equalsIgnoreCase(name));
     }
 
     public static void addFriend(GameProfile profile) {
         if (!isFriend(profile.getName())) {
-            friends.getValue().add(profile);
+            friends.add(profile);
         }
     }
 
     public static void removeFriend(GameProfile profile) {
         if (isFriend(profile.getName())) {
-            friends.getValue().removeIf(profile1 -> profile1.equals(profile));
+            friends.removeIf(profile1 -> profile1.equals(profile));
         }
     }
 

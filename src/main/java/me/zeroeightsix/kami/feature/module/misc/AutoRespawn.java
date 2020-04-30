@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.misc;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Texts;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.gui.screen.DeathScreen;
@@ -19,11 +19,15 @@ import java.util.Calendar;
  * Updated 16 November 2019 by hub
  */
 @Module.Info(name = "AutoRespawn", description = "Respawn utility", category = Module.Category.MISC)
+@Settings(onlyAnnotated = true)
 public class AutoRespawn extends Module {
 
-    private Setting<Boolean> respawn = register(Settings.b("Respawn", true));
-    private Setting<Boolean> deathCoords = register(Settings.b("DeathCoords", false));
-    private Setting<Boolean> antiGlitchScreen = register(Settings.b("Anti Glitch Screen", true));
+    @Setting(name = "Respawn")
+    private boolean respawn = true;
+    @Setting(name = "DeathCoords")
+    private boolean deathCoords = false;
+    @Setting(name = "Anti Glitch Screen")
+    private boolean antiGlitchScreen = true;
 
     @EventHandler
     public Listener<ScreenEvent.Displayed> listener = new Listener<>(event -> {
@@ -32,8 +36,8 @@ public class AutoRespawn extends Module {
             return;
         }
 
-        if (respawn.getValue() || (antiGlitchScreen.getValue() && mc.player.getHealth() > 0)) {
-            if (deathCoords.getValue()) {
+        if (respawn || (antiGlitchScreen && mc.player.getHealth() > 0)) {
+            if (deathCoords) {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 

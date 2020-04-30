@@ -2,12 +2,12 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
-import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.feature.module.Freecam;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.*;
@@ -25,13 +25,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
+@Settings(onlyAnnotated = true)
 public class Scaffold extends Module {
 
     private List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST,
             Blocks.CHEST,
             Blocks.TRAPPED_CHEST);
 
-    private Setting<Integer> future = register(Settings.integerBuilder("Ticks").withMinimum(0).withMaximum(60).withValue(2).build());
+    @Setting(name = "Ticks")
+    private @Setting.Constrain.Range(min = 0, max = 60) int future = 2;
 
     private boolean hasNeighbour(BlockPos blockPos) {
         for (Direction side : Direction.values()) {
@@ -45,7 +47,7 @@ public class Scaffold extends Module {
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (isDisabled() || Freecam.INSTANCE.isEnabled()) return;
-        Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future.getValue());
+        Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future);
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();
 

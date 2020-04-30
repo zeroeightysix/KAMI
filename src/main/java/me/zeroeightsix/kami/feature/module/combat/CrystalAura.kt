@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.module.combat
 
+import me.zeroeightsix.fiber.api.annotation.Settings
 import me.zeroeightsix.kami.feature.module.Module
 
 /**
@@ -10,14 +11,20 @@ import me.zeroeightsix.kami.feature.module.Module
     name = "CrystalAura",
     category = Module.Category.COMBAT
 )
+@Settings(onlyAnnotated = true)
 object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
     private Setting<Boolean> players = register(Settings.b("Players"));
-    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
-    private Setting<Boolean> animals = register(Settings.b("Animals", false));
-    private Setting<Boolean> place = register(Settings.b("Place", false));
-    private Setting<Boolean> explode = register(Settings.b("Explode", false));
+    @Setting(name = "Mobs")
+private boolean mobs = false;
+    @Setting(name = "Animals")
+private boolean animals = false;
+    @Setting(name = "Place")
+private boolean place = false;
+    @Setting(name = "Explode")
+private boolean explode = false;
     private Setting<Double>  range = register(Settings.d("Range", 4));
-    private Setting<Boolean> antiWeakness = register(Settings.b("Anti Weakness", false));
+    @Setting(name = "Anti Weakness")
+private boolean antiWeakness = false;
 
     private BlockPos render;
     private Entity renderEnt;
@@ -36,10 +43,10 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
                 .map(entity -> (EnderCrystalEntity) entity)
                 .min(Comparator.comparing(c -> mc.player.distanceTo(c)))
                 .orElse(null);
-        if (explode.getValue() && crystal != null && mc.player.distanceTo(crystal) <= range.getValue()) {
+        if (explode && crystal != null && mc.player.distanceTo(crystal) <= range) {
             //Added delay to stop ncp from flagging "hitting too fast"
             if (((System.nanoTime() / 1000000) - systemTime) >= 250) {
-                if (antiWeakness.getValue() && mc.player.hasStatusEffect(StatusEffects.WEAKNESS)) {
+                if (antiWeakness && mc.player.hasStatusEffect(StatusEffects.WEAKNESS)) {
                     if (!isAttacking) {
                         // save initial player hand
                         oldSlot = Wrapper.getPlayer().inventory.selectedSlot;
@@ -101,10 +108,10 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
 
         List<BlockPos> blocks = findCrystalBlocks();
         List<Entity> entities = new ArrayList<>();
-        if (players.getValue()) {
+        if (players) {
             entities.addAll(mc.world.getPlayers().stream().filter(entityPlayer -> !Friends.isFriend(entityPlayer.getName().getString())).collect(Collectors.toList()));
         }
-        entities.addAll(StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())).collect(Collectors.toList()));
+        entities.addAll(StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals : mobs)).collect(Collectors.toList()));
 
         BlockPos q = null;
         double damage = .5;
@@ -139,9 +146,9 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
         }
         render = q;
 
-        if (place.getValue()) {
+        if (place) {
             if (!offhand && mc.player.inventory.selectedSlot != crystalSlot) {
-                if (autoSwitch.getValue()) {
+                if (autoSwitch) {
                     mc.player.inventory.selectedSlot = crystalSlot;
                     resetRotation();
                     switchCooldown = true;
@@ -214,7 +221,7 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
 
     private List<BlockPos> findCrystalBlocks() {
         NonNullList<BlockPos> positions = NonNullList.create();
-        positions.addAll(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
+        positions.addAll(getSphere(getPlayerPos(), range.floatValue(), range.intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
         return positions;
     }
 
