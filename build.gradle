@@ -33,8 +33,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    compile "me.zeroeightsix:fiber:0.10.0-SNAPSHOT"
-    compile 'com.github.zeroeightysix:fiber-dsl:-SNAPSHOT'
+    compile "me.zeroeightsix:fiber:${project.fiber_version}-SNAPSHOT"
 
     compile "com.github.ZeroMemes:Alpine:1.5"
     compile group: 'net.jodah', name: 'typetools', version: '0.5.0'
