@@ -23,5 +23,9 @@ public interface IPlayerMoveC2SPacket {
     void setY(double y);
     @Accessor
     void setZ(double z);
+    @Accessor
+    void setYaw(float yaw);
+    @Accessor
+    void setPitch(float pitch);
 
 }

@@ -195,6 +195,7 @@ object Tracers : Module() {
         )
     }
 
+    @JvmStatic
     fun drawLineFromPosToPos(
         posx: Double,
         posy: Double,

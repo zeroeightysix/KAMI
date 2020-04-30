@@ -1,6 +1,52 @@
-package me.zeroeightsix.kami.feature.module.combat
+package me.zeroeightsix.kami.feature.module.combat;
 
-import me.zeroeightsix.kami.feature.module.Module
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.event.events.RenderEvent;
+import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.feature.module.Tracers;
+import me.zeroeightsix.kami.mixin.client.IEntityRenderDispatcher;
+import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
+import me.zeroeightsix.kami.setting.Setting;
+import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.util.*;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.DamageUtil;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.decoration.EnderCrystalEntity;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.ToolItem;
+import net.minecraft.network.Packet;
+import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
+import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.explosion.Explosion;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
 
 /**
  * Created by 086 on 28/12/2017.
@@ -10,7 +56,8 @@ import me.zeroeightsix.kami.feature.module.Module
     name = "CrystalAura",
     category = Module.Category.COMBAT
 )
-object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
+class CrystalAura extends Module {
+    private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
     private Setting<Boolean> players = register(Settings.b("Players"));
     private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
     private Setting<Boolean> animals = register(Settings.b("Animals", false));
@@ -29,8 +76,14 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
     private int oldSlot = -1;
     private int newSlot;
 
-    @Override
-    public void onUpdate() {
+    public static CrystalAura INSTANCE;
+
+    public CrystalAura() {
+        INSTANCE = this;
+    }
+
+    @EventHandler
+    private Listener<TickEvent.Client> clientListener = new Listener<>(client -> {
         EnderCrystalEntity crystal = Stream.of(mc.world.getEntities())
                 .filter(entity -> entity instanceof EnderCrystalEntity)
                 .map(entity -> (EnderCrystalEntity) entity)
@@ -75,10 +128,10 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
             return;
         } else {
             resetRotation();
-			if (oldSlot != -1) {
+            if (oldSlot != -1) {
                 Wrapper.getPlayer().inventory.selectedSlot = oldSlot;
                 oldSlot = -1;
-			}
+            }
             isAttacking = false;
         }
 
@@ -148,13 +201,14 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
                 }
                 return;
             }
-            lookAtPacket(q.x + .5, q.y - .5, q.z + .5, mc.player);
-            RayTraceResult result = mc.world.rayTraceBlocks(new Vec3d(mc.player.x, mc.player.y + mc.player.getEyeHeight(), mc.player.z), new Vec3d(q.x + .5, q.y - .5d, q.z + .5));
+            lookAtPacket(q.getX() + .5, q.getY() - .5, q.getZ() + .5, mc.player);
+            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.x, mc.player.y + mc.player.getEyeHeight(mc.player.getPose()), mc.player.z), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
+            BlockHitResult result = mc.world.rayTrace(context);
             Direction f;
-            if (result == null || result.sideHit == null) {
+            if (result == null || result.getSide() == null) {
                 f = Direction.UP;
             } else {
-                f = result.sideHit;
+                f = result.getSide();
             }
             // return after we did an autoswitch
             if (switchCooldown) {
@@ -162,7 +216,7 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
                 return;
             }
             //mc.interactionManager.processRightClickBlock(mc.player, mc.world, q, f, new Vec3d(0, 0, 0), EnumHand.MAIN_HAND);
-            mc.player.connection.sendPacket(new PlayerMoveC2SPacketTryUseItemOnBlock(q, f, offhand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND, 0, 0, 0));
+            mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(offhand ? Hand.OFF_HAND : Hand.MAIN_HAND, result));
         }
         //this sends a constant packet flow for default packets
         if (isSpoofingAngles) {
@@ -174,23 +228,22 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
                 togglePitch = true;
             }
         }
+    });
 
-    }
-
-    @Override
-    public void onWorldRender(RenderEvent event) {
+    @EventHandler
+    public Listener<RenderEvent.World> worldRenderListener = new Listener<>(worldEvent -> {
         if (render != null) {
             KamiTessellator.prepare(GL11.GL_QUADS);
             KamiTessellator.drawBox(render, 0x44ffffff, GeometryMasks.Quad.ALL);
             KamiTessellator.release();
             if (renderEnt != null) {
-                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getRenderPartialTicks());
-                Tracers.drawLineFromPosToPos(render.x - mc.getEntityRenderManager().renderPosX + .5d, render.y - mc.getEntityRenderManager().renderPosY + 1, render.z - mc.getEntityRenderManager().renderPosZ + .5d, p.x, p.y, p.z, renderEnt.getEyeHeight(), 1, 1, 1, 1);
+                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getTickDelta());
+                Tracers.drawLineFromPosToPos(render.getX() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosX() + .5d, render.getY() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosY() + 1, render.getZ() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosZ() + .5d, p.x, p.y, p.z, renderEnt.getEyeHeight(renderEnt.getPose()), 1, 1, 1, 1);
             }
         }
-    }
+    });
 
-    private void lookAtPacket(double px, double py, double pz, PlayerEntity me) {
+    private void lookAtPacket(double px, double py, double pz, ClientPlayerEntity me) {
         double[] v = calculateLookAt(px, py, pz, me);
         setYawAndPitch((float) v[0], (float) v[1]);
     }
@@ -202,7 +255,7 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
                 && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN)
                 || mc.world.getBlockState(boost).getBlock() != Blocks.AIR
                 || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR
-                || !mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost)).isEmpty()) {
+                || !mc.world.getEntities(Entity.class, new Box(boost)).isEmpty()) {
             return false;
         }
         return true;
@@ -213,9 +266,7 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
     }
 
     private List<BlockPos> findCrystalBlocks() {
-        NonNullList<BlockPos> positions = NonNullList.create();
-        positions.addAll(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
-        return positions;
+        return new ArrayList<>(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
     }
 
     public List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {
@@ -239,39 +290,33 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
 
     public static float calculateDamage(double x, double y, double z, Entity entity) {
         float doubleExplosionSize = 6.0F * 2.0F;
-        double distancedsize = entity.getDistance(x, y, z) / (double) doubleExplosionSize;
+        double distancedsize = Math.sqrt(entity.squaredDistanceTo(x, y, z)) / (double) doubleExplosionSize;
         Vec3d vec3d = new Vec3d(x, y, z);
-        double blockDensity = (double) entity.world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
-        double v = (1.0D - distancedsize) * blockDensity;
-        float damage = (float) ((int) ((v * v + v) / 2.0D * 7.0D * (double) doubleExplosionSize + 1.0D));
+        // double blockDensity = (double) entity.world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
+        // double v = (1.0D - distancedsize) * blockDensity;
+        // float damage = (float) ((int) ((v * v + v) / 2.0D * 7.0D * (double) doubleExplosionSize + 1.0D));
         double finald = 1;
-        /*if (entity instanceof EntityLivingBase)
-            finald = getBlastReduction((EntityLivingBase) entity,getDamageMultiplied(damage));*/
-/*
-        if (entity instanceof EntityLivingBase) {
-            finald = getBlastReduction((EntityLivingBase) entity, getDamageMultiplied(damage), new Explosion(mc.world, null, x, y, z, 6F, false, true));
-        }
+        // if (entity instanceof LivingEntity) {
+        //     finald = getBlastReduction((LivingEntity) entity, getDamageMultiplied(damage), new Explosion(mc.world, null, x, y, z, 6F, false, Explosion.DestructionType.NONE));
+        // }
         return (float) finald;
     }
 
-    public static float getBlastReduction(EntityLivingBase entity, float damage, Explosion explosion) {
-        if (entity instanceof EntityPlayer) {
-            EntityPlayer ep = (EntityPlayer) entity;
-            DamageSource ds = DamageSource.causeExplosionDamage(explosion);
-            damage = CombatRules.getDamageAfterAbsorb(damage, (float) ep.getTotalArmorValue(), (float) ep.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+    public static float getBlastReduction(LivingEntity entity, float damage, Explosion explosion) {
+        damage = DamageUtil.getDamageLeft(damage, (float) entity.getArmor(), (float) entity.getAttributeInstance(EntityAttributes.ARMOR_TOUGHNESS).getValue());
+        if (entity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) entity;
+            DamageSource damageSource = DamageSource.explosion(explosion);
 
-            int k = EnchantmentHelper.getEnchantmentModifierDamage(ep.getArmorInventoryList(), ds);
-            float f = MathHelper.clamp(k, 0.0F, 20.0F);
-            damage = damage * (1.0F - f / 25.0F);
+            // damage = damage * (1.0F - f / 25.0F);
 
-            if (entity.isPotionActive(Potion.getPotionById(11))) {
-                damage = damage - (damage / 4);
-            }
+            // if (entity.isPotionEffective(Potion.byId("resistance"))) { // TODO: Is this the correct identifier?
+            //     damage = damage - (damage / 4);
+            // }
 
-            damage = Math.max(damage - ep.getAbsorptionAmount(), 0.0F);
+            damage = Math.max(damage - player.getAbsorptionAmount(), 0.0F);
             return damage;
         }
-        damage = CombatRules.getDamageAfterAbsorb(damage, (float) entity.getTotalArmorValue(), (float) entity.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
         return damage;
     }
 
@@ -311,8 +356,8 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
         Packet packet = event.getPacket();
         if (packet instanceof PlayerMoveC2SPacket) {
             if (isSpoofingAngles) {
-                ((PlayerMoveC2SPacket) packet).yaw = (float) yaw;
-                ((PlayerMoveC2SPacket) packet).pitch = (float) pitch;
+                ((IPlayerMoveC2SPacket) packet).setYaw((float) yaw);
+                ((IPlayerMoveC2SPacket) packet).setPitch((float) pitch);
             }
         }
     });
@@ -322,6 +367,6 @@ object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register
         render = null;
         renderEnt = null;
         resetRotation();
-    }*/*/
-//TODO
+    }
+
 }

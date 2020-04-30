@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import com.google.common.collect.Iterables
-import com.google.common.collect.Iterators
+import com.mojang.blaze3d.platform.GlStateManager
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
