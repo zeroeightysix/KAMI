@@ -5,6 +5,7 @@ import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
+import me.zeroeightsix.kami.feature.MacroManager;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.setting.SettingsRegister;
 import me.zeroeightsix.kami.setting.config.Configuration;
@@ -64,6 +65,8 @@ public class KamiMod implements ModInitializer {
         SettingsRegister.register("commandPrefix", Command.commandPrefix);
         loadConfiguration();
         KamiMod.log.info("Settings loaded");
+
+        MacroManager.INSTANCE.registerMacros();
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         FeatureManager.INSTANCE.getFeatures().stream().filter(AbstractFeature::isEnabled).forEach(AbstractFeature::enable);
