@@ -5,8 +5,6 @@ import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
-import me.zeroeightsix.kami.feature.command.Command;
-import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
@@ -53,8 +51,9 @@ public class KamiMod implements ModInitializer {
                 .forEach(EVENT_BUS::subscribe);
         LagCompensator.INSTANCE = new LagCompensator();
 
-        Friends.initFriends();
-        SettingsRegister.register("commandPrefix", Command.commandPrefix);
+        // TODO
+//        Friends.initFriends();
+//        SettingsRegister.register("commandPrefix", Command.commandPrefix);
         loadConfiguration();
         KamiMod.log.info("Settings loaded");
 
@@ -99,7 +98,8 @@ public class KamiMod implements ModInitializer {
         String kamiConfigName = getConfigName();
         Path kamiConfig = Paths.get(kamiConfigName);
         if (!Files.exists(kamiConfig)) return;
-        Configuration.loadConfiguration(kamiConfig);
+        // TODO
+//        Configuration.loadConfiguration(kamiConfig);
     }
 
     public static void saveConfiguration() {
@@ -114,7 +114,8 @@ public class KamiMod implements ModInitializer {
         Path outputFile = Paths.get(getConfigName());
         if (!Files.exists(outputFile))
             Files.createFile(outputFile);
-        Configuration.saveConfiguration(outputFile);
+        // TODO
+//        Configuration.saveConfiguration(outputFile);
     }
 
     public static boolean isFilenameValid(String file) {

@@ -37,36 +37,38 @@ object FriendCommand : Command() {
                     LiteralArgumentBuilder.literal<CommandSource>("list")
                         .executes { context: CommandContext<CommandSource> ->
                             val source = context.source as KamiCommandSource
-                            if (Friends.friends.value.isEmpty()) {
-                                source.sendFeedback(
-                                    Texts.flit(
-                                        Formatting.GOLD,
-                                        "You don't have any friends."
-                                    )
-                                )
-                                return@executes 0
-                            }
+                            // TODO
+//                            if (Friends.friends.isEmpty()) {
+//                                source.sendFeedback(
+//                                    Texts.flit(
+//                                        Formatting.GOLD,
+//                                        "You don't have any friends."
+//                                    )
+//                                )
+//                                return@executes 0
+//                            }
                             var text: Text? = null
-                            Friends.friends.value.stream()
-                                .map { obj: GameProfile -> obj.name }
-                                .forEach { s: String? ->
-                                    if (text == null) {
-                                        text = Texts.flit(
-                                            Formatting.YELLOW,
-                                            s
-                                        )
-                                    } else {
-                                        text = text!!.append(
-                                            Texts.append(
-                                                Texts.lit(", "),
-                                                Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    s
-                                                )
-                                            )
-                                        )
-                                    }
-                                }
+                            // TODO
+//                            Friends.friends.value.stream()
+//                                .map { obj: GameProfile -> obj.name }
+//                                .forEach { s: String? ->
+//                                    if (text == null) {
+//                                        text = Texts.flit(
+//                                            Formatting.YELLOW,
+//                                            s
+//                                        )
+//                                    } else {
+//                                        text = text!!.append(
+//                                            Texts.append(
+//                                                Texts.lit(", "),
+//                                                Texts.flit(
+//                                                    Formatting.YELLOW,
+//                                                    s
+//                                                )
+//                                            )
+//                                        )
+//                                    }
+//                                }
                             text = Texts.f(Formatting.GOLD, text)
                             source.sendFeedback(
                                 Texts.i(

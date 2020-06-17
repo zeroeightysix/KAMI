@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.feature.module;
 
+import me.zeroeightsix.fiber.api.annotation.Setting;
 import me.zeroeightsix.kami.feature.FullFeature;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.setting.SettingVisibility;
 import net.minecraft.client.MinecraftClient;
 
 import java.lang.annotation.Retention;
@@ -17,15 +17,14 @@ public class Module extends FullFeature {
     private final Category category = getAnnotation().category();
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
-    public Setting<Boolean> showInActiveModules = register(Settings.booleanBuilder("Show in active modules")
-            .withVisibility(aBoolean -> false)
-            .withValue(true)
-            .build());
+    @Setting(name = "Show in active modules")
+    @SettingVisibility(visible = false)
+    public boolean showInActiveModules = true;
 
     public Module() {
         setAlwaysListening(getAnnotation().alwaysListening());
         setOriginalName(getAnnotation().name());
-        getName().setValue(getAnnotation().name());
+        setName(getAnnotation().name());
         setDescription(getAnnotation().description());
     }
 
@@ -34,10 +33,6 @@ public class Module extends FullFeature {
             return getClass().getAnnotation(Info.class);
         }
         throw new IllegalStateException("No Annotation on class " + this.getClass().getCanonicalName() + "!");
-    }
-
-    public void setName(String name) {
-        this.getName().setValue(name);
     }
 
     public enum Category {

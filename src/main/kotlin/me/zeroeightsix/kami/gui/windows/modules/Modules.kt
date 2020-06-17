@@ -39,7 +39,7 @@ object Modules {
         source: ModuleWindow,
         sourceGroup: String
     ): ModuleWindow? {
-        val nodeFlags = if (!module.enabled.value) baseFlags else (baseFlags or TreeNodeFlag.Selected)
+        val nodeFlags = if (!module.enabled) baseFlags else (baseFlags or TreeNodeFlag.Selected)
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
@@ -55,7 +55,7 @@ object Modules {
             clickedRight = isItemClicked(if (GraphicalSettings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeEx(label, nodeFlags, module.name.value)
+        val open = treeNodeEx(label, nodeFlags, module.name)
         dragDropTarget {
             acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
                 val payload = it.data!! as ModulePayload
@@ -72,7 +72,7 @@ object Modules {
 
                 popupContextItem("$label-popup") {
                     menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name.value, module = module)
+                        moduleWindow = ModuleWindow(module.name, module = module)
                     }
                 }
             }

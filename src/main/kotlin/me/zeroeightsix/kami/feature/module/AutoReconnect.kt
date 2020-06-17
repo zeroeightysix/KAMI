@@ -3,10 +3,11 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.fiber.api.annotation.Setting
+import me.zeroeightsix.fiber.api.annotation.Settings
 import me.zeroeightsix.kami.event.events.ScreenEvent
 import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
-import me.zeroeightsix.kami.setting.Settings
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
@@ -22,10 +23,13 @@ import kotlin.math.floor
     category = Module.Category.MISC,
     alwaysListening = true
 )
+@Settings(onlyAnnotated = true)
 object AutoReconnect : Module() {
 
     private var cServer: ServerEntry? = null
-    private val seconds = register(Settings.integerBuilder("Seconds").withValue(5).withMinimum(0).build())
+    @Setting
+    private var seconds: @Setting.Constrain.Range(min = 0.0) Int = 5;
+
     @EventHandler
     var closedListener =
         Listener(
@@ -49,7 +53,7 @@ object AutoReconnect : Module() {
         (disconnected as IDisconnectedScreen).reason
     ) {
         private val parent: Screen
-        var millis = seconds.value.toLong() * 1000
+        var millis = seconds.toLong() * 1000
         var cTime: Long
 
         override fun tick() {

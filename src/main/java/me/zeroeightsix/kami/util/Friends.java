@@ -3,8 +3,8 @@ package me.zeroeightsix.kami.util;
 import com.google.common.base.Converter;
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,14 +16,12 @@ import java.util.UUID;
 /**
  * Created by 086 on 13/12/2017.
  */
+@Settings(onlyAnnotated = true)
 public class Friends {
-    public static Setting<ArrayList<GameProfile>> friends;
+    @Setting
+    public static ArrayList<GameProfile> friends = new ArrayList<>();
 
     private Friends() {
-    }
-
-    public static void initFriends() {
-        friends = Settings.custom("Friends", new ArrayList<GameProfile>(), new FriendListConverter()).buildAndRegister("friends");
     }
 
     public static boolean isFriend(String name) {

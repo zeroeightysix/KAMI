@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.module
 
-import me.zeroeightsix.kami.setting.Settings
+import me.zeroeightsix.fiber.api.annotation.Setting
+import me.zeroeightsix.fiber.api.annotation.Settings
 import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
@@ -13,12 +14,16 @@ import net.minecraft.entity.player.PlayerEntity
     category = Module.Category.RENDER,
     description = "See entities through walls"
 )
+@Settings(onlyAnnotated = true)
 object Chams : Module() {
-    private val players = register(Settings.b("Players", true))
-    private val animals = register(Settings.b("Animals", false))
-    private val mobs = register(Settings.b("Mobs", false))
+    @Setting
+    private var players = true;
+    @Setting
+    private var animals = false;
+    @Setting
+    private var mobs = false;
 
     fun renderChams(entity: Entity?): Boolean {
-        return if (entity is PlayerEntity) players.value else if (EntityUtil.isPassive(entity)) animals.value else mobs.value
+        return if (entity is PlayerEntity) players else if (EntityUtil.isPassive(entity)) animals else mobs
     }
 }

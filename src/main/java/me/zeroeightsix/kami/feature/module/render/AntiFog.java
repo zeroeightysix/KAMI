@@ -1,21 +1,22 @@
 package me.zeroeightsix.kami.feature.module.render;
 
+import me.zeroeightsix.fiber.api.annotation.Setting;
+import me.zeroeightsix.fiber.api.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 
 /**
  * Created by 086 on 9/04/2018.
  */
 @Module.Info(name = "AntiFog", description = "Disables or reduces fog", category = Module.Category.RENDER)
+@Settings(onlyAnnotated = true)
 public class AntiFog extends Module {
 
-    public static Setting<VisionMode> mode = Settings.e("Mode", VisionMode.NOFOG);
+    @Setting
+    public static VisionMode mode = VisionMode.NOFOG;
     private static AntiFog INSTANCE = new AntiFog();
 
     public AntiFog() {
         INSTANCE = this;
-        register(mode);
     }
 
     public static boolean enabled() {

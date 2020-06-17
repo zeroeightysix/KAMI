@@ -7,16 +7,19 @@ import glm_.vec2.Vec2
 import imgui.ImGui.button
 import imgui.ImGui.sameLine
 import imgui.ImGui.text
+import me.zeroeightsix.fiber.api.annotation.Listener
+import me.zeroeightsix.fiber.api.annotation.Setting
+import me.zeroeightsix.fiber.api.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.extend.getKeyCode
-import me.zeroeightsix.kami.setting.Setting
-import me.zeroeightsix.kami.setting.Settings
-import me.zeroeightsix.kami.setting.builder.SettingBuilder
+import me.zeroeightsix.kami.setting.SettingDisplay
+import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
+@Settings(onlyAnnotated = true)
 open class FullFeature(
     protected var originalName: String = "No name",
     var description: String = "No description",
@@ -25,54 +28,57 @@ open class FullFeature(
 ) : AbstractFeature(hidden),
     Listening {
 
-    var settingList = mutableListOf<Setting<*>>()
-
     var alwaysListening = _alwaysListening
         set(value) {
             field = value
             if (value) KamiMod.EVENT_BUS.subscribe(this)
             else if (!value && isDisabled()) KamiMod.EVENT_BUS.unsubscribe(this)
         }
-    private val bindSetting = register(
-        Settings.custom("Bind", Bind.none(),
-            BindConverter(),
-            {
-                text("Bound to " + getBind().toString()) // TODO: Highlight bind in another color?
-                sameLine(0, -1)
-                if (button("Bind", Vec2())) { // TODO: Bind popup?
-                    // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-                }
-            }
-        ).build()
-    )
-    val name = register(
-        Settings.stringBuilder("Name").withValue(originalName).withRestriction { it.isNotEmpty() }.withVisibility { false }.build()
-    )
-    var enabled: Setting<Boolean> = register(
-        Settings.booleanBuilder("Enabled").withVisibility { false }.withValue(false).withConsumer { old, new ->
-            if (old != new) {
-                if (new) onEnable()
-                else onDisable()
-            }
-        }.build()
-    )
+
+    @SettingDisplay("showBind")
+    @Setting(name = "Bind")
+    private var bind = Bind.none()
+    
+    private fun showBind(bind: Bind) {
+        text("Bound to $bind") // TODO: Highlight bind in another color?
+        sameLine(0, -1)
+        if (button("Bind", Vec2())) { // TODO: Bind popup?
+            // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+        }
+    }
+
+    @Setting
+    @SettingVisibility(false)
+    var name: @Setting.Constrain.MinLength(1) String = originalName
+
+    @Setting
+    @SettingVisibility(false)
+    @Listener("enabledChanged")
+    var enabled: Boolean = false
+    
+    private fun enabledChanged(old: Boolean, new: Boolean) {
+        if (old != new) {
+            if (new) onEnable()
+            else onDisable()
+        }
+    }
 
     override fun enable(): Boolean {
         return isDisabled().then {
-            enabled.value = true
+            enabled = true
             true
         } ?: false
     }
 
     override fun disable(): Boolean {
         return isEnabled().then {
-            enabled.value = false
+            enabled = false
             true
         } ?: false
     }
 
     override fun isEnabled(): Boolean {
-        return enabled.value
+        return enabled
     }
 
     override fun isDisabled(): Boolean {
@@ -89,12 +95,7 @@ open class FullFeature(
 
     override fun isAlwaysListening(): Boolean = alwaysListening
 
-    override fun getBind(): Bind = bindSetting.value
-
-    protected fun <T> register(setting: Setting<T>): Setting<T> {
-        settingList.add(setting)
-        return SettingBuilder.register(setting, "features.$originalName")
-    }
+    override fun getBind(): Bind = bind
 
     private class BindConverter : Converter<Bind, JsonElement>() {
         override fun doForward(bind: Bind): JsonElement {

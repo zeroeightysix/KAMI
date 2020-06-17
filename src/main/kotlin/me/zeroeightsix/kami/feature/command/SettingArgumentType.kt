@@ -9,7 +9,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.setting.Setting
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
@@ -19,28 +18,29 @@ class SettingArgumentType<T>(
     dependantType: ArgumentType<Module>,
     dependantArgument: String,
     shift: Int
-) : DependantArgumentType<Setting<T>, Module>(
+) : DependantArgumentType<String, Module>(
     dependantType,
     dependantArgument,
     shift
 ) {
 
     @Throws(CommandSyntaxException::class)
-    override fun parse(reader: StringReader): Setting<T> {
+    override fun parse(reader: StringReader): String {
         val module = findDependencyValue(reader)
         val string = when (isQuotedStringStart(reader.peek())) {
             true -> reader.readQuotedString()
             false -> reader.readUnquotedString()
         }
-        val s = module.settingList.stream()
-            .filter { setting: Setting<*> ->
-                setting.name.equals(string, ignoreCase = true)
-            }.findAny()
-        return if (s.isPresent) {
-            s.get() as Setting<T>
-        } else {
-            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name.value))
-        }
+        // TODO
+//        val s = module.settingList.stream()
+//            .filter { setting: Setting<*> ->
+//                setting.name.equals(string, ignoreCase = true)
+//            }.findAny()
+//        return if (s.isPresent) {
+//            s.get() as Setting<T>
+//        } else {
+            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name))
+//        }
     }
 
     override fun <S> listSuggestions(
@@ -52,7 +52,9 @@ class SettingArgumentType<T>(
             if (contains(' ')) return "\"$this\""
             return this
         }
-        return CommandSource.suggestMatching(m.settingList.stream().map { obj: Setting<*> -> obj.name.quoteIfNecessary() }, builder)
+        // TODO
+//        return CommandSource.suggestMatching(m.settingList.stream().map { obj: Setting<*> -> obj.name.quoteIfNecessary() }, builder)
+        return CommandSource.suggestMatching(listOf("a", "b", "c", "todo!"), builder)
     }
 
     override fun getExamples(): Collection<String> {

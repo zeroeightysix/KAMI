@@ -26,9 +26,10 @@ object ModuleSettings {
         }
         block()
 
-        module.settingList.filter{ it.isVisible }.forEach {
-            it.drawSettings()
-        }
+        // TODO
+//        module.settingList.filter{ it.isVisible }.forEach {
+//            it.drawSettings()
+//        }
     }
 
 }

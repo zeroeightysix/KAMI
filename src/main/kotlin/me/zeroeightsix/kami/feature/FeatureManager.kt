@@ -26,7 +26,7 @@ object FeatureManager {
     }
 
     fun <T : FullFeature> List<T>.getByName(name: String): T? {
-        return this.firstOrNull { it.name.value == name }
+        return this.firstOrNull { it.name == name }
     }
 
     @JvmStatic
@@ -96,7 +96,7 @@ object FeatureManager {
         }
 
         features.sortWith(compareBy {
-            if (it is FullFeature) it.name.value else null
+            if (it is FullFeature) it.name else null
         })
     }
 

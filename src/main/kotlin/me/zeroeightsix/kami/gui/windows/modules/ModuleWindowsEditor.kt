@@ -73,11 +73,11 @@ object ModuleWindowsEditor {
                             // i tried.
                             treeNodeAlways(group.key, block = {
                                 group.value.forEachIndexed { n, module ->
-                                    selectable(module.name.value)
+                                    selectable(module.name)
                                     if (!rearrange) {
                                         dragDropSource {
                                             setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), window))
-                                            text(module.name.value)
+                                            text(module.name)
                                         }
                                     } else {
                                         val hovered = ImGui.isItemHovered()
@@ -137,10 +137,10 @@ object ModuleWindowsEditor {
                                     }
                                     menu("Sort") {
                                         menuItem("Alphabetically") {
-                                            group.value.sortBy { it.name.value }
+                                            group.value.sortBy { it.name }
                                         }
                                         menuItem("Reverse alphabetically") {
-                                            group.value.sortByDescending { it.name.value }
+                                            group.value.sortByDescending { it.name }
                                         }
                                     }
                                 }
