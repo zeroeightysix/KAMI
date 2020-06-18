@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module.player;
 
-import me.zeroeightsix.fiber.api.annotation.Settings;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**

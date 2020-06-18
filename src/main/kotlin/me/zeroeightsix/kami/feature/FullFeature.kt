@@ -7,9 +7,9 @@ import glm_.vec2.Vec2
 import imgui.ImGui.button
 import imgui.ImGui.sameLine
 import imgui.ImGui.text
-import me.zeroeightsix.fiber.api.annotation.Listener
-import me.zeroeightsix.fiber.api.annotation.Setting
-import me.zeroeightsix.fiber.api.annotation.Settings
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.extend.getKeyCode
 import me.zeroeightsix.kami.setting.SettingDisplay

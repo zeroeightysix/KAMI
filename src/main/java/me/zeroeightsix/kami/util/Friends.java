@@ -3,8 +3,8 @@ package me.zeroeightsix.kami.util;
 import com.google.common.base.Converter;
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
-import me.zeroeightsix.fiber.api.annotation.Setting;
-import me.zeroeightsix.fiber.api.annotation.Settings;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

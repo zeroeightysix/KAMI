@@ -3,8 +3,8 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.fiber.api.annotation.Setting
-import me.zeroeightsix.fiber.api.annotation.Settings
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.PacketEvent.Send
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent
 import me.zeroeightsix.kami.event.events.TickEvent

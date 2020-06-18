@@ -1,5 +1,9 @@
 package me.zeroeightsix.kami;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException;
+import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization;
+import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer;
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.AbstractFeature;
@@ -31,9 +35,10 @@ public class KamiMod implements ModInitializer {
 
     public static final Logger log = LogManager.getLogger("KAMI");
     public static final EventBus EVENT_BUS = new EventManager();
-    private static KamiMod INSTANCE;
-
     public static int rainbow = 0xFFFFFF; // This'll be updated every tick
+    private static KamiMod INSTANCE;
+    
+    private ConfigTree config;
 
     @Override
     public void onInitialize() {
@@ -54,8 +59,12 @@ public class KamiMod implements ModInitializer {
         // TODO
 //        Friends.initFriends();
 //        SettingsRegister.register("commandPrefix", Command.commandPrefix);
-        loadConfiguration();
-        KamiMod.log.info("Settings loaded");
+        try {
+            loadConfiguration(config);
+            KamiMod.log.info("Settings loaded");
+        } catch (IOException | ValueDeserializationException e) {
+            e.printStackTrace();
+        }
 
         // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
         FeatureManager.INSTANCE.getFeatures().stream().filter(AbstractFeature::isEnabled).forEach(AbstractFeature::enable);
@@ -86,36 +95,12 @@ public class KamiMod implements ModInitializer {
         }
     }
 
-    public static void loadConfiguration() {
-        try {
-            loadConfigurationUnsafe();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void loadConfiguration(ConfigTree config) throws IOException, ValueDeserializationException {
+        FiberSerialization.deserialize(config, Files.newInputStream(Paths.get(getConfigName())), new JanksonValueSerializer(false));
     }
 
-    public static void loadConfigurationUnsafe() throws IOException {
-        String kamiConfigName = getConfigName();
-        Path kamiConfig = Paths.get(kamiConfigName);
-        if (!Files.exists(kamiConfig)) return;
-        // TODO
-//        Configuration.loadConfiguration(kamiConfig);
-    }
-
-    public static void saveConfiguration() {
-        try {
-            saveConfigurationUnsafe();
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void saveConfigurationUnsafe() throws IOException {
-        Path outputFile = Paths.get(getConfigName());
-        if (!Files.exists(outputFile))
-            Files.createFile(outputFile);
-        // TODO
-//        Configuration.saveConfiguration(outputFile);
+    public static void saveConfiguration(ConfigTree config) throws IOException {
+        FiberSerialization.serialize(config, Files.newOutputStream(Paths.get(getConfigName())), new JanksonValueSerializer(false));
     }
 
     public static boolean isFilenameValid(String file) {
@@ -126,6 +111,10 @@ public class KamiMod implements ModInitializer {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public ConfigTree getConfig() {
+        return config;
     }
 
     public static KamiMod getInstance() {

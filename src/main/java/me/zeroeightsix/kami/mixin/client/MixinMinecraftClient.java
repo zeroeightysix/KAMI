@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.io.IOException;
+
 /**
  * Created by 086 on 17/11/2017.
  */
@@ -61,8 +63,12 @@ public class MixinMinecraftClient {
 
     private void save() {
         System.out.println("Shutting down: saving KAMI configuration");
-        KamiMod.saveConfiguration();
-        System.out.println("Configuration saved.");
+        try {
+            KamiMod.saveConfiguration(KamiMod.getInstance().getConfig());
+            System.out.println("Configuration saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -28,7 +28,7 @@ object ConfigCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("reload")
                         .executes { context: CommandContext<CommandSource> ->
-                            KamiMod.loadConfiguration()
+                            KamiMod.loadConfiguration(KamiMod.getInstance().config)
                             (context.source as KamiCommandSource).sendFeedback(
                                 Texts.f(
                                     Formatting.GOLD, Texts.append(
@@ -47,7 +47,7 @@ object ConfigCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("save")
                         .executes { context: CommandContext<CommandSource> ->
-                            KamiMod.saveConfiguration()
+                            KamiMod.saveConfiguration(KamiMod.getInstance().config)
                             (context.source as KamiCommandSource).sendFeedback(
                                 Texts.f(
                                     Formatting.GOLD, Texts.append(
@@ -77,7 +77,7 @@ object ConfigCommand : Command() {
                                         throw FAILED_EXCEPTION.create("Invalid filename '$filename'!")
                                     }
                                     val source = context.source as KamiCommandSource
-                                    KamiMod.saveConfiguration()
+                                    KamiMod.saveConfiguration(KamiMod.getInstance().config)
                                     source.sendFeedback(
                                         Texts.f(
                                             Formatting.GOLD, Texts.append(
@@ -106,7 +106,7 @@ object ConfigCommand : Command() {
                                             )
                                         )
                                     )
-                                    KamiMod.loadConfiguration()
+                                    KamiMod.loadConfiguration(KamiMod.getInstance().config)
                                     source.sendFeedback(
                                         Texts.f(
                                             Formatting.GOLD, Texts.append(

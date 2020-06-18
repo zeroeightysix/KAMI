@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
-import me.zeroeightsix.fiber.api.annotation.Setting
-import me.zeroeightsix.fiber.api.annotation.Settings
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.SimpleFeature
 import me.zeroeightsix.kami.util.Wrapper

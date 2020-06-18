@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.feature.module.render
 
-import me.zeroeightsix.fiber.api.annotation.Setting
-import me.zeroeightsix.fiber.api.annotation.Settings
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.feature.module.Module
 
 /**

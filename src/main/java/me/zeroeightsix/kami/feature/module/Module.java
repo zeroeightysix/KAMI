@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module;
 
-import me.zeroeightsix.fiber.api.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zeroeightsix.kami.feature.FullFeature;
 import me.zeroeightsix.kami.setting.SettingVisibility;
 import net.minecraft.client.MinecraftClient;
