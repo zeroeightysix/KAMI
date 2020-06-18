@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings;
+import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder;
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer;
@@ -60,6 +62,7 @@ public class KamiMod implements ModInitializer {
 //        Friends.initFriends();
 //        SettingsRegister.register("commandPrefix", Command.commandPrefix);
         try {
+            this.config = constructConfiguration();
             loadConfiguration(config);
             KamiMod.log.info("Settings loaded");
         } catch (IOException | ValueDeserializationException e) {
@@ -94,13 +97,24 @@ public class KamiMod implements ModInitializer {
             e1.printStackTrace();
         }
     }
+    
+    private ConfigTree constructConfiguration() {
+        AnnotatedSettings settings = AnnotatedSettings.builder().collectMembersRecursively().collectOnlyAnnotatedMembers().build();
+        ConfigTreeBuilder builder = ConfigTree.builder();
+        ConfigTreeBuilder modules = builder.fork("features");
+        FeatureManager.INSTANCE.getFeatures().forEach(f -> modules.applyFromPojo(f, settings));
+        // TODO: the rest of places that have @Settings
+        modules.finishBranch();
+        return builder.build();
+    }
 
     public static void loadConfiguration(ConfigTree config) throws IOException, ValueDeserializationException {
         FiberSerialization.deserialize(config, Files.newInputStream(Paths.get(getConfigName())), new JanksonValueSerializer(false));
     }
 
     public static void saveConfiguration(ConfigTree config) throws IOException {
-        FiberSerialization.serialize(config, Files.newOutputStream(Paths.get(getConfigName())), new JanksonValueSerializer(false));
+        if (config != null) // A crash while initialising config might cause config to be null, and an error in this line will drown out the error that caused minecraft to crash!
+            FiberSerialization.serialize(config, Files.newOutputStream(Paths.get(getConfigName())), new JanksonValueSerializer(false));
     }
 
     public static boolean isFilenameValid(String file) {
