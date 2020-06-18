@@ -15,14 +15,14 @@ import me.zeroeightsix.kami.feature.module.Module
 @Settings(onlyAnnotated = true)
 object NoEntityTrace : Module() {
     @Setting
-    private val mode: TraceMode = TraceMode.DYNAMIC
+    var traceMode = TraceMode.DYNAMIC
 
-    private enum class TraceMode {
+    enum class TraceMode {
         STATIC, DYNAMIC
     }
 
     @JvmStatic
     fun shouldBlock(): Boolean {
-        return isEnabled() && (mode == TraceMode.STATIC || mc.interactionManager.isBreakingBlock)
+        return isEnabled() && (traceMode == TraceMode.STATIC || mc.interactionManager.isBreakingBlock)
     }
 }

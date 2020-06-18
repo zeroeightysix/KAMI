@@ -43,10 +43,10 @@ object Aura : Module() {
     private var ignoreWalls = true
 
     @Setting(name = "Mode")
-    private val waitMode = WaitMode.DYNAMIC
+    private var waitMode = WaitMode.DYNAMIC
 
     @Setting(name = "Tick Delay") // TODO: Visibility attribute (mode==STATIC)
-    private val waitTick: @Setting.Constrain.Range(min = 0.0, max = 3.0) Int = 3
+    private var waitTick: @Setting.Constrain.Range(min = 0.0, max = 3.0) Int = 3
 
     @Setting(name = "32k Switch")
     private var switchTo32k = true

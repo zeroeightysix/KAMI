@@ -3,6 +3,8 @@ package me.zeroeightsix.kami;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings;
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder;
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException;
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes;
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer;
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree;
@@ -11,8 +13,11 @@ import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
+import me.zeroeightsix.kami.mixin.client.IKeyBinding;
+import me.zeroeightsix.kami.util.Bind;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.util.InputUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,10 +25,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Created by 086 on 7/11/2017.
@@ -99,7 +106,28 @@ public class KamiMod implements ModInitializer {
     }
     
     private ConfigTree constructConfiguration() {
-        AnnotatedSettings settings = AnnotatedSettings.builder().collectMembersRecursively().collectOnlyAnnotatedMembers().build();
+        MapConfigType<Bind, BigDecimal> bindType = ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER).derive(Bind.class, map -> {
+            boolean alt = map.getOrDefault("alt", 1) == 1;
+            boolean ctrl = map.getOrDefault("ctrl", 1) == 1;
+            boolean shift = map.getOrDefault("shift", 1) == 1;
+            boolean keysm = map.getOrDefault("keysm", 1) == 1;
+            int code = map.getOrDefault("code", -1);
+            return new Bind(ctrl, alt, shift, InputUtil.getKeyCode(keysm ? code : -1, keysm ? -1 : code));
+        }, bind -> {
+            HashMap<String, Integer> map = new HashMap<>();
+            map.put("alt", bind.isAlt() ? 0 : 1);
+            map.put("ctrl", bind.isCtrl() ? 0 : 1);
+            map.put("shift", bind.isShift() ? 0 : 1);
+            map.put("keysm", (((IKeyBinding) bind.binding).getKeyCode().getCategory() == InputUtil.Type.KEYSYM) ? 0 : 1);
+            map.put("code", ((IKeyBinding) bind.getBinding()).getKeyCode().getKeyCode());
+            return map;
+        });
+
+        AnnotatedSettings settings = AnnotatedSettings.builder()
+                .collectMembersRecursively()
+                .collectOnlyAnnotatedMembers()
+                .registerTypeMapping(Bind.class, bindType)
+                .build();
         ConfigTreeBuilder builder = ConfigTree.builder();
         ConfigTreeBuilder modules = builder.fork("features");
         FeatureManager.INSTANCE.getFeatures().forEach(f -> modules.applyFromPojo(f, settings));
