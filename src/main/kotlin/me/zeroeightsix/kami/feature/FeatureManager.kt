@@ -20,6 +20,7 @@ object FeatureManager {
 
     val modules get() = features.filterIsInstance<Module>()
     val plugins get() = features.filterIsInstance<Plugin>()
+    val fullFeatures get() = features.filterIsInstance<FullFeature>()
 
     fun initialize() {
         initFeatures()

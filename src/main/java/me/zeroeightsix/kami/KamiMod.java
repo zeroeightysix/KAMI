@@ -40,7 +40,7 @@ public class KamiMod implements ModInitializer {
     public static final String MODNAME = "KAMI";
     public static final String MODVER = "fabric-1.14.4-debug";
     public static final String KAMI_KANJI = "\u795E";
-    private static final String KAMI_CONFIG_NAME_DEFAULT = "KAMIConfig.json";
+    private static final String KAMI_CONFIG_NAME_DEFAULT = "KAMIConfig.json5";
 
     public static final Logger log = LogManager.getLogger("KAMI");
     public static final EventBus EVENT_BUS = new EventManager();
@@ -130,7 +130,8 @@ public class KamiMod implements ModInitializer {
                 .build();
         ConfigTreeBuilder builder = ConfigTree.builder();
         ConfigTreeBuilder modules = builder.fork("features");
-        FeatureManager.INSTANCE.getFeatures().forEach(f -> modules.applyFromPojo(f, settings));
+        // only full features because they have names
+        FeatureManager.INSTANCE.getFullFeatures().forEach(f -> modules.fork(f.getName()).applyFromPojo(f, settings).finishBranch());
         // TODO: the rest of places that have @Settings
         modules.finishBranch();
         return builder.build();
