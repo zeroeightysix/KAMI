@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.windows.modules
 import glm_.vec2.Vec2
 import imgui.*
 import imgui.ImGui.acceptDragDropPayload
+import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
 import imgui.ImGui.setDragDropPayload
@@ -11,7 +12,6 @@ import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.ImGui.treePop
-import imgui.Jdsl.collapsingHeader
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
@@ -159,7 +159,7 @@ object Modules {
                                 continue
                             }
 
-                            collapsingHeader(group, TreeNodeFlag.SpanFullWidth.i) {
+                            if (collapsingHeader(group, TreeNodeFlag.SpanFullWidth.i)) {
                                 iterateModules(list, group)
                             }
                         }
