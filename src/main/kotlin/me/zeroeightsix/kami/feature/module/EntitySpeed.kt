@@ -25,7 +25,6 @@ import kotlin.math.sin
     category = Module.Category.MOVEMENT,
     description = "Abuse client-sided movement to shape sound barrier breaking rideables"
 )
-@Settings(onlyAnnotated = true)
 object EntitySpeed : Module() {
 
     @Setting

@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.feature.module.render;
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.Friends;
@@ -13,7 +12,6 @@ import net.minecraft.text.LiteralText;
  * Created by 086 on 8/04/2018.
  */
 @Module.Info(name = "ExtraTab", description = "Expands the player tab menu", category = Module.Category.RENDER)
-@Settings(onlyAnnotated = true)
 public class ExtraTab extends Module {
 
     @Setting

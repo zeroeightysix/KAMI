@@ -19,7 +19,6 @@ import java.util.Calendar;
  * Updated 16 November 2019 by hub
  */
 @Module.Info(name = "AutoRespawn", description = "Respawn utility", category = Module.Category.MISC)
-@Settings(onlyAnnotated = true)
 public class AutoRespawn extends Module {
 
     @Setting(name = "Respawn")

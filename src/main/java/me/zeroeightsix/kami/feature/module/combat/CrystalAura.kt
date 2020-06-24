@@ -11,7 +11,6 @@ import me.zeroeightsix.kami.feature.module.Module
     name = "CrystalAura",
     category = Module.Category.COMBAT
 )
-@Settings(onlyAnnotated = true)
 object CrystalAura : Module() { /*private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
     private Setting<Boolean> players = register(Settings.b("Players"));
     @Setting(name = "Mobs")

@@ -1,13 +1,11 @@
 package me.zeroeightsix.kami.feature.module.player;
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * Created by 086 on 19/11/2017.
  */
 @Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
-@Settings(onlyAnnotated = true)
 public class NoFall extends Module {
 
     /*@Setting(name = "Packet")

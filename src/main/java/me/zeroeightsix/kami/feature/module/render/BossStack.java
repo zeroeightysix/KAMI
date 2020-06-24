@@ -1,14 +1,12 @@
 package me.zeroeightsix.kami.feature.module.render;
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * Created by 086 on 25/01/2018.
  */
 @Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
-@Settings(onlyAnnotated = true)
 public class BossStack extends Module {
 
     @Setting(name = "Mode")

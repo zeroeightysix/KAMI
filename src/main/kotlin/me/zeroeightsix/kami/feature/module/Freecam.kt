@@ -23,7 +23,6 @@ import net.minecraft.util.math.Vec3d
     category = Module.Category.PLAYER,
     description = "Leave your body and trascend into the realm of the gods"
 )
-@Settings(onlyAnnotated = true)
 object Freecam : Module() {
     @Setting
     private var speed = 5

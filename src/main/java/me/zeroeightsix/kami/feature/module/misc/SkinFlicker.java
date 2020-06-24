@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.misc;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.render.entity.PlayerModelPart;
@@ -14,7 +13,6 @@ import java.util.Random;
  * Created by 086 on 30/01/2018.
  */
 @Module.Info(name = "SkinFlicker", description = "Toggle the jacket layer rapidly for a cool skin effect", category = Module.Category.MISC)
-@Settings(onlyAnnotated = true)
 public class SkinFlicker extends Module {
 
     @Setting(name = "Mode")

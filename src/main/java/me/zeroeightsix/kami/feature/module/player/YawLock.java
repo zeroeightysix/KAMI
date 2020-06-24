@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.player;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.util.math.MathHelper;
@@ -12,7 +11,6 @@ import net.minecraft.util.math.MathHelper;
  * Created by 086 on 16/12/2017.
  */
 @Module.Info(name = "YawLock", category = Module.Category.PLAYER)
-@Settings(onlyAnnotated = true)
 public class YawLock extends Module {
 
     @Setting(name = "Auto")

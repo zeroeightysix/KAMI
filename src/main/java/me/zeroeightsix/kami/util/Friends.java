@@ -16,7 +16,6 @@ import java.util.UUID;
 /**
  * Created by 086 on 13/12/2017.
  */
-@Settings(onlyAnnotated = true)
 public class Friends {
     @Setting
     public static ArrayList<GameProfile> friends = new ArrayList<>();

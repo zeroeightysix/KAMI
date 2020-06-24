@@ -44,7 +44,6 @@ import static me.zeroeightsix.kami.feature.module.player.Scaffold.faceVectorPack
  * Updated by hub on 31 October 2019
  */
 @Module.Info(name = "Auto32k", category = Module.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
-@Settings(onlyAnnotated = true)
 public class Auto32k extends Module {
 
     private static final List<Block> blackList = Arrays.asList(

@@ -12,7 +12,6 @@ import me.zeroeightsix.kami.feature.module.Module
     category = Module.Category.RENDER,
     description = "Allows modification of the camera behaviour"
 )
-@Settings(onlyAnnotated = true)
 object ModuleCamera : Module() {
 
     @Setting(name = "Distance from player")

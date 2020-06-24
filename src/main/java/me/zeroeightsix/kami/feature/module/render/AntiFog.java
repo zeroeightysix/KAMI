@@ -8,7 +8,6 @@ import me.zeroeightsix.kami.feature.module.Module;
  * Created by 086 on 9/04/2018.
  */
 @Module.Info(name = "AntiFog", description = "Disables or reduces fog", category = Module.Category.RENDER)
-@Settings(onlyAnnotated = true)
 public class AntiFog extends Module {
 
     @Setting

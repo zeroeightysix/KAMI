@@ -12,7 +12,6 @@ import net.minecraft.util.math.MathHelper;
  * Created by 086 on 16/12/2017.
  */
 @Module.Info(name = "PitchLock", category = Module.Category.PLAYER)
-@Settings(onlyAnnotated = true)
 public class PitchLock extends Module {
 
     @Setting(name = "Auto")

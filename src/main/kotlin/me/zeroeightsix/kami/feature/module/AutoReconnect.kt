@@ -23,7 +23,6 @@ import kotlin.math.floor
     category = Module.Category.MISC,
     alwaysListening = true
 )
-@Settings(onlyAnnotated = true)
 object AutoReconnect : Module() {
 
     private var cServer: ServerEntry? = null

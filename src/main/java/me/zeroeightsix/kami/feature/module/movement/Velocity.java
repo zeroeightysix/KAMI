@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.movement;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.KamiEvent;
 import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.MoveEntityFluidEvent;
@@ -18,7 +17,6 @@ import net.minecraft.client.network.packet.ExplosionS2CPacket;
  * Created by 086 on 16/11/2017.
  */
 @Module.Info(name = "Velocity", description = "Modify knockback impact", category = Module.Category.MOVEMENT)
-@Settings(onlyAnnotated = true)
 public class Velocity extends Module {
 
     @Setting(name = "Horizontal")

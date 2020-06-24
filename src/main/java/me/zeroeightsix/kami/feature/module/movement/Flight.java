@@ -15,7 +15,6 @@ import net.minecraft.util.math.Vec3d;
  * Created by 086 on 25/08/2017.
  */
 @Module.Info(category = Module.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
-@Settings(onlyAnnotated = true)
 public class Flight extends Module {
 
     @Setting(name = "Speed")

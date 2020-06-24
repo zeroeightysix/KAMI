@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * Created by 086 on 9/04/2018.
  */
 @Module.Info(name = "ChatEncryption", description = "Encrypts and decrypts chat messages (Delimiter %)", category = Module.Category.MISC)
-@Settings(onlyAnnotated = true)
 public class ChatEncryption extends Module {
 
     @Setting(name = "Mode")

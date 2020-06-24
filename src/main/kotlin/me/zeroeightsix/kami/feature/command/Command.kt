@@ -34,7 +34,6 @@ abstract class Command : SimpleFeature(hidden = true) {
         }
     }
 
-    @Settings(onlyAnnotated = true)
     companion object {
         @JvmField
 		var dispatcher = CommandDispatcher<CommandSource>()

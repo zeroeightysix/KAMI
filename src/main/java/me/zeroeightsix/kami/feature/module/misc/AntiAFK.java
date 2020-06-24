@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.misc;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.server.network.packet.PlayerInteractItemC2SPacket;
@@ -15,7 +14,6 @@ import java.util.Random;
  * Created by 086 on 16/12/2017.
  */
 @Module.Info(name = "AntiAFK", category = Module.Category.MISC, description = "Moves in order not to get kicked. (May be invisible client-sided)")
-@Settings(onlyAnnotated = true)
 public class AntiAFK extends Module {
 
     @Setting(name = "Swing")

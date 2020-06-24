@@ -30,7 +30,6 @@ import org.lwjgl.opengl.GL11
     description = "Draws lines to other living entities",
     category = Module.Category.RENDER
 )
-@Settings(onlyAnnotated = true)
 object Tracers : Module() {
 
     private var players = true

@@ -12,7 +12,6 @@ import me.zeroeightsix.kami.feature.module.Module
     category = Module.Category.MISC,
     description = "Blocks entities from stopping you from mining"
 )
-@Settings(onlyAnnotated = true)
 object NoEntityTrace : Module() {
     @Setting
     var traceMode = TraceMode.DYNAMIC

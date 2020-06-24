@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.misc;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
@@ -13,7 +12,6 @@ import net.minecraft.server.network.packet.ChatMessageC2SPacket;
  * Created by 086 on 8/04/2018.
  */
 @Module.Info(name = "CustomChat", category = Module.Category.MISC, description = "Modifies your chat messages")
-@Settings(onlyAnnotated = true)
 public class CustomChat extends Module {
 
     @Setting(name = "Commands")

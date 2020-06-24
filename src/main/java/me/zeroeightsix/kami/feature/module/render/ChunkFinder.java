@@ -1,13 +1,11 @@
 package me.zeroeightsix.kami.feature.module.render;
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * @author 086 and IronException
  */
 @Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
-@Settings(onlyAnnotated = true)
 public class ChunkFinder extends Module {
 
     /*@Setting(name = "Y Offset")

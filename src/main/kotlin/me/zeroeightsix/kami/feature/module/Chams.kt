@@ -14,7 +14,6 @@ import net.minecraft.entity.player.PlayerEntity
     category = Module.Category.RENDER,
     description = "See entities through walls"
 )
-@Settings(onlyAnnotated = true)
 object Chams : Module() {
     @Setting
     private var players = true;

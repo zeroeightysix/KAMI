@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
-@Settings(onlyAnnotated = true)
 public class Scaffold extends Module {
 
     private List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST,

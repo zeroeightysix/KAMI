@@ -14,6 +14,7 @@ import me.zeroeightsix.kami.feature.AbstractFeature;
 import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
+import me.zeroeightsix.kami.setting.ProperCaseConvention;
 import me.zeroeightsix.kami.util.Bind;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;
@@ -126,6 +127,7 @@ public class KamiMod implements ModInitializer {
         AnnotatedSettings settings = AnnotatedSettings.builder()
                 .collectMembersRecursively()
                 .collectOnlyAnnotatedMembers()
+                .useNamingConvention(ProperCaseConvention.INSTANCE)
                 .registerTypeMapping(Bind.class, bindType)
                 .build();
         ConfigTreeBuilder builder = ConfigTree.builder();

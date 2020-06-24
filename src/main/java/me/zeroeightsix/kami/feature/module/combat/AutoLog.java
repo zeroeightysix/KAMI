@@ -16,7 +16,6 @@ import net.minecraft.text.LiteralText;
  * Created by 086 on 9/04/2018.
  */
 @Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
-@Settings(onlyAnnotated = true)
 public class AutoLog extends Module {
 
     // TODO: Step

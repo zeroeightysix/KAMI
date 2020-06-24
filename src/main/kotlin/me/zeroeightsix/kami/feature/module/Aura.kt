@@ -24,7 +24,6 @@ import net.minecraft.world.RayTraceContext
     category = Module.Category.COMBAT,
     description = "Hits entities around you"
 )
-@Settings(onlyAnnotated = true)
 object Aura : Module() {
 
     @Setting(name = "Players")

@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
  * Created by 086 on 24/01/2018.
  */
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
-@Settings(onlyAnnotated = true)
 public class ArmourHUD extends Module {
 
     private static ItemRenderer itemRender = MinecraftClient.getInstance().getItemRenderer();

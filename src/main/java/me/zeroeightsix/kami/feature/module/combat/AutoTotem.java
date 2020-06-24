@@ -1,10 +1,8 @@
 package me.zeroeightsix.kami.feature.module.combat;
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.feature.module.Module;
 
 @Module.Info(name = "AutoTotem", category = Module.Category.COMBAT)
-@Settings(onlyAnnotated = true)
 public class AutoTotem extends Module {
 
     /*int totems;

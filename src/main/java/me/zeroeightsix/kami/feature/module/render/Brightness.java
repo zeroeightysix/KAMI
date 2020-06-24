@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.render;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
@@ -15,7 +14,6 @@ import java.util.function.Function;
  * @see me.zeroeightsix.kami.mixin.client.MixinEntityRenderer
  */
 @Module.Info(name = "Brightness", description = "Makes everything brighter!", category = Module.Category.RENDER)
-@Settings(onlyAnnotated = true)
 public class Brightness extends Module {
 
     @Setting(name = "Transition")

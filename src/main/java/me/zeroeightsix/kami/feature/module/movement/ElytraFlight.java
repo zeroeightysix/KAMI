@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.movement;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
@@ -14,7 +13,6 @@ import net.minecraft.util.math.MathHelper;
  * Created by 086 on 11/04/2018.
  */
 @Module.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = Module.Category.MOVEMENT)
-@Settings(onlyAnnotated = true)
 public class ElytraFlight extends Module {
 
     @Setting(name = "Mode")

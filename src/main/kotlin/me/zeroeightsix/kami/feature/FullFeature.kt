@@ -9,6 +9,7 @@ import imgui.ImGui.sameLine
 import imgui.ImGui.text
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.SettingNamingConvention
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.extend.getKeyCode
@@ -19,7 +20,6 @@ import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
-@Settings(onlyAnnotated = true)
 open class FullFeature(
     protected var originalName: String = "No name",
     var description: String = "No description",
