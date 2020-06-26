@@ -1,13 +1,17 @@
 package me.zeroeightsix.kami;
 
+import com.mojang.authlib.GameProfile;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings;
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder;
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException;
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes;
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ListConfigType;
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization;
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer;
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch;
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree;
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
 import me.zeroeightsix.kami.feature.AbstractFeature;
@@ -16,6 +20,7 @@ import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.setting.ProperCaseConvention;
 import me.zeroeightsix.kami.util.Bind;
+import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.util.InputUtil;
@@ -32,6 +37,9 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by 086 on 7/11/2017.
@@ -66,9 +74,6 @@ public class KamiMod implements ModInitializer {
                 .forEach(EVENT_BUS::subscribe);
         LagCompensator.INSTANCE = new LagCompensator();
 
-        // TODO
-//        Friends.initFriends();
-//        SettingsRegister.register("commandPrefix", Command.commandPrefix);
         try {
             this.config = constructConfiguration();
             loadConfiguration(config);
@@ -124,19 +129,41 @@ public class KamiMod implements ModInitializer {
             return map;
         });
 
+        MapConfigType<GameProfile, String> profileType = ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING).derive(GameProfile.class,
+                map -> new GameProfile(UUID.fromString(map.get("uuid")), map.get("name")),
+                profile -> {
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("uuid", profile.getId().toString());
+                    map.put("name", profile.getName());
+                    return map;
+                });
+
+        ListConfigType<List<GameProfile>, Map<String, String>> friendsType = ConfigTypes.makeList(profileType);
+
         AnnotatedSettings settings = AnnotatedSettings.builder()
                 .collectMembersRecursively()
                 .collectOnlyAnnotatedMembers()
                 .useNamingConvention(ProperCaseConvention.INSTANCE)
                 .registerTypeMapping(Bind.class, bindType)
+                .registerTypeMapping(GameProfile.class, profileType)
                 .build();
         ConfigTreeBuilder builder = ConfigTree.builder();
+        constructFriendsConfiguration(settings, builder);
+
+        ConfigBranch friends = builder.fork("friends").applyFromPojo(Friends.INSTANCE, settings).build();
+        PropertyMirror<List<GameProfile>> mirror = PropertyMirror.create(friendsType);
+        mirror.mirror(friends.lookupLeaf("Friends", friendsType.getSerializedType()));
+        Friends.mirror = mirror;
+
+        return builder.build();
+    }
+
+    private void constructFriendsConfiguration(AnnotatedSettings settings, ConfigTreeBuilder builder) {
         ConfigTreeBuilder modules = builder.fork("features");
         // only full features because they have names
-        FeatureManager.INSTANCE.getFullFeatures().forEach(f -> modules.fork(f.getName()).applyFromPojo(f, settings).finishBranch());
+        FeatureManager.INSTANCE.getFullFeatures().forEach(f -> f.config = modules.fork(f.getName()).applyFromPojo(f, settings).build());
         // TODO: the rest of places that have @Settings
         modules.finishBranch();
-        return builder.build();
     }
 
     public static void loadConfiguration(ConfigTree config) throws IOException, ValueDeserializationException {

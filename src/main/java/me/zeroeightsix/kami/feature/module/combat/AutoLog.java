@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.combat;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.AutoReconnect;
@@ -18,7 +17,6 @@ import net.minecraft.text.LiteralText;
 @Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
 public class AutoLog extends Module {
 
-    // TODO: Step
     @Setting(name = "Health")
     private @Setting.Constrain.Range(min = 0, max = 36) int health = 6;
     private boolean shouldLog = false;
