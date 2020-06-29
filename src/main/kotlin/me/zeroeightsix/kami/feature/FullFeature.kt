@@ -11,6 +11,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.SettingNamingConvention
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.extend.getKeyCode
 import me.zeroeightsix.kami.setting.SettingDisplay
@@ -27,6 +28,8 @@ open class FullFeature(
     _alwaysListening: Boolean = false
 ) : AbstractFeature(hidden),
     Listening {
+
+    lateinit var config: ConfigBranch
 
     var alwaysListening = _alwaysListening
         set(value) {
@@ -96,27 +99,5 @@ open class FullFeature(
     override fun isAlwaysListening(): Boolean = alwaysListening
 
     override fun getBind(): Bind = bind
-
-    private class BindConverter : Converter<Bind, JsonElement>() {
-        override fun doForward(bind: Bind): JsonElement {
-            val array = JsonArray()
-            array.add(bind.isAlt)
-            array.add(bind.isCtrl)
-            array.add(bind.isShift)
-            array.add(bind.binding.getKeyCode().category == InputUtil.Type.KEYSYM)
-            array.add(bind.binding.getKeyCode().keyCode)
-            return array
-        }
-
-        override fun doBackward(jsonElement: JsonElement): Bind {
-            val array = jsonElement.asJsonArray
-            val alt = array[0].asBoolean
-            val ctrl = array[1].asBoolean
-            val shift = array[2].asBoolean
-            val keysm = array[3].asBoolean
-            val code = array[4].asInt
-            return Bind(ctrl, alt, shift, InputUtil.getKeyCode(keysm.to(code, -1), keysm.to(-1, code)))
-        }
-    }
 
 }

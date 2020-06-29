@@ -2,6 +2,7 @@ package me.zeroeightsix.kami;
 
 import com.mojang.authlib.GameProfile;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder;
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException;
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes;
@@ -19,6 +20,7 @@ import me.zeroeightsix.kami.feature.FeatureManager;
 import me.zeroeightsix.kami.feature.Listening;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.setting.ProperCaseConvention;
+import me.zeroeightsix.kami.setting.SettingAnnotationProcessor;
 import me.zeroeightsix.kami.util.Bind;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.LagCompensator;
@@ -146,6 +148,7 @@ public class KamiMod implements ModInitializer {
                 .useNamingConvention(ProperCaseConvention.INSTANCE)
                 .registerTypeMapping(Bind.class, bindType)
                 .registerTypeMapping(GameProfile.class, profileType)
+                .registerSettingProcessor(Setting.class, SettingAnnotationProcessor.INSTANCE)
                 .build();
         ConfigTreeBuilder builder = ConfigTree.builder();
         constructFriendsConfiguration(settings, builder);
