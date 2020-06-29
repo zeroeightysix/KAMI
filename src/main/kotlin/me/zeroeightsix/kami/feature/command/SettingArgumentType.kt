@@ -8,12 +8,15 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.module.Module
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
+import java.util.stream.Stream
 
 class SettingArgumentType(
     dependantType: ArgumentType<Module>,
@@ -32,7 +35,7 @@ class SettingArgumentType(
             true -> reader.readQuotedString()
             false -> reader.readUnquotedString()
         }
-        val s = module.config.items.stream()
+        val s = module.config.flattenedStream()
             .filter {
                 it.name.equals(string, ignoreCase = true)
             }.findAny()
@@ -40,6 +43,18 @@ class SettingArgumentType(
             s.get()
         } else {
             throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name))
+        }
+    }
+
+    private fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
+        return when (this) {
+            is ConfigBranch -> {
+                items.stream().flatMap { it.flattenedStream() }
+            }
+            is ConfigLeaf<*> -> {
+                Stream.of(this)
+            }
+            else -> Stream.empty()
         }
     }
 
