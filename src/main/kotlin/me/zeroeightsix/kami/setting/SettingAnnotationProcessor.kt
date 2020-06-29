@@ -8,6 +8,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.LeafAnnotationProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigLeafBuilder
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
@@ -17,6 +18,7 @@ import me.zeroeightsix.kami.setting.SettingAnnotationProcessor.asMutableProperty
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
+import java.math.BigDecimal
 import java.util.concurrent.CompletableFuture
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
@@ -33,6 +35,31 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                     checkbox(it.name, it.asMutableProperty())
                 }
             }, listOf("true", "false"))
+        ),
+        Pair(
+            BigDecimal::class.java,
+            createInterface({
+                Pair("number", it.value.toString())
+            }, {
+                it.toBigDecimal()
+            }, {
+                with (ImGui) {
+                    val configType = it.configType as DecimalSerializableType
+                    val increment = configType.increment
+                    dragFloat(
+                        it.name,
+                        object : MutableProperty<Float>(it.value.toFloat()) {
+                            override fun set(value: Float?) {
+                                it.value = BigDecimal.valueOf(value!!.toDouble())
+                            }
+                        },
+                        vSpeed = increment?.toFloat() ?: 1.0f,
+                        vMin = configType.minimum?.toFloat() ?: 0.0f,
+                        vMax = configType.maximum?.toFloat() ?: 0.0f,
+                        format = "%s"
+                    )
+                }
+            }, listOf("1", "10", "50"))
         )
     )
 
@@ -84,7 +111,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
             ConfigAttribute.create(
                 FiberId("kami", "setting_interface"),
                 INTERFACE_TYPE,
-                typeMap.getOrDefault(field!!.type, SettingInterface.Default)
+                typeMap.getOrDefault(field!!.type, typeMap.getOrDefault(builder.type.erasedPlatformType, SettingInterface.Default))
             )
         )
     }
