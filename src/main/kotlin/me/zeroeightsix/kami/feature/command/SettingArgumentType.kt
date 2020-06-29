@@ -12,6 +12,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.flattenedStream
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
@@ -43,18 +44,6 @@ class SettingArgumentType(
             s.get()
         } else {
             throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name))
-        }
-    }
-
-    private fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
-        return when (this) {
-            is ConfigBranch -> {
-                items.stream().flatMap { it.flattenedStream() }
-            }
-            is ConfigLeaf<*> -> {
-                Stream.of(this)
-            }
-            else -> Stream.empty()
         }
     }
 

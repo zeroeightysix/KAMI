@@ -13,10 +13,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import me.zeroeightsix.kami.MutableProperty
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.*
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
 
@@ -53,7 +55,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
         }
     }
 
-    fun <T> ConfigLeaf<T>.asMutableProperty() = object : MutableProperty0<T>(this.value) {
+    fun <T> ConfigLeaf<T>.asMutableProperty() = object : MutableProperty<T>(this.value) {
         override fun set(value: T) {
             this@asMutableProperty.value = value
         }

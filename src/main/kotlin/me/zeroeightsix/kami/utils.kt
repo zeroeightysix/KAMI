@@ -1,5 +1,10 @@
 package me.zeroeightsix.kami
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
+import java.util.stream.Stream
+
 fun <T, A> T.map(mapper: (T) -> A) = mapper(this)
 fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
 fun <T> Boolean.then(block: () -> T): T? {
@@ -44,5 +49,17 @@ class CyclingIterator<T>(private val iterable: Iterable<T>) : Iterator<T> {
 
     fun reset() {
         internalIterator = iterable.iterator()
+    }
+}
+
+fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
+    return when (this) {
+        is ConfigBranch -> {
+            items.stream().flatMap { it.flattenedStream() }
+        }
+        is ConfigLeaf<*> -> {
+            Stream.of(this)
+        }
+        else -> Stream.empty()
     }
 }
