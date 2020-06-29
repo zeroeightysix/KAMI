@@ -4,7 +4,6 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import imgui.ImGui
-import imgui.MutableProperty0
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.LeafAnnotationProcessor
@@ -14,40 +13,50 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfig
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.MutableProperty
+import me.zeroeightsix.kami.setting.SettingAnnotationProcessor.asMutableProperty
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
 import java.util.concurrent.CompletableFuture
-import kotlin.reflect.*
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
 
     private val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
         Pair(
             Boolean::class.java,
-            object : SettingInterface<Boolean> {
-                override val id: Identifier = Identifier("kami:boolean_displayer")
-
-                override fun displayTypeAndValue(leaf: ConfigLeaf<Boolean>): Pair<String, String> =
-                    Pair("boolean", leaf.value.toString())
-
-                override fun valueFromString(str: String): Boolean
-                    = str.toBoolean()
-
-                override fun displayImGui(leaf: ConfigLeaf<Boolean>) {
-                    with (ImGui) {
-                        checkbox(leaf.name, leaf.asMutableProperty())
-                    }
+            createInterface({
+                Pair("boolean", it.value.toString())
+            }, {
+                it.toBoolean()
+            }, {
+                with(ImGui) {
+                    checkbox(it.name, it.asMutableProperty())
                 }
-
-                override fun listSuggestions(
-                    context: CommandContext<*>,
-                    builder: SuggestionsBuilder
-                ): CompletableFuture<Suggestions> =
-                    CommandSource.suggestMatching(listOf("true", "false"), builder)
-            }
+            }, listOf("true", "false"))
         )
     )
+
+    /**
+     * Method to create an interface object by using lambda functions to reduce boilerplate
+     */
+    private inline fun <reified T> createInterface(
+        crossinline typeAndValue: (ConfigLeaf<T>) -> Pair<String, String>,
+        crossinline fromString: (String) -> T,
+        crossinline imGui: (ConfigLeaf<T>) -> Unit,
+        suggestions: List<String>,
+        name: String = T::class.java.simpleName.toLowerCase()
+    ) = object : SettingInterface<T> {
+        override val id = Identifier("kami", "${name}_interface")
+
+        override fun displayTypeAndValue(leaf: ConfigLeaf<T>): Pair<String, String> = typeAndValue(leaf)
+        override fun valueFromString(str: String): T = fromString(str)
+        override fun displayImGui(leaf: ConfigLeaf<T>) = imGui(leaf)
+
+        override fun listSuggestions(
+            context: CommandContext<*>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> = CommandSource.suggestMatching(suggestions, builder)
+    }
 
     init {
         typeMap.values.forEach {
