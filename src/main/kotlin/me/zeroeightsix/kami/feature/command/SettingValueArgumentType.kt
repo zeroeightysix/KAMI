@@ -28,17 +28,16 @@ class SettingValueArgumentType(
     override fun parse(reader: StringReader): String {
         val setting = findDependencyValue(reader)
         val string = reader.readUnquotedString()
-        try {
-            setting.getInterface().canFromString(string)
-            return string
-        } catch (ignored: Exception) {
-        }
-        throw INVALID_VALUE_EXCEPTION.create(
-            arrayOf<Any>(
-                string,
-                setting.name
+        return if (setting.getInterface().canFromString(string)) {
+            string
+        } else {
+            throw INVALID_VALUE_EXCEPTION.create(
+                arrayOf<Any>(
+                    string,
+                    setting.name
+                )
             )
-        )
+        }
     }
 
     override fun <S> listSuggestions(

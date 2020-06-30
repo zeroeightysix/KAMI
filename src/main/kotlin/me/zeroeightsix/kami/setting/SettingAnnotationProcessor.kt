@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.setting
 
+import com.google.common.collect.Streams
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -13,17 +14,72 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
-import me.zeroeightsix.kami.setting.SettingAnnotationProcessor.asMutableProperty
+import me.zeroeightsix.kami.mixin.extend.getMap
+import me.zeroeightsix.kami.util.Bind
+import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
 import java.math.BigDecimal
 import java.util.concurrent.CompletableFuture
+import java.util.stream.Stream
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
 
+    private val bindMap = (InputUtil.Type.KEYSYM.getMap()).mapNotNull {
+        val name = it.value.name.also { s ->
+            if (!s.startsWith("key.keyboard")) return@mapNotNull null
+        }.removePrefix("key.keyboard.").replace('.', '-')
+
+        Pair(name, it.value!!)
+    }.toMap()
+
     private val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
+        Pair(
+            Bind::class.java,
+            createInterface({
+                Pair("bind", KamiMod.bindType.toRuntimeType(it.value).toString())
+            }, {
+                var s = it.toLowerCase()
+
+                fun remove(part: String): Boolean {
+                    val removed = s.replace(part, "")
+                    val changed = s == removed
+                    s = removed
+                    return changed
+                }
+
+                val ctrl = remove("ctrl+")
+                val alt = remove("alt+")
+                val shift = remove("shift+")
+
+                KamiMod.bindType.toSerializedType(Bind(
+                    ctrl,
+                    alt,
+                    shift,
+                    bindMap[s]
+                ))
+            }, {
+                with(ImGui) {
+                    text("edit bind")
+                }
+            }, { b ->
+                val range = 0..b.remaining.lastIndexOf('+')
+                val left = b.remaining.substring(range)
+                val right = b.remaining.toLowerCase().removeRange(range)
+
+                Stream.concat(
+                    listOf("ctrl+", "shift+", "alt+").stream(),
+                    bindMap.keys.stream()
+                ).forEach {
+                    if (it.startsWith(right)) b.suggest("$left$it")
+                }
+
+                b.buildFuture()
+            })
+        ),
         Pair(
             Boolean::class.java,
             createInterface({
@@ -34,7 +90,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                 with(ImGui) {
                     checkbox(it.name, it.asMutableProperty())
                 }
-            }, listOf("true", "false"))
+            }, { b -> CommandSource.suggestMatching(listOf("true", "false"), b) })
         ),
         Pair(
             BigDecimal::class.java,
@@ -43,7 +99,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
             }, {
                 it.toBigDecimal()
             }, {
-                with (ImGui) {
+                with(ImGui) {
                     val configType = it.configType as DecimalSerializableType
                     val increment = configType.increment
                     dragFloat(
@@ -59,7 +115,19 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                         format = "%s"
                     )
                 }
-            }, listOf("1", "10", "50"))
+            }, { b -> b.buildFuture() })
+        ),
+        Pair(
+            String::class.java,
+            createInterface({
+                Pair("text", it.value)
+            }, {
+                it
+            }, {
+                with(ImGui) {
+                    inputText(it.name, it.value)
+                }
+            }, { b -> b.buildFuture() })
         )
     )
 
@@ -70,7 +138,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
         crossinline typeAndValue: (ConfigLeaf<T>) -> Pair<String, String>,
         crossinline fromString: (String) -> T,
         crossinline imGui: (ConfigLeaf<T>) -> Unit,
-        suggestions: List<String>,
+        crossinline suggestions: (SuggestionsBuilder) -> CompletableFuture<Suggestions>,
         name: String = T::class.java.simpleName.toLowerCase()
     ) = object : SettingInterface<T> {
         override val id = Identifier("kami", "${name}_interface")
@@ -78,11 +146,10 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
         override fun displayTypeAndValue(leaf: ConfigLeaf<T>): Pair<String, String> = typeAndValue(leaf)
         override fun valueFromString(str: String): T = fromString(str)
         override fun displayImGui(leaf: ConfigLeaf<T>) = imGui(leaf)
-
         override fun listSuggestions(
             context: CommandContext<*>,
             builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> = CommandSource.suggestMatching(suggestions, builder)
+        ): CompletableFuture<Suggestions> = suggestions(builder)
     }
 
     init {
@@ -111,7 +178,10 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
             ConfigAttribute.create(
                 FiberId("kami", "setting_interface"),
                 INTERFACE_TYPE,
-                typeMap.getOrDefault(field!!.type, typeMap.getOrDefault(builder.type.erasedPlatformType, SettingInterface.Default))
+                typeMap.getOrDefault(
+                    field!!.type,
+                    typeMap.getOrDefault(builder.type.erasedPlatformType, SettingInterface.Default)
+                )
             )
         )
     }

@@ -60,6 +60,23 @@ public class KamiMod implements ModInitializer {
     
     private ConfigTree config;
 
+    public static MapConfigType<Bind, BigDecimal> bindType = ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER).derive(Bind.class, map -> {
+        boolean alt = map.getOrDefault("alt", 1) == 1;
+        boolean ctrl = map.getOrDefault("ctrl", 1) == 1;
+        boolean shift = map.getOrDefault("shift", 1) == 1;
+        boolean keysm = map.getOrDefault("keysm", 1) == 1;
+        int code = map.getOrDefault("code", -1);
+        return new Bind(ctrl, alt, shift, InputUtil.getKeyCode(keysm ? code : -1, keysm ? -1 : code));
+    }, bind -> {
+        HashMap<String, Integer> map = new HashMap<>();
+        map.put("alt", bind.isAlt() ? 0 : 1);
+        map.put("ctrl", bind.isCtrl() ? 0 : 1);
+        map.put("shift", bind.isShift() ? 0 : 1);
+        map.put("keysm", (((IKeyBinding) bind.binding).getKeyCode().getCategory() == InputUtil.Type.KEYSYM) ? 0 : 1);
+        map.put("code", ((IKeyBinding) bind.getBinding()).getKeyCode().getKeyCode());
+        return map;
+    });
+
     @Override
     public void onInitialize() {
         KamiMod.INSTANCE = this;
@@ -114,23 +131,6 @@ public class KamiMod implements ModInitializer {
     }
     
     private ConfigTree constructConfiguration() {
-        MapConfigType<Bind, BigDecimal> bindType = ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER).derive(Bind.class, map -> {
-            boolean alt = map.getOrDefault("alt", 1) == 1;
-            boolean ctrl = map.getOrDefault("ctrl", 1) == 1;
-            boolean shift = map.getOrDefault("shift", 1) == 1;
-            boolean keysm = map.getOrDefault("keysm", 1) == 1;
-            int code = map.getOrDefault("code", -1);
-            return new Bind(ctrl, alt, shift, InputUtil.getKeyCode(keysm ? code : -1, keysm ? -1 : code));
-        }, bind -> {
-            HashMap<String, Integer> map = new HashMap<>();
-            map.put("alt", bind.isAlt() ? 0 : 1);
-            map.put("ctrl", bind.isCtrl() ? 0 : 1);
-            map.put("shift", bind.isShift() ? 0 : 1);
-            map.put("keysm", (((IKeyBinding) bind.binding).getKeyCode().getCategory() == InputUtil.Type.KEYSYM) ? 0 : 1);
-            map.put("code", ((IKeyBinding) bind.getBinding()).getKeyCode().getKeyCode());
-            return map;
-        });
-
         MapConfigType<GameProfile, String> profileType = ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING).derive(GameProfile.class,
                 map -> new GameProfile(UUID.fromString(map.get("uuid")), map.get("name")),
                 profile -> {
