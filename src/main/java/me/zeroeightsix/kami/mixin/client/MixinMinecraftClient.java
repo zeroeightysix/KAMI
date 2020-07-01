@@ -65,7 +65,7 @@ public class MixinMinecraftClient {
     private void save() {
         System.out.println("Shutting down: saving KAMI configuration");
         try {
-            KamiConfig.saveConfiguration(KamiMod.Companion.getConfig());
+            KamiConfig.saveConfiguration();
             System.out.println("Configuration saved.");
         } catch (IOException e) {
             e.printStackTrace();

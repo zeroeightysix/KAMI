@@ -196,6 +196,8 @@ object KamiConfig {
         )
     )
 
+    val config = initAndLoad()
+
     /**
      * Method to create an interface object by using lambda functions to reduce boilerplate
      */
@@ -285,9 +287,11 @@ object KamiConfig {
         // TODO: the rest of places that have @Settings
         modules.finishBranch()
     }
+    
+    fun loadConfiguration() = loadConfiguration(this.config)
 
     @Throws(IOException::class, ValueDeserializationException::class)
-    fun loadConfiguration(config: ConfigTree?) {
+    private fun loadConfiguration(config: ConfigTree?) {
         config?.let {
             try {
                 FiberSerialization.deserialize(
@@ -304,9 +308,12 @@ object KamiConfig {
         }
     }
 
-    @Throws(IOException::class)
     @JvmStatic
-    fun saveConfiguration(config: ConfigTree?) {
+    @Throws(IOException::class)
+    fun saveConfiguration() = saveConfiguration(this.config)
+
+    @Throws(IOException::class)
+    private fun saveConfiguration(config: ConfigTree?) {
         config?.let {
             FiberSerialization.serialize(
                 it,
