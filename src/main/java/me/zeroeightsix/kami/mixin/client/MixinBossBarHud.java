@@ -30,13 +30,16 @@ public class MixinBossBarHud {
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ClientBossBar;getName()Lnet/minecraft/text/Text;"))
     public Text onAsFormattedString(ClientBossBar clientBossBar) {
-        RenderBossBarEvent.GetText text = KamiMod.postEvent(new RenderBossBarEvent.GetText(clientBossBar, clientBossBar.getName()));
-        return text.getText();
+        RenderBossBarEvent.GetText event = new RenderBossBarEvent.GetText(clientBossBar, clientBossBar.getName());
+        KamiMod.EVENT_BUS.post(event);
+        return event.getText();
     }
 
     @ModifyConstant(method = "render", constant = @Constant(intValue = 9, log = true, ordinal = 1))
     public int modifySpacingConstant(int j) {
-        return KamiMod.postEvent(new RenderBossBarEvent.Spacing(j)).getSpacing();
+        RenderBossBarEvent.Spacing spacing = new RenderBossBarEvent.Spacing(j);
+        KamiMod.EVENT_BUS.post(spacing);
+        return spacing.getSpacing();
     }
 
 }

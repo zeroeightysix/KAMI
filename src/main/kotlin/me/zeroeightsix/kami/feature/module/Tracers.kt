@@ -4,14 +4,14 @@ import com.mojang.blaze3d.platform.GlStateManager
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.mixin.extend.applyCameraTransformations
 import me.zeroeightsix.kami.mixin.extend.getRenderPosX
 import me.zeroeightsix.kami.mixin.extend.getRenderPosY
 import me.zeroeightsix.kami.mixin.extend.getRenderPosZ
-import me.zeroeightsix.kami.setting.Setting
-import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
@@ -31,12 +31,13 @@ import org.lwjgl.opengl.GL11
     category = Module.Category.RENDER
 )
 object Tracers : Module() {
-    private val players = register(Settings.b("Players", true))
-    private val friends = register(Settings.b("Friends", true))
-    private val animals = register(Settings.b("Animals", false))
-    private val mobs = register(Settings.b("Mobs", false))
-    private val range = register(Settings.d("Range", 200.0))
-    private val opacity: Setting<Float> = register(Settings.floatBuilder("Opacity").withRange(0f, 1f).withValue(1f).build() as Setting<Float>)
+
+    private var players = true
+    private var friends = true
+    private var animals = false
+    private var mobs = false
+    private var range = 200.0
+    private var opacity: @Setting.Constrain.Range(min = 0.0, max = 1.0) Float = 0.5f
     var cycler = HueCycler(3600)
 
     @EventHandler
@@ -47,24 +48,24 @@ object Tracers : Module() {
                 .filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
                 .filter {
                     when {
-                        it is PlayerEntity -> players.value && mc.player !== it
+                        it is PlayerEntity -> players && mc.player !== it
                         EntityUtil.isPassive(
                             it
-                        ) -> animals.value
-                        else -> mobs.value
+                        ) -> animals
+                        else -> mobs
                     }
                 }
-                .filter { mc.player.distanceTo(it) < range.value }
+                .filter { mc.player.distanceTo(it) < range }
                 .forEach {
                     var colour = getColour(it)
                     if (colour == ColourUtils.Colors.RAINBOW) {
-                        if (!friends.value) return@forEach
+                        if (!friends) return@forEach
                         colour = cycler.current()
                     }
                     val r = (colour ushr 16 and 0xFF) / 255f
                     val g = (colour ushr 8 and 0xFF) / 255f
                     val b = (colour and 0xFF) / 255f
-                    drawLineToEntity(it, r, g, b, opacity.value)
+                    drawLineToEntity(it, r, g, b, opacity)
                 }
             GlStateManager.popMatrix()
         }

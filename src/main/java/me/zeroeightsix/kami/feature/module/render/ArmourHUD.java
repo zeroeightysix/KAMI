@@ -3,10 +3,10 @@ package me.zeroeightsix.kami.feature.module.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ColourHolder;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
@@ -19,7 +19,10 @@ import net.minecraft.item.ItemStack;
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
 public class ArmourHUD extends Module {
 
-    private Setting<Boolean> damage = register(Settings.b("Damage", false));
+    private static ItemRenderer itemRender = MinecraftClient.getInstance().getItemRenderer();
+
+    @Setting(name = "Damage")
+    private boolean damage = false;
 
     @EventHandler
     public Listener<RenderHudEvent> renderListener = new Listener<>(event -> {
@@ -48,7 +51,7 @@ public class ArmourHUD extends Module {
             String s = is.getCount() > 1 ? is.getCount() + "" : "";
             mc.textRenderer.drawWithShadow(s, x + 19 - 2 - mc.textRenderer.getStringWidth(s), y + 9, 0xffffff);
 
-            if (damage.getValue()) {
+            if (damage) {
                 float green = ((float) is.getMaxDamage() - (float) is.getDamage()) / (float) is.getMaxDamage();
                 float red = 1 - green;
                 int dmg = 100 - (int) (red * 100);

@@ -14,7 +14,7 @@ public class Bind {
     final boolean ctrl;
     final boolean alt;
     final boolean shift;
-    KeyBinding binding;
+    public KeyBinding binding;
 
     public Bind(boolean ctrl, boolean alt, boolean shift, InputUtil.KeyCode code) {
         this.ctrl = ctrl;

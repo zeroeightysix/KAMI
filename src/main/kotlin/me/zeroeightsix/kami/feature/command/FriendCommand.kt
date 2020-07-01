@@ -37,7 +37,7 @@ object FriendCommand : Command() {
                     LiteralArgumentBuilder.literal<CommandSource>("list")
                         .executes { context: CommandContext<CommandSource> ->
                             val source = context.source as KamiCommandSource
-                            if (Friends.friends.value.isEmpty()) {
+                            if (Friends.friends.isEmpty()) {
                                 source.sendFeedback(
                                     Texts.flit(
                                         Formatting.GOLD,
@@ -47,7 +47,7 @@ object FriendCommand : Command() {
                                 return@executes 0
                             }
                             var text: Text? = null
-                            Friends.friends.value.stream()
+                            Friends.friends.stream()
                                 .map { obj: GameProfile -> obj.name }
                                 .forEach { s: String? ->
                                     if (text == null) {

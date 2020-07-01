@@ -3,10 +3,11 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.CanBeSteeredEvent
 import me.zeroeightsix.kami.event.events.RenderHudEvent
 import me.zeroeightsix.kami.event.events.TickEvent
-import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.HorseBaseEntity
@@ -26,18 +27,21 @@ import kotlin.math.sin
 )
 object EntitySpeed : Module() {
 
-    private val speed = register(Settings.d("Speed", 1.0))
-    private val antiStuck = register(Settings.b("AntiStuck"))
-    private val flight = register(Settings.b("Flight", false))
-    private val wobble = register(
-        Settings.booleanBuilder("Wobble").withValue(true).withVisibility { b: Boolean? -> flight.value }.build()
-    )
-    val opacity = Settings.f("Boat opacity", .5f)
+    @Setting
+    private var speed = 1.0
+    @Setting
+    private var antiStuck = true
+    @Setting
+    private var flight = false
+    @Setting
+    private var wobble = true
+    @Setting(name = "Boat opacity")
+    var opacity = .5f
 
     @EventHandler
     private val updateListener =
         Listener(
-            EventHook<TickEvent.Client.InGame> { event: TickEvent.Client.InGame? ->
+            EventHook<TickEvent.Client.InGame> {
                 if (mc.world != null && mc.player.vehicle != null) {
                     val riding = mc.player.vehicle
                     if (riding is PigEntity || riding is HorseBaseEntity) {
@@ -50,20 +54,20 @@ object EntitySpeed : Module() {
         )
 
     private fun steerEntity(entity: Entity) {
-        if (!flight.value) {
+        if (!flight) {
             EntityUtil.updateVelocityY(entity, -0.4)
         }
-        if (flight.value) {
+        if (flight) {
             if (mc.options.keyJump.isPressed) {
-                EntityUtil.updateVelocityY(entity, speed.value)
+                EntityUtil.updateVelocityY(entity, speed)
             } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) EntityUtil.updateVelocityY(
                 entity,
-                if (wobble.value) sin(mc.player.age.toDouble()) else 0.0
+                if (wobble) sin(mc.player.age.toDouble()) else 0.0
             )
         }
         moveForward(
             entity,
-            speed.value * 3.8
+            speed * 3.8
         )
         if (entity is HorseEntity) {
             entity.yaw = mc.player.yaw
@@ -81,7 +85,7 @@ object EntitySpeed : Module() {
             EntityUtil.updateVelocityY(boat, 0.0)
         }
         if (mc.options.keyJump.isPressed) {
-            boat.velocity = boat.velocity.add(0.0, speed.value / 2.0, 0.0)
+            boat.velocity = boat.velocity.add(0.0, speed / 2.0, 0.0)
         }
         if (!forward && !left && !right && !back) return
         if (left && right) angle = if (forward) 0 else if (back) 180 else -1 else if (forward && back) angle =
@@ -92,9 +96,9 @@ object EntitySpeed : Module() {
         if (angle == -1) return
         val yaw = mc.player.yaw + angle
         boat.setVelocity(
-            EntityUtil.getRelativeX(yaw) * speed.value,
+            EntityUtil.getRelativeX(yaw) * speed,
             boat.velocity.y,
-            EntityUtil.getRelativeZ(yaw) * speed.value
+            EntityUtil.getRelativeZ(yaw) * speed
         )
     }
 
@@ -118,10 +122,6 @@ object EntitySpeed : Module() {
 
     private val boat: BoatEntity?
         get() = if (mc.player.vehicle != null && mc.player.vehicle is BoatEntity) mc.player.vehicle as BoatEntity? else null
-
-    init {
-        register(opacity)
-    }
 
     private fun moveForward(entity: Entity?, speed: Double) {
         if (entity != null) {
@@ -182,7 +182,7 @@ object EntitySpeed : Module() {
         motX: Double,
         motZ: Double
     ): Boolean {
-        return antiStuck.value && mc.world.getChunk(
+        return antiStuck && mc.world.getChunk(
             (entity.x + motX).toInt() shr 4,
             (entity.z + motZ).toInt() shr 4
         ) is EmptyChunk

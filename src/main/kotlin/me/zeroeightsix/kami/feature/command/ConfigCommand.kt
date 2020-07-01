@@ -7,10 +7,13 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
+import java.lang.Exception
+import java.nio.file.Paths
 import java.util.function.Function
 
 /**
@@ -28,18 +31,13 @@ object ConfigCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("reload")
                         .executes { context: CommandContext<CommandSource> ->
-                            KamiMod.loadConfiguration()
+                            try {
+                                KamiConfig.loadConfiguration()
+                            } catch (e: Exception) {
+                                throw FAILED_EXCEPTION.create(e.message)
+                            }
                             (context.source as KamiCommandSource).sendFeedback(
-                                Texts.f(
-                                    Formatting.GOLD, Texts.append(
-                                        Texts.lit("Reloaded configuration "),
-                                        Texts.flit(
-                                            Formatting.YELLOW,
-                                            KamiMod.getConfigName()
-                                        ),
-                                        Texts.lit("!")
-                                    )
-                                )
+                                Texts.flit(Formatting.GOLD, "Reloaded configuration!")
                             )
                             0
                         }
@@ -47,81 +45,25 @@ object ConfigCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("save")
                         .executes { context: CommandContext<CommandSource> ->
-                            KamiMod.saveConfiguration()
+                            KamiConfig.saveConfiguration()
                             (context.source as KamiCommandSource).sendFeedback(
-                                Texts.f(
-                                    Formatting.GOLD, Texts.append(
-                                        Texts.lit("Saved configuration "),
-                                        Texts.flit(
-                                            Formatting.YELLOW,
-                                            KamiMod.getConfigName()
-                                        ),
-                                        Texts.lit("!")
-                                    )
-                                )
+                                Texts.flit(Formatting.GOLD, "Saved configuration!")
                             )
                             0
                         }
                 )
                 .then(
-                    LiteralArgumentBuilder.literal<CommandSource>("switch")
-                        .then(
-                            RequiredArgumentBuilder.argument<CommandSource, String>(
-                                "filename",
-                                StringArgumentType.string()
+                    LiteralArgumentBuilder.literal<CommandSource>("where")
+                        .executes {
+                            val path = Paths.get(KamiConfig.CONFIG_FILENAME)
+                            (it.source as KamiCommandSource).sendFeedback(
+                                Texts.append(
+                                    Texts.flit(Formatting.GOLD, "The configuration file is at "),
+                                    Texts.flit(Formatting.YELLOW, path.toAbsolutePath().toString())
+                                )
                             )
-                                .executes { context: CommandContext<CommandSource> ->
-                                    val filename =
-                                        context.getArgument("filename", String::class.java)
-                                    if (!KamiMod.isFilenameValid(filename)) {
-                                        throw FAILED_EXCEPTION.create("Invalid filename '$filename'!")
-                                    }
-                                    val source = context.source as KamiCommandSource
-                                    KamiMod.saveConfiguration()
-                                    source.sendFeedback(
-                                        Texts.f(
-                                            Formatting.GOLD, Texts.append(
-                                                Texts.lit("Saved "),
-                                                Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    KamiMod.getConfigName()
-                                                )
-                                            )
-                                        )
-                                    )
-                                    KamiMod.setLastConfigName(filename)
-                                    source.sendFeedback(
-                                        Texts.f(
-                                            Formatting.GOLD, Texts.append(
-                                                Texts.lit("Set "),
-                                                Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    "KAMILastConfig.txt"
-                                                ),
-                                                Texts.lit(" to "),
-                                                Texts.flit(
-                                                    Formatting.LIGHT_PURPLE,
-                                                    filename
-                                                )
-                                            )
-                                        )
-                                    )
-                                    KamiMod.loadConfiguration()
-                                    source.sendFeedback(
-                                        Texts.f(
-                                            Formatting.GOLD, Texts.append(
-                                                Texts.lit("Loaded "),
-                                                Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    filename
-                                                ),
-                                                Texts.lit("!")
-                                            )
-                                        )
-                                    )
-                                    0
-                                }
-                        )
+                            0
+                        }
                 )
         )
     }

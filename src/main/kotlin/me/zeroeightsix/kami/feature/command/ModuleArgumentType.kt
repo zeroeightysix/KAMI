@@ -21,7 +21,7 @@ class ModuleArgumentType : ArgumentType<Module> {
     override fun parse(reader: StringReader): Module {
         val string = reader.readUnquotedString()
         try {
-            return features.filterIsInstance<Module>().first { it.name.value == string }
+            return features.filterIsInstance<Module>().first { it.name == string }
         } catch (e: NoSuchElementException) {
             throw INVALID_MODULE_EXCEPTION.create(string)
         }
@@ -32,7 +32,7 @@ class ModuleArgumentType : ArgumentType<Module> {
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         return CommandSource.suggestMatching(
-            features.filterIsInstance<FullFeature>().map { it.name.value }, builder
+            features.filterIsInstance<FullFeature>().map { it.name }, builder
         )
     }
 

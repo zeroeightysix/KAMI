@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
@@ -17,13 +17,15 @@ import net.minecraft.util.math.Vec3d;
 @Module.Info(category = Module.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
 public class Flight extends Module {
 
-    private Setting<Float> speed = register(Settings.f("Speed", 10));
-    private Setting<FlightMode> mode = register(Settings.e("Mode", FlightMode.VANILLA));
+    @Setting(name = "Speed")
+    private float speed = 10f;
+    @Setting(name = "Mode")
+    private FlightMode mode = FlightMode.VANILLA;
 
     @Override
     public void onEnable() {
         if (mc.player == null) return;
-        switch (mode.getValue()) {
+        switch (mode) {
             case VANILLA:
                 mc.player.abilities.flying = true;
                 if (mc.player.abilities.creativeMode) return;
@@ -34,21 +36,21 @@ public class Flight extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        switch (mode.getValue()) {
+        switch (mode) {
             case STATIC:
                 mc.player.abilities.flying = false;
                 mc.player.setVelocity(Vec3d.ZERO);
-                mc.player.field_6281 = speed.getValue(); // jumpMovementFactor
+                mc.player.field_6281 = speed; // jumpMovementFactor
 
                 if (mc.options.keyJump.isPressed()) {
-                    mc.player.addVelocity(0, speed.getValue(), 0);
+                    mc.player.addVelocity(0, speed, 0);
                 }
                 if (mc.options.keySneak.isPressed()) {
-                    mc.player.addVelocity(0, -speed.getValue(), 0);
+                    mc.player.addVelocity(0, -speed, 0);
                 }
                 break;
             case VANILLA:
-                mc.player.abilities.setFlySpeed(speed.getValue() / 100f);
+                mc.player.abilities.setFlySpeed(speed / 100f);
                 mc.player.abilities.flying = true;
                 if (mc.player.abilities.creativeMode) return;
                 mc.player.abilities.allowFlying = true;
@@ -83,7 +85,7 @@ public class Flight extends Module {
 
     @Override
     public void onDisable() {
-        switch (mode.getValue()) {
+        switch (mode) {
             case VANILLA:
                 mc.player.abilities.flying = false;
                 mc.player.abilities.setFlySpeed(0.05f);

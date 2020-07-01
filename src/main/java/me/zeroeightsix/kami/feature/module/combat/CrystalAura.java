@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.module.combat;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
@@ -9,8 +10,6 @@ import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.feature.module.Tracers;
 import me.zeroeightsix.kami.mixin.client.IEntityRenderDispatcher;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.*;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -53,24 +52,32 @@ import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
  * Last Updated 29 June 2019 by hub
  */
 @Module.Info(
-    name = "CrystalAura",
-    category = Module.Category.COMBAT
+        name = "CrystalAura",
+        category = Module.Category.COMBAT
 )
 class CrystalAura extends Module {
-    private Setting<Boolean> autoSwitch = register(Settings.b("Auto Switch"));
-    private Setting<Boolean> players = register(Settings.b("Players"));
-    private Setting<Boolean> mobs = register(Settings.b("Mobs", false));
-    private Setting<Boolean> animals = register(Settings.b("Animals", false));
-    private Setting<Boolean> place = register(Settings.b("Place", false));
-    private Setting<Boolean> explode = register(Settings.b("Explode", false));
-    private Setting<Double>  range = register(Settings.d("Range", 4));
-    private Setting<Boolean> antiWeakness = register(Settings.b("Anti Weakness", false));
+    @Setting(name = "Auto Switch")
+    private boolean autoSwitch = false;
+    @Setting
+    private boolean players = false;
+    @Setting(name = "Mobs")
+    private boolean mobs = false;
+    @Setting(name = "Animals")
+    private boolean animals = false;
+    @Setting(name = "Place")
+    private boolean place = false;
+    @Setting(name = "Explode")
+    private boolean explode = false;
+    @Setting
+    private double range = 4;
+    @Setting(name = "Anti Weakness")
+    private boolean antiWeakness = false;
 
     private BlockPos render;
     private Entity renderEnt;
     private long systemTime = -1;
     private static boolean togglePitch = false;
-	// we need this cooldown to not place from old hotbar slot, before we have switched to crystals
+    // we need this cooldown to not place from old hotbar slot, before we have switched to crystals
     private boolean switchCooldown = false;
     private boolean isAttacking = false;
     private int oldSlot = -1;
@@ -89,10 +96,10 @@ class CrystalAura extends Module {
                 .map(entity -> (EnderCrystalEntity) entity)
                 .min(Comparator.comparing(c -> mc.player.distanceTo(c)))
                 .orElse(null);
-        if (explode.getValue() && crystal != null && mc.player.distanceTo(crystal) <= range.getValue()) {
+        if (explode && crystal != null && mc.player.distanceTo(crystal) <= range) {
             //Added delay to stop ncp from flagging "hitting too fast"
             if (((System.nanoTime() / 1000000) - systemTime) >= 250) {
-                if (antiWeakness.getValue() && mc.player.hasStatusEffect(StatusEffects.WEAKNESS)) {
+                if (antiWeakness && mc.player.hasStatusEffect(StatusEffects.WEAKNESS)) {
                     if (!isAttacking) {
                         // save initial player hand
                         oldSlot = Wrapper.getPlayer().inventory.selectedSlot;
@@ -154,10 +161,10 @@ class CrystalAura extends Module {
 
         List<BlockPos> blocks = findCrystalBlocks();
         List<Entity> entities = new ArrayList<>();
-        if (players.getValue()) {
+        if (players) {
             entities.addAll(mc.world.getPlayers().stream().filter(entityPlayer -> !Friends.isFriend(entityPlayer.getName().getString())).collect(Collectors.toList()));
         }
-        entities.addAll(StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals.getValue() : mobs.getValue())).collect(Collectors.toList()));
+        entities.addAll(StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> EntityUtil.isLiving(entity) && (EntityUtil.isPassive(entity) ? animals : mobs)).collect(Collectors.toList()));
 
         BlockPos q = null;
         double damage = .5;
@@ -192,9 +199,9 @@ class CrystalAura extends Module {
         }
         render = q;
 
-        if (place.getValue()) {
+        if (place) {
             if (!offhand && mc.player.inventory.selectedSlot != crystalSlot) {
-                if (autoSwitch.getValue()) {
+                if (autoSwitch) {
                     mc.player.inventory.selectedSlot = crystalSlot;
                     resetRotation();
                     switchCooldown = true;
@@ -266,7 +273,7 @@ class CrystalAura extends Module {
     }
 
     private List<BlockPos> findCrystalBlocks() {
-        return new ArrayList<>(getSphere(getPlayerPos(), range.getValue().floatValue(), range.getValue().intValue(), false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
+        return new ArrayList<>(getSphere(getPlayerPos(), (float) range, (int) range, false, true, 0).stream().filter(this::canPlaceCrystal).collect(Collectors.toList()));
     }
 
     public List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {

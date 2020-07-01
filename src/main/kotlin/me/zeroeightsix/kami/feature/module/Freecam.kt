@@ -3,10 +3,11 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.PacketEvent.Send
 import me.zeroeightsix.kami.event.events.PlayerMoveEvent
 import me.zeroeightsix.kami.event.events.TickEvent
-import me.zeroeightsix.kami.setting.Settings
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
@@ -23,8 +24,8 @@ import net.minecraft.util.math.Vec3d
     description = "Leave your body and trascend into the realm of the gods"
 )
 object Freecam : Module() {
-    private val speed =
-        register(Settings.i("Speed", 5)) // /100 in practice
+    @Setting
+    private var speed = 5
     private var x = 0.0
     private var y = 0.0
     private var z = 0.0
@@ -55,7 +56,7 @@ object Freecam : Module() {
             clonedPlayer!!.headYaw = mc.player.headYaw
             mc.world.addEntity(-100, clonedPlayer)
             mc.player.abilities.flying = true
-            mc.player.abilities.flySpeed = speed.value / 100f
+            mc.player.abilities.flySpeed = speed / 100f
             mc.player.noClip = true
         }
     }
@@ -94,9 +95,9 @@ object Freecam : Module() {
     @EventHandler
     private val updateListener =
         Listener(
-            EventHook<TickEvent.Client.InGame> { event: TickEvent.Client.InGame? ->
+            EventHook<TickEvent.Client.InGame> {
                 mc.player.abilities.flying = true
-                mc.player.abilities.flySpeed = speed.value / 100f
+                mc.player.abilities.flySpeed = speed / 100f
                 mc.player.noClip = true
                 mc.player.onGround = false
                 mc.player.fallDistance = 0f

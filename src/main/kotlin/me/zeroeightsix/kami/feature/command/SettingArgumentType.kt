@@ -8,38 +8,42 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.setting.Setting
+import me.zeroeightsix.kami.flattenedStream
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
+import java.util.stream.Stream
 
-class SettingArgumentType<T>(
+class SettingArgumentType(
     dependantType: ArgumentType<Module>,
     dependantArgument: String,
     shift: Int
-) : DependantArgumentType<Setting<T>, Module>(
+) : DependantArgumentType<ConfigNode, Module>(
     dependantType,
     dependantArgument,
     shift
 ) {
 
     @Throws(CommandSyntaxException::class)
-    override fun parse(reader: StringReader): Setting<T> {
+    override fun parse(reader: StringReader): ConfigNode {
         val module = findDependencyValue(reader)
         val string = when (isQuotedStringStart(reader.peek())) {
             true -> reader.readQuotedString()
             false -> reader.readUnquotedString()
         }
-        val s = module.settingList.stream()
-            .filter { setting: Setting<*> ->
-                setting.name.equals(string, ignoreCase = true)
+        val s = module.config.flattenedStream()
+            .filter {
+                it.name.equals(string, ignoreCase = true)
             }.findAny()
         return if (s.isPresent) {
-            s.get() as Setting<T>
+            s.get()
         } else {
-            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name.value))
+            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name))
         }
     }
 
@@ -52,7 +56,7 @@ class SettingArgumentType<T>(
             if (contains(' ')) return "\"$this\""
             return this
         }
-        return CommandSource.suggestMatching(m.settingList.stream().map { obj: Setting<*> -> obj.name.quoteIfNecessary() }, builder)
+        return CommandSource.suggestMatching(m.config.items.stream().map { it.name.quoteIfNecessary() }, builder)
     }
 
     override fun getExamples(): Collection<String> {
@@ -72,8 +76,8 @@ class SettingArgumentType<T>(
             dependentType: ModuleArgumentType,
             moduleArgName: String,
             shift: Int
-        ): SettingArgumentType<*> {
-            return SettingArgumentType<Any?>(dependentType, moduleArgName, shift)
+        ): SettingArgumentType {
+            return SettingArgumentType(dependentType, moduleArgName, shift)
         }
     }
 }

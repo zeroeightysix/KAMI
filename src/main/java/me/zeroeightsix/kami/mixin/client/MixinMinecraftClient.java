@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.setting.KamiConfig;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -12,6 +13,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.io.IOException;
 
 /**
  * Created by 086 on 17/11/2017.
@@ -61,8 +64,12 @@ public class MixinMinecraftClient {
 
     private void save() {
         System.out.println("Shutting down: saving KAMI configuration");
-        KamiMod.saveConfiguration();
-        System.out.println("Configuration saved.");
+        try {
+            KamiConfig.saveConfiguration();
+            System.out.println("Configuration saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

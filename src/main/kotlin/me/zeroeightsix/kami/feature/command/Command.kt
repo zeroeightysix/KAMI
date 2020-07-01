@@ -1,9 +1,10 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.SimpleFeature
-import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -39,7 +40,8 @@ abstract class Command : SimpleFeature(hidden = true) {
         @JvmField
 		var SECTION_SIGN = '\u00A7'
         @JvmField
-		var commandPrefix = Settings.c("commandPrefix", '.')
+        @Setting
+		var commandPrefix: Char = '.'
 
         @JvmStatic
 		@Deprecated("")
@@ -54,7 +56,7 @@ abstract class Command : SimpleFeature(hidden = true) {
 
         @JvmStatic
 		fun getCommandPrefix(): Char {
-            return commandPrefix.value
+            return commandPrefix
         }
     }
 }

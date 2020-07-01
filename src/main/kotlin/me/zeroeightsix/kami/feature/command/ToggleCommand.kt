@@ -34,7 +34,7 @@ object ToggleCommand : Command() {
                                         Texts.lit("Toggled module "),
                                         Texts.flit(
                                             Formatting.YELLOW,
-                                            m.name.value
+                                            m.name
                                         ),
                                         Texts.lit(", now "),
                                         Texts.flit(

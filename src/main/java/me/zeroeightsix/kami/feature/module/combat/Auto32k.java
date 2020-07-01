@@ -2,14 +2,14 @@ package me.zeroeightsix.kami.feature.module.combat;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Aura;
 import me.zeroeightsix.kami.feature.module.Freecam;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.ShulkerBoxCommon;
 import net.minecraft.block.AirBlock;
@@ -66,13 +66,20 @@ public class Auto32k extends Module {
 
     private static final DecimalFormat df = new DecimalFormat("#.#");
 
-    private Setting<Boolean> moveToHotbar = register(Settings.b("Move 32k to Hotbar", true));
-    private Setting<Boolean> autoEnableHitAura = register(Settings.b("Auto enable Hit Aura", true));
-    private Setting<Double> placeRange = register(Settings.d("Place Range", 4.0d));
-    private Setting<Integer> yOffset = register(Settings.i("Y Offset (Hopper)", 2));
-    private Setting<Boolean> placeCloseToEnemy = register(Settings.b("Place close to enemy", false));
-    private Setting<Boolean> placeObiOnTop = register(Settings.b("Place Obi on Top", true));
-    private Setting<Boolean> debugMessages = register(Settings.b("Debug Messages", false));
+    @Setting(name = "Move 32k to Hotbar")
+    private boolean moveToHotbar = true;
+    @Setting(name = "Auto enable Hit Aura")
+    private boolean autoEnableHitAura = true;
+    @Setting(name = "Place Range")
+    private double placeRange = 4.0d;
+    @Setting(name = "Y Offset (Hopper)")
+    private int yOffset = 2;
+    @Setting(name = "Place close to enemy")
+    private boolean placeCloseToEnemy = false;
+    @Setting(name = "Place Obi on Top")
+    private boolean placeObiOnTop = true;
+    @Setting(name = "Debug Messages")
+    private boolean debugMessages = false;
 
     private int swordSlot;
     private static boolean isSneaking;
@@ -117,7 +124,7 @@ public class Auto32k extends Module {
         }
 
         if (hopperSlot == -1) {
-            if (debugMessages.getValue()) {
+            if (debugMessages) {
                 Command.sendChatMessage("[Auto32k] Hopper missing, disabling.");
             }
             this.disable();
@@ -125,14 +132,14 @@ public class Auto32k extends Module {
         }
 
         if (shulkerSlot == -1) {
-            if (debugMessages.getValue()) {
+            if (debugMessages) {
                 Command.sendChatMessage("[Auto32k] Shulker missing, disabling.");
             }
             this.disable();
             return;
         }
 
-        int range = (int) Math.ceil(placeRange.getValue());
+        int range = (int) Math.ceil(placeRange);
 
         CrystalAura crystalAura = CrystalAura.INSTANCE;
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
@@ -158,8 +165,8 @@ public class Auto32k extends Module {
                     continue;
                 }
 
-                if (yOffset.getValue() != 0) {
-                    if (Math.abs(mc.player.getPos().y - placeTargetTest.getY()) > Math.abs(yOffset.getValue())) {
+                if (yOffset != 0) {
+                    if (Math.abs(mc.player.getPos().y - placeTargetTest.getY()) > Math.abs(yOffset)) {
                         continue;
                     }
                 }
@@ -190,14 +197,14 @@ public class Auto32k extends Module {
 
         if (useRangeSorting) {
 
-            if (placeCloseToEnemy.getValue()) {
-                if (debugMessages.getValue()) {
+            if (placeCloseToEnemy) {
+                if (debugMessages) {
                     Command.sendChatMessage("[Auto32k] Placing close to Enemy");
                 }
                 // Get Key with lowest Value (closest to enemies)
                 placeTarget = Collections.min(placeTargetMap.entrySet(), Map.Entry.comparingByValue()).getKey();
             } else {
-                if (debugMessages.getValue()) {
+                if (debugMessages) {
                     Command.sendChatMessage("[Auto32k] Placing far from Enemy");
                 }
                 // Get Key with highest Value (furthest away from enemies)
@@ -206,7 +213,7 @@ public class Auto32k extends Module {
 
         } else {
 
-            if (debugMessages.getValue()) {
+            if (debugMessages) {
                 Command.sendChatMessage("[Auto32k] No enemy nearby, placing at first valid position.");
             }
 
@@ -221,14 +228,14 @@ public class Auto32k extends Module {
         }
 
         if (placeTarget == null) {
-            if (debugMessages.getValue()) {
+            if (debugMessages) {
                 Command.sendChatMessage("[Auto32k] No valid position in range to place!");
             }
             this.disable();
             return;
         }
 
-        if (debugMessages.getValue()) {
+        if (debugMessages) {
             Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(placeTarget))));
         }
 
@@ -238,7 +245,7 @@ public class Auto32k extends Module {
         mc.player.inventory.selectedSlot = shulkerSlot;
         placeBlock(new BlockPos(placeTarget.add(0, 1, 0)));
 
-        if (placeObiOnTop.getValue() && obiSlot != -1) {
+        if (placeObiOnTop && obiSlot != -1) {
             mc.player.inventory.selectedSlot = obiSlot;
             placeBlock(new BlockPos(placeTarget.add(0, 2, 0)));
         }
@@ -265,7 +272,7 @@ public class Auto32k extends Module {
             return;
         }
 
-        if (!moveToHotbar.getValue()) {
+        if (!moveToHotbar) {
             this.disable();
             return;
         }
@@ -289,7 +296,7 @@ public class Auto32k extends Module {
         if (swapReady) {
             // method_2906: click window
             mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
-            if (autoEnableHitAura.getValue()) {
+            if (autoEnableHitAura) {
                 Aura.INSTANCE.enable();
             }
             this.disable();
@@ -317,7 +324,7 @@ public class Auto32k extends Module {
             return false; // liquid below hopper
         }
 
-        if (mc.player.getPos().distanceTo(new Vec3d(blockPos)) > placeRange.getValue()) {
+        if (mc.player.getPos().distanceTo(new Vec3d(blockPos)) > placeRange) {
             return false; // out of range
         }
 
@@ -326,7 +333,7 @@ public class Auto32k extends Module {
             return false; // would need sneak
         }
 
-        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos).add(0, 1, 0)) > placeRange.getValue()); // out of range
+        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos).add(0, 1, 0)) > placeRange); // out of range
 
     }
 

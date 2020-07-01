@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -13,21 +13,25 @@ import net.minecraft.util.math.MathHelper;
  */
 @Module.Info(name = "PitchLock", category = Module.Category.PLAYER)
 public class PitchLock extends Module {
-    private Setting<Boolean> auto = register(Settings.b("Auto", true));
-    private Setting<Float> pitch = register(Settings.f("Pitch", 180));
-    private Setting<Integer> slice = register(Settings.i("Slice", 8));
+
+    @Setting(name = "Auto")
+    private boolean auto = true;
+    @Setting(name = "Pitch")
+    private float pitch = 180f;
+    @Setting(name = "Slice")
+    private int slice = 8;
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (slice.getValue() == 0) return;
-        if (auto.getValue()) {
-            int angle = 360 / slice.getValue();
+        if (slice == 0) return;
+        if (auto) {
+            int angle = 360 / slice;
             float yaw = mc.player.pitch;
             yaw = Math.round(yaw / angle) * angle;
             mc.player.pitch = yaw;
             if (mc.player.isRiding()) mc.player.getVehicle().pitch = yaw;
         } else {
-            mc.player.pitch = MathHelper.clamp(pitch.getValue() - 180, -180, 180);
+            mc.player.pitch = MathHelper.clamp(pitch - 180, -180, 180);
         }
     });
 

@@ -1,11 +1,11 @@
 package me.zeroeightsix.kami.feature.module.render;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.RenderBossBarEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.setting.Setting;
-import me.zeroeightsix.kami.setting.Settings;
+import me.zeroeightsix.kami.setting.SettingVisibility;
 import net.minecraft.client.gui.hud.ClientBossBar;
 
 import java.util.HashMap;
@@ -17,20 +17,25 @@ import java.util.WeakHashMap;
 @Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
 public class BossStack extends Module {
 
-    private Setting<Boolean> remove = register(Settings.b("Hide boss bars", false));
-    private Setting<Boolean> fold = register(Settings.booleanBuilder("Fold").withVisibility(b -> !remove.getValue()).withValue(true).build());
-    private Setting<Integer> spacing = register(Settings.integerBuilder("Spacing offset").withVisibility(d -> !remove.getValue()).withValue(0).build());
+    @Setting(name = "Hide boss bars")
+    private boolean remove = false;
+    @SettingVisibility() // TODO: visible if !remove
+    @Setting
+    private boolean fold = true;
+    @SettingVisibility() // TODO: visible if !remove
+    @Setting
+    private int spacing = 0;
 
     public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
 
     @EventHandler
     private Listener<RenderBossBarEvent.GetIterator> getIteratorListener = new Listener<>(event -> {
-        if (remove.getValue()) {
+        if (remove) {
             event.cancel();
             return;
         }
 
-        if (fold.getValue()) {
+        if (fold) {
             HashMap<String, ClientBossBar> chosenBarMap = new HashMap<>();
             event.getIterator().forEachRemaining(bar -> {
                 String name = bar.getName().asString();
@@ -56,8 +61,7 @@ public class BossStack extends Module {
     });
 
     @EventHandler
-    private Listener<RenderBossBarEvent.Spacing> spacingListener = new Listener<>(event -> {
-        event.setSpacing(event.getSpacing() - spacing.getValue());
-    });
+    private Listener<RenderBossBarEvent.Spacing> spacingListener = new Listener<>(event -> event.setSpacing(event.getSpacing() - spacing));
+
 
 }

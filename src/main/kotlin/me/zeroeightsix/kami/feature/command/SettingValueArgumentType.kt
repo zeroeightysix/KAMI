@@ -7,16 +7,19 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import me.zeroeightsix.kami.setting.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import me.zeroeightsix.kami.setting.SettingAnnotationProcessor
+import me.zeroeightsix.kami.setting.SettingInterface
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
 class SettingValueArgumentType(
-    dependantType: ArgumentType<Setting<*>>,
+    dependantType: ArgumentType<ConfigLeaf<*>>,
     dependantArgument: String,
     shift: Int
-) : DependantArgumentType<String, Setting<*>>(
+) : DependantArgumentType<String, ConfigLeaf<*>>(
     dependantType,
     dependantArgument,
     shift
@@ -25,24 +28,23 @@ class SettingValueArgumentType(
     override fun parse(reader: StringReader): String {
         val setting = findDependencyValue(reader)
         val string = reader.readUnquotedString()
-        try {
-            val v = setting.convertFromString(string)
-            return string
-        } catch (ignored: Exception) {
-        }
-        throw INVALID_VALUE_EXCEPTION.create(
-            arrayOf<Any>(
-                string,
-                setting.name
+        return if (setting.getInterface().canFromString(string)) {
+            string
+        } else {
+            throw INVALID_VALUE_EXCEPTION.create(
+                arrayOf<Any>(
+                    string,
+                    setting.name
+                )
             )
-        )
+        }
     }
 
     override fun <S> listSuggestions(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        return findDependencyValue(context, Setting::class.java).listSuggestions(
+        return findDependencyValue(context, ConfigLeaf::class.java).getInterface().listSuggestions(
             context,
             builder
         )
@@ -57,7 +59,7 @@ class SettingValueArgumentType(
             })
 
         fun value(
-            dependantType: ArgumentType<Setting<*>>,
+            dependantType: ArgumentType<ConfigLeaf<*>>,
             dependantArgument: String,
             shift: Int
         ): SettingValueArgumentType {
@@ -65,3 +67,6 @@ class SettingValueArgumentType(
         }
     }
 }
+
+fun <T> ConfigLeaf<T>.getInterface(): SettingInterface<T> =
+    this.getAttributeValue(FiberId("kami", "setting_interface"), SettingAnnotationProcessor.INTERFACE_TYPE).get() as SettingInterface<T>

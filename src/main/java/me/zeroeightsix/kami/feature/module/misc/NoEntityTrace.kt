@@ -1,7 +1,8 @@
 package me.zeroeightsix.kami.feature.module.misc
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.setting.Settings
 
 /**
  * Created by 086 on 8/04/2018.
@@ -12,15 +13,15 @@ import me.zeroeightsix.kami.setting.Settings
     description = "Blocks entities from stopping you from mining"
 )
 object NoEntityTrace : Module() {
-    private val mode =
-        register(Settings.e<TraceMode>("Mode", TraceMode.DYNAMIC))
+    @Setting
+    var traceMode = TraceMode.DYNAMIC
 
-    private enum class TraceMode {
+    enum class TraceMode {
         STATIC, DYNAMIC
     }
 
     @JvmStatic
     fun shouldBlock(): Boolean {
-        return isEnabled() && (mode.value == TraceMode.STATIC || mc.interactionManager.isBreakingBlock)
+        return isEnabled() && (traceMode == TraceMode.STATIC || mc.interactionManager.isBreakingBlock)
     }
 }
