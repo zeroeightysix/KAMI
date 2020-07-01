@@ -22,10 +22,10 @@ object FeatureManager {
     val plugins get() = features.filterIsInstance<Plugin>()
     val fullFeatures get() = features.filterIsInstance<FullFeature>()
 
-    fun initialize() {
+    init {
         initFeatures()
     }
-
+    
     fun <T : FullFeature> List<T>.getByName(name: String): T? {
         return this.firstOrNull { it.name == name }
     }
@@ -99,6 +99,15 @@ object FeatureManager {
         features.sortWith(compareBy {
             if (it is FullFeature) it.name else null
         })
+
+        // All 'always listening' features are now registered to the event bus, never to be unregistered.
+        features.stream()
+            .filter { feature: AbstractFeature? -> feature is Listening && (feature as Listening).isAlwaysListening() }
+            .forEach { `object`: AbstractFeature? ->
+                KamiMod.EVENT_BUS.subscribe(
+                    `object`
+                )
+            }
     }
 
 }

@@ -32,7 +32,7 @@ object ConfigCommand : Command() {
                     LiteralArgumentBuilder.literal<CommandSource>("reload")
                         .executes { context: CommandContext<CommandSource> ->
                             try {
-                                KamiConfig.loadConfiguration(KamiMod.getInstance().config)
+                                KamiConfig.loadConfiguration(KamiMod.config)
                             } catch (e: Exception) {
                                 throw FAILED_EXCEPTION.create(e.message)
                             }
@@ -45,7 +45,7 @@ object ConfigCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("save")
                         .executes { context: CommandContext<CommandSource> ->
-                            KamiConfig.saveConfiguration(KamiMod.getInstance().config)
+                            KamiConfig.saveConfiguration(KamiMod.config)
                             (context.source as KamiCommandSource).sendFeedback(
                                 Texts.flit(Formatting.GOLD, "Saved configuration!")
                             )

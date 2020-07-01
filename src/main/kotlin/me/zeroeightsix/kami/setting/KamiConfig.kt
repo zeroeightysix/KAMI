@@ -287,18 +287,20 @@ object KamiConfig {
     }
 
     @Throws(IOException::class, ValueDeserializationException::class)
-    fun loadConfiguration(config: ConfigTree) {
-        try {
-            FiberSerialization.deserialize(
-                config,
-                Files.newInputStream(Paths.get(CONFIG_FILENAME), StandardOpenOption.CREATE_NEW, StandardOpenOption.READ),
-                JanksonValueSerializer(false)
-            )
-        } catch (e: java.nio.file.NoSuchFileException) {
-            saveConfiguration(config)
-            KamiMod.log.info("KAMI configuration file generated!")
-        } catch (e: Exception) {
-            KamiMod.log.error("Failed to load KAMI configuration file", e)
+    fun loadConfiguration(config: ConfigTree?) {
+        config?.let {
+            try {
+                FiberSerialization.deserialize(
+                    config,
+                    Files.newInputStream(Paths.get(CONFIG_FILENAME), StandardOpenOption.CREATE_NEW, StandardOpenOption.READ),
+                    JanksonValueSerializer(false)
+                )
+            } catch (e: java.nio.file.NoSuchFileException) {
+                saveConfiguration(config)
+                KamiMod.log.info("KAMI configuration file generated!")
+            } catch (e: Exception) {
+                KamiMod.log.error("Failed to load KAMI configuration file", e)
+            }
         }
     }
 
