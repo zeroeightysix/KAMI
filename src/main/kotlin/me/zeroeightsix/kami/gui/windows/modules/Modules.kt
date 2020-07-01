@@ -29,7 +29,7 @@ object Modules {
 
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
-    private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick
+    private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
 
     /**
      * Returns if this module has detached
@@ -77,7 +77,7 @@ object Modules {
                 }
             }
 
-            treePop()
+//            treePop()
         } else updateClicked()
 
         // Restore state
