@@ -4,6 +4,7 @@ import com.google.common.collect.Streams
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import glm_.vec2.Vec2
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
@@ -63,7 +64,12 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                 ))
             }, {
                 with(ImGui) {
-                    text("edit bind")
+                    val bind = KamiMod.bindType.toRuntimeType(it.value)
+                    text("Bound to $bind") // TODO: Highlight bind in another color?
+                    sameLine(0, -1)
+                    if (button("Bind", Vec2())) { // TODO: Bind popup?
+                        // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+                    }
                 }
             }, { b ->
                 val range = 0..b.remaining.lastIndexOf('+')

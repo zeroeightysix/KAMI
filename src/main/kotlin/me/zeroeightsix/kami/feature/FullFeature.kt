@@ -1,25 +1,12 @@
 package me.zeroeightsix.kami.feature
 
-import com.google.common.base.Converter
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import glm_.vec2.Vec2
-import imgui.ImGui.button
-import imgui.ImGui.sameLine
-import imgui.ImGui.text
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.SettingNamingConvention
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.mixin.extend.getKeyCode
-import me.zeroeightsix.kami.setting.SettingDisplay
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
-import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.Bind
-import net.minecraft.client.util.InputUtil
 
 open class FullFeature(
     protected var originalName: String = "No name",
@@ -38,18 +25,9 @@ open class FullFeature(
             else if (!value && isDisabled()) KamiMod.EVENT_BUS.unsubscribe(this)
         }
 
-    @SettingDisplay("showBind")
     @Setting(name = "Bind")
     private var bind = Bind.none()
     
-    private fun showBind(bind: Bind) {
-        text("Bound to $bind") // TODO: Highlight bind in another color?
-        sameLine(0, -1)
-        if (button("Bind", Vec2())) { // TODO: Bind popup?
-            // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-        }
-    }
-
     @Setting
     @SettingVisibility(false)
     var name: @Setting.Constrain.MinLength(1) String = originalName
