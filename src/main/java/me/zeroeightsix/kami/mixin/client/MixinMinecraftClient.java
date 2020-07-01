@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.ScreenEvent;
 import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.setting.KamiConfig;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -64,7 +65,7 @@ public class MixinMinecraftClient {
     private void save() {
         System.out.println("Shutting down: saving KAMI configuration");
         try {
-            KamiMod.saveConfiguration(KamiMod.getInstance().getConfig());
+            KamiConfig.saveConfiguration(KamiMod.getInstance().getConfig());
             System.out.println("Configuration saved.");
         } catch (IOException e) {
             e.printStackTrace();
