@@ -29,14 +29,14 @@ open class FullFeature(
     private var bind = Bind.none()
     
     @Setting
-    @SettingVisibility(false)
+    @SettingVisibility.Constant(false)
     var name: @Setting.Constrain.MinLength(1) String = originalName
 
     @Setting
-    @SettingVisibility(false)
     @Listener("enabledChanged")
+    @SettingVisibility.Constant(false)
     var enabled: Boolean = false
-    
+
     private fun enabledChanged(old: Boolean, new: Boolean) {
         if (old != new) {
             if (new) onEnable()

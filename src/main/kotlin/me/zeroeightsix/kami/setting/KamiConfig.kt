@@ -256,6 +256,14 @@ object KamiConfig {
                 Setting::class.java,
                 SettingAnnotationProcessor
             )
+            .registerSettingProcessor(
+                SettingVisibility.Constant::class.java,
+                ConstantVisibilityAnnotationProcessor
+            )
+            .registerSettingProcessor(
+                SettingVisibility.Method::class.java,
+                MethodVisibilityAnnotationProcessor
+            )
             .build()
 
         val builder = ConfigTree.builder()

@@ -19,12 +19,16 @@ public class BossStack extends Module {
 
     @Setting(name = "Hide boss bars")
     private boolean remove = false;
-    @SettingVisibility() // TODO: visible if !remove
     @Setting
+    @SettingVisibility.Method("ifNotRemove") // TODO: visible if !remove
     private boolean fold = true;
-    @SettingVisibility() // TODO: visible if !remove
     @Setting
+    @SettingVisibility.Method("ifNotRemove") // TODO: visible if !remove
     private int spacing = 0;
+    
+    public boolean ifNotRemove() {
+        return !remove;
+    }
 
     public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
 

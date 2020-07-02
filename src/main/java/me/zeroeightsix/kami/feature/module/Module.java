@@ -18,7 +18,7 @@ public class Module extends FullFeature {
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
 
     @Setting(name = "Show in active modules")
-    @SettingVisibility(visible = false)
+    @SettingVisibility.Constant(false)
     public boolean showInActiveModules = true;
 
     public Module() {

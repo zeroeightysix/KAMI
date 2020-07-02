@@ -7,11 +7,13 @@ import imgui.ImGui.pushStyleColor
 import imgui.ImGui.sameLine
 import imgui.ImGui.textWrapped
 import imgui.api.demoDebugInformations.Companion.helpMarker
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.command.getInterface
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.setting.visibilityType
 
 object ModuleSettings {
 
@@ -19,7 +21,7 @@ object ModuleSettings {
         val editMarkerShown = GraphicalSettings.oldModuleEditMode
         if (!GraphicalSettings.hideModuleDescriptions) {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-            textWrapped(module.description)
+            textWrapped("%s", module.description)
             popStyleColor()
             if (editMarkerShown)
                 sameLine()
@@ -29,7 +31,11 @@ object ModuleSettings {
         }
         block()
 
-        module.config.flattenedStream().forEach {
+        module.config.flattenedStream().filter {
+            it.getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { vis ->
+                vis.isVisible()
+            }.orElse(true)
+        }.forEach {
             it.displayImGui()
         }
     }
