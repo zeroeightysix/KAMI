@@ -38,12 +38,12 @@ val visibilityType: StringConfigType<SettingVisibilitySupplier> =
     })
 
 object ConstantVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVisibility.Constant> {
-    private val alwaysTrue = object : SettingVisibilitySupplier {
+    private val alwaysTrue: SettingVisibilitySupplier = object : SettingVisibilitySupplier {
         override val id: Identifier = Identifier("kami", "visibility_true")
         override fun isVisible() = true
     }
 
-    private val alwaysFalse = object : SettingVisibilitySupplier {
+    private val alwaysFalse: SettingVisibilitySupplier = object : SettingVisibilitySupplier {
         override val id: Identifier = Identifier("kami", "visibility_false")
         override fun isVisible() = false
     }
