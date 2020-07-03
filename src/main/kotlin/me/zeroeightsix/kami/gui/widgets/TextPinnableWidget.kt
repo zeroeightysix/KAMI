@@ -199,7 +199,7 @@ open class TextPinnableWidget(
     }
 
     private fun editWindow() {
-        window("Edit $title", ::editWindow) {
+        window("Edit $title", ::editWindow, WindowFlag.AlwaysAutoResize.i) {
             fun setEditPart(part: CompiledText.Part) {
                 editPart = part
                 editColourComboIndex = CompiledText.Part.ColourMode.values().indexOf(part.colourMode)
