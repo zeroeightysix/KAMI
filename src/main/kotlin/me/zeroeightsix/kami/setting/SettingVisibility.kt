@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.setting
 
-import glm_.asUnsignedLong
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.LeafAnnotationProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigLeafBuilder
@@ -12,7 +11,9 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.registry.SimpleRegistry
 import java.lang.reflect.Field
 
-object SettingVisibility {
+@Target // No target - please use one of the annotations in this class
+@Retention(AnnotationRetention.RUNTIME)
+annotation class SettingVisibility {
     @Target(AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     annotation class Constant(val value: Boolean = true)
