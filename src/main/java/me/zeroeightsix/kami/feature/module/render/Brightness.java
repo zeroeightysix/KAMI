@@ -5,6 +5,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.setting.SettingVisibility;
 
 import java.util.Stack;
 import java.util.function.Function;
@@ -19,10 +20,14 @@ public class Brightness extends Module {
     @Setting(name = "Transition")
     private boolean transition = true;
     @Setting(name = "Seconds")
-    // TODO: Visibility attribute (only if transition==true)
+    @SettingVisibility.Method("ifTransition")
     private @Setting.Constrain.Range(min = 0, max = 10) float seconds = 1;
     @Setting(name = "Mode")
     private Transition mode = Transition.SINE;
+    
+    public boolean ifTransition() {
+        return transition;
+    }
 
     private Stack<Float> transitionStack = new Stack<>();
 

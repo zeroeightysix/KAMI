@@ -6,6 +6,7 @@ import me.zero.alpine.listener.Listener
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.LagCompensator
@@ -44,7 +45,8 @@ object Aura : Module() {
     @Setting(name = "Mode")
     private var waitMode = WaitMode.DYNAMIC
 
-    @Setting(name = "Tick Delay") // TODO: Visibility attribute (mode==STATIC)
+    @Setting(name = "Tick Delay")
+    @SettingVisibility.Method("ifModeStatic")
     private var waitTick: @Setting.Constrain.Range(min = 0.0, max = 3.0) Int = 3
 
     @Setting(name = "32k Switch")
@@ -53,6 +55,8 @@ object Aura : Module() {
     @Setting(name = "32k Only")
     private var onlyUse32k = false
     private var waitCounter = 0
+    
+    fun ifModeStatic() = waitMode == WaitMode.STATIC
 
     @EventHandler
     private val updateListener =

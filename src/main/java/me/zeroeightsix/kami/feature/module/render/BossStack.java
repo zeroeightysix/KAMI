@@ -20,10 +20,10 @@ public class BossStack extends Module {
     @Setting(name = "Hide boss bars")
     private boolean remove = false;
     @Setting
-    @SettingVisibility.Method("ifNotRemove") // TODO: visible if !remove
+    @SettingVisibility.Method("ifNotRemove")
     private boolean fold = true;
     @Setting
-    @SettingVisibility.Method("ifNotRemove") // TODO: visible if !remove
+    @SettingVisibility.Method("ifNotRemove")
     private int spacing = 0;
     
     public boolean ifNotRemove() {
