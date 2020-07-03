@@ -287,8 +287,8 @@ open class TextPinnableWidget(
                 index++
             }
             dummy(Vec2(0, 0)) // Put a dummy widget here so the next widget isn't on the same line
-            separator()
             editPart?.let {
+                separator()
                 val col = it.colour
                 combo("Colour mode", ::editColourComboIndex, it.multiline.to(CompiledText.Part.ColourMode.listMultiline, CompiledText.Part.ColourMode.listNormal) ) {
                     it.colourMode = CompiledText.Part.ColourMode.values()[editColourComboIndex]
