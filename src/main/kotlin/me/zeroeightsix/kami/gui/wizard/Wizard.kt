@@ -28,7 +28,6 @@ import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
-import me.zeroeightsix.kami.gui.windows.modules.ModuleSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.to
 
@@ -50,7 +49,7 @@ object Wizard {
         GraphicalSettings.showFontSelector("Font###kami-settings-font-selector")
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        textWrapped("%s", "GUI is visible in the background")
+        text("%s", "GUI is visible in the background")
         popStyleColor()
         
         KamiGuiScreen() // Show the full GUI
@@ -66,6 +65,10 @@ object Wizard {
         }
 
         separator()
+
+        pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        text("%s", "Try it out:")
+        popStyleColor()
 
         Modules.collapsibleModule(Aura, Modules.ModuleWindow("", null, Aura), "")
 
