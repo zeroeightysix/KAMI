@@ -26,7 +26,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
+import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.Themes
+import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.to
@@ -94,6 +96,14 @@ object Wizard {
         popStyleColor()
 
         separator()
+    }, {
+        text("How far from the edge should HUD elements be rendered?")
+        ImGui.dragFloat("Border offset", GraphicalSettings::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+        separator()
+        text("Which elements should be shown in the HUD?")
+        EnabledWidgets.enabledButtons()
+        separator()
+        KamiGuiScreen.showWidgets(false)
     }, {
         firstTime = false
     })

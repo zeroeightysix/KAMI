@@ -62,14 +62,18 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         GraphicalSettings()
 
         if (!EnabledWidgets.hideAll) {
-            for ((widget, open) in EnabledWidgets.widgets) {
-                if (open.get()) {
-                    widget.showWindow(open)
-                }
+            showWidgets()
+        }
+    }
+
+    fun showWidgets(limitY: Boolean = true) {
+        for ((widget, open) in EnabledWidgets.widgets) {
+            if (open.get()) {
+                widget.showWindow(open, limitY)
             }
         }
     }
-    
+
     override fun onClose() {
         if (GraphicalSettings.interactOutsideGUI) {
             ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i

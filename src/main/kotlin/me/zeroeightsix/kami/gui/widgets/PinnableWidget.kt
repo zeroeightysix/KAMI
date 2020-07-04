@@ -51,14 +51,14 @@ abstract class PinnableWidget(val name: String, private var position: Position =
         }
     }
 
-    fun showWindow(open: KMutableProperty0<Boolean>) {
+    fun showWindow(open: KMutableProperty0<Boolean>, limitY: Boolean) {
         preWindow()
 
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = GraphicalSettings.borderOffset
-            val topDistance = if (Wrapper.getMinecraft().currentScreen is KamiGuiScreen) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y + 4) else distance
+            val topDistance = if (limitY) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y + 4) else distance
             val windowPos = Vec2(if (position.left) distance else io.displaySize[0] - distance, if (position.top) topDistance else io.displaySize[1] - distance)
             val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)

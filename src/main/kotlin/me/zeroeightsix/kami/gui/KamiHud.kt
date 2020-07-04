@@ -48,7 +48,7 @@ object KamiHud {
                 PinnableWidget.drawFadedBackground = false
                 for ((widget, open) in EnabledWidgets.widgets) {
                     if (open.get() && widget.pinned) {
-                        widget.showWindow(open)
+                        widget.showWindow(open, false)
                     }
                 }
                 PinnableWidget.drawFadedBackground = true
