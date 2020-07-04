@@ -30,6 +30,7 @@ import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import me.zeroeightsix.kami.to
 
 object Wizard {
     
@@ -67,6 +68,27 @@ object Wizard {
         separator()
 
         Modules.collapsibleModule(Aura, Modules.ModuleWindow("", null, Aura), "")
+
+        separator()
+    }, {
+        text("Should KAMI enable usage of modifier keys in binds?")
+        text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
+        textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
+        checkbox("Enable modifier keys", GraphicalSettings::modifiersEnabled)
+        
+        separator()
+
+        pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        text("%s", "Assuming 'K' is bound to Aura,")
+        text("%s", "And 'CTRL+Q' is bound to Brightness,")
+        dummy(Vec2(10))
+        val not = GraphicalSettings.modifiersEnabled.to(" NOT ", " ")
+        text("%s", "Pressing K WILL toggle Aura.")
+        text("%s", "Pressing SHIFT+K WILL${not}toggle Aura.")
+        dummy(Vec2(10))
+        text("%s", "Pressing CTRL+Q WILL toggle Brightness.")
+        text("%s", "Pressing Q WILL${not}toggle Brightness.")
+        popStyleColor()
 
         separator()
     }, {
