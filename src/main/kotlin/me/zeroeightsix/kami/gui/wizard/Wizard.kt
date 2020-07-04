@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.gui.wizard
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
+import imgui.ImGui.checkbox
 import imgui.ImGui.dummy
 import imgui.ImGui.io
 import imgui.dsl.popupModal
@@ -16,14 +17,19 @@ import imgui.ImGui.pushStyleVar
 import imgui.ImGui.sameLine
 import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.pushStyleColor
+import imgui.ImGui.selectable
+import imgui.ImGui.separator
 import imgui.ImGui.textWrapped
 import imgui.dsl.button
 import imgui.internal.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
+import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.windows.modules.ModuleSettings
+import me.zeroeightsix.kami.gui.windows.modules.Modules
 
 object Wizard {
     
@@ -47,6 +53,22 @@ object Wizard {
         popStyleColor()
         
         KamiGuiScreen() // Show the full GUI
+    }, {
+        text("Would you rather left-click or right-click a module to toggle it?")
+        text("The other button will toggle its settings.")
+
+        separator()
+
+        checkbox("Left-click to toggle modules", GraphicalSettings::swapModuleListButtons)
+        if (checkbox("Right-click to toggle modules", BooleanArray(1) { !GraphicalSettings.swapModuleListButtons })) {
+            GraphicalSettings.swapModuleListButtons = false
+        }
+
+        separator()
+
+        Modules.collapsibleModule(Aura, Modules.ModuleWindow("", null, Aura), "")
+
+        separator()
     }, {
         firstTime = false
     })

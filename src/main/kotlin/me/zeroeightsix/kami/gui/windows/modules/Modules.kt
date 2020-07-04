@@ -34,7 +34,7 @@ object Modules {
     /**
      * Returns if this module has detached
      */
-    private fun collapsibleModule(
+    fun collapsibleModule(
         module: Module,
         source: ModuleWindow,
         sourceGroup: String
@@ -117,7 +117,7 @@ object Modules {
         windows = getDefaultWindows()
     }
 
-    internal class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
+    class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
 
         constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
 
