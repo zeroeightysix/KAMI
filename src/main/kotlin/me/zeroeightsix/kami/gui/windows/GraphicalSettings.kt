@@ -25,7 +25,7 @@ object GraphicalSettings {
     var swapModuleListButtons = false
     var oldModuleEditMode = false
     var hideModuleDescriptions = false
-    private var styleIdx = 0
+    var styleIdx = 0
     var borderOffset = 10f
     var rainbowSpeed = 32
     var rainbowSaturation = 1f
@@ -35,7 +35,7 @@ object GraphicalSettings {
     var hudWithDebug = false
     var demoWindowVisible = false
 
-    private val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
+    val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
     operator fun invoke() {
         fun setting(label: String, checked: KMutableProperty0<Boolean>, description: String) {
@@ -106,7 +106,7 @@ object GraphicalSettings {
         }
     }
 
-    private fun showFontSelector(label: String) {
+    fun showFontSelector(label: String) {
         val fontCurrent = ImGui.font
         if (ImGui.beginCombo(label, fontCurrent.debugName)) {
             for (font in ImGui.io.fonts.fonts) {

@@ -45,27 +45,31 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         KamiHud.frame {
             if (Wizard()) return@frame;
             
-            // Draw the main menu bar.
-            MenuBar()
-            // Debug window (theme, demo window)
-            if (View.demoWindowVisible) {
-                ImGui.showDemoWindow(View::demoWindowVisible)
-            }
-            // Draw all module windows
-            Modules()
-            // Draw the settings
-            GraphicalSettings()
+            this()
+        }
+    }
+    
+    operator fun invoke() {
+        // Draw the main menu bar.
+        MenuBar()
+        // Debug window (theme, demo window)
+        if (View.demoWindowVisible) {
+            ImGui.showDemoWindow(View::demoWindowVisible)
+        }
+        // Draw all module windows
+        Modules()
+        // Draw the settings
+        GraphicalSettings()
 
-            if (!EnabledWidgets.hideAll) {
-                for ((widget, open) in EnabledWidgets.widgets) {
-                    if (open.get()) {
-                        widget.showWindow(open)
-                    }
+        if (!EnabledWidgets.hideAll) {
+            for ((widget, open) in EnabledWidgets.widgets) {
+                if (open.get()) {
+                    widget.showWindow(open)
                 }
             }
         }
     }
-
+    
     override fun onClose() {
         if (GraphicalSettings.interactOutsideGUI) {
             ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
