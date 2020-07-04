@@ -20,7 +20,7 @@ import kotlin.reflect.KMutableProperty0
 
 abstract class PinnableWidget(val name: String, private var position: Position = Position.TOP_LEFT) {
 
-    var pinned = false
+    var pinned = true
     var background = false
 
     companion object {
