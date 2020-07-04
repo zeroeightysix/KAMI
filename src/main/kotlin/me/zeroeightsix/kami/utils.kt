@@ -13,6 +13,11 @@ fun <T> Boolean.then(block: () -> T): T? {
 }
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
 fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
+fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () -> Unit) {
+    if (this) before()
+    during()
+    if (this) after()
+}
 
 fun ByteArray.backToString(): String {
     var str = ""

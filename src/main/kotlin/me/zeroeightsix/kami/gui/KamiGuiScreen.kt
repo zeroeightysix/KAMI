@@ -7,6 +7,7 @@ import imgui.wo
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
@@ -42,6 +43,8 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         super.render(mouseX, mouseY, delta)
 
         KamiHud.frame {
+            if (Wizard()) return@frame;
+            
             // Draw the main menu bar.
             MenuBar()
             // Debug window (theme, demo window)
