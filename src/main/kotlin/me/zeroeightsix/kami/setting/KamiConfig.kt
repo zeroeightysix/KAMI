@@ -21,6 +21,8 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.util.Bind
@@ -28,16 +30,16 @@ import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.math.BigDecimal
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.collections.HashMap
-import kotlin.io.NoSuchFileException
 
 object KamiConfig {
 
@@ -267,35 +269,41 @@ object KamiConfig {
             .build()
 
         val builder = ConfigTree.builder()
-        constructFriendsConfiguration(settings, builder)
-        val friends = builder.fork("friends").applyFromPojo(Friends, settings).build()
+
+        constructFeaturesConfiguration(builder, settings)
+        builder.applyFromPojo(GraphicalSettings, settings)
+            .applyFromPojo(Wizard, settings)
+            .applyFromPojo(Friends, settings)
+
+        val built = builder.build()
 
         val mirror =
             PropertyMirror.create(friendsType)
         mirror.mirror(
-            friends.lookupLeaf(
+            built.lookupLeaf(
                 "Friends",
                 friendsType.serializedType
             )
         )
         Friends.mirror = mirror
 
-        return builder.build()
+        return built
     }
 
-    private fun constructFriendsConfiguration(
-        settings: AnnotatedSettings,
-        builder: ConfigTreeBuilder
+    private fun constructFeaturesConfiguration(
+        builder: ConfigTreeBuilder,
+        settings: AnnotatedSettings?
     ) {
-        val modules = builder.fork("features")
+        val features = builder.fork("features")
         // only full features because they have names
         fullFeatures.forEach(Consumer { f: FullFeature ->
-            f.config = modules.fork(f.name).applyFromPojo(f, settings).build()
+            f.config = features.fork(f.name)
+                .applyFromPojo(f, settings)
+                .build()
         })
-        // TODO: the rest of places that have @Settings
-        modules.finishBranch()
+        features.finishBranch()
     }
-    
+
     fun loadConfiguration() = loadConfiguration(this.config)
 
     @Throws(IOException::class, ValueDeserializationException::class)

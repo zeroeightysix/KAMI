@@ -1,8 +1,6 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.SimpleFeature
 import me.zeroeightsix.kami.util.Wrapper
@@ -14,6 +12,7 @@ import java.util.regex.Pattern
 abstract class Command : SimpleFeature(hidden = true) {
 
     abstract fun register(dispatcher: CommandDispatcher<CommandSource>)
+
     @Deprecated("")
     class ChatMessage(text: String?) : LiteralText(text) {
         var text: String
@@ -36,15 +35,13 @@ abstract class Command : SimpleFeature(hidden = true) {
 
     companion object {
         @JvmField
-		var dispatcher = CommandDispatcher<CommandSource>()
+        var dispatcher = CommandDispatcher<CommandSource>()
+
         @JvmField
-		var SECTION_SIGN = '\u00A7'
-        @JvmField
-        @Setting
-		var commandPrefix: Char = '.'
+        var SECTION_SIGN = '\u00A7'
 
         @JvmStatic
-		@Deprecated("")
+        @Deprecated("")
         fun sendChatMessage(message: String) {
             sendRawChatMessage("&7[&a" + KamiMod.KAMI_KANJI + "&7] &r" + message)
         }
@@ -52,11 +49,6 @@ abstract class Command : SimpleFeature(hidden = true) {
         @Deprecated("")
         fun sendRawChatMessage(message: String?) {
             Wrapper.getPlayer().sendMessage(ChatMessage(message))
-        }
-
-        @JvmStatic
-		fun getCommandPrefix(): Char {
-            return commandPrefix
         }
     }
 }

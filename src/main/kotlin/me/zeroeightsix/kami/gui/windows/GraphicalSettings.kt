@@ -10,8 +10,8 @@ import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.collapsingHeader
-import imgui.dsl.combo
 import imgui.dsl.window
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
@@ -20,20 +20,36 @@ import kotlin.reflect.KMutableProperty0
 
 object GraphicalSettings {
 
+    @Setting
     var modifiersEnabled = false
+    @Setting
     var settingsWindowOpen = false
+    @Setting
     var swapModuleListButtons = false
+    @Setting
     var oldModuleEditMode = false
+    @Setting
     var hideModuleDescriptions = false
+    @Setting
     var styleIdx = 0
+    @Setting
     var borderOffset = 10f
+    @Setting
     var rainbowSpeed = 32
+    @Setting
     var rainbowSaturation = 1f
+    @Setting
     var rainbowBrightness = 1f
-    private var experimental = false
+    @Setting
+    var experimental = false
+    @Setting
     var interactOutsideGUI = false
+    @Setting
     var hudWithDebug = false
+    @Setting
     var demoWindowVisible = false
+    @Setting
+    var commandPrefix = '.'
 
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
