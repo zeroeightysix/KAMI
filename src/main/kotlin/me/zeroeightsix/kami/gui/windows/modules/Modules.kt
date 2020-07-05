@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
 import glm_.vec2.Vec2
+import glm_.vec4.Vec4
 import imgui.*
 import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
@@ -11,6 +12,7 @@ import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
+import imgui.api.demoDebugInformations
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
@@ -18,11 +20,16 @@ import imgui.dsl.popupContextItem
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.command.getInterface
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.flattenedStream
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
+import me.zeroeightsix.kami.setting.visibilityType
 
 object Modules {
 
@@ -63,7 +70,7 @@ object Modules {
         }
         if (open) {
             updateClicked()
-            ModuleSettings(module) {
+            showModuleSettings(module) {
                 dragDropSource(DragDropFlag.SourceAllowNullID.i) {
                     setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), source))
                     text("Merge")
@@ -170,6 +177,36 @@ object Modules {
         }
 
     }
+}
 
+private fun showModuleSettings(module: Module, block: () -> Unit) {
+    // We introduce a generic <T> to allow displayImGui to be called even though we don't actually know the type of ConfigLeaf we have!
+    // the flattenedStream() method returns a stream over ConfigLeaf<*>, where <*> is any type.
+    // Because the interface (SettingInterface<T>) requires a ConfigLeaf<T> and we only have a ConfigLeaf<*> and SettingInterface<*> (and <*> != <*>), calling displayImGui is illegal.
+    // Instead, we can just avoid this by introducing a generic method that 'proves' (by implicit casting) that our type of ConfigLeaf is the same as its interface.
+    // Can't really do this inline (or I don't know how to), so I made a method to do it instead.
+    fun <T> ConfigLeaf<T>.displayImGui() {
+        this.getInterface().displayImGui(this)
+    }
 
+    val editMarkerShown = Settings.oldModuleEditMode
+    if (!Settings.hideModuleDescriptions) {
+        ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        ImGui.textWrapped("%s", module.description)
+        ImGui.popStyleColor()
+        if (editMarkerShown)
+            ImGui.sameLine()
+    }
+    if (editMarkerShown) {
+        demoDebugInformations.helpMarker("Start dragging from this question mark to merge this module into another module window. Right click this question mark and press 'Detach' to seperate it into a new window.")
+    }
+    block()
+
+    module.config.flattenedStream().filter {
+        it.getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { vis ->
+            vis.isVisible()
+        }.orElse(true)
+    }.forEach {
+        it.displayImGui()
+    }
 }
