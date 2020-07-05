@@ -13,9 +13,7 @@ import imgui.dsl.menuItem
 import imgui.dsl.popupContextWindow
 import imgui.dsl.window
 import imgui.or
-import me.zeroeightsix.kami.gui.KamiGuiScreen
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
-import me.zeroeightsix.kami.util.Wrapper
+import me.zeroeightsix.kami.gui.windows.Settings
 import kotlin.reflect.KMutableProperty0
 
 abstract class PinnableWidget(val name: String, private var position: Position = Position.TOP_LEFT) {
@@ -57,8 +55,9 @@ abstract class PinnableWidget(val name: String, private var position: Position =
         var flags = WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
-            val distance = GraphicalSettings.borderOffset
-            val topDistance = if (limitY) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y + 4) else distance
+            val distance = Settings.borderOffset
+            val topDistance =
+                if (limitY) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y + 4) else distance
             val windowPos = Vec2(if (position.left) distance else io.displaySize[0] - distance, if (position.top) topDistance else io.displaySize[1] - distance)
             val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)

@@ -18,16 +18,20 @@ import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import kotlin.reflect.KMutableProperty0
 
-object GraphicalSettings {
+object Settings {
 
     @Setting
     var modifiersEnabled = false
+
     @Setting
     var settingsWindowOpen = false
+
     @Setting
     var swapModuleListButtons = false
+
     @Setting
     var oldModuleEditMode = false
+
     @Setting
     var hideModuleDescriptions = false
     @Setting

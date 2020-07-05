@@ -6,30 +6,28 @@ import imgui.*
 import imgui.ImGui.checkbox
 import imgui.ImGui.dummy
 import imgui.ImGui.io
-import imgui.dsl.popupModal
-import imgui.ImGui.text
 import imgui.ImGui.openPopup
 import imgui.ImGui.popItemFlag
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.popStyleVar
 import imgui.ImGui.pushItemFlag
+import imgui.ImGui.pushStyleColor
 import imgui.ImGui.pushStyleVar
 import imgui.ImGui.sameLine
-import imgui.ImGui.setNextWindowPos
-import imgui.ImGui.pushStyleColor
-import imgui.ImGui.selectable
 import imgui.ImGui.separator
+import imgui.ImGui.setNextWindowPos
+import imgui.ImGui.text
 import imgui.ImGui.textWrapped
 import imgui.dsl.button
+import imgui.dsl.popupModal
 import imgui.internal.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
-import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.to
 
@@ -45,15 +43,15 @@ object Wizard {
         text("Everything set by the wizard can be manually changed later through the Settings menu.")
     }, {
         text("Please select your preferred theme and font.")
-        if (ImGui.combo("Theme", GraphicalSettings::styleIdx, GraphicalSettings.themes)) {
-            Themes.Variants.values()[GraphicalSettings.styleIdx].applyStyle()
+        if (ImGui.combo("Theme", Settings::styleIdx, Settings.themes)) {
+            Themes.Variants.values()[Settings.styleIdx].applyStyle()
         }
-        GraphicalSettings.showFontSelector("Font###kami-settings-font-selector")
+        Settings.showFontSelector("Font###kami-settings-font-selector")
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
         text("%s", "GUI is visible in the background")
         popStyleColor()
-        
+
         KamiGuiScreen() // Show the full GUI
     }, {
         text("Would you rather left-click or right-click a module to toggle it?")
@@ -61,9 +59,9 @@ object Wizard {
 
         separator()
 
-        checkbox("Left-click to toggle modules", GraphicalSettings::swapModuleListButtons)
-        if (checkbox("Right-click to toggle modules", BooleanArray(1) { !GraphicalSettings.swapModuleListButtons })) {
-            GraphicalSettings.swapModuleListButtons = false
+        checkbox("Left-click to toggle modules", Settings::swapModuleListButtons)
+        if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
+            Settings.swapModuleListButtons = false
         }
 
         separator()
@@ -79,7 +77,7 @@ object Wizard {
         text("Should KAMI enable usage of modifier keys in binds?")
         text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
         textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
-        checkbox("Enable modifier keys", GraphicalSettings::modifiersEnabled)
+        checkbox("Enable modifier keys", Settings::modifiersEnabled)
         
         separator()
 
@@ -87,7 +85,7 @@ object Wizard {
         text("%s", "Assuming 'K' is bound to Aura,")
         text("%s", "And 'CTRL+Q' is bound to Brightness,")
         dummy(Vec2(10))
-        val not = GraphicalSettings.modifiersEnabled.to(" NOT ", " ")
+        val not = Settings.modifiersEnabled.to(" NOT ", " ")
         text("%s", "Pressing K WILL toggle Aura.")
         text("%s", "Pressing SHIFT+K WILL${not}toggle Aura.")
         dummy(Vec2(10))
@@ -98,7 +96,7 @@ object Wizard {
         separator()
     }, {
         text("How far from the edge should HUD elements be rendered?")
-        ImGui.dragFloat("Border offset", GraphicalSettings::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+        ImGui.dragFloat("Border offset", Settings::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
         separator()
         text("Which elements should be shown in the HUD?")
         EnabledWidgets.enabledButtons()

@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.command.KamiCommandSource;
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings;
+import me.zeroeightsix.kami.gui.windows.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -37,7 +37,7 @@ public abstract class MixinChatScreen {
     @Inject(method = "updateCommand", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;canRead()Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void onUpdateCommand(CallbackInfo info, String string, StringReader stringReader) {
         int i;
-        if (stringReader.canRead() && stringReader.peek() == GraphicalSettings.INSTANCE.getCommandPrefix()) {
+        if (stringReader.canRead() && stringReader.peek() == Settings.INSTANCE.getCommandPrefix()) {
             stringReader.skip();
             CommandDispatcher<CommandSource> commandDispatcher = Command.dispatcher;
             if (this.parseResults == null) {
@@ -60,7 +60,7 @@ public abstract class MixinChatScreen {
 
     @Redirect(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ChatScreen;sendMessage(Ljava/lang/String;)V"))
     public void sendMessage(ChatScreen screen, String message) {
-        if (message.startsWith(String.valueOf(GraphicalSettings.INSTANCE.getCommandPrefix()))) {
+        if (message.startsWith(String.valueOf(Settings.INSTANCE.getCommandPrefix()))) {
             Wrapper.getMinecraft().inGameHud.getChatHud().addToMessageHistory(message);
 
             message = message.substring(1); // cut off command prefix

@@ -10,16 +10,16 @@ import imgui.api.demoDebugInformations.Companion.helpMarker
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.command.getInterface
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.setting.visibilityType
 
 object ModuleSettings {
 
     operator fun invoke(module: Module, block: () -> Unit) {
-        val editMarkerShown = GraphicalSettings.oldModuleEditMode
-        if (!GraphicalSettings.hideModuleDescriptions) {
+        val editMarkerShown = Settings.oldModuleEditMode
+        if (!Settings.hideModuleDescriptions) {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
             textWrapped("%s", module.description)
             popStyleColor()

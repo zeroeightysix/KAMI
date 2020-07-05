@@ -21,7 +21,7 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FullFeature
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.mixin.extend.getMap
@@ -271,7 +271,7 @@ object KamiConfig {
         val builder = ConfigTree.builder()
 
         constructFeaturesConfiguration(builder, settings)
-        builder.applyFromPojo(GraphicalSettings, settings)
+        builder.applyFromPojo(Settings, settings)
             .applyFromPojo(Wizard, settings)
             .applyFromPojo(Friends, settings)
 

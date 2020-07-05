@@ -6,7 +6,7 @@ import imgui.dsl.menuItem
 import me.zeroeightsix.kami.gui.View.demoWindowVisible
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 
 object View {
@@ -19,8 +19,8 @@ object MenuBar {
     operator fun invoke() = mainMenuBar {
         EnabledWidgets()
         menu("View") {
-            menuItem("Settings", "", selected = GraphicalSettings.settingsWindowOpen) {
-                GraphicalSettings.settingsWindowOpen = !GraphicalSettings.settingsWindowOpen
+            menuItem("Settings", "", selected = Settings.settingsWindowOpen) {
+                Settings.settingsWindowOpen = !Settings.settingsWindowOpen
             }
             menuItem("Modules", "", selected = modulesOpen) {
                 modulesOpen = !modulesOpen
@@ -28,7 +28,7 @@ object MenuBar {
             menuItem("Module window editor", "", selected = ModuleWindowsEditor.open) {
                 ModuleWindowsEditor.open = !ModuleWindowsEditor.open
             }
-            if (GraphicalSettings.demoWindowVisible) {
+            if (Settings.demoWindowVisible) {
                 menuItem("Demo window", "", selected = demoWindowVisible) {
                     demoWindowVisible = !demoWindowVisible
                 }

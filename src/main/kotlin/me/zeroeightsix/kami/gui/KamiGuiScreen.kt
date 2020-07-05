@@ -5,7 +5,7 @@ import imgui.ImGui
 import imgui.impl.glfw.ImplGlfw
 import imgui.wo
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.util.Texts.lit
@@ -59,7 +59,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         // Draw all module windows
         Modules()
         // Draw the settings
-        GraphicalSettings()
+        Settings()
 
         if (!EnabledWidgets.hideAll) {
             showWidgets()
@@ -75,7 +75,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     }
 
     override fun onClose() {
-        if (GraphicalSettings.interactOutsideGUI) {
+        if (Settings.interactOutsideGUI) {
             ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
         } else {
             ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i

@@ -11,7 +11,6 @@ import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
-import imgui.ImGui.treePop
 import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
 import imgui.dsl.menuItem
@@ -19,11 +18,11 @@ import imgui.dsl.popupContextItem
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
-import me.zeroeightsix.kami.gui.View.modulesOpen
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings
-import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.gui.View.modulesOpen
+import me.zeroeightsix.kami.gui.windows.Settings
+import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 
 object Modules {
 
@@ -51,8 +50,8 @@ object Modules {
         var clickedRight = false
 
         fun updateClicked() {
-            clickedLeft = isItemClicked(if (GraphicalSettings.swapModuleListButtons) MouseButton.Left else MouseButton.Right)
-            clickedRight = isItemClicked(if (GraphicalSettings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
+            clickedLeft = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Left else MouseButton.Right)
+            clickedRight = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
         val open = treeNodeEx(label, nodeFlags, module.name)

@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.util;
 
-import me.zeroeightsix.kami.gui.windows.GraphicalSettings;
+import me.zeroeightsix.kami.gui.windows.Settings;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.KeyBinding;
@@ -54,7 +54,7 @@ public class Bind {
     }
 
     public boolean isDown() {
-        return binding.isPressed() && (!GraphicalSettings.INSTANCE.getModifiersEnabled() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()));
+        return binding.isPressed() && (!Settings.INSTANCE.getModifiersEnabled() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()));
     }
 
     public static boolean isShiftDown() {
