@@ -33,7 +33,6 @@ object PeekCommand : Command(), Listenable {
         DynamicCommandExceptionType(Function { o: Any ->
             LiteralText(o.toString())
         })
-    private var subscribed = false
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher.register(
@@ -47,10 +46,7 @@ object PeekCommand : Command(), Listenable {
                 if (tag != null) {
                     entityBox.fromTag(tag)
                     sb = entityBox
-                    if (!subscribed) {
-                        KamiMod.EVENT_BUS.subscribe(this)
-                        subscribed = true
-                    }
+                    KamiMod.EVENT_BUS.subscribe(this)
                 } else {
                     throw FAILED_EXCEPTION.create("Couldn't peek into shulker box. It might be empty.")
                 }
@@ -76,7 +72,8 @@ object PeekCommand : Command(), Listenable {
                 )
                 MinecraftClient.getInstance().openScreen(gui)
                 sb = null
+                KamiMod.EVENT_BUS.unsubscribe(this)
             }
         }
-    ) // TODO: Find a way to unsubscribe this listener safely
+    )
 }
