@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.util;
 
 import me.zeroeightsix.kami.gui.windows.Settings;
-import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by 086 on 9/10/2018.
@@ -14,13 +13,16 @@ public class Bind {
     final boolean ctrl;
     final boolean alt;
     final boolean shift;
-    public KeyBinding binding;
 
-    public Bind(boolean ctrl, boolean alt, boolean shift, InputUtil.KeyCode code) {
+    public final Code code;
+
+    public boolean pressed = false;
+
+    public Bind(boolean ctrl, boolean alt, boolean shift, Code code) {
         this.ctrl = ctrl;
         this.alt = alt;
         this.shift = shift;
-        this.binding = new KeyBinding("key.none", code.getCategory(), code.getKeyCode(), "key.categories.none");
+        this.code = code;
     }
 
     public boolean isCtrl() {
@@ -35,26 +37,12 @@ public class Bind {
         return shift;
     }
 
-    public KeyBinding getBinding() {
-        return binding;
-    }
-
-    public String getKeyName() {
-        return getBinding().getLocalizedName();
-    }
-
-    @Override
-    public String toString() {
-        return ((IKeyBinding) binding).getKeyCode().getKeyCode() == -1 ?
-                "None" :
-                (isCtrl() ? "Ctrl+" : "") +
-                        (isAlt() ? "Alt+" : "") +
-                        (isShift() ? "Shift+" : "") +
-                        capitalise(getKeyName());
+    public static Bind none() {
+        return new Bind(false, false, false, new Code(true, -1, -1));
     }
 
     public boolean isDown() {
-        return binding.isPressed() && (!Settings.INSTANCE.getModifiersEnabled() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()));
+        return pressed && (!Settings.INSTANCE.getModifiersEnabled() || (isShift() == isShiftDown()) && (isCtrl() == isCtrlDown()) && (isAlt() == isAltDown()));
     }
 
     public static boolean isShiftDown() {
@@ -74,8 +62,41 @@ public class Bind {
         return Character.toUpperCase(str.charAt(0)) + (str.length() != 1 ? str.substring(1).toLowerCase() : "");
     }
 
-    public static Bind none() {
-        return new Bind(false, false, false, InputUtil.getKeyCode(-1, -1));
+    @Override
+    public String toString() {
+        return ((code.keysym && code.key == -1) || (!code.keysym && code.scan == -1)) ?
+                "None" :
+                (isCtrl() ? "Ctrl+" : "") +
+                        (isAlt() ? "Alt+" : "") +
+                        (isShift() ? "Shift+" : "") +
+                        capitalise(code.toString());
+    }
+
+    public static class Code {
+        public final boolean keysym;
+        public final int key;
+        public final int scan;
+
+        public Code(boolean keysym, int key, int scan) {
+            this.keysym = keysym;
+            this.key = key;
+            this.scan = scan;
+        }
+
+        public Code(@NotNull InputUtil.KeyCode keyCode) {
+            this.keysym = keyCode.getCategory() == InputUtil.Type.KEYSYM;
+            int code = keyCode.getKeyCode();
+            this.key = keysym ? code : -1;
+            this.scan = keysym ? -1 : code;
+        }
+
+        @Override
+        public String toString() {
+            if (keysym)
+                return InputUtil.getKeycodeName(key);
+            else
+                return InputUtil.getScancodeName(scan);
+        }
     }
 
 }

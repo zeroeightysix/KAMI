@@ -23,7 +23,6 @@ import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.wizard.Wizard
-import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
@@ -53,19 +52,24 @@ object KamiConfig {
                     val alt = map["alt"] ?: 0 == 1
                     val ctrl = map["ctrl"] ?: 0 == 1
                     val shift = map["shift"] ?: 0 == 1
-                    val keysm = map["keysm"] ?: 0 == 1
-                    val code = map["code"] ?: -1
-                    Bind(ctrl, alt, shift, InputUtil.getKeyCode(if (keysm) code else -1, if (keysm) -1 else code))
+                    val keysym = map["keysm"] ?: 0 == 1
+                    val key = map["key"] ?: -1
+                    val scan = map["scan"] ?: -1
+                    Bind(
+                        ctrl,
+                        alt,
+                        shift,
+                        Bind.Code(keysym, key, scan)
+                    )
                 }
             ) { bind: Bind ->
                 val map = HashMap<String?, Int>()
                 map["alt"] = if (bind.isAlt) 1 else 0
                 map["ctrl"] = if (bind.isCtrl) 1 else 0
                 map["shift"] = if (bind.isShift) 1 else 0
-                map["keysm"] = if ((bind.binding as IKeyBinding).keyCode
-                        .category == InputUtil.Type.KEYSYM
-                ) 1 else 0
-                map["code"] = (bind.getBinding() as IKeyBinding).keyCode.keyCode
+                map["keysm"] = if (bind.code.keysym) 1 else 0
+                map["key"] = bind.code.key
+                map["scan"] = bind.code.scan
                 map
             }
 
@@ -93,7 +97,7 @@ object KamiConfig {
             if (!s.startsWith("key.keyboard")) return@mapNotNull null
         }.removePrefix("key.keyboard.").replace('.', '-')
 
-        Pair(name, it.value!!)
+        Pair(name, Bind.Code(it.value!!))
     }.toMap()
 
     val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(

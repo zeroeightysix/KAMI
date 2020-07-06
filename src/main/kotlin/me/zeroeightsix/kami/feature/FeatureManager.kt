@@ -5,9 +5,7 @@ import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
 import me.zeroeightsix.kami.gui.KamiGuiScreen
-import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.client.util.InputUtil
 import org.reflections.Reflections
 import java.util.stream.Stream
 
@@ -33,7 +31,6 @@ object FeatureManager {
     @JvmStatic
     fun onBind(key: Int, scancode: Int, i: Int) {
         val pressed = i != 0
-        val code = InputUtil.getKeyCode(key, scancode)
         if (Wrapper.getMinecraft().currentScreen != null) {
             return
         }
@@ -43,9 +40,9 @@ object FeatureManager {
         features.filter { it is Listening }.forEach {
             val l = it as Listening
             val bind = l.getBind()
-            if ((bind.binding as IKeyBinding).keyCode == code) {
-                (bind.binding as IKeyBinding).setPressed(pressed)
-            }
+            if ((bind.code.keysym && bind.code.key == key) || (!bind.code.keysym && bind.code.scan == scancode))
+                bind.pressed = pressed
+
             if (bind.isDown) {
                 it.toggle()
             }
