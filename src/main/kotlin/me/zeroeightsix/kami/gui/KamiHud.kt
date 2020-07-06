@@ -10,6 +10,7 @@ import imgui.impl.gl.ImplGL3
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.MinecraftClient
 import uno.glfw.GlfwWindow
@@ -38,6 +39,9 @@ object KamiHud {
         fontCfg.glyphOffset = Vec2(0, -2)
         ImGui.io.fonts.addFontFromFileTTF("assets/kami/Minecraftia.ttf", 12f, fontCfg)
         ImGui.io.fonts.addFontDefault()
+
+        Themes.Variants.values()[Settings.styleIdx].applyStyle()
+        ImGui.io.fontDefault = ImGui.io.fonts.fonts[Settings.font]
 
         postDrawStack = Stack()
     }

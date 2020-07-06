@@ -44,16 +44,24 @@ object Settings {
     var rainbowSaturation = 1f
     @Setting
     var rainbowBrightness = 1f
+
     @Setting
     var experimental = false
+
     @Setting
     var interactOutsideGUI = false
+
     @Setting
     var hudWithDebug = false
+
     @Setting
     var demoWindowVisible = false
+
     @Setting
     var commandPrefix = '.'
+
+    @Setting
+    var font: Int = 0
 
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
@@ -129,10 +137,12 @@ object Settings {
     fun showFontSelector(label: String) {
         val fontCurrent = ImGui.font
         if (ImGui.beginCombo(label, fontCurrent.debugName)) {
-            for (font in ImGui.io.fonts.fonts) {
+            ImGui.io.fonts.fonts.forEachIndexed { idx, font ->
                 pushID(font)
-                if (ImGui.selectable(font.debugName, font === fontCurrent))
+                if (ImGui.selectable(font.debugName, font === fontCurrent)) {
                     ImGui.io.fontDefault = font
+                    this.font = idx
+                }
                 popID()
             }
             ImGui.endCombo()
