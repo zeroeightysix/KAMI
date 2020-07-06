@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.event
 
-import me.zero.alpine.type.Cancellable
+import me.zero.alpine.event.type.Cancellable
 import me.zeroeightsix.kami.util.Wrapper
 
 /**

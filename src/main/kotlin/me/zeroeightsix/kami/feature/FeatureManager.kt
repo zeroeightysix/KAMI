@@ -101,11 +101,11 @@ object FeatureManager {
         })
 
         // All 'always listening' features are now registered to the event bus, never to be unregistered.
-        features.stream()
-            .filter { feature: AbstractFeature? -> feature is Listening && (feature as Listening).isAlwaysListening() }
-            .forEach { `object`: AbstractFeature? ->
+        features.filterIsInstance<Listening>()
+            .filter { it.isAlwaysListening() }
+            .forEach {
                 KamiMod.EVENT_BUS.subscribe(
-                    `object`
+                    it
                 )
             }
     }

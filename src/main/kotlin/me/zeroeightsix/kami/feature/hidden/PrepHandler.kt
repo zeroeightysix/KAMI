@@ -1,10 +1,10 @@
 package me.zeroeightsix.kami.feature.hidden
 
 import com.mojang.blaze3d.platform.GlStateManager
+import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zero.alpine.type.EventPriority
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent
 import me.zeroeightsix.kami.event.events.RenderEvent

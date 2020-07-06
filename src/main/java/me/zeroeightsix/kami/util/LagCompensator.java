@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.util;
 
 import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.PacketEvent;
@@ -8,9 +9,8 @@ import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Arrays;
-import java.util.EventListener;
 
-public class LagCompensator implements EventListener {
+public class LagCompensator implements Listenable {
 
     public static LagCompensator INSTANCE;
 
@@ -20,7 +20,7 @@ public class LagCompensator implements EventListener {
 
     @EventHandler
     Listener<PacketEvent.Receive> packetEventListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof WorldTimeUpdateS2CPacket){
+        if (event.getPacket() instanceof WorldTimeUpdateS2CPacket) {
             INSTANCE.onTimeUpdate();
         }
     });

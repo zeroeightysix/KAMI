@@ -50,21 +50,21 @@ object KamiConfig {
             .derive(
                 Bind::class.java,
                 { map: Map<String, Int> ->
-                    val alt = map["alt"] ?: 1 == 1
-                    val ctrl = map["ctrl"] ?: 1 == 1
-                    val shift = map["shift"] ?: 1 == 1
-                    val keysm = map["keysm"] ?: 1 == 1
+                    val alt = map["alt"] ?: 0 == 1
+                    val ctrl = map["ctrl"] ?: 0 == 1
+                    val shift = map["shift"] ?: 0 == 1
+                    val keysm = map["keysm"] ?: 0 == 1
                     val code = map["code"] ?: -1
                     Bind(ctrl, alt, shift, InputUtil.getKeyCode(if (keysm) code else -1, if (keysm) -1 else code))
                 }
             ) { bind: Bind ->
                 val map = HashMap<String?, Int>()
-                map["alt"] = if (bind.isAlt) 0 else 1
-                map["ctrl"] = if (bind.isCtrl) 0 else 1
-                map["shift"] = if (bind.isShift) 0 else 1
+                map["alt"] = if (bind.isAlt) 1 else 0
+                map["ctrl"] = if (bind.isCtrl) 1 else 0
+                map["shift"] = if (bind.isShift) 1 else 0
                 map["keysm"] = if ((bind.binding as IKeyBinding).keyCode
                         .category == InputUtil.Type.KEYSYM
-                ) 0 else 1
+                ) 1 else 0
                 map["code"] = (bind.getBinding() as IKeyBinding).keyCode.keyCode
                 map
             }
@@ -106,7 +106,7 @@ object KamiConfig {
 
                 fun remove(part: String): Boolean {
                     val removed = s.replace(part, "")
-                    val changed = s == removed
+                    val changed = s != removed
                     s = removed
                     return changed
                 }

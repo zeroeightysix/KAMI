@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
+import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.TickEvent
@@ -25,7 +26,7 @@ import java.util.function.Function
 /**
  * @author 086
  */
-object PeekCommand : Command() {
+object PeekCommand : Command(), Listenable {
     var sb: ShulkerBoxBlockEntity? = null
 
     private val FAILED_EXCEPTION =
@@ -35,7 +36,8 @@ object PeekCommand : Command() {
     private var subscribed = false
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
-        dispatcher.register(LiteralArgumentBuilder.literal<CommandSource>("peek").executes { context: CommandContext<CommandSource>? ->
+        dispatcher.register(
+            LiteralArgumentBuilder.literal<CommandSource>("peek").executes { context: CommandContext<CommandSource>? ->
             val stack = Wrapper.getPlayer().inventory.mainHandStack
             if (ShulkerBoxCommon.isShulkerBox(stack.item)) {
                 val entityBox =
