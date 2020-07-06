@@ -36,6 +36,7 @@ public class Brightness extends Module {
 
     private void addTransition(boolean isUpwards) {
         if (transition) {
+            transitionStack.clear();
             int length = (int) (seconds * 20);
             float[] values;
             switch (mode) {
