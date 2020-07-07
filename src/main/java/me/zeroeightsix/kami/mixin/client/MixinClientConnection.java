@@ -1,9 +1,11 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.feature.module.NoPacketKick;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
@@ -11,6 +13,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.io.IOException;
 
 @Mixin(ClientConnection.class)
 public class MixinClientConnection {
@@ -29,6 +33,11 @@ public class MixinClientConnection {
         KamiMod.EVENT_BUS.post(send);
         if (send.isCancelled())
             info.cancel();
+    }
+
+    @Inject(method = "exceptionCaught", at = @At("HEAD"), cancellable = true)
+    private void exceptionCaught(ChannelHandlerContext context, Throwable throwable, CallbackInfo ci) {
+        if (throwable instanceof IOException && NoPacketKick.INSTANCE.isEnabled()) ci.cancel();
     }
 
 }
