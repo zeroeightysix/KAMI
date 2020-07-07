@@ -26,8 +26,8 @@ public class ChatEncryption extends Module {
 
     @Setting(name = "Mode")
     private EncryptionMode mode = EncryptionMode.SHUFFLE;
-    @Setting(name = "Key")
-    private int key = 6;
+    @Setting(name = "Channel", comment = "The key to encrypt with. This must be the same for everyone trying to chat with eachother.")
+    private int channel = 6;
     @Setting(name = "Delimiter")
     private boolean delim = true;
 
@@ -46,11 +46,11 @@ public class ChatEncryption extends Module {
             StringBuilder builder = new StringBuilder();
             switch (mode) {
                 case SHUFFLE:
-                    builder.append(shuffle(key, s));
+                    builder.append(shuffle(channel, s));
                     builder.append("\uD83D\uDE4D");
                     break;
                 case SHIFT:
-                    s.chars().forEachOrdered(value -> builder.append((char) (value + key)));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value + channel)));
                     builder.append("\uD83D\uDE48");
                     break;
             }
@@ -82,12 +82,12 @@ public class ChatEncryption extends Module {
                 case SHUFFLE:
                     if (!s.endsWith("\uD83D\uDE4D")) return;
                     s = s.substring(0, s.length() - 2);
-                    builder.append(unshuffle(key, s));
+                    builder.append(unshuffle(channel, s));
                     break;
                 case SHIFT:
                     if (!s.endsWith("\uD83D\uDE48")) return;
                     s = s.substring(0, s.length() - 2);
-                    s.chars().forEachOrdered(value -> builder.append((char) (value - key)));
+                    s.chars().forEachOrdered(value -> builder.append((char) (value - channel)));
                     break;
             }
 
