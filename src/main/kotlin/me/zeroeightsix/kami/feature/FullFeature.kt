@@ -27,7 +27,7 @@ open class FullFeature(
 
     @Setting(name = "Bind")
     private var bind = Bind.none()
-    
+
     @Setting
     @SettingVisibility.Constant(false)
     var name: @Setting.Constrain.MinLength(1) String = originalName

@@ -23,7 +23,7 @@ object FeatureManager {
     init {
         initFeatures()
     }
-    
+
     fun <T : FullFeature> List<T>.getByName(name: String): T? {
         return this.firstOrNull { it.name == name }
     }
@@ -78,7 +78,7 @@ object FeatureManager {
                     }
                 }
             }
-            tryErr( {
+            tryErr({
                 val feature = it.getConstructor().newInstance() as AbstractFeature
                 features.add(feature)
             }, {
@@ -87,7 +87,9 @@ object FeatureManager {
             })
         }
 
-        KamiMod.log.info("Features initialised")
+        modules.forEach {
+            it.initListening()
+        }
 
         features.filterIsInstance<Command>().forEach {
             it.register(Command.dispatcher)
@@ -105,6 +107,8 @@ object FeatureManager {
                     it
                 )
             }
+
+        KamiMod.log.info("Features initialised")
     }
 
 }

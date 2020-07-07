@@ -22,10 +22,14 @@ public class Module extends FullFeature {
     public boolean showInActiveModules = true;
 
     public Module() {
+        Module.Info annotation = getAnnotation();
+        setOriginalName(annotation.name());
+        setName(annotation.name());
+        setDescription(annotation.description());
+    }
+
+    public void initListening() {
         setAlwaysListening(getAnnotation().alwaysListening());
-        setOriginalName(getAnnotation().name());
-        setName(getAnnotation().name());
-        setDescription(getAnnotation().description());
     }
 
     private Info getAnnotation() {
