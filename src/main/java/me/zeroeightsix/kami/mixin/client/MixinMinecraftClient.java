@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
@@ -36,20 +37,19 @@ public class MixinMinecraftClient {
         if (event.isCancelled()) info.cancel();
     }
 
-    @Inject(method = "openScreen", at = @At("HEAD"), cancellable = true)
-    public void openScreen(Screen guiScreenIn, CallbackInfo info) {
+    @ModifyVariable(method = "openScreen", at = @At("HEAD"))
+    private Screen openScreen(Screen screen) {
         ScreenEvent.Closed closedEvent = new ScreenEvent.Closed(Wrapper.getMinecraft().currentScreen);
         KamiMod.EVENT_BUS.post(closedEvent);
         if (closedEvent.isCancelled()) {
-            info.cancel();
-            return;
+            return Wrapper.getMinecraft().currentScreen;
         }
-        ScreenEvent.Displayed displayedEvent = new ScreenEvent.Displayed(guiScreenIn);
+        ScreenEvent.Displayed displayedEvent = new ScreenEvent.Displayed(screen);
         KamiMod.EVENT_BUS.post(displayedEvent);
         if (displayedEvent.isCancelled()) {
-            info.cancel();
+            return Wrapper.getMinecraft().currentScreen;
         }
-        guiScreenIn = displayedEvent.getScreen();
+        return displayedEvent.getScreen();
     }
 
     @Inject(method = "start", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;printCrashReport(Lnet/minecraft/util/crash/CrashReport;)V"))

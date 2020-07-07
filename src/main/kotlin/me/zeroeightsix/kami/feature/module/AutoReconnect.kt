@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.feature.module
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.ScreenEvent
 import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
@@ -30,7 +29,7 @@ object AutoReconnect : Module() {
     private var seconds: @Setting.Constrain.Range(min = 0.0) Int = 5;
 
     @EventHandler
-    var closedListener =
+    val closedListener =
         Listener(
             EventHook { event: ScreenEvent.Closed ->
                 if (event.screen is ConnectScreen) cServer =
@@ -39,9 +38,9 @@ object AutoReconnect : Module() {
         )
 
     @EventHandler
-    var displayedListener = Listener(
+    val displayedListener = Listener(
         EventHook { event: Displayed ->
-            if (isEnabled() && event.screen is DisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
+            if (isEnabled() && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
                 KamiDisconnectedScreen(event.screen as DisconnectedScreen)
         }
     )
@@ -68,7 +67,7 @@ object AutoReconnect : Module() {
         override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
             super.render(mouseX, mouseY, partialTicks)
             val a = System.currentTimeMillis()
-            millis -= (a - cTime.toInt())
+            millis -= (a - cTime).toInt()
             cTime = a
             val s = "Reconnecting in " + 0.0.coerceAtLeast(floor(millis.toDouble() / 100) / 10) + "s"
             font.drawWithShadow(s, width / 2 - font.getStringWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
