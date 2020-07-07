@@ -23,11 +23,15 @@ public class BossStack extends Module {
     @SettingVisibility.Method("ifNotRemove")
     private boolean fold = true;
     @Setting
-    @SettingVisibility.Method("ifNotRemove")
-    private int spacing = 0;
-    
+    @SettingVisibility.Method("ifNotRemoveNotFold")
+    private int spacing = 10;
+
     public boolean ifNotRemove() {
         return !remove;
+    }
+
+    public boolean ifNotRemoveNotFold() {
+        return !remove && !fold;
     }
 
     public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
