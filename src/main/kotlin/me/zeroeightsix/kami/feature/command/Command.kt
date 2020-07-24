@@ -21,7 +21,7 @@ abstract class Command : SimpleFeature(hidden = true) {
         }
 
         init {
-            val p = Pattern.compile("&[0123456789abcdefrlosmk]")
+            val p = Pattern.compile("&[0123456789abcdefrlonmk]")
             val m = p.matcher(text)
             val sb = StringBuffer()
             while (m.find()) {
