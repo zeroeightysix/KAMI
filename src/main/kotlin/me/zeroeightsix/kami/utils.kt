@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami
 
+import com.mojang.blaze3d.platform.GlStateManager
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
@@ -67,4 +68,10 @@ fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
         }
         else -> Stream.empty()
     }
+}
+
+inline fun matrix(block: () -> Unit) {
+    GlStateManager.pushMatrix()
+    block()
+    GlStateManager.popMatrix()
 }
