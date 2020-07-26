@@ -4,6 +4,7 @@ import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
@@ -13,7 +14,8 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RayTraceContext
 import net.minecraft.world.World
 
-class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic {
+class ProjectileMimic(val world: World, shooter: LivingEntity, val type: EntityType<*>, val drag: Double) :
+    TrajectoryMimic {
 
     override var x = 0.0
     override var y = 0.0
@@ -22,7 +24,9 @@ class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic
     override var entity: Entity? = null
     override var block: BlockPos? = null
 
+    val dimensions = type.dimensions
     private lateinit var velocity: Vec3d
+    lateinit var boundingBox: Box
     var yaw = 0f
     var pitch = 0f
     var prevYaw = 0f
@@ -30,9 +34,7 @@ class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic
 
     init {
         val pos = EntityUtil.getInterpolatedPos(shooter, MinecraftClient.getInstance().tickDelta)
-        x = pos.x
-        y = pos.y + shooter.standingEyeHeight - 0.10000000149011612
-        z = pos.z
+        setPosition(pos.x, pos.y + shooter.standingEyeHeight - 0.10000000149011612, pos.z)
     }
 
     override fun tick() {
@@ -103,11 +105,16 @@ class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic
         }
         pitch = MathHelper.lerp(0.2f, prevPitch, pitch)
         yaw = MathHelper.lerp(0.2f, prevYaw, yaw)
-        val j = 0.99f
-        val k = 0.05f
+        val slowdown = if (isInWater(boundingBox)) {
+            drag
+        } else {
+            0.99
+        }
 
-        velocity = vec3d.multiply(j.toDouble())
+        velocity = vec3d.multiply(slowdown)
         velocity = Vec3d(velocity.x, velocity.y - 0.05000000074505806, velocity.z)
+
+        setPosition(x, y, z)
 
         landed = landed || y < 0
     }
@@ -126,6 +133,15 @@ class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic
 
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), speed)
         velocity = velocity.add(user.velocity.x, if (user.onGround) 0.0 else user.velocity.y, user.velocity.z)
+    }
+
+    fun setPosition(x: Double, y: Double, z: Double) {
+        this.x = x
+        this.y = y
+        this.z = z
+        val f: Float = this.dimensions.width / 2.0f
+        val g: Float = this.dimensions.height
+        boundingBox = Box(x - f.toDouble(), y, z - f.toDouble(), x + f.toDouble(), y + g.toDouble(), z + f.toDouble())
     }
 
     private fun setVelocity(

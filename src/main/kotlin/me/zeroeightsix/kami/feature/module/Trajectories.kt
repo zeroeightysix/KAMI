@@ -79,7 +79,20 @@ object Trajectories : Module() {
                             2.5f + EnchantmentHelper.getRiptide(stack) * 0.5f
                         }
 
-                        val mimic = ProjectileMimic(mc.world, it)
+                        val mimic = ProjectileMimic(
+                            mc.world,
+                            it,
+                            if (stack.item is BowItem) {
+                                EntityType.ARROW
+                            } else {
+                                EntityType.TRIDENT
+                            },
+                            if (stack.item is BowItem) {
+                                0.6
+                            } else {
+                                0.99
+                            }
+                        )
                         mimic.setProperties(
                             it,
                             it.pitch,
