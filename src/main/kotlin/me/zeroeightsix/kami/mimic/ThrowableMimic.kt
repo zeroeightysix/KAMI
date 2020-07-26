@@ -127,8 +127,12 @@ class ThrowableMimic(val world: World, val shooter: LivingEntity, val type: Enti
 
         pitch = MathHelper.lerp(0.2f, prevPitch, pitch)
         yaw = MathHelper.lerp(0.2f, prevYaw, yaw)
-        val j = 0.99F
-        velocity = vec3d.multiply(j.toDouble())
+        val slowdown = if (isInWater(boundingBox)) {
+            0.8
+        } else {
+            0.99
+        }
+        velocity = vec3d.multiply(slowdown)
 
         velocity = Vec3d(velocity.x, velocity.y - 0.03, velocity.z)
 
