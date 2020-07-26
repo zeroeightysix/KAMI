@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.feature.module
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.EntityUtil
@@ -47,7 +46,11 @@ object Aura : Module() {
 
     @Setting(name = "Tick Delay")
     @SettingVisibility.Method("ifModeStatic")
-    private var waitTick: @Setting.Constrain.Range(min = 0.0, max = 3.0) Int = 3
+    private var waitTick: @Setting.Constrain.Range(
+        min = 0.0,
+        max = 3.0, /* TODO: Remove when kotlin bug fixed */
+        step = java.lang.Double.MIN_VALUE
+    ) Int = 3
 
     @Setting(name = "32k Switch")
     private var switchTo32k = true
@@ -55,7 +58,7 @@ object Aura : Module() {
     @Setting(name = "32k Only")
     private var onlyUse32k = false
     private var waitCounter = 0
-    
+
     fun ifModeStatic() = waitMode == WaitMode.STATIC
 
     @EventHandler

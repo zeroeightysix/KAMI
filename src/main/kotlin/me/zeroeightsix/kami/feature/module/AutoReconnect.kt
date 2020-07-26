@@ -25,8 +25,13 @@ import kotlin.math.floor
 object AutoReconnect : Module() {
 
     private var cServer: ServerEntry? = null
+
     @Setting
-    private var seconds: @Setting.Constrain.Range(min = 0.0) Int = 5;
+    private var seconds: @Setting.Constrain.Range(
+        min = 0.0, /* TODO: Remove when kotlin bug fixed */
+        max = java.lang.Double.POSITIVE_INFINITY,
+        step = java.lang.Double.MIN_VALUE
+    ) Int = 5;
 
     @EventHandler
     val closedListener =

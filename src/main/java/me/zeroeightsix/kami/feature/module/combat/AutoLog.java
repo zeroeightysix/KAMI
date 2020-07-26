@@ -18,7 +18,7 @@ import net.minecraft.text.LiteralText;
 public class AutoLog extends Module {
 
     @Setting(name = "Health")
-    private @Setting.Constrain.Range(min = 0, max = 36) int health = 6;
+    private @Setting.Constrain.Range(min = 0, max = 36, /* TODO: Remove when kotlin bug fixed */ step = Double.MIN_VALUE) int health = 6;
     private boolean shouldLog = false;
     long lastLog = System.currentTimeMillis();
 
