@@ -21,7 +21,7 @@ class ModuleArgumentType : ArgumentType<Module> {
     override fun parse(reader: StringReader): Module {
         val string = reader.readUnquotedString()
         try {
-            return features.filterIsInstance<Module>().first { it.name == string }
+            return features.filterIsInstance<Module>().first { it.name.equals(string, ignoreCase = true) }
         } catch (e: NoSuchElementException) {
             throw INVALID_MODULE_EXCEPTION.create(string)
         }
