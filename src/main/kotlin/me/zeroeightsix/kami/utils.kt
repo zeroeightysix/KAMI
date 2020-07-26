@@ -78,3 +78,5 @@ inline fun matrix(block: () -> Unit) {
 }
 
 operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
+
+inline fun unreachable(): Nothing = TODO()

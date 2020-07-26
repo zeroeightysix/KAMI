@@ -8,13 +8,13 @@ import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
 import me.zeroeightsix.kami.times
+import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.BowItem
-import net.minecraft.item.ItemStack
-import net.minecraft.item.SnowballItem
+import net.minecraft.item.*
 import net.minecraft.util.Hand
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
@@ -68,29 +68,48 @@ object Trajectories : Module() {
         mc.world.entities
             .filterIsInstance<LivingEntity>()
             .forEach {
-                val mimic = when ((it.getHeldItem() ?: return@forEach).item) {
-                    is BowItem -> {
+                val stack = it.getHeldItem() ?: return@forEach
+                val mimic = when (stack.item) {
+                    is BowItem, is TridentItem -> {
                         if (!it.isUsingItem) return@forEach
-                        val progress = getPullProgress(it.activeItem.maxUseTime - it.itemUseTimeLeft + mc.tickDelta)
+
+                        val power = if (stack.item is BowItem) {
+                            getPullProgress(stack.maxUseTime - it.itemUseTimeLeft + mc.tickDelta) * 3
+                        } else {
+                            2.5f + EnchantmentHelper.getRiptide(stack) * 0.5f
+                        }
 
                         val mimic = ProjectileMimic(mc.world, it)
                         mimic.setProperties(
                             it,
                             it.pitch,
                             it.yaw,
-                            3 * progress
+                            power
                         )
 
                         mimic
                     }
-                    is SnowballItem -> {
-                        val mimic = ThrowableMimic(mc.world, it, EntityType.SNOWBALL)
+                    is SnowballItem, is EggItem, is EnderPearlItem, is ExperienceBottleItem -> {
+                        val type = when (stack.item) {
+                            is SnowballItem -> EntityType.SNOWBALL
+                            is EggItem -> EntityType.EGG
+                            is EnderPearlItem -> EntityType.ENDER_PEARL
+                            is ExperienceBottleItem -> EntityType.EXPERIENCE_BOTTLE
+                            else -> unreachable()
+                        }
+
+                        val power = when (stack.item) {
+                            is ExperienceBottleItem -> 0.7f
+                            else -> 1.5f
+                        }
+
+                        val mimic = ThrowableMimic(mc.world, it, type)
 
                         mimic.setProperties(
                             it,
                             it.pitch,
                             it.yaw,
-                            1.5f
+                            power
                         )
 
                         mimic
