@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 
 interface TrajectoryMimic {
 
@@ -15,8 +16,14 @@ interface TrajectoryMimic {
     var y: Double
     var z: Double
 
+    var yaw: Float
+    var pitch: Float
+    var prevYaw: Float
+    var prevPitch: Float
+
     var landed: Boolean
     var entity: Entity?
+
     var block: BlockPos?
 
     fun tick()
@@ -55,6 +62,31 @@ interface TrajectoryMimic {
         }
 
         return false
+    }
+
+    fun correctYawPitch(vec3d: Vec3d) {
+        val f = MathHelper.sqrt(Entity.squaredHorizontalLength(vec3d))
+        this.yaw = (MathHelper.atan2(vec3d.x, vec3d.z) * 57.2957763671875).toFloat()
+        this.pitch = (MathHelper.atan2(vec3d.y, f.toDouble()) * 57.2957763671875).toFloat()
+        this.prevYaw = this.yaw
+        this.prevPitch = this.pitch
+    }
+
+    fun dropPitchAndYaw() {
+        while (pitch - prevPitch < -180.0f) {
+            prevPitch -= 360.0f
+        }
+        while (pitch - prevPitch >= 180.0f) {
+            prevPitch += 360.0f
+        }
+        while (yaw - prevYaw < -180.0f) {
+            prevYaw -= 360.0f
+        }
+        while (yaw - prevYaw >= 180.0f) {
+            prevYaw += 360.0f
+        }
+        pitch = MathHelper.lerp(0.2f, prevPitch, pitch)
+        yaw = MathHelper.lerp(0.2f, prevYaw, yaw)
     }
 
 }

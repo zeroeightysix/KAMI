@@ -119,7 +119,6 @@ object Trajectories : Module() {
                         val mimic = ThrowableMimic(mc.world, it, type)
 
                         mimic.setProperties(
-                            it,
                             it.pitch,
                             it.yaw,
                             power
