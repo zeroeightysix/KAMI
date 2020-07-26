@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
+import net.minecraft.util.math.Vec3d
 import java.util.stream.Stream
 
 fun <T, A> T.map(mapper: (T) -> A) = mapper(this)
@@ -75,3 +76,5 @@ inline fun matrix(block: () -> Unit) {
     block()
     GlStateManager.popMatrix()
 }
+
+operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)

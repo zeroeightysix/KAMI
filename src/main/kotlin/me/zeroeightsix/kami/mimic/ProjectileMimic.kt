@@ -1,4 +1,4 @@
-package me.zeroeightsix.kami
+package me.zeroeightsix.kami.mimic
 
 import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.block.BlockState
@@ -13,17 +13,20 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RayTraceContext
 import net.minecraft.world.World
 
-class ProjectileMimic(val world: World, shooter: LivingEntity) {
+class ProjectileMimic(val world: World, shooter: LivingEntity) : TrajectoryMimic {
 
-    var x = 0.0
-    var y = 0.0
-    var z = 0.0
+    override var x = 0.0
+    override var y = 0.0
+    override var z = 0.0
+    override var landed = false
+    override var entity: Entity? = null
+    override var block: BlockPos? = null
+
     private lateinit var velocity: Vec3d
     var yaw = 0f
     var pitch = 0f
     var prevYaw = 0f
     var prevPitch = 0f
-    var landed = false
 
     init {
         val pos = EntityUtil.getInterpolatedPos(shooter, MinecraftClient.getInstance().tickDelta)
@@ -32,7 +35,7 @@ class ProjectileMimic(val world: World, shooter: LivingEntity) {
         z = pos.z
     }
 
-    fun tick() {
+    override fun tick() {
         var vec3d = velocity
 
         if (this.prevPitch == 0.0f && this.prevYaw == 0.0f) {
