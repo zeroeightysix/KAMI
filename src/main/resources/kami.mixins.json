@@ -42,6 +42,7 @@
     "MixinMouse",
     "MixinNetHandlerPlayClient",
     "MixinPlayerEntity",
+    "MixinPojoMemberProcessorImpl",
     "MixinRenderLiving",
     "MixinRenderPlayer",
     "MixinScreen"
