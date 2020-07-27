@@ -111,16 +111,17 @@ object Trajectories : Module() {
                             else -> unreachable()
                         }
 
-                        val power = when (stack.item) {
-                            is ExperienceBottleItem -> 0.7f
-                            else -> 1.5f
+                        val (power, pitchOffset, gravity) = when (stack.item) {
+                            is ExperienceBottleItem -> Triple(0.7f, -20f, 0.06)
+                            else -> Triple(1.5f, 0f, 0.03)
                         }
 
-                        val mimic = ThrowableMimic(mc.world, it, type)
+                        val mimic = ThrowableMimic(mc.world, it, type, gravity)
 
                         mimic.setProperties(
                             it.pitch,
                             it.yaw,
+                            pitchOffset,
                             power
                         )
 

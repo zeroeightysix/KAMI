@@ -12,7 +12,12 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
-class ThrowableMimic(val world: World, private val shooter: LivingEntity, val type: EntityType<*>) : TrajectoryMimic {
+class ThrowableMimic(
+    val world: World,
+    private val shooter: LivingEntity,
+    val type: EntityType<*>,
+    val gravity: Double
+) : TrajectoryMimic {
 
     override var x = 0.0
     override var y = 0.0
@@ -57,12 +62,13 @@ class ThrowableMimic(val world: World, private val shooter: LivingEntity, val ty
     fun setProperties(
         pitch: Float,
         yaw: Float,
-        g: Float
+        pitchOffset: Float,
+        power: Float
     ) {
         val i = -MathHelper.sin(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
-        val j = -MathHelper.sin(pitch * 0.017453292f)
+        val j = -MathHelper.sin((pitch + pitchOffset) * 0.017453292f)
         val k = MathHelper.cos(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
-        this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), g)
+        this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), power)
     }
 
     override fun tick() {
@@ -110,7 +116,7 @@ class ThrowableMimic(val world: World, private val shooter: LivingEntity, val ty
             0.99
         }
 
-        velocity = vec3d.multiply(slowdown).subtract(0.0, 0.03, 0.0)
+        velocity = vec3d.multiply(slowdown).subtract(0.0, gravity, 0.0)
         setPosition(x, y, z)
         landed = landed || y < 0
     }
