@@ -130,6 +130,7 @@ object Tracers : Module() {
 
             enableTexture()
             enableDepthTest()
+            lineWidth(1.0f)
         }
     )
 

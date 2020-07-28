@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
-import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager.*
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
@@ -27,8 +27,6 @@ import org.lwjgl.opengl.GL11
     category = Module.Category.RENDER
 )
 object Trajectories : Module() {
-    private var positions = mutableListOf<Vec3d>()
-
     private fun LivingEntity.getHeldItem(): ItemStack? {
         return if (isUsingItem) {
             activeItem
@@ -42,7 +40,7 @@ object Trajectories : Module() {
      *
      * Takes a float instead of int so tickDelta can be used here for interpolation
      */
-    fun getPullProgress(useTicks: Float): Float {
+    private fun getPullProgress(useTicks: Float): Float {
         var f = useTicks / 20.0f
         f = (f * f + f * 2.0f) / 3.0f
         if (f > 1.0f) {
@@ -61,9 +59,9 @@ object Trajectories : Module() {
         val tesselator = Tessellator.getInstance()
         val buffer = tesselator.bufferBuilder
 
-        GlStateManager.enableDepthTest()
-        GlStateManager.enableBlend()
-        GlStateManager.lineWidth(0.5F)
+        enableDepthTest()
+        enableBlend()
+        lineWidth(0.5F)
 
         mc.world.entities
             .filterIsInstance<LivingEntity>()
@@ -149,5 +147,6 @@ object Trajectories : Module() {
                 tesselator.draw()
             }
 
+        lineWidth(1.0f)
     })
 }
