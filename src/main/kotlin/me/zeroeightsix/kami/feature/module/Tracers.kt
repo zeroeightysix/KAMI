@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
-import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager.*
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
@@ -63,18 +63,19 @@ object Tracers : Module() {
             val cY = camera.pos.y
             val cZ = camera.pos.z
 
-            GlStateManager.disableTexture()
-            GlStateManager.lineWidth(1.0f)
+            lineWidth(0.5f)
+            disableTexture()
+            disableDepthTest()
 
             matrix {
                 // Set up the camera
                 mc.gameRenderer.applyCameraTransformations(mc.tickDelta)
                 // If view bobbing was enabled, the model view matrix is now twisted and turned, so we reset it
-                GlStateManager.matrixMode(GL11.GL_MODELVIEW)
-                GlStateManager.loadIdentity()
+                matrixMode(GL11.GL_MODELVIEW)
+                loadIdentity()
                 // Finish up camera rotations, now without view bobbing
-                GlStateManager.rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
-                GlStateManager.rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
+                rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
+                rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
 
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
@@ -125,9 +126,10 @@ object Tracers : Module() {
 
                 tessellator.draw()
 
-                GlStateManager.lineWidth(1.0f)
-                GlStateManager.enableTexture()
             }
+
+            enableTexture()
+            enableDepthTest()
         }
     )
 
