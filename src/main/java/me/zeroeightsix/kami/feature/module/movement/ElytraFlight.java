@@ -6,7 +6,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
-import net.minecraft.server.network.packet.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -23,7 +23,7 @@ public class ElytraFlight extends Module {
         if (!mc.player.isFallFlying()) return;
         switch (mode) {
             case BOOST:
-                if(mc.player.isInWater())
+                if(mc.player.isSubmergedInWater())
                 {
                     mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
                     return;

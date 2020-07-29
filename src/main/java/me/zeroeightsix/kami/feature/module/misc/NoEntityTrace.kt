@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.feature.module.misc
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
+//import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
 import me.zeroeightsix.kami.feature.module.Module
 
 /**
@@ -22,6 +22,6 @@ object NoEntityTrace : Module() {
 
     @JvmStatic
     fun shouldBlock(): Boolean {
-        return isEnabled() && (traceMode == TraceMode.STATIC || mc.interactionManager.isBreakingBlock)
+        return isEnabled() && (traceMode == TraceMode.STATIC || mc.interactionManager?.isBreakingBlock!!)
     }
 }

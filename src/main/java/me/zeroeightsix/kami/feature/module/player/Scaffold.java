@@ -13,7 +13,7 @@ import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -60,7 +60,7 @@ public class Scaffold extends Module {
         {
             // filter out non-block items
             ItemStack stack =
-                    Wrapper.getPlayer().inventory.getInvStack(i);
+                    Wrapper.getPlayer().inventory.getStack(i);
 
             if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;

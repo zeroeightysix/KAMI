@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.event.events
 
 import me.zeroeightsix.kami.event.KamiEvent
-import net.minecraft.client.network.packet.ChunkDataS2CPacket
+import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket
 import net.minecraft.world.chunk.Chunk
 
 /**

@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
@@ -39,8 +40,8 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         return returned
     }
 
-    override fun render(mouseX: Int, mouseY: Int, delta: Float) {
-        super.render(mouseX, mouseY, delta)
+    override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+        super.render(matrices, mouseX, mouseY, delta)
 
         KamiHud.frame {
             if (Wizard()) return@frame;

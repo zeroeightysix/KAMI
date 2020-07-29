@@ -68,7 +68,7 @@ public abstract class MixinChatScreen {
             try {
                 Command.dispatcher.execute(message, new KamiCommandSource(Wrapper.getMinecraft().getNetworkHandler(), Wrapper.getMinecraft()));
             } catch (CommandSyntaxException e) {
-                Wrapper.getPlayer().sendMessage(new LiteralText(e.getMessage()).setStyle((new Style()).setColor(Formatting.RED)));
+                Wrapper.getPlayer().sendSystemMessage(new LiteralText(e.getMessage()).setStyle((new Style()).withColor(Formatting.RED)));
             }
         } else {
             screen.sendMessage(message);

@@ -1,3 +1,5 @@
+//TODO: Ask for help with all of this
+
 package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
@@ -92,6 +94,7 @@ object KamiConfig {
     val friendsType =
         ConfigTypes.makeList(profileType)
 
+    //TODO: Ask what all of this does... then figure out how to make it work(?)
     private val bindMap = (InputUtil.Type.KEYSYM.getMap()).mapNotNull {
         val name = it.value.name.also { s ->
             if (!s.startsWith("key.keyboard")) return@mapNotNull null

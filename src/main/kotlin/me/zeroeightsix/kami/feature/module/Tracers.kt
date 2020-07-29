@@ -58,7 +58,7 @@ object Tracers : Module() {
         EventHook<RenderEvent.World> {
             val camera: Camera = MinecraftClient.getInstance().gameRenderer.camera
             val tessellator = Tessellator.getInstance()
-            val bufferBuilder = tessellator.bufferBuilder
+            val bufferBuilder = tessellator.buffer
             val cX = camera.pos.x
             val cY = camera.pos.y
             val cZ = camera.pos.z
@@ -78,19 +78,23 @@ object Tracers : Module() {
 
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
-                        (-Math
-                            .toRadians(MinecraftClient.getInstance().player.pitch.toDouble())).toFloat()
+                        (-MinecraftClient.getInstance().player?.pitch?.toDouble()?.let { it1 ->
+                            Math
+                                .toRadians(it1)
+                        }!!).toFloat()
                     )
                     .rotateY(
-                        (-Math
-                            .toRadians(MinecraftClient.getInstance().player.yaw.toDouble())).toFloat()
+                        (-MinecraftClient.getInstance().player?.yaw?.toDouble()?.let { it1 ->
+                            Math
+                                .toRadians(it1)
+                        }!!).toFloat()
                     )
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                MinecraftClient.getInstance().world.entities
-                    .filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
-                    .filter {
+                MinecraftClient.getInstance().world?.entities
+                    ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
+                    ?.filter {
                         when {
                             it is PlayerEntity -> players && mc.player !== it
                             EntityUtil.isPassive(
@@ -99,8 +103,8 @@ object Tracers : Module() {
                             else -> mobs
                         }
                     }
-                    .filter { mc.player.distanceTo(it) < range }
-                    .forEach {
+                    ?.filter { mc.player?.distanceTo(it)!! < range }
+                    ?.forEach {
                         var colour = getColour(it)
                         if (colour == ColourUtils.Colors.RAINBOW) {
                             if (!friends) return@forEach
@@ -152,9 +156,9 @@ object Tracers : Module() {
 
     private fun interpolate(entity: Entity): Vec3d {
         return Vec3d(
-            interpolate(entity.x, entity.prevRenderX),
-            interpolate(entity.y, entity.prevRenderY),
-            interpolate(entity.z, entity.prevRenderZ)
+            interpolate(entity.x, entity.lastRenderX),
+            interpolate(entity.y, entity.lastRenderY),
+            interpolate(entity.z, entity.lastRenderZ)
         )
     }
 }

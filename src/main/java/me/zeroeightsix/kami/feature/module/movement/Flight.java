@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -40,7 +40,7 @@ public class Flight extends Module {
             case STATIC:
                 mc.player.abilities.flying = false;
                 mc.player.setVelocity(Vec3d.ZERO);
-                mc.player.field_6281 = speed; // jumpMovementFactor
+                mc.player.flyingSpeed = speed; // jumpMovementFactor
 
                 if (mc.options.keyJump.isPressed()) {
                     mc.player.addVelocity(0, speed, 0);

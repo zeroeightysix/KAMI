@@ -13,11 +13,12 @@ import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.mixin.client.IShulkerBoxBlockEntity
 import me.zeroeightsix.kami.util.ShulkerBoxCommon
 import me.zeroeightsix.kami.util.Wrapper
+import net.minecraft.block.BlockState
 import net.minecraft.block.ShulkerBoxBlock
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
-import net.minecraft.container.ShulkerBoxContainer
+import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.item.BlockItem
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -41,10 +42,11 @@ object PeekCommand : Command(), Listenable {
             if (ShulkerBoxCommon.isShulkerBox(stack.item)) {
                 val entityBox =
                     ShulkerBoxBlockEntity(((stack.item as BlockItem).block as ShulkerBoxBlock).color)
-                entityBox.world = Wrapper.getWorld()
+                //val entityBoxWorld = Wrapper.getWorld()
                 val tag = stack.getSubTag("BlockEntityTag")
-                if (tag != null) {
-                    entityBox.fromTag(tag)
+                val state = Wrapper.getWorld().getBlockState(entityBox.pos)
+                if (tag != null && state != null) {
+                    entityBox.fromTag(state, tag)
                     sb = entityBox
                     KamiMod.EVENT_BUS.subscribe(this)
                 } else {
@@ -64,7 +66,7 @@ object PeekCommand : Command(), Listenable {
                 val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateContainer(
                     -1,
                     Wrapper.getPlayer().inventory
-                ) as ShulkerBoxContainer
+                ) as ShulkerBoxScreenHandler
                 val gui = ShulkerBoxScreen(
                     container,
                     Wrapper.getPlayer().inventory,

@@ -102,7 +102,10 @@ open class TextPinnableWidget(
                                 var lastWidth = 0f
                                 command.toString().split("\n").forEach {
                                     val width = if (command.shadow)
+                                        //TODO: figure out what the hell MatrixStacks are and how to implement them properly
+
                                         Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                            matrices,
                                             codes + it,
                                             x + xOffset,
                                             y,
@@ -110,6 +113,7 @@ open class TextPinnableWidget(
                                         ) - (x + xOffset)
                                     else
                                         Wrapper.getMinecraft().textRenderer.draw(
+                                            matrices,
                                             codes + it,
                                             x + xOffset,
                                             y,
@@ -125,6 +129,7 @@ open class TextPinnableWidget(
                                 val str = command.codes + command // toString is called here -> supplier.get()
                                 val width = if (command.shadow)
                                     Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                        matrices,
                                         str,
                                         x + xOffset,
                                         y,
@@ -132,6 +137,7 @@ open class TextPinnableWidget(
                                     ) - (x + xOffset)
                                 else
                                     Wrapper.getMinecraft().textRenderer.draw(
+                                        matrices,
                                         str,
                                         x + xOffset,
                                         y,
@@ -185,9 +191,9 @@ open class TextPinnableWidget(
             val width = (text.map {
                 it.parts.sumBy { part ->
                     if (part.multiline)
-                        part.toString().split("\n").map { slice -> Wrapper.getMinecraft().textRenderer.getStringWidth(slice) }.max() ?: 0
+                        part.toString().split("\n").map { slice -> Wrapper.getMinecraft().textRenderer.getWidth(slice) }.max() ?: 0
                     else
-                        Wrapper.getMinecraft().textRenderer.getStringWidth(part.toString())
+                        Wrapper.getMinecraft().textRenderer.getWidth(part.toString())
                 }
             }.max()?.times(scale) ?: 0) + 24
             val lines = (text.map {

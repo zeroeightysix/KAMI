@@ -8,4 +8,4 @@ import net.minecraft.client.util.InputUtil
 
 fun GameRenderer.applyCameraTransformations(tickDelta: Float) = (this as IGameRenderer).invokeApplyCameraTransformations(tickDelta)
 
-fun InputUtil.Type.getMap(): Int2ObjectMap<InputUtil.KeyCode> = (this as IInputUtilType).map
+fun InputUtil.Type.getMap(): Int2ObjectMap<InputUtil.Key> = (this as IInputUtilType).map

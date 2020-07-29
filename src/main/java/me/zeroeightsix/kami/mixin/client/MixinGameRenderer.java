@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ProjectileUtil;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;

@@ -7,10 +7,13 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.ScreenEvent
 import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
+import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.options.ServerEntry
+import net.minecraft.client.network.ServerInfo
+import net.minecraft.client.util.math.MatrixStack
+//import net.minecraft.client.font
 import kotlin.math.floor
 
 /**
@@ -24,7 +27,7 @@ import kotlin.math.floor
 )
 object AutoReconnect : Module() {
 
-    private var cServer: ServerEntry? = null
+    private var cServer: ServerInfo? = null
 
     @Setting
     private var seconds: @Setting.Constrain.Range(
@@ -69,13 +72,14 @@ object AutoReconnect : Module() {
             )
         }
 
-        override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
-            super.render(mouseX, mouseY, partialTicks)
+        override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, partialTicks: Float) {
+            super.render(matrices, mouseX, mouseY, partialTicks)
             val a = System.currentTimeMillis()
             millis -= (a - cTime).toInt()
             cTime = a
             val s = "Reconnecting in " + 0.0.coerceAtLeast(floor(millis.toDouble() / 100) / 10) + "s"
-            font.drawWithShadow(s, width / 2 - font.getStringWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
+            val font = Wrapper.getMinecraft().textRenderer
+            font.drawWithShadow(matrices,s, width / 2 - font.getWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
         }
 
         init {

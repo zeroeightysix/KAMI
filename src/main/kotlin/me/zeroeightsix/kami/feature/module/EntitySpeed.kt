@@ -15,6 +15,7 @@ import net.minecraft.entity.passive.HorseEntity
 import net.minecraft.entity.passive.PigEntity
 import net.minecraft.entity.vehicle.BoatEntity
 import net.minecraft.world.chunk.EmptyChunk
+import kotlin.math.cos
 import kotlin.math.sin
 
 /**
@@ -42,8 +43,8 @@ object EntitySpeed : Module() {
     private val updateListener =
         Listener(
             EventHook<TickEvent.Client.InGame> {
-                if (mc.world != null && mc.player.vehicle != null) {
-                    val riding = mc.player.vehicle
+                if (mc.world != null && mc.player?.vehicle != null) {
+                    val riding = mc.player!!.vehicle
                     if (riding is PigEntity || riding is HorseBaseEntity) {
                         steerEntity(riding)
                     } else if (riding is BoatEntity) {
@@ -60,17 +61,19 @@ object EntitySpeed : Module() {
         if (flight) {
             if (mc.options.keyJump.isPressed) {
                 EntityUtil.updateVelocityY(entity, speed)
-            } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) EntityUtil.updateVelocityY(
-                entity,
-                if (wobble) sin(mc.player.age.toDouble()) else 0.0
-            )
+            } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) if (wobble) mc.player?.age?.toDouble()?.let { sin(it) } else 0.0?.let {
+                EntityUtil.updateVelocityY(
+                    entity,
+                    it
+                )
+            }
         }
         moveForward(
             entity,
             speed * 3.8
         )
         if (entity is HorseEntity) {
-            entity.yaw = mc.player.yaw
+            entity.yaw = mc.player?.yaw!!
         }
     }
 
@@ -94,19 +97,21 @@ object EntitySpeed : Module() {
             if (forward) angle /= 2 else if (back) angle = 180 - angle / 2
         }
         if (angle == -1) return
-        val yaw = mc.player.yaw + angle
-        boat.setVelocity(
-            EntityUtil.getRelativeX(yaw) * speed,
-            boat.velocity.y,
-            EntityUtil.getRelativeZ(yaw) * speed
-        )
+        val yaw = mc.player?.yaw?.plus(angle)
+        yaw?.let {
+            boat.setVelocity(
+                EntityUtil.getRelativeX(it) * speed,
+                boat.velocity.y,
+                EntityUtil.getRelativeZ(it) * speed
+            )
+        }
     }
 
     @EventHandler
     var renderListener =
         Listener(EventHook<RenderHudEvent> {
             val boat = boat ?: return@EventHook
-            boat.yaw = mc.player.yaw
+            boat.yaw = mc.player?.yaw!!
             boat.setInputs(
                 false,
                 false,
@@ -121,40 +126,54 @@ object EntitySpeed : Module() {
     )
 
     private val boat: BoatEntity?
-        get() = if (mc.player.vehicle != null && mc.player.vehicle is BoatEntity) mc.player.vehicle as BoatEntity? else null
+        get() = if (mc.player?.vehicle != null && mc.player!!.vehicle is BoatEntity) mc.player!!.vehicle as BoatEntity? else null
 
     private fun moveForward(entity: Entity?, speed: Double) {
         if (entity != null) {
-            val movementInput = mc.player.input
-            var forward = movementInput.movementForward.toDouble()
-            var strafe = movementInput.movementSideways.toDouble()
+            val movementInput = mc.player?.input
+            var forward = movementInput?.movementForward?.toDouble()
+            var strafe = movementInput?.movementSideways?.toDouble()
             val movingForward = forward != 0.0
             val movingStrafe = strafe != 0.0
-            var yaw = mc.player.yaw
+            var yaw = mc.player?.yaw
             if (!movingForward && !movingStrafe) {
                 setEntitySpeed(entity, 0.0, 0.0)
             } else {
-                if (forward != 0.0) {
-                    if (strafe > 0.0) {
-                        yaw += (if (forward > 0.0) -45 else 45).toFloat()
-                    } else if (strafe < 0.0) {
-                        yaw += (if (forward > 0.0) 45 else -45).toFloat()
+                if (forward != 0.0 && strafe != null && yaw != null) {
+                    if (strafe != null) {
+                        if (yaw != null) {
+                            if (forward != null) {
+                                if (strafe > 0.0) {
+                                    yaw += (if (forward > 0.0) -45 else 45).toFloat()
+                                } else if (forward != null) {
+                                    if (strafe < 0.0) {
+                                        yaw += (if (forward > 0.0) 45 else -45).toFloat()
+                                    }
+                                }
+                            }
+                        }
                     }
                     strafe = 0.0
-                    forward = if (forward > 0.0) {
-                        1.0
-                    } else {
-                        -1.0
+                    if (forward != null) {
+                        forward = if (forward > 0.0) {
+                            1.0
+                        } else {
+                            -1.0
+                        }
                     }
                 }
-                var motX =
-                    forward * speed * Math.cos(Math.toRadians(yaw + 90.0f.toDouble())) + strafe * speed * Math.sin(
-                        Math.toRadians(yaw + 90.0f.toDouble())
-                    )
-                var motZ =
-                    forward * speed * Math.sin(Math.toRadians(yaw + 90.0f.toDouble())) - strafe * speed * Math.cos(
-                        Math.toRadians(yaw + 90.0f.toDouble())
-                    )
+                var motX = 0.0
+                var motZ = 0.0
+                if (forward != null && yaw != null && strafe != null) {
+                    motX =
+                        forward * speed * cos(Math.toRadians(yaw + 90.0f.toDouble())) + strafe * speed * sin(
+                            Math.toRadians(yaw + 90.0f.toDouble())
+                        )
+                    motZ =
+                        forward * speed * sin(Math.toRadians(yaw + 90.0f.toDouble())) - strafe * speed * cos(
+                            Math.toRadians(yaw + 90.0f.toDouble())
+                        )
+                }
                 if (isBorderingChunk(
                         entity,
                         motX,
@@ -182,7 +201,7 @@ object EntitySpeed : Module() {
         motX: Double,
         motZ: Double
     ): Boolean {
-        return antiStuck && mc.world.getChunk(
+        return antiStuck && mc.world?.getChunk(
             (entity.x + motX).toInt() shr 4,
             (entity.z + motZ).toInt() shr 4
         ) is EmptyChunk

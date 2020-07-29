@@ -48,7 +48,7 @@ public class AutoEat extends Module {
             ((IMinecraftClient) mc).callDoAttack();
         } else {
             for (int i = 0; i < 9; i++) {
-                if (isValid(mc.player.inventory.getInvStack(i), stats.getFoodLevel())) {
+                if (isValid(mc.player.inventory.getStack(i), stats.getFoodLevel())) {
                     lastSlot = mc.player.inventory.selectedSlot;
                     mc.player.inventory.selectedSlot = i;
                     eating = true;

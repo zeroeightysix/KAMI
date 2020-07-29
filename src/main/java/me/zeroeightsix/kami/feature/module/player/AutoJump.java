@@ -14,7 +14,7 @@ public class AutoJump extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (mc.player.isInWater() || mc.player.isInLava()) {
+        if (mc.player.isSubmergedInWater() || mc.player.isInLava()) {
             EntityUtil.updateVelocityY(mc.player, 0.1);
         }
         else if (mc.player.onGround) mc.player.jump();

@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.ChunkEvent;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.packet.ChunkDataS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

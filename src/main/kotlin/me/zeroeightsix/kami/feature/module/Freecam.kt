@@ -11,8 +11,8 @@ import me.zeroeightsix.kami.event.events.TickEvent
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.server.network.packet.PlayerInputC2SPacket
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -37,41 +37,41 @@ object Freecam : Module() {
 
     override fun onEnable() {
         if (mc.player != null) {
-            isRidingEntity = mc.player.vehicle != null
-            if (mc.player.vehicle == null) {
-                x = mc.player.x
-                y = mc.player.y
-                z = mc.player.z
+            isRidingEntity = mc.player!!.vehicle != null
+            if (mc.player!!.vehicle == null) {
+                x = mc.player!!.x
+                y = mc.player!!.y
+                z = mc.player!!.z
             } else {
-                ridingEntity = mc.player.vehicle
-                mc.player.stopRiding()
+                ridingEntity = mc.player!!.vehicle
+                mc.player!!.stopRiding()
             }
-            pitch = mc.player.pitch
-            yaw = mc.player.yaw
+            pitch = mc.player!!.pitch
+            yaw = mc.player!!.yaw
             clonedPlayer = OtherClientPlayerEntity(
                 mc.world,
                 mc.session.profile
             )
             clonedPlayer!!.copyFrom(mc.player)
-            clonedPlayer!!.headYaw = mc.player.headYaw
-            mc.world.addEntity(-100, clonedPlayer)
-            mc.player.abilities.flying = true
-            mc.player.abilities.flySpeed = speed / 100f
-            mc.player.noClip = true
+            clonedPlayer!!.headYaw = mc.player!!.headYaw
+            mc.world?.addEntity(-100, clonedPlayer)
+            mc.player!!.abilities.flying = true
+            mc.player!!.abilities.flySpeed = speed / 100f
+            mc.player!!.noClip = true
         }
     }
 
     override fun onDisable() {
         val localPlayer: PlayerEntity? = mc.player
         if (localPlayer != null) {
-            mc.player.setPositionAndAngles(
+            mc.player!!.refreshPositionAndAngles(
                 x,
                 y,
                 z,
                 yaw,
                 pitch
             )
-            mc.world.removeEntity(-100)
+            mc.world?.removeEntity(-100)
             clonedPlayer = null
             z = 0.0
             y =
@@ -81,13 +81,13 @@ object Freecam : Module() {
             yaw = 0f
             pitch =
                 yaw
-            mc.player.abilities.flying =
+            mc.player!!.abilities.flying =
                 false //getModManager().getMod("ElytraFlight").isEnabled();
-            mc.player.abilities.flySpeed = 0.05f
-            mc.player.noClip = false
-            mc.player.velocity = Vec3d.ZERO
+            mc.player!!.abilities.flySpeed = 0.05f
+            mc.player!!.noClip = false
+            mc.player!!.velocity = Vec3d.ZERO
             if (isRidingEntity) {
-                mc.player.startRiding(ridingEntity, true)
+                mc.player!!.startRiding(ridingEntity, true)
             }
         }
     }
@@ -96,18 +96,18 @@ object Freecam : Module() {
     private val updateListener =
         Listener(
             EventHook<TickEvent.Client.InGame> {
-                mc.player.abilities.flying = true
-                mc.player.abilities.flySpeed = speed / 100f
-                mc.player.noClip = true
-                mc.player.onGround = false
-                mc.player.fallDistance = 0f
+                mc.player?.abilities?.flying = true
+                mc.player?.abilities?.flySpeed = speed / 100f
+                mc.player?.noClip = true
+                mc.player?.isOnGround = false
+                mc.player?.fallDistance = 0f
             }
         )
     @EventHandler
     private val moveListener =
         Listener(
             EventHook<PlayerMoveEvent> { event: PlayerMoveEvent? ->
-                mc.player.noClip = true
+                mc.player?.noClip = true
             }
         )
     @EventHandler

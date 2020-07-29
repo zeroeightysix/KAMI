@@ -81,7 +81,7 @@ public class KamiTessellator extends Tessellator {
     }
 
     public static BufferBuilder getBuffer() {
-        return INSTANCE.getBufferBuilder();
+        return INSTANCE.getBuffer();
     }
 
     public static void drawBox(final BufferBuilder buffer, float x, float y, float z, float w, float h, float d, int r, int g, int b, int a, int sides) {

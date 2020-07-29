@@ -16,7 +16,7 @@ abstract class Command : SimpleFeature(hidden = true) {
     @Deprecated("")
     class ChatMessage(text: String?) : LiteralText(text) {
         var text: String
-        override fun copy(): Text {
+        override fun copy(): LiteralText? {
             return ChatMessage(text)
         }
 
@@ -48,7 +48,7 @@ abstract class Command : SimpleFeature(hidden = true) {
 
         @Deprecated("")
         fun sendRawChatMessage(message: String?) {
-            Wrapper.getPlayer().sendMessage(ChatMessage(message))
+            Wrapper.getPlayer().sendMessage(ChatMessage(message),false)
         }
     }
 }

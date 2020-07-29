@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
 import net.minecraft.util.math.BlockPos
+//TODO: WTF is a "PooledMutable"?
 import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
@@ -42,15 +43,17 @@ interface TrajectoryMimic {
                 for (q in k until l) {
                     for (r in m until n) {
                         pooledMutable.method_10113(p, q, r)
-                        val fluidState: FluidState = MinecraftClient.getInstance().world.getFluidState(pooledMutable)
-                        if (fluidState.matches(FluidTags.WATER)) {
-                            val e =
-                                (q.toFloat() + fluidState.getHeight(
-                                    MinecraftClient.getInstance().world,
-                                    pooledMutable
-                                )).toDouble()
-                            if (e >= box.minY) {
-                                return true
+                        val fluidState: FluidState? = MinecraftClient.getInstance().world?.getFluidState(pooledMutable)
+                        if (fluidState != null) {
+                            if (fluidState.isIn(FluidTags.WATER)) {
+                                val e =
+                                    (q.toFloat() + fluidState.getHeight(
+                                        MinecraftClient.getInstance().world,
+                                        pooledMutable
+                                    )).toDouble()
+                                if (e >= box.minY) {
+                                    return true
+                                }
                             }
                         }
                     }

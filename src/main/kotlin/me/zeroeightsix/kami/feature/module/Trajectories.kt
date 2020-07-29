@@ -59,15 +59,15 @@ object Trajectories : Module() {
         val cZ = camera.pos.z
 
         val tesselator = Tessellator.getInstance()
-        val buffer = tesselator.bufferBuilder
+        val buffer = tesselator.buffer
 
         GlStateManager.enableDepthTest()
         GlStateManager.enableBlend()
         GlStateManager.lineWidth(0.5F)
 
-        mc.world.entities
-            .filterIsInstance<LivingEntity>()
-            .forEach {
+        mc.world?.entities
+            ?.filterIsInstance<LivingEntity>()
+            ?.forEach {
                 val stack = it.getHeldItem() ?: return@forEach
                 val mimic = when (stack.item) {
                     is BowItem, is TridentItem -> {
@@ -80,7 +80,7 @@ object Trajectories : Module() {
                         }
 
                         val mimic = ProjectileMimic(
-                            mc.world,
+                            mc.world!!,
                             it,
                             if (stack.item is BowItem) {
                                 EntityType.ARROW
@@ -116,7 +116,7 @@ object Trajectories : Module() {
                             else -> Triple(1.5f, 0f, 0.03)
                         }
 
-                        val mimic = ThrowableMimic(mc.world, it, type, gravity)
+                        val mimic = ThrowableMimic(mc.world!!, it, type, gravity)
 
                         mimic.setProperties(
                             it.pitch,
@@ -132,8 +132,8 @@ object Trajectories : Module() {
 
                 var offset = if (it == mc.player) {
                     Vec3d(-0.1, 0.075, 0.0)
-                        .rotateX((-Math.toRadians(mc.player.pitch.toDouble())).toFloat())
-                        .rotateY((-Math.toRadians(mc.player.yaw.toDouble())).toFloat())
+                        .rotateX((-Math.toRadians(mc.player!!.pitch.toDouble())).toFloat())
+                        .rotateY((-Math.toRadians(mc.player!!.yaw.toDouble())).toFloat())
                 } else {
                     Vec3d(0.0, 0.0, 0.0)
                 }

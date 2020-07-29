@@ -20,10 +20,10 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
         RenderEvent(Stage.WORLD) {
 
         val buffer: BufferBuilder
-            get() = tessellator.bufferBuilder
+            get() = tessellator.buffer
 
         fun setTranslation(translation: Vec3d) {
-            buffer.setOffset(-translation.x, -translation.y, -translation.z)
+            buffer.vertex(-translation.x, -translation.y, -translation.z)
         }
 
         fun resetTranslation() {

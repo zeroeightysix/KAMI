@@ -83,9 +83,9 @@ public class Bind {
             this.scan = scan;
         }
 
-        public Code(@NotNull InputUtil.KeyCode keyCode) {
+        public Code(@NotNull InputUtil.Key keyCode) {
             this.keysym = keyCode.getCategory() == InputUtil.Type.KEYSYM;
-            int code = keyCode.getKeyCode();
+            int code = keyCode.getCode();
             this.key = keysym ? code : -1;
             this.scan = keysym ? -1 : code;
         }

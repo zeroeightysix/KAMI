@@ -64,18 +64,18 @@ object Aura : Module() {
     @EventHandler
     private val updateListener =
         Listener(EventHook<TickEvent.Client.InGame> {
-            if (!mc.player.isAlive) {
+            if (!mc.player?.isAlive!!) {
                 return@EventHook
             }
             val shield =
-                mc.player.offHandStack.item == Items.SHIELD && mc.player.activeHand == Hand.OFF_HAND
-            if (mc.player.isUsingItem && !shield) {
+                mc.player!!.offHandStack.item == Items.SHIELD && mc.player!!.activeHand == Hand.OFF_HAND
+            if (mc.player!!.isUsingItem && !shield) {
                 return@EventHook
             }
             if (waitMode == WaitMode.DYNAMIC) {
-                if (mc.player.getAttackCooldownProgress(lagComp) < 1) { // TODO: Is the right function?
+                if (mc.player!!.getAttackCooldownProgress(lagComp) < 1) { // TODO: Is the right function?
                     return@EventHook
-                } else if (mc.player.age % 2 != 0) {
+                } else if (mc.player!!.age % 2 != 0) {
                     return@EventHook
                 }
             }
@@ -87,14 +87,14 @@ object Aura : Module() {
                     0
                 }
             }
-            for (target in MinecraftClient.getInstance().world.entities) {
+            for (target in MinecraftClient.getInstance().world?.entities!!) {
                 if (!EntityUtil.isLiving(target)) {
                     continue
                 }
                 if (target === mc.player) {
                     continue
                 }
-                if (mc.player.distanceTo(target) > hitRange) {
+                if (mc.player!!.distanceTo(target) > hitRange) {
                     continue
                 }
                 if ((target as LivingEntity).health <= 0) {
@@ -103,7 +103,7 @@ object Aura : Module() {
                 if (waitMode == WaitMode.DYNAMIC && target.hurtTime != 0) {
                     continue
                 }
-                if (!ignoreWalls && !mc.player.canSee(target) && !canEntityFeetBeSeen(
+                if (!ignoreWalls && !mc.player!!.canSee(target) && !canEntityFeetBeSeen(
                         target
                     )
                 ) {
@@ -134,7 +134,7 @@ object Aura : Module() {
         val tag = stack.tag ?: return false
         val enchantments = stack.enchantments
         for (i in enchantments.indices) {
-            val enchantment = enchantments.getCompoundTag(i)
+            val enchantment = enchantments.getCompound(i)
             if (enchantment.getInt("id") == 16) { // id of sharpness
                 val lvl = enchantment.getInt("lvl")
                 if (lvl >= 34) return true
@@ -146,34 +146,34 @@ object Aura : Module() {
 
     private fun attack(e: Entity) {
         var holding32k = false
-        if (checkSharpness(mc.player.activeItem)) {
+        if (mc.player?.activeItem?.let { checkSharpness(it) }!!) {
             holding32k = true
         }
         if (switchTo32k && !holding32k) {
             var newSlot = -1
             for (i in 0..8) {
-                val stack = mc.player.inventory.getInvStack(i)
+                val stack = mc.player?.inventory?.getStack(i)
                 if (stack == ItemStack.EMPTY) {
                     continue
                 }
-                if (checkSharpness(stack)) {
+                if (stack?.let { checkSharpness(it) }!!) {
                     newSlot = i
                     break
                 }
             }
             if (newSlot != -1) {
-                mc.player.inventory.selectedSlot = newSlot
+                mc.player?.inventory?.selectedSlot = newSlot
                 holding32k = true
             }
         }
         if (onlyUse32k && !holding32k) {
             return
         }
-        mc.interactionManager.attackEntity(
+        mc.interactionManager?.attackEntity(
             mc.player,
             e
         )
-        mc.player.swingHand(Hand.MAIN_HAND)
+        mc.player?.swingHand(Hand.MAIN_HAND)
     }
 
     private val lagComp: Float
@@ -183,17 +183,19 @@ object Aura : Module() {
 
     private fun canEntityFeetBeSeen(entityIn: Entity): Boolean {
         val context = RayTraceContext(
-            mc.player.pos.add(
-                0.0,
-                mc.player.getEyeHeight(mc.player.pose).toDouble(),
-                0.0
-            ),
+            mc.player?.getEyeHeight(mc.player!!.pose)?.toDouble()?.let {
+                mc.player?.pos?.add(
+                    0.0,
+                    it,
+                    0.0
+                )
+            },
             entityIn.pos,
             RayTraceContext.ShapeType.COLLIDER,
             RayTraceContext.FluidHandling.NONE,
             mc.player
         )
-        return mc.world.rayTrace(context).type == HitResult.Type.MISS
+        return mc.world?.rayTrace(context)?.type == HitResult.Type.MISS
     }
 
     private enum class WaitMode {

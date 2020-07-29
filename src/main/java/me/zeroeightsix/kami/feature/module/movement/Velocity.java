@@ -10,8 +10,8 @@ import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IEntityVelocityUpdateS2CPacket;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
-import net.minecraft.client.network.packet.EntityVelocityUpdateS2CPacket;
-import net.minecraft.client.network.packet.ExplosionS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 
 /**
  * Created by 086 on 16/11/2017.

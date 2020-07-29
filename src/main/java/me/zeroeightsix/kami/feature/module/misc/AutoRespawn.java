@@ -40,7 +40,7 @@ public class AutoRespawn extends Module {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-                Wrapper.getPlayer().sendMessage(Texts.f(Formatting.GOLD, Texts.append(
+                Wrapper.getPlayer().sendSystemMessage(Texts.f(Formatting.GOLD, Texts.append(
                         Texts.lit("You died at "),
                         Texts.flit(Formatting.YELLOW, "x " + Math.floor(mc.player.x)),
                         Texts.lit(", "),

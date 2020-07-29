@@ -4,11 +4,11 @@ import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.AmbientEntity;
 import net.minecraft.entity.mob.EndermanEntity;
-import net.minecraft.entity.mob.ZombiePigmanEntity;
+import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -44,9 +44,9 @@ public class EntityUtil {
     }
 
     public static boolean isMobAggressive(Entity entity) {
-        if(entity instanceof ZombiePigmanEntity) {
+        if(entity instanceof ZombifiedPiglinEntity) {
             // angry = either game or we have set the anger cooldown
-            if(((ZombiePigmanEntity) entity).isAngryAt(MinecraftClient.getInstance().player)) {
+            if(((ZombifiedPiglinEntity) entity).isAngryAt(MinecraftClient.getInstance().player)) {
                 return true;
             }
         } else if(entity instanceof WolfEntity) {
@@ -62,7 +62,7 @@ public class EntityUtil {
      * If the mob by default wont attack the player, but will if the player attacks it
      */
     public static boolean isNeutralMob(Entity entity) {
-        return entity instanceof ZombiePigmanEntity ||
+        return entity instanceof ZombifiedPiglinEntity ||
                 entity instanceof WolfEntity ||
                 entity instanceof EndermanEntity;
     }
@@ -71,8 +71,8 @@ public class EntityUtil {
      * If the mob is friendly (not aggressive)
      */
     public static boolean isFriendlyMob(Entity entity) {
-        return (entity.getType().getCategory() == EntityCategory.CREATURE && !EntityUtil.isNeutralMob(entity)) ||
-                (entity.getType().getCategory() == EntityCategory.AMBIENT ||
+        return (entity.getType().getSpawnGroup() == SpawnGroup.CREATURE && !EntityUtil.isNeutralMob(entity)) ||
+                (entity.getType().getSpawnGroup() == SpawnGroup.AMBIENT ||
                 entity instanceof VillagerEntity ||
                 entity instanceof IronGolemEntity ||
                 (isNeutralMob(entity) && !EntityUtil.isMobAggressive(entity)));
@@ -82,7 +82,7 @@ public class EntityUtil {
      * If the mob is hostile
      */
     public static boolean isHostileMob(Entity entity) {
-        return (entity.getType().getCategory() == EntityCategory.MONSTER && !EntityUtil.isNeutralMob(entity));
+        return (entity.getType().getSpawnGroup() == SpawnGroup.MONSTER && !EntityUtil.isNeutralMob(entity));
     }
 
     /**

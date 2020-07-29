@@ -6,7 +6,7 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
-import net.minecraft.server.network.packet.ChatMessageC2SPacket;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 
 /**
  * Created by 086 on 8/04/2018.

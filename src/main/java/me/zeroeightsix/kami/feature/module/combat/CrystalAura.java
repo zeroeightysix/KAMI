@@ -16,7 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.decoration.EnderCrystalEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -24,8 +24,8 @@ import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolItem;
 import net.minecraft.network.Packet;
-import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -89,9 +89,9 @@ class CrystalAura extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client> clientListener = new Listener<>(client -> {
-        EnderCrystalEntity crystal = Stream.of(mc.world.getEntities())
-                .filter(entity -> entity instanceof EnderCrystalEntity)
-                .map(entity -> (EnderCrystalEntity) entity)
+        EndCrystalEntity crystal = Stream.of(mc.world.getEntities())
+                .filter(entity -> entity instanceof EndCrystalEntity)
+                .map(entity -> (EndCrystalEntity) entity)
                 .min(Comparator.comparing(c -> mc.player.distanceTo(c)))
                 .orElse(null);
         if (explode && crystal != null && mc.player.distanceTo(crystal) <= range) {
@@ -106,7 +106,7 @@ class CrystalAura extends Module {
                     // search for sword and tools in hotbar
                     newSlot = -1;
                     for (int i = 0; i < 9; i++) {
-                        ItemStack stack = Wrapper.getPlayer().inventory.getInvStack(i);
+                        ItemStack stack = Wrapper.getPlayer().inventory.getStack(i);
                         if (stack == ItemStack.EMPTY) {
                             continue;
                         }
@@ -143,7 +143,7 @@ class CrystalAura extends Module {
         int crystalSlot = mc.player.getMainHandStack().getItem() == Items.END_CRYSTAL ? mc.player.inventory.selectedSlot : -1;
         if (crystalSlot == -1) {
             for (int l = 0; l < 9; ++l) {
-                if (mc.player.inventory.getInvStack(l).getItem() == Items.END_CRYSTAL) {
+                if (mc.player.inventory.getStack(l).getItem() == Items.END_CRYSTAL) {
                     crystalSlot = l;
                     break;
                 }
@@ -260,7 +260,7 @@ class CrystalAura extends Module {
                 && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN)
                 || mc.world.getBlockState(boost).getBlock() != Blocks.AIR
                 || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR
-                || !mc.world.getEntities(Entity.class, new Box(boost)).isEmpty()) {
+                || !mc.world.getNonSpectatingEntities(Entity.class, new Box(boost)).isEmpty()) {
             return false;
         }
         return true;
@@ -330,7 +330,7 @@ class CrystalAura extends Module {
         return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
     }
 
-    public static float calculateDamage(EnderCrystalEntity crystal, Entity entity) {
+    public static float calculateDamage(EndCrystalEntity crystal, Entity entity) {
         return calculateDamage(crystal.x, crystal.y, crystal.z, entity);
     }
 

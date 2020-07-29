@@ -56,7 +56,7 @@ object FriendCommand : Command() {
                                             s
                                         )
                                     } else {
-                                        text = text!!.append(
+                                        //text = text!!.append(
                                             Texts.append(
                                                 Texts.lit(", "),
                                                 Texts.flit(
@@ -64,7 +64,7 @@ object FriendCommand : Command() {
                                                     s
                                                 )
                                             )
-                                        )
+                                        //)
                                     }
                                 }
                             text = Texts.f(Formatting.GOLD, text)
