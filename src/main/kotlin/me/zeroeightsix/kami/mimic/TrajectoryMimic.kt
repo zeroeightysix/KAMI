@@ -6,7 +6,7 @@ import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
 import net.minecraft.util.math.BlockPos
 //TODO: WTF is a "PooledMutable"?
-import net.minecraft.util.math.BlockPos.PooledMutable
+//import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
@@ -37,12 +37,12 @@ interface TrajectoryMimic {
         val l = MathHelper.ceil(box.maxY)
         val m = MathHelper.floor(box.minZ)
         val n = MathHelper.ceil(box.maxZ)
-        val pooledMutable = PooledMutable.get()
+        val pooledMutable = BlockPos.Mutable()
         try {
             for (p in i until j) {
                 for (q in k until l) {
                     for (r in m until n) {
-                        pooledMutable.method_10113(p, q, r)
+                        pooledMutable.set(p, q, r)
                         val fluidState: FluidState? = MinecraftClient.getInstance().world?.getFluidState(pooledMutable)
                         if (fluidState != null) {
                             if (fluidState.isIn(FluidTags.WATER)) {
@@ -61,7 +61,6 @@ interface TrajectoryMimic {
             }
         } catch (e: Throwable) {
         } finally {
-            pooledMutable?.close()
         }
 
         return false

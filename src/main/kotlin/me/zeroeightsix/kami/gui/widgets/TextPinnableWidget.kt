@@ -96,7 +96,7 @@ open class TextPinnableWidget(
                     var y = cmd.clipRect.y / scale + 4
                     var xOffset = 0f
                     for (compiled in text) {
-                        for (command in compiled.parts) {
+                        /*for (command in compiled.parts) {
                             if (command.multiline) {
                                 val codes = command.codes
                                 var lastWidth = 0f
@@ -145,7 +145,7 @@ open class TextPinnableWidget(
                                     ) - (x + xOffset)
                                 xOffset += width
                             }
-                        }
+                        }*/
                         xOffset = 0f
                         y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
                     }

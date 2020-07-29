@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.ServerInfo
 import net.minecraft.client.util.math.MatrixStack
-//import net.minecraft.client.font
 import kotlin.math.floor
 
 /**
@@ -78,8 +77,7 @@ object AutoReconnect : Module() {
             millis -= (a - cTime).toInt()
             cTime = a
             val s = "Reconnecting in " + 0.0.coerceAtLeast(floor(millis.toDouble() / 100) / 10) + "s"
-            val font = Wrapper.getMinecraft().textRenderer
-            font.drawWithShadow(matrices,s, width / 2 - font.getWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
+            textRenderer.drawWithShadow(matrices,s, width / 2 - textRenderer.getWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
         }
 
         init {
