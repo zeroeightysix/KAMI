@@ -1,11 +1,11 @@
 # KAMI
-[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=fabric-1.14)](https://travis-ci.com/zeroeightysix/KAMI)
+[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=fabric-1.16)](https://travis-ci.com/zeroeightysix/KAMI)
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
 ## A Minecraft utility mod for anarchy servers.
 
-The Fabric 1.14.4 version is in active development. 
+The Fabric 1.16.1 version is in active development. 
 
 ## Preview
 
