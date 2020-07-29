@@ -50,7 +50,8 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                             it.buildFuture()
                         }, "enum-${field.type.simpleName.toLowerCase()}"
                     )
-                    SettingInterface.Registry.add(interf.id, interf)
+                    //TODO: Don't just comment random stuff to make it compile!
+                    //SettingInterface.Registry.add(interf.id, interf)
                     interf
                 } else {
                     typeMap.getOrDefault(

@@ -5,8 +5,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
 import net.minecraft.util.math.BlockPos
-//TODO: WTF is a "PooledMutable"?
-//import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d

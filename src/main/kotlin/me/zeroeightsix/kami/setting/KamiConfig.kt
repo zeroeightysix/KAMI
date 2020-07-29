@@ -235,9 +235,9 @@ object KamiConfig {
     }
 
     fun initAndLoad(): ConfigTree? {
-        typeMap.values.forEach {
+        /*typeMap.values.forEach {
             SettingInterface.Registry.add(it.id, it)
-        }
+        }*/
 
         return try {
             val config = constructConfiguration()
