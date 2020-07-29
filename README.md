@@ -7,6 +7,12 @@
 
 The Fabric 1.16.1 version is in active development. 
 
+### Current Issue Areas
+
+TextPinnableWidget
+KamiConfig
+SettingAnnotationProccessor
+
 ## Preview
 
 Please note these images are of the 1.12.2 version, as 1.14.4's GUI has been been rewritten completely.
