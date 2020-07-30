@@ -5,19 +5,25 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.RenderEvent
+import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.util.GlAllocationUtils
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.*
 import net.minecraft.util.Hand
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Created by 086 on 28/12/2017.
@@ -27,6 +33,31 @@ import org.lwjgl.opengl.GL11
     category = Module.Category.RENDER
 )
 object Trajectories : Module() {
+
+    private var circleList = -1
+
+    private fun compileList() {
+        circleList = GlAllocationUtils.genLists(1)
+        newList(circleList, GL11.GL_COMPILE)
+
+        val tessellator = Tessellator.getInstance()
+        val buffer = tessellator.bufferBuilder
+
+        with(buffer) {
+            begin(GL11.GL_TRIANGLE_FAN, VertexFormats.POSITION_COLOR)
+
+            vertex(0.0, 0.0, 0.0).color(1f, 1f, 1f, 0.4f).next()
+            for (angle in 0..50) {
+                val angle = (angle.toDouble() / 50.0) * 2 * PI
+                vertex(sin(angle), cos(angle), 0.0).color(1f, 1f, 1f, 0.4f).next()
+            }
+
+            tessellator.draw()
+        }
+
+        endList()
+    }
+
     private fun LivingEntity.getHeldItem(): ItemStack? {
         return if (isUsingItem) {
             activeItem
@@ -56,12 +87,15 @@ object Trajectories : Module() {
         val cY = camera.pos.y
         val cZ = camera.pos.z
 
-        val tesselator = Tessellator.getInstance()
-        val buffer = tesselator.bufferBuilder
+        val tessellator = Tessellator.getInstance()
+        val buffer = tessellator.bufferBuilder
 
         enableDepthTest()
         enableBlend()
         lineWidth(0.5F)
+
+        if (circleList == -1)
+            compileList()
 
         mc.world.entities
             .filterIsInstance<LivingEntity>()
@@ -71,7 +105,9 @@ object Trajectories : Module() {
                     is BowItem, is TridentItem -> {
                         if (!it.isUsingItem) return@forEach
 
-                        val power = if (stack.item is BowItem) {
+                        val isBow = stack.item is BowItem
+
+                        val power = if (isBow) {
                             getPullProgress(stack.maxUseTime - it.itemUseTimeLeft + mc.tickDelta) * 3
                         } else {
                             2.5f + EnchantmentHelper.getRiptide(stack) * 0.5f
@@ -80,16 +116,17 @@ object Trajectories : Module() {
                         val mimic = ProjectileMimic(
                             mc.world,
                             it,
-                            if (stack.item is BowItem) {
+                            if (isBow) {
                                 EntityType.ARROW
                             } else {
                                 EntityType.TRIDENT
                             },
-                            if (stack.item is BowItem) {
+                            if (isBow) {
                                 0.6
                             } else {
                                 0.99
-                            }
+                            },
+                            1.0
                         )
                         mimic.setProperties(
                             it,
@@ -114,7 +151,7 @@ object Trajectories : Module() {
                             else -> Triple(1.5f, 0f, 0.03)
                         }
 
-                        val mimic = ThrowableMimic(mc.world, it, type, gravity)
+                        val mimic = ThrowableMimic(mc.world, it, type, gravity, 1.0)
 
                         mimic.setProperties(
                             it.pitch,
@@ -144,7 +181,26 @@ object Trajectories : Module() {
                     mimic.tick()
                     offset *= 0.8
                 }
-                tesselator.draw()
+                tessellator.draw()
+
+                mimic.hit?.let { hit ->
+                    matrix {
+                        translated(hit.x - cX, hit.y - cY, hit.z - cZ)
+                        scaled(mimic.diverged, mimic.diverged, mimic.diverged)
+                        mimic.face?.let {
+                            rotatef(-it.asRotation(), 0.0f, 1.0f, 0.0f)
+                            if (it == Direction.DOWN || it == Direction.UP) {
+                                rotatef(90f, 1f, 0f, 0f)
+                            }
+                        }
+
+                        disableCull()
+                        disableDepthTest()
+                        callList(circleList)
+                        enableDepthTest()
+                        enableCull()
+                    }
+                }
             }
 
         lineWidth(1.0f)

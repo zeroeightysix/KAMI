@@ -6,13 +6,16 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 import net.minecraft.world.World
 
-class ProjectileMimic(val world: World, shooter: LivingEntity, val type: EntityType<*>, private val drag: Double) :
+class ProjectileMimic(
+    val world: World,
+    shooter: LivingEntity,
+    val type: EntityType<*>,
+    private val drag: Double,
+    private val divergence: Double
+) :
     TrajectoryMimic {
 
     override var x = 0.0
@@ -20,11 +23,13 @@ class ProjectileMimic(val world: World, shooter: LivingEntity, val type: EntityT
     override var z = 0.0
     override var landed = false
     override var entity: Entity? = null
-    override var block: BlockPos? = null
     override var yaw = 0f
     override var pitch = 0f
     override var prevYaw = 0f
     override var prevPitch = 0f
+    override var diverged = 0.0
+    override var face: Direction? = null
+    override var hit: Vec3d? = null
 
     private lateinit var velocity: Vec3d
     private lateinit var boundingBox: Box
@@ -68,6 +73,9 @@ class ProjectileMimic(val world: World, shooter: LivingEntity, val type: EntityT
         x += d
         y += e
         z += g
+
+        diverged += velocity.length() * divergence
+
         val h = MathHelper.sqrt(Entity.squaredHorizontalLength(vec3d))
         yaw = (MathHelper.atan2(d, g) * 57.2957763671875).toFloat()
         pitch = (MathHelper.atan2(e, h.toDouble()) * 57.2957763671875).toFloat()

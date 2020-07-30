@@ -4,9 +4,9 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
@@ -23,8 +23,10 @@ interface TrajectoryMimic {
 
     var landed: Boolean
     var entity: Entity?
+    var face: Direction?
+    var hit: Vec3d?
 
-    var block: BlockPos?
+    var diverged: Double
 
     fun tick()
 
