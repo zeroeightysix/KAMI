@@ -73,8 +73,8 @@ class ThrowableMimic(
         val k = MathHelper.cos(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), power)
         divergence = power * _divergence
-        velocity =
-            velocity.add(shooter.velocity.x, if (shooter.onGround) 0.0 else shooter.velocity.y, shooter.velocity.z)
+//        velocity = velocity.add(shooter.velocity.x, if (shooter.onGround) 0.0 else shooter.velocity.y, shooter.velocity.z)
+        velocity = velocity.add(0.0, if (shooter.onGround) 0.0 else shooter.velocity.y, 0.0)
     }
 
     override fun tick() {
