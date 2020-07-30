@@ -96,10 +96,10 @@ interface TrajectoryMimic {
 
     fun checkCollision(velocity: Vec3d, shooter: Entity, world: World): Boolean {
         val here = Vec3d(this.x, this.y, this.z)
-        val previous = here.subtract(velocity)
+        val next = here.add(velocity)
         val traceContext = RayTraceContext(
-            previous,
             here,
+            next,
             RayTraceContext.ShapeType.COLLIDER,
             RayTraceContext.FluidHandling.NONE,
             shooter
