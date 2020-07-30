@@ -1,20 +1,22 @@
 package me.zeroeightsix.kami.mimic
 
 import me.zeroeightsix.kami.util.EntityUtil
-import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.math.*
+import net.minecraft.util.math.Box
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
 class ProjectileMimic(
     val world: World,
-    shooter: LivingEntity,
+    val shooter: LivingEntity,
     val type: EntityType<*>,
     private val drag: Double,
-    private val divergence: Double
+    private val _divergence: Double
 ) :
     TrajectoryMimic {
 
@@ -34,6 +36,7 @@ class ProjectileMimic(
     private lateinit var velocity: Vec3d
     private lateinit var boundingBox: Box
     private val dimensions = type.dimensions
+    private var divergence: Double = 0.0
 
     init {
         val pos = EntityUtil.getInterpolatedPos(shooter, MinecraftClient.getInstance().tickDelta)
@@ -47,21 +50,7 @@ class ProjectileMimic(
             correctYawPitch(vec3d)
         }
 
-        val blockPos = BlockPos(this.x, this.y, this.z)
-        val blockState: BlockState = this.world.getBlockState(blockPos)
-        if (!blockState.isAir) {
-            val voxelShape = blockState.getCollisionShape(this.world, blockPos)
-            if (!voxelShape.isEmpty) {
-                val iterator = voxelShape.boundingBoxes.iterator()
-                while (iterator.hasNext()) {
-                    val box = iterator.next() as Box
-                    if (box.offset(blockPos).contains(Vec3d(this.x, this.y, this.z))) {
-                        this.landed = true
-                        return
-                    }
-                }
-            }
-        }
+        if (checkCollision(velocity, shooter, world)) return
 
         dropPitchAndYaw()
 
@@ -74,7 +63,7 @@ class ProjectileMimic(
         y += e
         z += g
 
-        diverged += velocity.length() * divergence
+        diverged += velocity.length() * divergence * 0.007499999832361937
 
         val h = MathHelper.sqrt(Entity.squaredHorizontalLength(vec3d))
         yaw = (MathHelper.atan2(d, g) * 57.2957763671875).toFloat()
@@ -107,6 +96,8 @@ class ProjectileMimic(
 
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), speed)
         velocity = velocity.add(user.velocity.x, if (user.onGround) 0.0 else user.velocity.y, user.velocity.z)
+
+        divergence = _divergence * speed
     }
 
     private fun setPosition(x: Double, y: Double, z: Double) {

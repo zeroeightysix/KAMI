@@ -5,12 +5,10 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.RayTraceContext
 import net.minecraft.world.World
 
 class ThrowableMimic(
@@ -75,6 +73,8 @@ class ThrowableMimic(
         val k = MathHelper.cos(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), power)
         divergence = power * _divergence
+        velocity =
+            velocity.add(shooter.velocity.x, if (shooter.onGround) 0.0 else shooter.velocity.y, shooter.velocity.z)
     }
 
     override fun tick() {
@@ -89,23 +89,7 @@ class ThrowableMimic(
             return
         }
 
-        val here = Vec3d(this.x, this.y, this.z)
-        val previous = here.subtract(velocity)
-        val traceContext = RayTraceContext(
-            previous,
-            here,
-            RayTraceContext.ShapeType.COLLIDER,
-            RayTraceContext.FluidHandling.NONE,
-            shooter
-        )
-        val trace = this.world.rayTrace(traceContext)
-
-        if (trace.type != HitResult.Type.MISS) {
-            face = trace.side
-            hit = trace.pos
-            this.landed = true
-            return
-        }
+        if (checkCollision(velocity, shooter, world)) return
 
         val vec3d: Vec3d = velocity
 

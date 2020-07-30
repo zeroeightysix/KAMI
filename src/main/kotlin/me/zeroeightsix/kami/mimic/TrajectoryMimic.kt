@@ -4,11 +4,14 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
+import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.RayTraceContext
+import net.minecraft.world.World
 
 interface TrajectoryMimic {
 
@@ -89,6 +92,27 @@ interface TrajectoryMimic {
         }
         pitch = MathHelper.lerp(0.2f, prevPitch, pitch)
         yaw = MathHelper.lerp(0.2f, prevYaw, yaw)
+    }
+
+    fun checkCollision(velocity: Vec3d, shooter: Entity, world: World): Boolean {
+        val here = Vec3d(this.x, this.y, this.z)
+        val previous = here.subtract(velocity)
+        val traceContext = RayTraceContext(
+            previous,
+            here,
+            RayTraceContext.ShapeType.COLLIDER,
+            RayTraceContext.FluidHandling.NONE,
+            shooter
+        )
+        val trace = world.rayTrace(traceContext)
+
+        if (trace.type != HitResult.Type.MISS) {
+            face = trace.side
+            hit = trace.pos
+            this.landed = true
+            return true
+        }
+        return false
     }
 
 }
