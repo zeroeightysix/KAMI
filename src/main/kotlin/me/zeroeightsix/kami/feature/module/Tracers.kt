@@ -8,7 +8,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.matrix
-import me.zeroeightsix.kami.mixin.extend.applyCameraTransformations
+import me.zeroeightsix.kami.setNoBobbingCamera
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
@@ -68,14 +68,7 @@ object Tracers : Module() {
             disableDepthTest()
 
             matrix {
-                // Set up the camera
-                mc.gameRenderer.applyCameraTransformations(mc.tickDelta)
-                // If view bobbing was enabled, the model view matrix is now twisted and turned, so we reset it
-                matrixMode(GL11.GL_MODELVIEW)
-                loadIdentity()
-                // Finish up camera rotations, now without view bobbing
-                rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
-                rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
+                setNoBobbingCamera()
 
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(

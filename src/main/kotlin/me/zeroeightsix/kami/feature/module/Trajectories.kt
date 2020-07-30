@@ -8,6 +8,7 @@ import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
+import me.zeroeightsix.kami.setNoBobbingCamera
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
@@ -97,111 +98,114 @@ object Trajectories : Module() {
         if (circleList == -1)
             compileList()
 
-        mc.world.entities
-            .filterIsInstance<LivingEntity>()
-            .forEach {
-                val stack = it.getHeldItem() ?: return@forEach
-                val mimic = when (stack.item) {
-                    is BowItem, is TridentItem -> {
-                        if (!it.isUsingItem) return@forEach
+        matrix {
+            setNoBobbingCamera()
+            mc.world.entities
+                .filterIsInstance<LivingEntity>()
+                .forEach {
+                    val stack = it.getHeldItem() ?: return@forEach
+                    val mimic = when (stack.item) {
+                        is BowItem, is TridentItem -> {
+                            if (!it.isUsingItem) return@forEach
 
-                        val isBow = stack.item is BowItem
+                            val isBow = stack.item is BowItem
 
-                        val power = if (isBow) {
-                            getPullProgress(stack.maxUseTime - it.itemUseTimeLeft + mc.tickDelta) * 3
-                        } else {
-                            2.5f + EnchantmentHelper.getRiptide(stack) * 0.5f
-                        }
-
-                        val mimic = ProjectileMimic(
-                            mc.world,
-                            it,
-                            if (isBow) {
-                                EntityType.ARROW
+                            val power = if (isBow) {
+                                getPullProgress(stack.maxUseTime - it.itemUseTimeLeft + mc.tickDelta) * 3
                             } else {
-                                EntityType.TRIDENT
-                            },
-                            if (isBow) {
-                                0.6
-                            } else {
-                                0.99
-                            },
-                            1.0
-                        )
-                        mimic.setProperties(
-                            it,
-                            it.pitch,
-                            it.yaw,
-                            power
-                        )
-
-                        mimic
-                    }
-                    is SnowballItem, is EggItem, is EnderPearlItem, is ExperienceBottleItem -> {
-                        val type = when (stack.item) {
-                            is SnowballItem -> EntityType.SNOWBALL
-                            is EggItem -> EntityType.EGG
-                            is EnderPearlItem -> EntityType.ENDER_PEARL
-                            is ExperienceBottleItem -> EntityType.EXPERIENCE_BOTTLE
-                            else -> unreachable()
-                        }
-
-                        val (power, pitchOffset, gravity) = when (stack.item) {
-                            is ExperienceBottleItem -> Triple(0.7f, -20f, 0.06)
-                            else -> Triple(1.5f, 0f, 0.03)
-                        }
-
-                        val mimic = ThrowableMimic(mc.world, it, type, gravity, 1.0)
-
-                        mimic.setProperties(
-                            it.pitch,
-                            it.yaw,
-                            pitchOffset,
-                            power
-                        )
-
-                        mimic
-                    }
-                    else -> return@forEach
-                }
-
-                var offset = if (it == mc.player) {
-                    Vec3d(-0.1, 0.075, 0.0)
-                        .rotateX((-Math.toRadians(mc.player.pitch.toDouble())).toFloat())
-                        .rotateY((-Math.toRadians(mc.player.yaw.toDouble())).toFloat())
-                } else {
-                    Vec3d(0.0, 0.0, 0.0)
-                }
-
-                buffer.begin(GL11.GL_LINE_STRIP, VertexFormats.POSITION_COLOR)
-                while (!mimic.landed) {
-                    buffer.vertex(mimic.x - cX + offset.x, mimic.y - cY + offset.y, mimic.z - cZ + offset.z)
-                        .color(1f, 1f, 1f, 1f)
-                        .next()
-                    mimic.tick()
-                    offset *= 0.8
-                }
-                tessellator.draw()
-
-                mimic.hit?.let { hit ->
-                    matrix {
-                        translated(hit.x - cX, hit.y - cY, hit.z - cZ)
-                        scaled(mimic.diverged, mimic.diverged, mimic.diverged)
-                        mimic.face?.let {
-                            rotatef(-it.asRotation(), 0.0f, 1.0f, 0.0f)
-                            if (it == Direction.DOWN || it == Direction.UP) {
-                                rotatef(90f, 1f, 0f, 0f)
+                                2.5f + EnchantmentHelper.getRiptide(stack) * 0.5f
                             }
-                        }
 
-                        disableCull()
-                        disableDepthTest()
-                        callList(circleList)
-                        enableDepthTest()
-                        enableCull()
+                            val mimic = ProjectileMimic(
+                                mc.world,
+                                it,
+                                if (isBow) {
+                                    EntityType.ARROW
+                                } else {
+                                    EntityType.TRIDENT
+                                },
+                                if (isBow) {
+                                    0.6
+                                } else {
+                                    0.99
+                                },
+                                1.0
+                            )
+                            mimic.setProperties(
+                                it,
+                                it.pitch,
+                                it.yaw,
+                                power
+                            )
+
+                            mimic
+                        }
+                        is SnowballItem, is EggItem, is EnderPearlItem, is ExperienceBottleItem -> {
+                            val type = when (stack.item) {
+                                is SnowballItem -> EntityType.SNOWBALL
+                                is EggItem -> EntityType.EGG
+                                is EnderPearlItem -> EntityType.ENDER_PEARL
+                                is ExperienceBottleItem -> EntityType.EXPERIENCE_BOTTLE
+                                else -> unreachable()
+                            }
+
+                            val (power, pitchOffset, gravity) = when (stack.item) {
+                                is ExperienceBottleItem -> Triple(0.7f, -20f, 0.06)
+                                else -> Triple(1.5f, 0f, 0.03)
+                            }
+
+                            val mimic = ThrowableMimic(mc.world, it, type, gravity, 1.0)
+
+                            mimic.setProperties(
+                                it.pitch,
+                                it.yaw,
+                                pitchOffset,
+                                power
+                            )
+
+                            mimic
+                        }
+                        else -> return@forEach
+                    }
+
+                    var offset = if (it == mc.player) {
+                        Vec3d(-0.1, 0.075, 0.0)
+                            .rotateX((-Math.toRadians(mc.player.pitch.toDouble())).toFloat())
+                            .rotateY((-Math.toRadians(mc.player.yaw.toDouble())).toFloat())
+                    } else {
+                        Vec3d(0.0, 0.0, 0.0)
+                    }
+
+                    buffer.begin(GL11.GL_LINE_STRIP, VertexFormats.POSITION_COLOR)
+                    while (!mimic.landed) {
+                        buffer.vertex(mimic.x - cX + offset.x, mimic.y - cY + offset.y, mimic.z - cZ + offset.z)
+                            .color(1f, 1f, 1f, 1f)
+                            .next()
+                        mimic.tick()
+                        offset *= 0.8
+                    }
+                    tessellator.draw()
+
+                    mimic.hit?.let { hit ->
+                        matrix {
+                            translated(hit.x - cX, hit.y - cY, hit.z - cZ)
+                            scaled(mimic.diverged, mimic.diverged, mimic.diverged)
+                            mimic.face?.let {
+                                rotatef(-it.asRotation(), 0.0f, 1.0f, 0.0f)
+                                if (it == Direction.DOWN || it == Direction.UP) {
+                                    rotatef(90f, 1f, 0f, 0f)
+                                }
+                            }
+
+                            disableCull()
+                            disableDepthTest()
+                            callList(circleList)
+                            enableDepthTest()
+                            enableCull()
+                        }
                     }
                 }
-            }
+        }
 
         lineWidth(1.0f)
     })

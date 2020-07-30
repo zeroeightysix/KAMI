@@ -4,8 +4,13 @@ import com.mojang.blaze3d.platform.GlStateManager
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
+import me.zeroeightsix.kami.mixin.extend.applyCameraTransformations
+import net.minecraft.client.MinecraftClient
 import net.minecraft.util.math.Vec3d
+import org.lwjgl.opengl.GL11
 import java.util.stream.Stream
+
+val mc: MinecraftClient = MinecraftClient.getInstance()
 
 fun <T, A> T.map(mapper: (T) -> A) = mapper(this)
 fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
@@ -13,6 +18,7 @@ fun <T> Boolean.then(block: () -> T): T? {
     if (this) return block()
     return null
 }
+
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
 fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
 fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () -> Unit) {
@@ -80,3 +86,14 @@ inline fun matrix(block: () -> Unit) {
 operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
 
 inline fun unreachable(): Nothing = TODO()
+
+fun setNoBobbingCamera() {
+    // Set up the camera
+    mc.gameRenderer.applyCameraTransformations(mc.tickDelta)
+    // If view bobbing was enabled, the model view matrix is now twisted and turned, so we reset it
+    GlStateManager.matrixMode(GL11.GL_MODELVIEW)
+    GlStateManager.loadIdentity()
+    // Finish up camera rotations, now without view bobbing
+    GlStateManager.rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
+    GlStateManager.rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
+}
