@@ -58,12 +58,7 @@ public class Scaffold extends Module {
         for(int i = 0; i < 9; i++)
         {
             // filter out non-block items
-<<<<<<< HEAD
-            ItemStack stack =
-                    Wrapper.getPlayer().inventory.getStack(i);
-=======
-            ItemStack stack = mc.player.inventory.getInvStack(i);
->>>>>>> upstream/fabric
+            ItemStack stack = mc.player.inventory.getStack(i);
 
             if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;
