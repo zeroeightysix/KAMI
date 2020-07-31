@@ -20,6 +20,7 @@ class KamiMod : ModInitializer {
         const val MODVER = "fabric-1.14.4-debug"
         const val KAMI_KANJI = "\u795E"
 
+        @JvmStatic
         val log = LogManager.getLogger("KAMI")
         @JvmField
         val EVENT_BUS: EventBus = EventManager()
