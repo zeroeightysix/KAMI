@@ -20,10 +20,8 @@
   "contact": {
     "sources": "https://github.com/zeroeightysix/kami/"
   },
-
   "license": "LGPL-3.0",
-  "icon": "assets/modid/icon.png",
-
+  "icon": "assets/kami/kamired_square.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -36,6 +34,6 @@
 
   "depends": {
     "fabricloader": ">=0.4.0",
-    "minecraft": "1.14.x"
+    "minecraft": "1.14.4"
   }
 }

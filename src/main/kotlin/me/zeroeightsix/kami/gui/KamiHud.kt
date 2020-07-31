@@ -11,8 +11,8 @@ import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.client.MinecraftClient
 import uno.glfw.GlfwWindow
 import java.util.*
 
@@ -25,7 +25,7 @@ object KamiHud {
     private val postDrawStack: Stack<() -> Unit>
 
     init {
-        val window = GlfwWindow.from(MinecraftClient.getInstance().window.handle)
+        val window = GlfwWindow.from(mc.window.handle)
         window.makeContextCurrent()
         context = Context()
         implGlfw = ImplGlfw(window, false, null)

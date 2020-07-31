@@ -10,13 +10,11 @@ import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IShulkerBoxBlockEntity
 import me.zeroeightsix.kami.util.ShulkerBoxCommon
-import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.block.BlockState
 import net.minecraft.block.ShulkerBoxBlock
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
 import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.item.BlockItem
@@ -38,13 +36,14 @@ object PeekCommand : Command(), Listenable {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("peek").executes { context: CommandContext<CommandSource>? ->
-            val stack = Wrapper.getPlayer().inventory.mainHandStack
-            if (ShulkerBoxCommon.isShulkerBox(stack.item)) {
+                val stack = mc.player?.inventory?.mainHandStack
+            if (ShulkerBoxCommon.isShulkerBox(stack?.item)) {
                 val entityBox =
-                    ShulkerBoxBlockEntity(((stack.item as BlockItem).block as ShulkerBoxBlock).color)
-                //val entityBoxWorld = Wrapper.getWorld()
+                    ShulkerBoxBlockEntity(((stack?.item as BlockItem).block as ShulkerBoxBlock).color)
+                //IDEA is telling me 'Val cannot be reassigned'?
+                //entityBox.world = mc.world
                 val tag = stack.getSubTag("BlockEntityTag")
-                val state = Wrapper.getWorld().getBlockState(entityBox.pos)
+                val state = mc.world?.getBlockState(entityBox.pos)
                 if (tag != null && state != null) {
                     entityBox.fromTag(state, tag)
                     sb = entityBox
@@ -65,14 +64,14 @@ object PeekCommand : Command(), Listenable {
             if (sb != null) {
                 val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateContainer(
                     -1,
-                    Wrapper.getPlayer().inventory
+                    mc.player?.inventory
                 ) as ShulkerBoxScreenHandler
                 val gui = ShulkerBoxScreen(
                     container,
-                    Wrapper.getPlayer().inventory,
+                    mc.player?.inventory,
                     sb!!.displayName
                 )
-                MinecraftClient.getInstance().openScreen(gui)
+                mc.openScreen(gui)
                 sb = null
                 KamiMod.EVENT_BUS.unsubscribe(this)
             }

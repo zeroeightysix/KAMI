@@ -1,13 +1,12 @@
 package me.zeroeightsix.kami.mimic
 
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.EntityUtil
-import net.minecraft.block.BlockState
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -16,7 +15,8 @@ class ThrowableMimic(
     val world: World,
     private val shooter: LivingEntity,
     val type: EntityType<*>,
-    val gravity: Double
+    private val gravity: Double,
+    private val _divergence: Double
 ) : TrajectoryMimic {
 
     override var x = 0.0
@@ -28,14 +28,17 @@ class ThrowableMimic(
     override var prevPitch = 0f
     override var landed = false
     override var entity: Entity? = null
-    override var block: BlockPos? = null
+    override var diverged = 0.0
+    override var face: Direction? = null
+    override var hit: Vec3d? = null
 
     private lateinit var velocity: Vec3d
     private lateinit var boundingBox: Box
     private val dimensions = type.dimensions
+    private var divergence: Double = 0.0
 
     init {
-        val pos = EntityUtil.getInterpolatedPos(shooter, MinecraftClient.getInstance().tickDelta)
+        val pos = EntityUtil.getInterpolatedPos(shooter, mc.tickDelta)
         setPosition(pos.x, pos.y + shooter.standingEyeHeight.toDouble() - 0.10000000149011612, pos.z)
     }
 
@@ -69,6 +72,9 @@ class ThrowableMimic(
         val j = -MathHelper.sin((pitch + pitchOffset) * 0.017453292f)
         val k = MathHelper.cos(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), power)
+        divergence = power * _divergence
+//        velocity = velocity.add(shooter.velocity.x, if (shooter.onGround) 0.0 else shooter.velocity.y, shooter.velocity.z)
+        velocity = velocity.add(0.0, if (shooter.onGround) 0.0 else shooter.velocity.y, 0.0)
     }
 
     override fun tick() {
@@ -83,24 +89,12 @@ class ThrowableMimic(
             return
         }
 
-        val blockPos = BlockPos(this.x, this.y, this.z)
-        val blockState: BlockState = this.world.getBlockState(blockPos)
-        if (!blockState.isAir) {
-            val voxelShape = blockState.getCollisionShape(this.world, blockPos)
-            if (!voxelShape.isEmpty) {
-                val var6: Iterator<*> = voxelShape.boundingBoxes.iterator()
-                while (var6.hasNext()) {
-                    val box = var6.next() as Box
-                    if (box.offset(blockPos).contains(Vec3d(this.x, this.y, this.z))) {
-                        this.landed = true
-                        this.block = blockPos
-                        return
-                    }
-                }
-            }
-        }
+        if (checkCollision(velocity, shooter, world)) return
 
         val vec3d: Vec3d = velocity
+
+        diverged += vec3d.length() * divergence * 0.007499999832361937
+
         x += vec3d.x
         y += vec3d.y
         z += vec3d.z

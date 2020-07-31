@@ -18,9 +18,9 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.Settings.rainbowBrightness
 import me.zeroeightsix.kami.gui.windows.Settings.rainbowSaturation
 import me.zeroeightsix.kami.gui.windows.Settings.rainbowSpeed
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.KamiTessellator
 import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.client.MinecraftClient
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -32,15 +32,15 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
 
     @EventHandler
     private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() } )
-    
+
     @EventHandler
     private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() } )
-    
+
     private fun update() {
-        if (MinecraftClient.getInstance().window.width != displayWidth || MinecraftClient.getInstance().window.height != displayHeight) {
+        if (mc.window.width != displayWidth || mc.window.height != displayHeight) {
             KamiMod.EVENT_BUS.post(DisplaySizeChangedEvent())
-            displayWidth = MinecraftClient.getInstance().window.width
-            displayHeight = MinecraftClient.getInstance().window.height
+            displayWidth = mc.window.width
+            displayHeight = mc.window.height
         }
         val speed = rainbowSpeed
         val hue = System.currentTimeMillis() % (360 * speed) / (360f * speed)
@@ -65,8 +65,8 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
     private val preWorldListener =
         Listener(
             EventHook<RenderEvent.World> {
-                MinecraftClient.getInstance().profiler.push("kami")
-                MinecraftClient.getInstance().profiler.push("setup")
+                mc.profiler.push("kami")
+                mc.profiler.push("setup")
                 GlStateManager.disableTexture()
                 GlStateManager.enableBlend()
                 GlStateManager.disableAlphaTest()
@@ -79,7 +79,7 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
                 GlStateManager.shadeModel(GL11.GL_SMOOTH)
                 GlStateManager.disableDepthTest()
                 GlStateManager.lineWidth(1f)
-                MinecraftClient.getInstance().profiler.pop()
+                mc.profiler.pop()
             }, EventPriority.HIGHEST
         )
 
@@ -87,7 +87,7 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
     var postWorldListener =
         Listener(
             EventHook<RenderEvent.World> {
-                MinecraftClient.getInstance().profiler.push("release")
+                mc.profiler.push("release")
                 GlStateManager.lineWidth(1f)
                 GlStateManager.shadeModel(GL11.GL_FLAT)
                 GlStateManager.disableBlend()
@@ -96,8 +96,8 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
                 GlStateManager.enableDepthTest()
                 GlStateManager.enableCull()
                 KamiTessellator.releaseGL()
-                MinecraftClient.getInstance().profiler.pop()
-                MinecraftClient.getInstance().profiler.pop()
+                mc.profiler.pop()
+                mc.profiler.pop()
             }, EventPriority.LOWEST
         )
 

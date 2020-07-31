@@ -8,12 +8,11 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.TickEvent
 import me.zeroeightsix.kami.matrix
-import me.zeroeightsix.kami.mixin.extend.applyCameraTransformations
+import me.zeroeightsix.kami.setNoBobbingCamera
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.HueCycler
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
@@ -56,7 +55,7 @@ object Tracers : Module() {
     @EventHandler
     val worldListener = Listener(
         EventHook<RenderEvent.World> {
-            val camera: Camera = MinecraftClient.getInstance().gameRenderer.camera
+            val camera: Camera = mc.gameRenderer.camera
             val tessellator = Tessellator.getInstance()
             val bufferBuilder = tessellator.buffer
             val cX = camera.pos.x
@@ -68,42 +67,35 @@ object Tracers : Module() {
             disableDepthTest()
 
             matrix {
-                // Set up the camera
-                mc.gameRenderer.applyCameraTransformations(mc.tickDelta)
-                // If view bobbing was enabled, the model view matrix is now twisted and turned, so we reset it
-                matrixMode(GL11.GL_MODELVIEW)
-                loadIdentity()
-                // Finish up camera rotations, now without view bobbing
-                rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
-                rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
+                setNoBobbingCamera()
 
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
-                        (-MinecraftClient.getInstance().player?.pitch?.toDouble()?.let { it1 ->
+                        (-mc.player?.pitch?.toDouble()?.let { it1 ->
                             Math
-                                .toRadians(it1)
+                                    .toRadians(it1)
                         }!!).toFloat()
                     )
                     .rotateY(
-                        (-MinecraftClient.getInstance().player?.yaw?.toDouble()?.let { it1 ->
+                        (-mc.player?.yaw?.toDouble()?.let { it1 ->
                             Math
-                                .toRadians(it1)
+                                    .toRadians(it1)
                         }!!).toFloat()
                     )
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                MinecraftClient.getInstance().world?.entities
-                    ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
-                    ?.filter {
-                        when {
-                            it is PlayerEntity -> players && mc.player !== it
-                            EntityUtil.isPassive(
-                                it
-                            ) -> animals
-                            else -> mobs
+                mc.world?.entities
+                        ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
+                        ?.filter {
+                            when {
+                                it is PlayerEntity -> players && mc.player !== it
+                                EntityUtil.isPassive(
+                                        it
+                                ) -> animals
+                                else -> mobs
+                            }
                         }
-                    }
                     ?.filter { mc.player?.distanceTo(it)!! < range }
                     ?.forEach {
                         var colour = getColour(it)
@@ -134,6 +126,7 @@ object Tracers : Module() {
 
             enableTexture()
             enableDepthTest()
+            lineWidth(1.0f)
         }
     )
 
