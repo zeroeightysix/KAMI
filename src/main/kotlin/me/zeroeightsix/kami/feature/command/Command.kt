@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.SimpleFeature
-import me.zeroeightsix.kami.util.Wrapper
+import me.zeroeightsix.kami.mc
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
@@ -48,7 +48,7 @@ abstract class Command : SimpleFeature(hidden = true) {
 
         @Deprecated("")
         fun sendRawChatMessage(message: String?) {
-            Wrapper.getPlayer().sendMessage(ChatMessage(message))
+            mc.player.sendMessage(ChatMessage(message))
         }
     }
 }

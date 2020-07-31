@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import com.mojang.blaze3d.platform.GlStateManager
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
@@ -36,7 +35,6 @@ import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.LagCompensator
-import me.zeroeightsix.kami.util.Wrapper
 import kotlin.collections.map
 import kotlin.math.abs
 import kotlin.math.floor
@@ -61,13 +59,13 @@ open class TextPinnableWidget(
         internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
             val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
                 Pair("none", { CompiledText.ConstantVariable(string = "No variable selected") }),
-                Pair("x", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.x }, 0) }),
-                Pair("y", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.y }, 0) }),
-                Pair("z", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pos.z }, 0) }),
-                Pair("yaw", { CompiledText.NumericalVariable({ Wrapper.getPlayer().yaw.toDouble() }, 0) }),
-                Pair("pitch", { CompiledText.NumericalVariable({ Wrapper.getPlayer().pitch.toDouble() }, 0) }),
+                Pair("x", { CompiledText.NumericalVariable({ mc.player.pos.x }, 0) }),
+                Pair("y", { CompiledText.NumericalVariable({ mc.player.pos.y }, 0) }),
+                Pair("z", { CompiledText.NumericalVariable({ mc.player.pos.z }, 0) }),
+                Pair("yaw", { CompiledText.NumericalVariable({ mc.player.yaw.toDouble() }, 0) }),
+                Pair("pitch", { CompiledText.NumericalVariable({ mc.player.pitch.toDouble() }, 0) }),
                 Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0) }),
-                Pair("username", { CompiledText.ConstantVariable(string = Wrapper.getMinecraft().session.username) })
+                Pair("username", { CompiledText.ConstantVariable(string = mc.session.username) })
             )
             std.putAll(extra)
             sVarMap = std
@@ -82,7 +80,7 @@ open class TextPinnableWidget(
 
     override fun fillWindow(open: KMutableProperty0<Boolean>) {
 
-        val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
+        val guiOpen = mc.currentScreen is KamiGuiScreen
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
         // Otherwise, because it is rendered after imgui, it would always be in the foreground.
         if (minecraftFont && !guiOpen) {
@@ -102,36 +100,36 @@ open class TextPinnableWidget(
                                 var lastWidth = 0f
                                 command.toString().split("\n").forEach {
                                     val width = if (command.shadow)
-                                        Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                        mc.textRenderer.drawWithShadow(
                                             codes + it,
                                             x + xOffset,
                                             y,
                                             command.currentColourRGB()
                                         ) - (x + xOffset)
                                     else
-                                        Wrapper.getMinecraft().textRenderer.draw(
+                                        mc.textRenderer.draw(
                                             codes + it,
                                             x + xOffset,
                                             y,
                                             command.currentColourRGB()
                                         ) - (x + xOffset)
                                     lastWidth = width
-                                    y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                                    y += mc.textRenderer.fontHeight + 4
                                 }
                                 xOffset += lastWidth
-                                y -= Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                                y -= mc.textRenderer.fontHeight + 4
                                 command.resetMultilinePattern()
                             } else {
                                 val str = command.codes + command // toString is called here -> supplier.get()
                                 val width = if (command.shadow)
-                                    Wrapper.getMinecraft().textRenderer.drawWithShadow(
+                                    mc.textRenderer.drawWithShadow(
                                         str,
                                         x + xOffset,
                                         y,
                                         command.currentColourRGB()
                                     ) - (x + xOffset)
                                 else
-                                    Wrapper.getMinecraft().textRenderer.draw(
+                                    mc.textRenderer.draw(
                                         str,
                                         x + xOffset,
                                         y,
@@ -141,7 +139,7 @@ open class TextPinnableWidget(
                             }
                         }
                         xOffset = 0f
-                        y += Wrapper.getMinecraft().textRenderer.fontHeight + 4
+                        y += mc.textRenderer.fontHeight + 4
                     }
                 }
             })
@@ -173,7 +171,7 @@ open class TextPinnableWidget(
     }
 
     override fun preWindow() {
-        val guiOpen = Wrapper.getMinecraft().currentScreen is KamiGuiScreen
+        val guiOpen = mc.currentScreen is KamiGuiScreen
 
         if (guiOpen && editWindow) {
             editWindow()
@@ -185,15 +183,15 @@ open class TextPinnableWidget(
             val width = (text.map {
                 it.parts.sumBy { part ->
                     if (part.multiline)
-                        part.toString().split("\n").map { slice -> Wrapper.getMinecraft().textRenderer.getStringWidth(slice) }.max() ?: 0
+                        part.toString().split("\n").map { slice -> mc.textRenderer.getStringWidth(slice) }.max() ?: 0
                     else
-                        Wrapper.getMinecraft().textRenderer.getStringWidth(part.toString())
+                        mc.textRenderer.getStringWidth(part.toString())
                 }
             }.max()?.times(scale) ?: 0) + 24
             val lines = (text.map {
                 it.parts.map { part -> if (part.multiline) part.toString().split("\n").size - 1 else 0 }.sum() + 1
             }).sum()
-            val height = (Wrapper.getMinecraft().textRenderer.fontHeight + 4) * scale * lines + 8
+            val height = (mc.textRenderer.fontHeight + 4) * scale * lines + 8
             setNextWindowSize(Vec2(width, height))
         }
     }
@@ -430,7 +428,7 @@ open class TextPinnableWidget(
                     rgb = colour.toRGB()
                 }
             private var rgb: Int = this.colour.toRGB()
-            
+
             // Alternating colour
             var colours = mutableListOf(
                 Vec4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -469,7 +467,7 @@ open class TextPinnableWidget(
                     val listMultiline = values().joinToString("$NUL") { it.name.toLowerCase().capitalize() }
                 }
             }
-            
+
             abstract fun edit(variableMap: Map<String, () -> Variable>)
         }
 

@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.player;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Freecam;
 import me.zeroeightsix.kami.feature.module.Module;
@@ -51,7 +50,7 @@ public class Scaffold extends Module {
         BlockPos belowBlockPos = blockPos.down();
 
         // check if block is already placed
-        if(!Wrapper.getWorld().getBlockState(blockPos).getMaterial().isReplaceable())
+        if (!mc.world.getBlockState(blockPos).getMaterial().isReplaceable())
             return;
 
         // search blocks in hotbar
@@ -59,8 +58,7 @@ public class Scaffold extends Module {
         for(int i = 0; i < 9; i++)
         {
             // filter out non-block items
-            ItemStack stack =
-                    Wrapper.getPlayer().inventory.getInvStack(i);
+            ItemStack stack = mc.player.inventory.getInvStack(i);
 
             if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;

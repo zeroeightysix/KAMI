@@ -9,7 +9,6 @@ import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.LagCompensator
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -87,7 +86,7 @@ object Aura : Module() {
                     0
                 }
             }
-            for (target in MinecraftClient.getInstance().world.entities) {
+            for (target in mc.world.entities) {
                 if (!EntityUtil.isLiving(target)) {
                     continue
                 }

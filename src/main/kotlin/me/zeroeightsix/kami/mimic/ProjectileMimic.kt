@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mimic
 
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.EntityUtil
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -39,7 +39,7 @@ class ProjectileMimic(
     private var divergence: Double = 0.0
 
     init {
-        val pos = EntityUtil.getInterpolatedPos(shooter, MinecraftClient.getInstance().tickDelta)
+        val pos = EntityUtil.getInterpolatedPos(shooter, mc.tickDelta)
         setPosition(pos.x, pos.y + shooter.standingEyeHeight - 0.10000000149011612, pos.z)
     }
 

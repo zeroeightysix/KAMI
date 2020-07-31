@@ -13,7 +13,6 @@ import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.HueCycler
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
@@ -56,7 +55,7 @@ object Tracers : Module() {
     @EventHandler
     val worldListener = Listener(
         EventHook<RenderEvent.World> {
-            val camera: Camera = MinecraftClient.getInstance().gameRenderer.camera
+            val camera: Camera = mc.gameRenderer.camera
             val tessellator = Tessellator.getInstance()
             val bufferBuilder = tessellator.bufferBuilder
             val cX = camera.pos.x
@@ -73,16 +72,16 @@ object Tracers : Module() {
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
                         (-Math
-                            .toRadians(MinecraftClient.getInstance().player.pitch.toDouble())).toFloat()
+                            .toRadians(mc.player.pitch.toDouble())).toFloat()
                     )
                     .rotateY(
                         (-Math
-                            .toRadians(MinecraftClient.getInstance().player.yaw.toDouble())).toFloat()
+                            .toRadians(mc.player.yaw.toDouble())).toFloat()
                     )
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                MinecraftClient.getInstance().world.entities
+                mc.world.entities
                     .filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
                     .filter {
                         when {

@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mimic
 
-import net.minecraft.client.MinecraftClient
+import me.zeroeightsix.kami.mc
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
@@ -47,11 +47,11 @@ interface TrajectoryMimic {
                 for (q in k until l) {
                     for (r in m until n) {
                         pooledMutable.method_10113(p, q, r)
-                        val fluidState: FluidState = MinecraftClient.getInstance().world.getFluidState(pooledMutable)
+                        val fluidState: FluidState = mc.world.getFluidState(pooledMutable)
                         if (fluidState.matches(FluidTags.WATER)) {
                             val e =
                                 (q.toFloat() + fluidState.getHeight(
-                                    MinecraftClient.getInstance().world,
+                                    mc.world,
                                     pooledMutable
                                 )).toDouble()
                             if (e >= box.minY) {
