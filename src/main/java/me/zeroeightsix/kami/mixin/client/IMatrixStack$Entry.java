@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(MatrixStack.Entry.class)
 public interface IMatrixStack$Entry {
 
-    @Invoker
+    @Invoker("<init>")
     static MatrixStack.Entry create(Matrix4f model, Matrix3f normal) {
         throw new UnsupportedOperationException("Untransformed Accessor!");
     }
