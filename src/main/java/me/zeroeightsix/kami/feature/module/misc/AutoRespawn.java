@@ -50,7 +50,7 @@ public class AutoRespawn extends Module {
                         Texts.lit(" ("),
                         Texts.flit(Formatting.AQUA, sdf.format(cal.getTime())),
                         Texts.lit(").")
-                )), mc.player.getUuid());
+                )), null);
             }
             mc.player.requestRespawn();
             mc.openScreen(null);

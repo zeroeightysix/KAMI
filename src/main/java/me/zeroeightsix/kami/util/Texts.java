@@ -22,23 +22,23 @@ public class Texts {
         return new LiteralText(string);
     }
 
-    public static Text i(MutableText text) {
+    public static MutableText i(MutableText text) {
         return f(Formatting.ITALIC, text);
     }
 
-    public static Text b(MutableText text) {
+    public static MutableText b(MutableText text) {
         return f(Formatting.BOLD, text);
     }
 
-    public static Text obf(MutableText text) {
+    public static MutableText obf(MutableText text) {
         return f(Formatting.OBFUSCATED, text);
     }
 
-    public static Text strike(MutableText text) {
+    public static MutableText strike(MutableText text) {
         return f(Formatting.STRIKETHROUGH, text);
     }
 
-    public static Text r(MutableText text) {
+    public static MutableText r(MutableText text) {
         return f(Formatting.RESET, text);
     }
 
@@ -48,7 +48,7 @@ public class Texts {
      * @param text
      * @return
      */
-    public static Text f(Formatting formatting, MutableText text) {
+    public static MutableText f(Formatting formatting, MutableText text) {
         return text.formatted(formatting);
     }
 
@@ -58,11 +58,11 @@ public class Texts {
      * @param string        the string to use
      * @return              the created text
      */
-    public static Text flit(Formatting formatting, String string) {
-        return (MutableText) f(formatting, lit(string));
+    public static MutableText flit(Formatting formatting, String string) {
+        return f(formatting, lit(string));
     }
 
-    public static Text append(MutableText... texts) {
+    public static MutableText append(MutableText... texts) {
         Iterator<MutableText> iterator = Arrays.stream(texts).iterator();
         MutableText text = iterator.next();
         while (iterator.hasNext()) {
