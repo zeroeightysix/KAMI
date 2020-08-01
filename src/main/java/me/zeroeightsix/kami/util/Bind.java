@@ -4,6 +4,7 @@ import me.zeroeightsix.kami.gui.windows.Settings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputUtil;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Created by 086 on 9/10/2018.
@@ -93,9 +94,9 @@ public class Bind {
         @Override
         public String toString() {
             if (keysym)
-                return InputUtil.getKeycodeName(key);
+                return GLFW.glfwGetKeyName(key, -1);
             else
-                return InputUtil.getScancodeName(scan);
+                return GLFW.glfwGetKeyName(-1, key);
         }
     }
 

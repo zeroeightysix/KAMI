@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.util;
 
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -21,23 +22,23 @@ public class Texts {
         return new LiteralText(string);
     }
 
-    public static Text i(Text text) {
+    public static Text i(MutableText text) {
         return f(Formatting.ITALIC, text);
     }
 
-    public static Text b(Text text) {
+    public static Text b(MutableText text) {
         return f(Formatting.BOLD, text);
     }
 
-    public static Text obf(Text text) {
+    public static Text obf(MutableText text) {
         return f(Formatting.OBFUSCATED, text);
     }
 
-    public static Text strike(Text text) {
+    public static Text strike(MutableText text) {
         return f(Formatting.STRIKETHROUGH, text);
     }
 
-    public static Text r(Text text) {
+    public static Text r(MutableText text) {
         return f(Formatting.RESET, text);
     }
 
@@ -47,7 +48,7 @@ public class Texts {
      * @param text
      * @return
      */
-    public static Text f(Formatting formatting, Text text) {
+    public static Text f(Formatting formatting, MutableText text) {
         return text.formatted(formatting);
     }
 
@@ -58,13 +59,14 @@ public class Texts {
      * @return              the created text
      */
     public static Text flit(Formatting formatting, String string) {
-        return f(formatting, lit(string));
+        return (MutableText) f(formatting, lit(string));
     }
 
-    public static Text append(Text... texts) {
-        Iterator<Text> iterator = Arrays.stream(texts).iterator();
-        Text text = iterator.next();
+    public static Text append(MutableText... texts) {
+        Iterator<MutableText> iterator = Arrays.stream(texts).iterator();
+        MutableText text = iterator.next();
         while (iterator.hasNext()) {
+            //Text no longer has an append function
             text = text.append(iterator.next());
         }
         return text;

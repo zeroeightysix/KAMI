@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.*;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -111,9 +112,9 @@ public class Scaffold extends Module {
     });
 
     public static boolean placeBlockScaffold(BlockPos pos) {
-        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().getPose()),
-                Wrapper.getPlayer().z);
+        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().getX(),
+                Wrapper.getPlayer().getY() + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().getPose()),
+                Wrapper.getPlayer().getZ());
 
         for(Direction side : Direction.values())
         {
@@ -122,17 +123,17 @@ public class Scaffold extends Module {
 
             // check if side is visible (facing away from player)
             if(eyesPos.squaredDistanceTo(
-                    new Vec3d(pos).add(0.5, 0.5, 0.5)) >= eyesPos
+                    new Vec3d(new Vector3f(pos.getX(),pos.getY(),pos.getZ())).add(0.5, 0.5, 0.5)) >= eyesPos
                     .squaredDistanceTo(
-                            new Vec3d(neighbor).add(0.5, 0.5, 0.5)))
+                            new Vec3d(new Vector3f(neighbor.getX(),neighbor.getY(),neighbor.getZ())).add(0.5, 0.5, 0.5)))
                 continue;
 
             // check if neighbor can be right clicked
             if(!canBeClicked(neighbor))
                 continue;
 
-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5)
-                    .add(new Vec3d(side2.getVector()).multiply(0.5));
+            Vec3d hitVec = new Vec3d(new Vector3f(neighbor.getX(),neighbor.getY(),neighbor.getZ())).add(0.5, 0.5, 0.5)
+                    .add(new Vec3d(new Vector3f(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ())).multiply(0.5));
 
             // check if hitVec is within range (4.25 blocks)
             if(eyesPos.squaredDistanceTo(hitVec) > 18.0625)
@@ -178,7 +179,7 @@ public class Scaffold extends Module {
         float[] rotations = getNeededRotations2(vec);
 
         mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookOnly(rotations[0],
-                rotations[1], Wrapper.getPlayer().onGround));
+                rotations[1], Wrapper.getPlayer().isOnGround()));
     }
 
     private static float[] getNeededRotations2(Vec3d vec)
@@ -203,9 +204,9 @@ public class Scaffold extends Module {
 
     public static Vec3d getEyesPos()
     {
-        return new Vec3d(Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(mc.player.getPose()),
-                Wrapper.getPlayer().z);
+        return new Vec3d(Wrapper.getPlayer().getX(),
+                Wrapper.getPlayer().getY() + Wrapper.getPlayer().getEyeHeight(mc.player.getPose()),
+                Wrapper.getPlayer().getZ());
     }
 
 }

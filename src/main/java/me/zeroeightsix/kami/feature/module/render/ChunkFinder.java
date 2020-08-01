@@ -15,6 +15,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.SystemUtils;
@@ -76,9 +77,10 @@ public class ChunkFinder extends Module {
     private Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
         if (dirty) {
             if (list == -1) {
-                list = GlStateManager.genLists(1);
+                list = GL11.glGenLists(1);
+                //list = GlStateManager.genLists(1);
             }
-            GlStateManager.newList(list, GL11.GL_COMPILE);
+            GL11.glNewList(list, GL11.GL_COMPILE);
 
             GlStateManager.pushMatrix();
             GlStateManager.disableDepthTest();
@@ -91,10 +93,10 @@ public class ChunkFinder extends Module {
                 double y = 0;
                 double z = chunk.getPos().z * 16;
 
-                GlStateManager.color3f(.6f, .1f, .2f);
+                GlStateManager.color4f(.6f, .1f, .2f,1.0f);
 
                 Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
+                BufferBuilder bufferBuilder = tessellator.getBuffer();
                 bufferBuilder.begin(GL_LINE_LOOP, VertexFormats.POSITION_COLOR);
                 bufferBuilder.vertex(x, y, z).color(.6f, .1f, .2f, 1f).next();
                 bufferBuilder.vertex(x + 16, y, z).color(.6f, .1f, .2f, 1f).next();
@@ -108,7 +110,7 @@ public class ChunkFinder extends Module {
             GlStateManager.enableDepthTest();
             GlStateManager.popMatrix();
 
-            GlStateManager.endList();
+            GL11.glEndList();
             dirty = false;
         }
 
@@ -118,7 +120,7 @@ public class ChunkFinder extends Module {
         double y = (relative ? 1 : -1) * camera.getPos().y + yOffset;
         double z = camera.getPos().z;
         GlStateManager.translated(-x, y, -z);
-        GlStateManager.callList(list);
+        GL11.glCallList(list);
         GlStateManager.translated(x, -y, z);
     });
 
@@ -172,12 +174,13 @@ public class ChunkFinder extends Module {
     private Path getPath() {
         // code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
         File file = null;
-        DimensionType dimension = mc.player.dimension;
+        DimensionType dimension = mc.player.getEntityWorld().getDimension();
 
         // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
         if (mc.isInSingleplayer()) {
             try {
-                file = mc.getServer().getWorld(dimension).getSaveHandler().getWorldDir();
+                //file = mc.getServer().getWorld(dimension).getSaveHandler().getWorldDir();
+                file = mc.getServer().getWorld(new RegistryKey<mc.world>()).getSaveHandler().getWorldDir();
             } catch (Exception e) {
                 e.printStackTrace();
                 KamiMod.getLog().error("some exception happened when getting canonicalFile -> " + e.getMessage());
@@ -196,7 +199,7 @@ public class ChunkFinder extends Module {
         }
 
         // We will actually store the world data in a subfolder: "DIM<id>"
-        if (dimension.getRawId() != 0) { // except if it's the overworld
+        if (dimension != DimensionType.getOverworldDimensionType()) { // except if it's the overworld
             file = new File(file, "DIM" + dimension);
         }
 
@@ -340,7 +343,7 @@ public class ChunkFinder extends Module {
             if (alsoSaveNormalCoords != lastSaveNormal) {
                 return true;
             }
-            if (dimension != mc.player.dimension) {
+            if (dimension != mc.player.getEntityWorld().getDimension()) {
                 return true;
             }
             if (!mc.getCurrentServerEntry().address.equals(ip)) { // strings need equals + this way because could be null
@@ -353,7 +356,7 @@ public class ChunkFinder extends Module {
             lastSaveOption = saveOption;
             lastInRegion = saveInRegionFolder;
             lastSaveNormal = alsoSaveNormalCoords;
-            dimension = mc.player.dimension;
+            dimension = mc.player.getEntityWorld().getDimension();
             ip = mc.getCurrentServerEntry().address;
         }
     }

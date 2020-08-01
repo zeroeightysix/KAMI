@@ -77,8 +77,8 @@ public class Flight extends Module {
                 }
 
                 EntityUtil.updateVelocityY(mc.player, 0);
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, false));
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y - 42069, mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.getZ() + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, false));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() - 42069 /* nice */, mc.player.getZ() + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
                 break;
         }
     });

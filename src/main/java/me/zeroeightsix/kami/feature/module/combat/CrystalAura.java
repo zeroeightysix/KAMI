@@ -125,7 +125,7 @@ class CrystalAura extends Module {
                         switchCooldown = true;
                     }
                 }
-                lookAtPacket(crystal.x, crystal.y, crystal.z, mc.player);
+                lookAtPacket(crystal.getX(), crystal.getY(), crystal.getZ(), mc.player);
                 mc.interactionManager.attackEntity(mc.player, crystal);
                 mc.player.swingHand(Hand.MAIN_HAND);
                 systemTime = System.nanoTime() / 1000000;
@@ -207,7 +207,7 @@ class CrystalAura extends Module {
                 return;
             }
             lookAtPacket(q.getX() + .5, q.getY() - .5, q.getZ() + .5, mc.player);
-            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.x, mc.player.y + mc.player.getEyeHeight(mc.player.getPose()), mc.player.z), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
+            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.getX(), mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ()), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
             BlockHitResult result = mc.world.rayTrace(context);
             Direction f;
             if (result == null || result.getSide() == null) {
@@ -267,7 +267,7 @@ class CrystalAura extends Module {
     }
 
     public static BlockPos getPlayerPos() {
-        return new BlockPos(Math.floor(mc.player.x), Math.floor(mc.player.y), Math.floor(mc.player.z));
+        return new BlockPos(Math.floor(mc.player.getX()), Math.floor(mc.player.getY()), Math.floor(mc.player.getZ()));
     }
 
     private List<BlockPos> findCrystalBlocks() {
@@ -308,7 +308,7 @@ class CrystalAura extends Module {
     }
 
     public static float getBlastReduction(LivingEntity entity, float damage, Explosion explosion) {
-        damage = DamageUtil.getDamageLeft(damage, (float) entity.getArmor(), (float) entity.getAttributeInstance(EntityAttributes.ARMOR_TOUGHNESS).getValue());
+        damage = DamageUtil.getDamageLeft(damage, (float) entity.getArmor(), (float) entity.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).getValue());
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             DamageSource damageSource = DamageSource.explosion(explosion);
@@ -331,7 +331,7 @@ class CrystalAura extends Module {
     }
 
     public static float calculateDamage(EndCrystalEntity crystal, Entity entity) {
-        return calculateDamage(crystal.x, crystal.y, crystal.z, entity);
+        return calculateDamage(crystal.getX(), crystal.getY(), crystal.getZ(), entity);
     }
 
     //Better Rotation Spoofing System:

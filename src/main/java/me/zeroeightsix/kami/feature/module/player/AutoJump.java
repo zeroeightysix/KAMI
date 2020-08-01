@@ -17,7 +17,7 @@ public class AutoJump extends Module {
         if (mc.player.isSubmergedInWater() || mc.player.isInLava()) {
             EntityUtil.updateVelocityY(mc.player, 0.1);
         }
-        else if (mc.player.onGround) mc.player.jump();
+        else if (mc.player.isOnGround()) mc.player.jump();
     });
 
 }

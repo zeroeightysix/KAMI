@@ -17,7 +17,7 @@ import net.minecraft.util.math.Vec3d;
 public class EntityUtil {
 
     public static boolean isPassive(Entity e){
-        if (e instanceof WolfEntity && ((WolfEntity) e).isAngry()) return false;
+        if (e instanceof WolfEntity && ((WolfEntity) e).getAngryAt() != null) return false;
         if (e instanceof AnimalEntity || e instanceof AmbientEntity || e instanceof SquidEntity) return true;
         return e instanceof IronGolemEntity && ((IronGolemEntity) e).getTarget() == null;
     }
@@ -50,8 +50,9 @@ public class EntityUtil {
                 return true;
             }
         } else if(entity instanceof WolfEntity) {
-            return ((WolfEntity) entity).isAngry() &&
-                    !Wrapper.getPlayer().equals(((WolfEntity) entity).getOwner());
+            /*return ((WolfEntity) entity).isAngry() &&
+                !Wrapper.getPlayer().equals(((WolfEntity) entity).getOwner());*/
+            return ((WolfEntity) entity).getAngryAt() == Wrapper.getPlayer().getUuid();
         } else if(entity instanceof EndermanEntity) {
             return ((EndermanEntity) entity).isAngry();
         }
@@ -100,10 +101,10 @@ public class EntityUtil {
     public static boolean isInWater(Entity entity) {
         if(entity == null) return false;
 
-        double y = entity.y + 0.01;
+        double y = entity.getY() + 0.01;
 
-        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
-            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
+        for(int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++)
+            for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
                 BlockPos pos = new BlockPos(x, (int) y, z);
 
                 if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
@@ -120,10 +121,10 @@ public class EntityUtil {
     public static boolean isAboveWater(Entity entity, boolean packet){
         if (entity == null) return false;
 
-        double y = entity.y - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
+        double y = entity.getY() - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
-        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
-            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
+        for(int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++)
+            for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
                 if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
@@ -133,9 +134,9 @@ public class EntityUtil {
     }
 
     public static double[] calculateLookAt(double px, double py, double pz, ClientPlayerEntity me) {
-        double dirx = me.x - px;
-        double diry = me.y - py;
-        double dirz = me.z - pz;
+        double dirx = me.getX() - px;
+        double diry = me.getY() - py;
+        double dirz = me.getZ() - pz;
 
         double len = Math.sqrt(dirx*dirx + diry*diry + dirz*dirz);
 
