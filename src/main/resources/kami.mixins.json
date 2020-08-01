@@ -27,6 +27,7 @@
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinClientWorld",
+    "MixinCommandSuggestor",
     "MixinDecoderHandler",
     "MixinEntity",
     "MixinEntityRenderDispatcher",

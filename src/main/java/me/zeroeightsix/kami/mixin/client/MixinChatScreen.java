@@ -23,40 +23,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(ChatScreen.class)
 public abstract class MixinChatScreen {
-
-    @Shadow private ParseResults<CommandSource> parseResults;
-    @Shadow protected TextFieldWidget chatField;
-    @Shadow private CompletableFuture<Suggestions> suggestionsFuture;
-    @Shadow protected abstract void updateCommandFeedback();
-    @Shadow private boolean completingSuggestion;
-
-    @Inject(method = "updateCommand", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;canRead()Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onUpdateCommand(CallbackInfo info, String string, StringReader stringReader) {
-        int i;
-        if (stringReader.canRead() && stringReader.peek() == Settings.INSTANCE.getCommandPrefix()) {
-            stringReader.skip();
-            CommandDispatcher<CommandSource> commandDispatcher = Command.dispatcher;
-            if (this.parseResults == null) {
-                this.parseResults = commandDispatcher.parse(stringReader, Wrapper.getPlayer().networkHandler.getCommandSource());
-            }
-
-            i = this.chatField.getCursor();
-            if (i >= 1 && (!this.completingSuggestion)) {
-                this.suggestionsFuture = commandDispatcher.getCompletionSuggestions(this.parseResults, i);
-                this.suggestionsFuture.thenRun(() -> {
-                    if (this.suggestionsFuture.isDone()) {
-                        this.updateCommandFeedback();
-                    }
-                });
-            }
-
-            info.cancel();
-        }
-    }
 
     @Redirect(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ChatScreen;sendMessage(Ljava/lang/String;)V"))
     public void sendMessage(ChatScreen screen, String message) {
@@ -68,7 +39,7 @@ public abstract class MixinChatScreen {
             try {
                 Command.dispatcher.execute(message, new KamiCommandSource(Wrapper.getMinecraft().getNetworkHandler(), Wrapper.getMinecraft()));
             } catch (CommandSyntaxException e) {
-                Wrapper.getPlayer().sendSystemMessage(new LiteralText(e.getMessage()).setStyle((new Style()).withColor(Formatting.RED)));
+                Wrapper.getPlayer().sendSystemMessage(new LiteralText(e.getMessage()).setStyle(Style.EMPTY.withColor(Formatting.RED)), UUID.randomUUID());
             }
         } else {
             screen.sendMessage(message);
