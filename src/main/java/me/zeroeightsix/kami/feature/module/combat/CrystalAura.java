@@ -242,7 +242,7 @@ class CrystalAura extends Module {
             KamiTessellator.drawBox(render, 0x44ffffff, GeometryMasks.Quad.ALL);
             KamiTessellator.release();
             if (renderEnt != null) {
-                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getTickDelta());
+//                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getTickDelta());
 //                Tracers.drawLineFromPosToPos(render.getX() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosX() + .5d, render.getY() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosY() + 1, render.getZ() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosZ() + .5d, p.x, p.y, p.z, renderEnt.getEyeHeight(renderEnt.getPose()), 1, 1, 1, 1);
             }
         }

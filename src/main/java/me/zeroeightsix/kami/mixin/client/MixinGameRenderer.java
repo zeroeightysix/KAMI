@@ -29,7 +29,7 @@ public class MixinGameRenderer {
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 15), cancellable = true)
     public void renderWorld(float tickDelta, long limitTime, MatrixStack matrixStack, CallbackInfo ci) {
-        RenderEvent.World worldRenderEvent = new RenderEvent.World(Tessellator.getInstance(), Wrapper.getRenderPosition(), matrixStack);
+        RenderEvent.World worldRenderEvent = new RenderEvent.World(Tessellator.getInstance(), matrixStack);
         KamiMod.EVENT_BUS.post(worldRenderEvent);
         if (worldRenderEvent.isCancelled()) {
             ci.cancel();

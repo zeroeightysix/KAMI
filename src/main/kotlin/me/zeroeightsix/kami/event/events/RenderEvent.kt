@@ -19,21 +19,12 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
     class Screen : RenderEvent(Stage.SCREEN)
     class World(
         val tessellator: Tessellator,
-        val renderPos: Vec3d,
         val matrixStack: MatrixStack
     ) :
         RenderEvent(Stage.WORLD) {
 
         val buffer: BufferBuilder
             get() = tessellator.buffer
-
-        fun setTranslation(translation: Vec3d) {
-            buffer.vertex(-translation.x, -translation.y, -translation.z)
-        }
-
-        fun resetTranslation() {
-            setTranslation(renderPos)
-        }
 
         init {
             era = Era.POST

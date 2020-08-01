@@ -7,7 +7,6 @@
     "IChatMessageS2CPacket",
     "IClientPlayerInteractionManager",
     "IDisconnectedScreen",
-    "IEntityRenderDispatcher",
     "IEntitySelector",
     "IEntityVelocityUpdateS2CPacket",
     "IGameRenderer",

@@ -93,11 +93,6 @@ public class EntityUtil {
         return new Vec3d(entity.prevX, entity.prevY, entity.prevZ).add(getInterpolatedAmount(entity, ticks));
     }
 
-    public static Vec3d getInterpolatedRenderPos(Entity entity, float ticks) {
-        Vec3d renderPos = Wrapper.getRenderPosition();
-        return getInterpolatedPos(entity, ticks).subtract(renderPos);
-    }
-
     public static boolean isInWater(Entity entity) {
         if(entity == null) return false;
 
