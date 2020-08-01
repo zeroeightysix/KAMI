@@ -96,7 +96,7 @@ object KamiConfig {
 
     //TODO: Ask what all of this does... then figure out how to make it work(?)
     private val bindMap = (InputUtil.Type.KEYSYM.getMap()).mapNotNull {
-        val name = it.value.name.also { s ->
+        val name = it.value.translationKey.also { s ->
             if (!s.startsWith("key.keyboard")) return@mapNotNull null
         }.removePrefix("key.keyboard.").replace('.', '-')
 
