@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IShulkerBoxBlockEntity {
 
     @Invoker
-    ScreenHandler invokeCreateContainer(int i, PlayerInventory playerInventory);
+    ScreenHandler invokeCreateScreenHandler(int syncId, PlayerInventory playerInventory);
 
 }
