@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
+import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting
 
 /**
@@ -33,15 +34,15 @@ object ToggleCommand : Command() {
                                     Formatting.GOLD, Texts.append(
                                         Texts.lit("Toggled module "),
                                         Texts.flit(
-                                            Formatting.YELLOW,
-                                            m.name
-                                        ),
+                                                Formatting.YELLOW,
+                                                m.name
+                                        ) as MutableText?,
                                         Texts.lit(", now "),
                                         Texts.flit(
-                                            if (m.isEnabled()) Formatting.GREEN else Formatting.RED,
-                                            if (m.isEnabled()) "ON" else "OFF"
-                                        )
-                                    )
+                                                if (m.isEnabled()) Formatting.GREEN else Formatting.RED,
+                                                if (m.isEnabled()) "ON" else "OFF"
+                                        ) as MutableText?
+                                ) as MutableText?
                                 )
                             )
                             0

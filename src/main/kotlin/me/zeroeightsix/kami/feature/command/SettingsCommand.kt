@@ -13,6 +13,7 @@ import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.util.function.Consumer
@@ -48,16 +49,16 @@ object SettingsCommand : Command() {
                                     ) as Module
                                 source.sendFeedback(
                                     Texts.i(
-                                        Texts.append(
-                                            Texts.flit(
-                                                Formatting.YELLOW,
-                                                m.name
-                                            ),
-                                            Texts.flit(
-                                                Formatting.GOLD,
-                                                " has the following properties:"
-                                            )
-                                        )
+                                            Texts.append(
+                                                    Texts.flit(
+                                                            Formatting.YELLOW,
+                                                            m.name
+                                                    ) as MutableText?,
+                                                    Texts.flit(
+                                                            Formatting.GOLD,
+                                                            " has the following properties:"
+                                                    ) as MutableText?
+                                            ) as MutableText?
                                     )
                                 )
                                 m.config.list().forEach {
@@ -105,24 +106,24 @@ object SettingsCommand : Command() {
                                                     (context.source as KamiCommandSource).sendFeedback(
                                                         Texts.f(
                                                             Formatting.GOLD,
-                                                            Texts.append(
-                                                                Texts.lit("Set property "),
-                                                                Texts.flit(
-                                                                    Formatting.YELLOW,
-                                                                    setting.name
-                                                                ),
-                                                                Texts.lit(" of module "),
-                                                                Texts.flit(
-                                                                    Formatting.YELLOW,
-                                                                    module.name
-                                                                ),
-                                                                Texts.lit(" to "),
-                                                                Texts.flit(
-                                                                    Formatting.LIGHT_PURPLE,
-                                                                    value
-                                                                ),
-                                                                Texts.lit("!")
-                                                            )
+                                                                Texts.append(
+                                                                        Texts.lit("Set property "),
+                                                                        Texts.flit(
+                                                                                Formatting.YELLOW,
+                                                                                setting.name
+                                                                        ) as MutableText?,
+                                                                        Texts.lit(" of module "),
+                                                                        Texts.flit(
+                                                                                Formatting.YELLOW,
+                                                                                module.name
+                                                                        ) as MutableText?,
+                                                                        Texts.lit(" to "),
+                                                                        Texts.flit(
+                                                                                Formatting.LIGHT_PURPLE,
+                                                                                value
+                                                                        ) as MutableText?,
+                                                                        Texts.lit("!")
+                                                                ) as MutableText?
                                                         )
                                                     )
                                                     0
@@ -151,11 +152,11 @@ fun<T> ConfigLeaf<T>.list(): Text {
     val interf = this.getInterface()
     val (type, value) = interf.displayTypeAndValue(this)
     return Texts.append(
-        Texts.flit(Formatting.YELLOW, this.name),
-        Texts.flit(Formatting.GRAY, " ("),
-        Texts.flit(Formatting.GREEN, type),
-        Texts.flit(Formatting.GRAY, ") "),
-        Texts.flit(Formatting.GOLD, "= "),
-        Texts.flit(Formatting.LIGHT_PURPLE, value)
+            Texts.flit(Formatting.YELLOW, this.name) as MutableText?,
+        Texts.flit(Formatting.GRAY, " (") as MutableText?,
+        Texts.flit(Formatting.GREEN, type) as MutableText?,
+        Texts.flit(Formatting.GRAY, ") ") as MutableText?,
+        Texts.flit(Formatting.GOLD, "= ") as MutableText?,
+        Texts.flit(Formatting.LIGHT_PURPLE, value) as MutableText?
     )
 }

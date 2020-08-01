@@ -9,6 +9,7 @@ import me.zeroeightsix.kami.feature.plugin.Plugin
 import me.zeroeightsix.kami.util.Texts.*
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting.GOLD
 import net.minecraft.util.Formatting.YELLOW
 import java.util.function.Function
@@ -72,15 +73,15 @@ object PluginCommand : Command() {
         if (plugin.enabled != enable) {
             plugin.enabled = enable
             source.sendFeedback(f(GOLD, append(
-                lit("${word.capitalize()}d plugin "),
-                flit(YELLOW, plugin.name)
-            )))
+                    lit("${word.capitalize()}d plugin "),
+                    flit(YELLOW, plugin.name) as MutableText?
+            ) as MutableText?))
         }
         else
             source.sendFeedback(f(GOLD, append(
-                flit(YELLOW, plugin.name),
-                lit(" is already ${word}d.")
-            )))
+                    flit(YELLOW, plugin.name) as MutableText?,
+                    lit(" is already ${word}d.")
+            ) as MutableText?))
     }
 
 }
