@@ -19,7 +19,7 @@ public class KamiTessellator extends Tessellator {
         super(0x200000);
     }
 
-    public void prepare(int mode) {
+    public static void prepare(int mode) {
         prepareGL();
         begin(mode);
     }
@@ -40,8 +40,8 @@ public class KamiTessellator extends Tessellator {
         GlStateManager.color4f(1f,1f,1f,1.0f);
     }
 
-    public void begin(int mode) {
-        getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
+    public static void begin(int mode) {
+        INSTANCE.getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
     }
 
     public static void release() {
@@ -61,7 +61,7 @@ public class KamiTessellator extends Tessellator {
         GlStateManager.enableDepthTest();
     }
 
-    public void drawBox(BlockPos blockPos, int argb, int sides) {
+    public static void drawBox(BlockPos blockPos, int argb, int sides) {
         final int a = (argb >>> 24) & 0xFF;
         final int r = (argb >>> 16) & 0xFF;
         final int g = (argb >>> 8) & 0xFF;
@@ -77,8 +77,8 @@ public class KamiTessellator extends Tessellator {
         drawBox(getBuffer(), x, y, z, 1, 1, 1, r, g, b, a, sides);
     }
 
-    public void drawBox(BlockPos blockPos, int r, int g, int b, int a, int sides) {
-        drawBox(getBuffer(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, r, g, b, a, sides);
+    public static void drawBox(BlockPos blockPos, int r, int g, int b, int a, int sides) {
+        drawBox(INSTANCE.getBuffer(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, r, g, b, a, sides);
     }
 
     //I removed static references because static getBuffer can't overwrite getBuffer(?)
