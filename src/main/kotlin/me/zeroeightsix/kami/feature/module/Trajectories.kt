@@ -4,16 +4,12 @@ import com.mojang.blaze3d.platform.GlStateManager.*
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.events.RenderEvent
-import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
-import me.zeroeightsix.kami.setNoBobbingCamera
-import me.zeroeightsix.kami.times
-import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
-import net.minecraft.client.util.GlAllocationUtils
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -99,8 +95,7 @@ object Trajectories : Module() {
         if (circleList == -1)
             compileList()
 
-        matrix {
-            setNoBobbingCamera()
+        noBobbingCamera(it.matrixStack) {
             mc.world?.entities
                 ?.filterIsInstance<LivingEntity>()
                 ?.forEach {

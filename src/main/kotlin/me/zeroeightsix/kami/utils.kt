@@ -4,8 +4,12 @@ import com.mojang.blaze3d.platform.GlStateManager
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
-import me.zeroeightsix.kami.mixin.extend.applyCameraTransformations
+import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
+import me.zeroeightsix.kami.mixin.extend.getStack
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.util.math.Matrix3f
+import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
 import java.util.stream.Stream
@@ -87,13 +91,26 @@ operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
 
 inline fun unreachable(): Nothing = TODO()
 
-fun setNoBobbingCamera() {
-    // Set up the camera
-    mc.gameRenderer.applyCameraTransformations(mc.tickDelta)
-    // If view bobbing was enabled, the model view matrix is now twisted and turned, so we reset it
-    GlStateManager.matrixMode(GL11.GL_MODELVIEW)
-    GlStateManager.loadIdentity()
-    // Finish up camera rotations, now without view bobbing
-    GlStateManager.rotatef(mc.gameRenderer.camera.pitch, 1.0f, 0.0f, 0.0f)
-    GlStateManager.rotatef(mc.gameRenderer.camera.yaw + 180.0f, 0.0f, 1.0f, 0.0f)
+fun createIdentityMatrixStackEntry(): MatrixStack.Entry {
+    val model = Matrix4f()
+    model.loadIdentity()
+    val normal = Matrix3f()
+    normal.loadIdentity()
+    return `IMatrixStack$Entry`.create(model, normal)
+}
+
+fun MatrixStack.push(entry: MatrixStack.Entry) = getStack().addLast(entry)
+
+fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
+    with (matrixStack) {
+        val entry = createIdentityMatrixStackEntry()
+        entry.model.multiply(mc.gameRenderer.getBasicProjectionMatrix(mc.gameRenderer.camera, mc.tickDelta, true))
+        push(entry)
+        mc.gameRenderer.loadProjectionMatrix(entry.model)
+
+        block()
+
+        pop()
+        mc.gameRenderer.loadProjectionMatrix(peek().model)
+    }
 }

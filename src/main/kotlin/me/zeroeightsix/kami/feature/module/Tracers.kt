@@ -7,8 +7,7 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.TickEvent
-import me.zeroeightsix.kami.matrix
-import me.zeroeightsix.kami.setNoBobbingCamera
+import me.zeroeightsix.kami.noBobbingCamera
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
@@ -66,9 +65,7 @@ object Tracers : Module() {
             disableTexture()
             disableDepthTest()
 
-            matrix {
-                setNoBobbingCamera()
-
+            noBobbingCamera(it.matrixStack) {
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
                         (-mc.player?.pitch?.toDouble()?.let { it1 ->
