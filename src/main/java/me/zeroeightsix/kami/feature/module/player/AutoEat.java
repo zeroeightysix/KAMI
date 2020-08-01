@@ -35,7 +35,7 @@ public class AutoEat extends Module {
                 lastSlot = -1;
             }
             eating = false;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
             return;
         }
         if (eating) return;
@@ -44,7 +44,7 @@ public class AutoEat extends Module {
         if (isValid(mc.player.getOffHandStack(), stats.getFoodLevel())) {
             mc.player.setCurrentHand(Hand.OFF_HAND);
             eating = true;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
             ((IMinecraftClient) mc).callDoAttack();
         } else {
             for (int i = 0; i < 9; i++) {
@@ -52,7 +52,7 @@ public class AutoEat extends Module {
                     lastSlot = mc.player.inventory.selectedSlot;
                     mc.player.inventory.selectedSlot = i;
                     eating = true;
-                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
                     ((IMinecraftClient) mc).callDoAttack();
                     return;
                 }

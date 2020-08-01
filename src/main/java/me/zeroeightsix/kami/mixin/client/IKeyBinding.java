@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface IKeyBinding {
 
     @Accessor
-    InputUtil.Key getKeyCode();
+    InputUtil.Key getBoundKey();
     @Accessor
     void setPressed(boolean pressed);
 
