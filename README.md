@@ -5,15 +5,7 @@
 
 ## A Minecraft utility mod for anarchy servers.
 
-The Fabric 1.16.1 version is in active development. 
-
-### Current Issue Areas
-
-TextPinnableWidget
-
-KamiConfig
-
-SettingAnnotationProccessor
+The Fabric 1.16.1 version is in active development.
 
 ## Preview
 
