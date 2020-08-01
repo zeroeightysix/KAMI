@@ -13,6 +13,7 @@ import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Wrapper
+import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
 import java.util.*
 
@@ -22,7 +23,7 @@ object KamiHud {
     internal val context: Context
     private val implGlfw: ImplGlfw
     private val io: IO
-    private val postDrawStack: Stack<() -> Unit>
+    private val postDrawStack: Stack<(MatrixStack) -> Unit>
 
     init {
         val window = GlfwWindow.from(mc.window.handle)
@@ -46,8 +47,8 @@ object KamiHud {
         postDrawStack = Stack()
     }
 
-    fun renderHud() {
-        frame {
+    fun renderHud(matrixStack: MatrixStack) {
+        frame(matrixStack) {
             if (!EnabledWidgets.hideAll) {
                 PinnableWidget.drawFadedBackground = false
                 for ((widget, open) in EnabledWidgets.widgets) {
@@ -60,7 +61,7 @@ object KamiHud {
         }
     }
 
-    internal fun frame(block: () -> Unit) {
+    internal fun frame(matrices: MatrixStack, block: () -> Unit) {
         implGl3.newFrame()
         implGlfw.newFrame()
         ImGui.newFrame()
@@ -71,13 +72,13 @@ object KamiHud {
             while (!postDrawStack.isEmpty()) {
                 val cmd = postDrawStack.pop()
                 cmd?.let {
-                    it()
+                    it(matrices)
                 }
             }
         }
     }
 
-    fun postDraw(block: () -> Unit) {
+    fun postDraw(block: (MatrixStack) -> Unit) {
         postDrawStack.push(block)
     }
 

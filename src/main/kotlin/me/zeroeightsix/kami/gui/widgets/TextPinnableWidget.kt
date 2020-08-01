@@ -88,7 +88,7 @@ open class TextPinnableWidget(
                 // For god knows what reason, rendering minecraft text in here results in fucked textures.
                 // Even if you revert the GL state to exactly what it was before rendering imgui.
                 // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
-                KamiHud.postDraw {
+                KamiHud.postDraw { matrices ->
                     val scale = KamiHud.getScale()
                     val x = cmd.clipRect.x / scale + 4
                     var y = cmd.clipRect.y / scale + 4
@@ -100,8 +100,6 @@ open class TextPinnableWidget(
                                 var lastWidth = 0f
                                 command.toString().split("\n").forEach {
                                     val width = if (command.shadow)
-                                        //TODO: figure out what the hell MatrixStacks are and how to implement them properly
-
                                         mc.textRenderer.drawWithShadow(
                                             matrices,
                                             codes + it,

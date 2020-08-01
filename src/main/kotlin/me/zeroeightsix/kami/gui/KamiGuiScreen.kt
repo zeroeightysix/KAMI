@@ -15,7 +15,7 @@ import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
-    
+
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
         if (!returned) {
@@ -43,13 +43,13 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(matrices, mouseX, mouseY, delta)
 
-        KamiHud.frame {
+        KamiHud.frame(matrices!!) {
             if (Wizard()) return@frame;
-            
+
             this()
         }
     }
-    
+
     operator fun invoke() {
         // Draw the main menu bar.
         MenuBar()

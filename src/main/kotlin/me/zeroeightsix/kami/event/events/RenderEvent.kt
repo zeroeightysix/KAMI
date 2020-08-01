@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.event.events
 import me.zeroeightsix.kami.event.KamiEvent
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.Tessellator
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -16,7 +17,11 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
     }
 
     class Screen : RenderEvent(Stage.SCREEN)
-    class World(val tessellator: Tessellator, val renderPos: Vec3d) :
+    class World(
+        val tessellator: Tessellator,
+        val renderPos: Vec3d,
+        val matrixStack: MatrixStack
+    ) :
         RenderEvent(Stage.WORLD) {
 
         val buffer: BufferBuilder

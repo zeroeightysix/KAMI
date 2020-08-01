@@ -56,7 +56,7 @@ object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
         Listener(
             EventHook<RenderHudEvent> {
                 if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
-                    renderHud()
+                    renderHud(it.matrixStack)
                 }
             }, EventPriority.LOW
         )
