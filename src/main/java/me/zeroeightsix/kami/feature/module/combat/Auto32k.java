@@ -17,7 +17,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -237,7 +236,7 @@ public class Auto32k extends Module {
         }
 
         if (debugMessages) {
-            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(new Vector3f(placeTarget.getX(),placeTarget.getY(),placeTarget.getZ())))));
+            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(placeTarget.getX(),placeTarget.getY(),placeTarget.getZ()))));
         }
 
         mc.player.inventory.selectedSlot = hopperSlot;
@@ -295,7 +294,6 @@ public class Auto32k extends Module {
         }
 
         if (swapReady) {
-            // method_2906: click window
             mc.interactionManager.clickSlot(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura) {
                 Aura.INSTANCE.enable();
@@ -325,7 +323,7 @@ public class Auto32k extends Module {
             return false; // liquid below hopper
         }
 
-        if (mc.player.getPos().distanceTo(new Vec3d(new Vector3f(blockPos.getX(),blockPos.getY(),blockPos.getZ()))) > placeRange) {
+        if (mc.player.getPos().distanceTo(new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ())) > placeRange) {
             return false; // out of range
         }
 
@@ -334,7 +332,7 @@ public class Auto32k extends Module {
             return false; // would need sneak
         }
 
-        return !(mc.player.getPos().distanceTo(new Vec3d(new Vector3f(blockPos.getX(),blockPos.getY(),blockPos.getZ())).add(0, 1, 0)) > placeRange); // out of range
+        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ()).add(0, 1, 0)) > placeRange); // out of range
 
     }
 
@@ -358,7 +356,7 @@ public class Auto32k extends Module {
 //                continue;
 //            }
 
-            Vec3d hitVec = new Vec3d(new Vector3f(neighbor.getX(),neighbor.getY(),neighbor.getZ())).add(0.5, 0.5, 0.5).add(new Vec3d(new Vector3f(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ())).multiply(0.5));
+            Vec3d hitVec = new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ()).multiply(0.5));
 
             Block neighborPos = mc.world.getBlockState(neighbor).getBlock();
             if (blackList.contains(neighborPos) || ShulkerBoxCommon.isShulkerBox(neighborPos)) {

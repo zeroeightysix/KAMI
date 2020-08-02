@@ -9,6 +9,6 @@ import net.minecraft.text.Text
 class KamiCommandSource(client: ClientPlayNetworkHandler?, minecraftClient: MinecraftClient?) :
     ClientCommandSource(client, minecraftClient) {
     fun sendFeedback(text: Text?) {
-        mc.player?.sendMessage(text,false)
+        mc.player?.sendMessage(text, false)
     }
 }

@@ -61,7 +61,7 @@ object EntitySpeed : Module() {
         if (flight) {
             if (mc.options.keyJump.isPressed) {
                 EntityUtil.updateVelocityY(entity, speed)
-            } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) if (wobble) mc.player?.age?.toDouble()?.let { sin(it) } else 0.0?.let {
+            } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) if (wobble) mc.player?.age?.toDouble()?.let { sin(it) } else 0.0.let {
                 EntityUtil.updateVelocityY(
                     entity,
                     it
@@ -139,27 +139,18 @@ object EntitySpeed : Module() {
             if (!movingForward && !movingStrafe) {
                 setEntitySpeed(entity, 0.0, 0.0)
             } else {
-                if (forward != 0.0 && strafe != null && yaw != null) {
-                    if (strafe != null) {
-                        if (yaw != null) {
-                            if (forward != null) {
-                                if (strafe > 0.0) {
-                                    yaw += (if (forward > 0.0) -45 else 45).toFloat()
-                                } else if (forward != null) {
-                                    if (strafe < 0.0) {
-                                        yaw += (if (forward > 0.0) 45 else -45).toFloat()
-                                    }
-                                }
-                            }
+                if (forward != null && strafe != null && yaw != null) {
+                    if (strafe > 0.0) {
+                        yaw += (if (forward > 0.0) -45 else 45).toFloat()
+                        if (strafe < 0.0) {
+                            yaw += (if (forward > 0.0) 45 else -45).toFloat()
                         }
                     }
                     strafe = 0.0
-                    if (forward != null) {
-                        forward = if (forward > 0.0) {
-                            1.0
-                        } else {
-                            -1.0
-                        }
+                    forward = if (forward > 0.0) {
+                        1.0
+                    } else {
+                        -1.0
                     }
                 }
                 var motX = 0.0

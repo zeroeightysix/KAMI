@@ -36,13 +36,13 @@ object ToggleCommand : Command() {
                                         Texts.flit(
                                                 Formatting.YELLOW,
                                                 m.name
-                                        ) as MutableText?,
+                                        ),
                                         Texts.lit(", now "),
                                         Texts.flit(
                                                 if (m.isEnabled()) Formatting.GREEN else Formatting.RED,
                                                 if (m.isEnabled()) "ON" else "OFF"
-                                        ) as MutableText?
-                                ) as MutableText?
+                                        )
+                                )
                                 )
                             )
                             0

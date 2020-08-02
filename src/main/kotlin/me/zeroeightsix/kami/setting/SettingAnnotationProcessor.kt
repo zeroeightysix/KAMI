@@ -11,6 +11,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import me.zeroeightsix.kami.setting.KamiConfig.createInterface
 import me.zeroeightsix.kami.setting.KamiConfig.typeMap
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.RegistryKey
 import java.lang.reflect.Field
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
@@ -50,8 +51,8 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                             it.buildFuture()
                         }, "enum-${field.type.simpleName.toLowerCase()}"
                     )
-                    //TODO: Don't just comment random stuff to make it compile!
-                    //SettingInterface.Registry.add(interf.id, interf)
+
+                    SettingInterface.Registry.add(RegistryKey.of(SettingInterface.registryKey, interf.id), interf)
                     interf
                 } else {
                     typeMap.getOrDefault(

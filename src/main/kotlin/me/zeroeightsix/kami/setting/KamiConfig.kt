@@ -31,6 +31,7 @@ import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.RegistryKey
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.file.Files
@@ -235,9 +236,9 @@ object KamiConfig {
     }
 
     fun initAndLoad(): ConfigTree? {
-        /*typeMap.values.forEach {
-            SettingInterface.Registry.add(it.id, it)
-        }*/
+        typeMap.values.forEach {
+            SettingInterface.Registry.add(RegistryKey.of(SettingInterface.registryKey, it.id), it)
+        }
 
         return try {
             val config = constructConfiguration()
