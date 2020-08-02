@@ -18,21 +18,9 @@ import net.minecraft.util.math.Vec3d;
 public class Flight extends Module {
 
     @Setting(name = "Speed")
-    private float speed = 10f;
+    private @Setting.Constrain.Range(min = 0, max = 10, step = 0.5) float speed = 1f;
     @Setting(name = "Mode")
     private FlightMode mode = FlightMode.VANILLA;
-
-    @Override
-    public void onEnable() {
-        if (mc.player == null) return;
-        switch (mode) {
-            case VANILLA:
-                mc.player.abilities.flying = true;
-                if (mc.player.abilities.creativeMode) return;
-                mc.player.abilities.allowFlying = true;
-                break;
-        }
-    }
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
@@ -40,7 +28,7 @@ public class Flight extends Module {
             case STATIC:
                 mc.player.abilities.flying = false;
                 mc.player.setVelocity(Vec3d.ZERO);
-                mc.player.flyingSpeed = speed; // jumpMovementFactor
+                mc.player.flyingSpeed = speed;
 
                 if (mc.options.keyJump.isPressed()) {
                     mc.player.addVelocity(0, speed, 0);
@@ -50,7 +38,7 @@ public class Flight extends Module {
                 }
                 break;
             case VANILLA:
-                mc.player.abilities.setFlySpeed(speed / 100f);
+                mc.player.abilities.setFlySpeed(speed / 20f);
                 mc.player.abilities.flying = true;
                 if (mc.player.abilities.creativeMode) return;
                 mc.player.abilities.allowFlying = true;
@@ -85,18 +73,14 @@ public class Flight extends Module {
 
     @Override
     public void onDisable() {
-        switch (mode) {
-            case VANILLA:
-                mc.player.abilities.flying = false;
-                mc.player.abilities.setFlySpeed(0.05f);
-                if (mc.player.abilities.creativeMode) return;
-                mc.player.abilities.allowFlying = false;
-                break;
-        }
-    }
+        super.onDisable();
 
-    public double[] moveLooking() {
-        return new double[]{mc.player.yaw * 360.0F / 360.0F * 180.0F / 180.0F, 0.0D};
+        if (mode == FlightMode.VANILLA && mc.player != null) {
+            mc.player.abilities.flying = false;
+            mc.player.abilities.setFlySpeed(0.05f);
+            if (mc.player.abilities.creativeMode) return;
+            mc.player.abilities.allowFlying = false;
+        }
     }
 
     public enum FlightMode {
