@@ -38,9 +38,9 @@ object PeekCommand : Command(), Listenable {
             LiteralArgumentBuilder.literal<CommandSource>("peek").executes { context: CommandContext<CommandSource>? ->
                 val stack = mc.player?.inventory?.mainHandStack
             if (ShulkerBoxCommon.isShulkerBox(stack?.item)) {
-                val entityBox =
+                var entityBox =
                     ShulkerBoxBlockEntity(((stack?.item as BlockItem).block as ShulkerBoxBlock).color)
-                //IDEA is telling me 'Val cannot be reassigned'?
+                //Changed 'val' to 'var', but now IDEA is telling me "Variable is never modified and can be declared immutable using 'val'"???
                 //entityBox.world = mc.world
                 val tag = stack.getSubTag("BlockEntityTag")
                 val state = mc.world?.getBlockState(entityBox.pos)

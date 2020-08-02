@@ -63,7 +63,7 @@ object FriendCommand : Command() {
                                                     Texts.flit(
                                                             Formatting.YELLOW,
                                                             s
-                                                    ) as MutableText?
+                                                    )
                                             )
                                         //)
                                     }
@@ -74,7 +74,7 @@ object FriendCommand : Command() {
                                         Texts.flit(
                                                 Formatting.GOLD,
                                                 "You have the following friends:"
-                                        ) as MutableText?
+                                        )
                                 )
                             )
                             source.sendFeedback(text)
@@ -102,9 +102,9 @@ object FriendCommand : Command() {
                                                 Texts.flit(
                                                         Formatting.YELLOW,
                                                         entry.profile.name
-                                                ) as MutableText?,
+                                                ),
                                                 Texts.lit(" to your friends list!")
-                                        ) as MutableText?
+                                        )
                                         )
                                     )
                                     0
@@ -133,9 +133,9 @@ object FriendCommand : Command() {
                                                 Texts.flit(
                                                         Formatting.YELLOW,
                                                         entry.profile.name
-                                                ) as MutableText?,
+                                                ),
                                                 Texts.lit(" from your friends list!")
-                                        ) as MutableText?
+                                        )
                                         )
                                     )
                                     0

@@ -10,7 +10,6 @@ import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.*;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -123,17 +122,17 @@ public class Scaffold extends Module {
 
             // check if side is visible (facing away from player)
             if(eyesPos.squaredDistanceTo(
-                    new Vec3d(new Vector3f(pos.getX(),pos.getY(),pos.getZ())).add(0.5, 0.5, 0.5)) >= eyesPos
+                    new Vec3d(pos.getX(),pos.getY(),pos.getZ()).add(0.5, 0.5, 0.5)) >= eyesPos
                     .squaredDistanceTo(
-                            new Vec3d(new Vector3f(neighbor.getX(),neighbor.getY(),neighbor.getZ())).add(0.5, 0.5, 0.5)))
+                            new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5)))
                 continue;
 
             // check if neighbor can be right clicked
             if(!canBeClicked(neighbor))
                 continue;
 
-            Vec3d hitVec = new Vec3d(new Vector3f(neighbor.getX(),neighbor.getY(),neighbor.getZ())).add(0.5, 0.5, 0.5)
-                    .add(new Vec3d(new Vector3f(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ())).multiply(0.5));
+            Vec3d hitVec = new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5)
+                    .add(new Vec3d(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ()).multiply(0.5));
 
             // check if hitVec is within range (4.25 blocks)
             if(eyesPos.squaredDistanceTo(hitVec) > 18.0625)

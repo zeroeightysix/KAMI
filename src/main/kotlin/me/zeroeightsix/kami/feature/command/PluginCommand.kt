@@ -74,14 +74,14 @@ object PluginCommand : Command() {
             plugin.enabled = enable
             source.sendFeedback(f(GOLD, append(
                     lit("${word.capitalize()}d plugin "),
-                    flit(YELLOW, plugin.name) as MutableText?
-            ) as MutableText?))
+                    flit(YELLOW, plugin.name)
+            )))
         }
         else
             source.sendFeedback(f(GOLD, append(
-                    flit(YELLOW, plugin.name) as MutableText?,
+                    flit(YELLOW, plugin.name),
                     lit(" is already ${word}d.")
-            ) as MutableText?))
+            )))
     }
 
 }

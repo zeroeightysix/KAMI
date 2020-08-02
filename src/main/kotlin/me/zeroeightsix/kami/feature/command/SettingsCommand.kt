@@ -53,12 +53,12 @@ object SettingsCommand : Command() {
                                                     Texts.flit(
                                                             Formatting.YELLOW,
                                                             m.name
-                                                    ) as MutableText?,
+                                                    ),
                                                     Texts.flit(
                                                             Formatting.GOLD,
                                                             " has the following properties:"
-                                                    ) as MutableText?
-                                            ) as MutableText?
+                                                    )
+                                            )
                                     )
                                 )
                                 m.config.list().forEach {
@@ -111,19 +111,19 @@ object SettingsCommand : Command() {
                                                                         Texts.flit(
                                                                                 Formatting.YELLOW,
                                                                                 setting.name
-                                                                        ) as MutableText?,
+                                                                        ),
                                                                         Texts.lit(" of module "),
                                                                         Texts.flit(
                                                                                 Formatting.YELLOW,
                                                                                 module.name
-                                                                        ) as MutableText?,
+                                                                        ),
                                                                         Texts.lit(" to "),
                                                                         Texts.flit(
                                                                                 Formatting.LIGHT_PURPLE,
                                                                                 value
-                                                                        ) as MutableText?,
+                                                                        ),
                                                                         Texts.lit("!")
-                                                                ) as MutableText?
+                                                                )
                                                         )
                                                     )
                                                     0
@@ -152,11 +152,11 @@ fun<T> ConfigLeaf<T>.list(): Text {
     val interf = this.getInterface()
     val (type, value) = interf.displayTypeAndValue(this)
     return Texts.append(
-            Texts.flit(Formatting.YELLOW, this.name) as MutableText?,
-        Texts.flit(Formatting.GRAY, " (") as MutableText?,
-        Texts.flit(Formatting.GREEN, type) as MutableText?,
-        Texts.flit(Formatting.GRAY, ") ") as MutableText?,
-        Texts.flit(Formatting.GOLD, "= ") as MutableText?,
-        Texts.flit(Formatting.LIGHT_PURPLE, value) as MutableText?
+            Texts.flit(Formatting.YELLOW, this.name),
+        Texts.flit(Formatting.GRAY, " ("),
+        Texts.flit(Formatting.GREEN, type),
+        Texts.flit(Formatting.GRAY, ") "),
+        Texts.flit(Formatting.GOLD, "= "),
+        Texts.flit(Formatting.LIGHT_PURPLE, value)
     )
 }

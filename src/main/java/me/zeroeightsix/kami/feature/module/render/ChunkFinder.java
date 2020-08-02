@@ -15,7 +15,6 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.SystemUtils;
@@ -78,7 +77,6 @@ public class ChunkFinder extends Module {
         if (dirty) {
             if (list == -1) {
                 list = GL11.glGenLists(1);
-                //list = GlStateManager.genLists(1);
             }
             GL11.glNewList(list, GL11.GL_COMPILE);
 
@@ -179,8 +177,8 @@ public class ChunkFinder extends Module {
         // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
         if (mc.isInSingleplayer()) {
             try {
-                //file = mc.getServer().getWorld(dimension).getSaveHandler().getWorldDir();
-                file = mc.getServer().getWorld(new RegistryKey<mc.world>()).getSaveHandler().getWorldDir();
+                file = DimensionType.getSaveDirectory(mc.world.getRegistryKey(),mc.runDirectory);
+                //I don't know if this actually does anything
             } catch (Exception e) {
                 e.printStackTrace();
                 KamiMod.getLog().error("some exception happened when getting canonicalFile -> " + e.getMessage());

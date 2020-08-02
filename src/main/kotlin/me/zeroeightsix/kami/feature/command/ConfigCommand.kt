@@ -59,8 +59,8 @@ object ConfigCommand : Command() {
                             val path = Paths.get(KamiConfig.CONFIG_FILENAME)
                             (it.source as KamiCommandSource).sendFeedback(
                                 Texts.append(
-                                        Texts.flit(Formatting.GOLD, "The configuration file is at ") as MutableText?,
-                                        Texts.flit(Formatting.YELLOW, path.toAbsolutePath().toString()) as MutableText?
+                                        Texts.flit(Formatting.GOLD, "The configuration file is at "),
+                                        Texts.flit(Formatting.YELLOW, path.toAbsolutePath().toString())
                                 )
                             )
                             0
