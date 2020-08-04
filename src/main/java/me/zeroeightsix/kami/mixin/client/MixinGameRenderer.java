@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.CameraHurtEvent;
 import me.zeroeightsix.kami.event.events.RenderEvent;
@@ -30,7 +31,10 @@ public class MixinGameRenderer {
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 1), cancellable = true)
     public void renderWorld(float tickDelta, long limitTime, MatrixStack matrixStack, CallbackInfo ci) {
         RenderEvent.World worldRenderEvent = new RenderEvent.World(Tessellator.getInstance(), matrixStack);
+        RenderSystem.pushMatrix();
+        RenderSystem.multMatrix(matrixStack.peek().getModel());
         KamiMod.EVENT_BUS.post(worldRenderEvent);
+        RenderSystem.popMatrix();
         if (worldRenderEvent.isCancelled()) {
             ci.cancel();
         }
