@@ -24,6 +24,10 @@ public class Brightness extends Module {
     @Setting(name = "Mode")
     private Transition mode = Transition.SINE;
 
+    public boolean ifTransition() {
+        return transition;
+    }
+
     private Stack<Float> transitionStack = new Stack<>();
 
     private static float currentBrightness = 0;

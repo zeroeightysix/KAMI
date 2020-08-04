@@ -1,15 +1,20 @@
 package me.zeroeightsix.kami.feature.module
 
 import com.mojang.blaze3d.platform.GlStateManager.*
+import com.mojang.blaze3d.systems.RenderSystem
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.events.RenderEvent
+import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
+import me.zeroeightsix.kami.noBobbingCamera
+import me.zeroeightsix.kami.times
+import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.debug.ChunkBorderDebugRenderer
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -88,8 +93,10 @@ object Trajectories : Module() {
         val tessellator = Tessellator.getInstance()
         val buffer = tessellator.buffer
 
-        enableDepthTest()
-        enableBlend()
+        RenderSystem.shadeModel(GL11.GL_SMOOTH)
+        RenderSystem.enableAlphaTest()
+        RenderSystem.defaultAlphaFunc()
+        RenderSystem.disableTexture()
         lineWidth(0.5F)
 
         if (circleList == -1)
@@ -193,16 +200,19 @@ object Trajectories : Module() {
                                 }
                             }
 
-                            disableCull()
-                            disableDepthTest()
+                            RenderSystem.disableCull()
+                            RenderSystem.disableDepthTest()
                             GL11.glCallList(circleList)
-                            enableDepthTest()
-                            enableCull()
+                            RenderSystem.enableDepthTest()
+                            RenderSystem.enableCull()
                         }
                     }
                 }
         }
 
-        lineWidth(1.0f)
+        RenderSystem.lineWidth(1.0f)
+        RenderSystem.enableBlend()
+        RenderSystem.enableTexture()
+        RenderSystem.shadeModel(GL11.GL_FLAT)
     })
 }
