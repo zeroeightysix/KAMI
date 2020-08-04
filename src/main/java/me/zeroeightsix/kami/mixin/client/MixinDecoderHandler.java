@@ -14,7 +14,7 @@ import java.io.IOException;
 @Mixin(DecoderHandler.class)
 public class MixinDecoderHandler {
 
-    @Redirect(method = "decode", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Packet;read(Lnet/minecraft/util/PacketByteBuf;)V"))
+    @Redirect(method = "decode", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Packet;read(Lnet/minecraft/network/PacketByteBuf;)V"))
     void read(Packet<?> packet, PacketByteBuf buf) throws IOException {
         packet.read(buf);
         PacketEvent.Receive receive = new PacketEvent.Receive(packet);

@@ -19,7 +19,4 @@ public abstract class MixinMobEntity {
         returnable.setReturnValue(!event.isCancelled() && event.getCanBeSteered());
     }
 
-    @Shadow
-    public abstract boolean canBeControlledByRider();
-
 }

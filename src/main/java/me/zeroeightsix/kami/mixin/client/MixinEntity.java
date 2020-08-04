@@ -31,11 +31,6 @@ public abstract class MixinEntity  {
         entity.addVelocity(event.getX(), event.getY(), event.getZ());
     }
 
-    @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isSneaking()Z"))
-    public boolean isSneaking(Entity entity) {
-        return SafeWalk.shouldSafewalk() || entity.isSneaking();
-    }
-
     @Redirect(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;getVelocity(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/Vec3d;"))
     public Vec3d getVelocity(FluidState fluidState, BlockView world, BlockPos pos) {
         Vec3d vec = fluidState.getVelocity(world, pos);

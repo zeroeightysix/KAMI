@@ -8,8 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface IPlayerMoveC2SPacket {
 
     @Accessor
-    boolean getOnGround();
-    @Accessor
     void setOnGround(boolean onGround);
     @Accessor
     double getX();

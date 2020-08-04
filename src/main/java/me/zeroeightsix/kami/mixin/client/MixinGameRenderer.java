@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer {
 
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 15), cancellable = true)
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 1), cancellable = true)
     public void renderWorld(float tickDelta, long limitTime, MatrixStack matrixStack, CallbackInfo ci) {
         RenderEvent.World worldRenderEvent = new RenderEvent.World(Tessellator.getInstance(), matrixStack);
         KamiMod.EVENT_BUS.post(worldRenderEvent);

@@ -31,7 +31,6 @@
     "MixinCommandSuggestor",
     "MixinDecoderHandler",
     "MixinEntity",
-    "MixinEntityRenderer",
     "MixinGameRenderer",
     "MixinGuiPlayerTabOverlay",
     "MixinInput",
