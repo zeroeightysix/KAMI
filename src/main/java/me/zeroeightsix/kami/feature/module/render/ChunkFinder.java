@@ -18,7 +18,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.SystemUtils;
-import org.lwjgl.opengl.GL11;
 
 import java.io.*;
 import java.nio.file.Files;
