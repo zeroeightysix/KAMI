@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
@@ -75,23 +75,23 @@ public class ChunkFinder extends Module {
     @EventHandler
     private Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
         if (dirty) {
-            if (list == -1) {
+            /*if (list == -1) {
                 list = GL11.glGenLists(1);
             }
-            GL11.glNewList(list, GL11.GL_COMPILE);
+            GL11.glNewList(list, GL11.GL_COMPILE);*/
 
-            GlStateManager.pushMatrix();
-            GlStateManager.disableDepthTest();
-            GlStateManager.disableTexture();
-            GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            GlStateManager.enableBlend();
-            GlStateManager.lineWidth(1.0f);
+            RenderSystem.pushMatrix();
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            RenderSystem.enableBlend();
+            RenderSystem.lineWidth(1.0f);
             for (Chunk chunk : chunks) {
                 double x = chunk.getPos().x * 16;
                 double y = 0;
                 double z = chunk.getPos().z * 16;
 
-                GlStateManager.color4f(.6f, .1f, .2f,1.0f);
+                RenderSystem.color4f(.6f, .1f, .2f,1.0f);
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -103,12 +103,12 @@ public class ChunkFinder extends Module {
                 bufferBuilder.vertex(x, y, z).color(.6f, .1f, .2f, 1f).next();
                 tessellator.draw();
             }
-            GlStateManager.disableBlend();
-            GlStateManager.enableTexture();
-            GlStateManager.enableDepthTest();
-            GlStateManager.popMatrix();
+            RenderSystem.disableBlend();
+            RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
+            RenderSystem.popMatrix();
 
-            GL11.glEndList();
+            //GL11.glEndList();
             dirty = false;
         }
 
@@ -117,9 +117,9 @@ public class ChunkFinder extends Module {
         double x = camera.getPos().x;
         double y = (relative ? 1 : -1) * camera.getPos().y + yOffset;
         double z = camera.getPos().z;
-        GlStateManager.translated(-x, y, -z);
-        GL11.glCallList(list);
-        GlStateManager.translated(x, -y, z);
+        RenderSystem.translated(-x, y, -z);
+        //GL11.glCallList(list);
+        RenderSystem.translated(x, -y, z);
     });
 
     @Override

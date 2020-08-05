@@ -39,10 +39,6 @@ object Trajectories : Module() {
     private var circleList = -1
 
     private fun compileList() {
-        //Dunno where these went
-        circleList = GL11.glGenLists(1)
-        GL11.glNewList(circleList, GL11.GL_COMPILE)
-
         val tessellator = Tessellator.getInstance()
         val buffer = tessellator.buffer
 
@@ -57,8 +53,6 @@ object Trajectories : Module() {
 
             tessellator.draw()
         }
-
-        GL11.glEndList()
     }
 
     private fun LivingEntity.getHeldItem(): ItemStack? {
@@ -202,7 +196,6 @@ object Trajectories : Module() {
 
                             RenderSystem.disableCull()
                             RenderSystem.disableDepthTest()
-                            GL11.glCallList(circleList)
                             RenderSystem.enableDepthTest()
                             RenderSystem.enableCull()
                         }
