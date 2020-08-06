@@ -7,6 +7,7 @@
     "IChatMessageS2CPacket",
     "IClientPlayerInteractionManager",
     "IDisconnectedScreen",
+    "IEntity",
     "IEntitySelector",
     "IEntityVelocityUpdateS2CPacket",
     "IInputUtilType",
@@ -33,18 +34,20 @@
     "MixinEntity",
     "MixinGameRenderer",
     "MixinGuiPlayerTabOverlay",
+    "MixinHorseBaseEntity",
     "MixinInput",
     "MixinKeyboard",
     "MixinLightmapTextureManager",
     "MixinLivingEntity",
     "MixinMinecraftClient",
-    "MixinMobEntity",
     "MixinMouse",
     "MixinNetHandlerPlayClient",
+    "MixinPigEntity",
     "MixinPlayerEntity",
     "MixinPojoMemberProcessorImpl",
     "MixinRenderLiving",
     "MixinRenderPlayer",
-    "MixinScreen"
+    "MixinScreen",
+    "MixinStriderEntity"
   ]
 }
