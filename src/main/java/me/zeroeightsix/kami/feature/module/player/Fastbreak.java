@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.player;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
-import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
+import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
@@ -14,7 +14,7 @@ public class Fastbreak extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        ((IMinecraftClient) mc).setItemUseCooldown(0);
+        ((IClientPlayerInteractionManager) mc.interactionManager).setBlockBreakingCooldown(0);
     });
 
 }
