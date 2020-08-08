@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.setting
 
-import com.mojang.serialization.Lifecycle
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.LeafAnnotationProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigLeafBuilder
@@ -9,8 +8,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfig
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import me.zeroeightsix.kami.to
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.RegistryKey
-import net.minecraft.util.registry.SimpleRegistry
 import java.lang.reflect.Field
 
 @Target // No target - please use one of the annotations in this class
@@ -31,15 +28,13 @@ interface SettingVisibilitySupplier {
     fun isVisible(): Boolean
 
     companion object {
-        val registryKey = RegistryKey.ofRegistry<SettingVisibilitySupplier>(Identifier("kami", "visibility_registry"))
+        val suppliers = mutableMapOf<Identifier, SettingVisibilitySupplier>()
     }
-
-    object Registry : SimpleRegistry<SettingVisibilitySupplier>(registryKey, Lifecycle.stable())
 }
 
 val visibilityType: StringConfigType<SettingVisibilitySupplier> =
     ConfigTypes.STRING.derive(SettingVisibilitySupplier::class.java, {
-        SettingVisibilitySupplier.Registry[Identifier(it)]
+        SettingVisibilitySupplier.suppliers[Identifier(it)]
     }, {
         it!!.id.toString()
     })
@@ -56,8 +51,8 @@ object ConstantVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVi
     }
 
     init {
-        SettingVisibilitySupplier.Registry.add(RegistryKey.of(SettingVisibilitySupplier.registryKey, alwaysTrue.id), alwaysTrue)
-        SettingVisibilitySupplier.Registry.add(RegistryKey.of(SettingVisibilitySupplier.registryKey, alwaysFalse.id), alwaysFalse)
+        SettingVisibilitySupplier.suppliers[alwaysTrue.id] = alwaysTrue
+        SettingVisibilitySupplier.suppliers[alwaysFalse.id] = alwaysFalse
     }
 
     override fun apply(
@@ -88,7 +83,7 @@ object MethodVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVisi
             override val id: Identifier = Identifier("kami", "visibility_method_${method.hashCode()}")
             override fun isVisible(): Boolean = method.invoke(pojo) as Boolean
         }
-        SettingVisibilitySupplier.Registry.add(RegistryKey.of(SettingVisibilitySupplier.registryKey, supplier.id), supplier)
+        SettingVisibilitySupplier.suppliers[supplier.id] = supplier
         builder!!.withAttribute(
             ConfigAttribute.create(
                 FiberId("kami", "setting_visibility"),

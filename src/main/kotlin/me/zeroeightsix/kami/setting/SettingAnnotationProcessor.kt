@@ -11,7 +11,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import me.zeroeightsix.kami.setting.KamiConfig.createInterface
 import me.zeroeightsix.kami.setting.KamiConfig.typeMap
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.RegistryKey
 import java.lang.reflect.Field
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
@@ -19,7 +18,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
     val INTERFACE_TYPE: StringConfigType<SettingInterface<*>> =
         ConfigTypes.STRING.derive(SettingInterface::class.java,
             {
-                SettingInterface.Registry[Identifier(it)]
+                SettingInterface.interfaces[Identifier(it)]
             },
             {
                 it!!.id.toString()
@@ -52,7 +51,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                         }, "enum-${field.type.simpleName.toLowerCase()}"
                     )
 
-                    SettingInterface.Registry.add(RegistryKey.of(SettingInterface.registryKey, interf.id), interf)
+                    SettingInterface.interfaces[interf.id] = interf
                     interf
                 } else {
                     typeMap.getOrDefault(
