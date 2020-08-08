@@ -15,6 +15,8 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.SystemUtils;
@@ -52,24 +54,8 @@ public class ChunkFinder extends Module {
     @Setting
     @SettingVisibility.Method("isSaveNewChunks")
     private boolean alsoSaveNormalCoords = false;
-    @EventHandler
-    public Listener<ChunkEvent> listener = new Listener<>(event -> {
-        if (!event.getPacket().isFullChunk()) {
-            chunks.add(event.getChunk());
-            dirty = true;
-            if (saveNewChunks) {
-                saveNewChunk(event.getChunk());
-            }
-        }
-    });
-
-    private LastSetting lastSetting = new LastSetting();
-    private PrintWriter logWriter;
-
     static ArrayList<Chunk> chunks = new ArrayList<>();
-
     private static boolean dirty = true;
-    private int list = -1;
 
     @EventHandler
     private Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
@@ -120,6 +106,21 @@ public class ChunkFinder extends Module {
         //GL11.glCallList(list);
         RenderSystem.translated(x, -y, z);
     });
+    @EventHandler
+    private Listener<ChunkEvent.Unload> unloadListener = new Listener<>(event -> dirty = chunks.remove(event.getChunk()));
+    private LastSetting lastSetting = new LastSetting();
+    private PrintWriter logWriter;
+    @EventHandler
+    public Listener<ChunkEvent.Load> listener = new Listener<>(event -> {
+        if (!event.getPacket().isFullChunk()) {
+            chunks.add(event.getChunk());
+            dirty = true;
+            if (saveNewChunks) {
+                saveNewChunk(event.getChunk());
+            }
+        }
+    });
+    private int list = -1;
 
     @Override
     public void onDisable() {
@@ -171,7 +172,7 @@ public class ChunkFinder extends Module {
     private Path getPath() {
         // code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
         File file = null;
-        DimensionType dimension = mc.player.getEntityWorld().getDimension();
+        RegistryKey<World> worldKey = mc.player.getEntityWorld().getRegistryKey();
 
         // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
         if (mc.isInSingleplayer()) {
@@ -196,8 +197,8 @@ public class ChunkFinder extends Module {
         }
 
         // We will actually store the world data in a subfolder: "DIM<id>"
-        if (dimension != DimensionType.getOverworldDimensionType()) { // except if it's the overworld
-            file = new File(file, "DIM" + dimension);
+        if (mc.player.getEntityWorld().getDimension() != DimensionType.getOverworldDimensionType()) { // except if it's the overworld
+            file = new File(file, "DIM" + worldKey);
         }
 
         // maybe we want to save it in region folder
@@ -304,9 +305,6 @@ public class ChunkFinder extends Module {
     private void saveNewChunk(PrintWriter log, String data) {
         log.println(data);
     }
-
-//    @EventHandler
-//    private Listener<net.minecraftforge.event.world.ChunkEvent.Unload> unloadListener = new Listener<>(event -> dirty = chunks.remove(event.getChunk()));
 
     private enum SaveOption {
         extraFolder, liteLoaderWdl, nhackWdl

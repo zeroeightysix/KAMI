@@ -25,6 +25,7 @@
     "MixinBossBarHud",
     "MixinCamera",
     "MixinChatScreen",
+    "MixinClientChunkManager",
     "MixinClientConnection",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
