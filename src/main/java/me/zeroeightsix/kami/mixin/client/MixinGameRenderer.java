@@ -5,8 +5,7 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.CameraHurtEvent;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.event.events.RenderHudEvent;
-import me.zeroeightsix.kami.feature.module.misc.NoEntityTrace;
-import me.zeroeightsix.kami.util.Wrapper;
+import me.zeroeightsix.kami.event.events.TargetEntityEvent;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.Window;
@@ -51,11 +50,10 @@ public class MixinGameRenderer {
 
     @Redirect(method = "updateTargetedEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/ProjectileUtil;rayTrace(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;D)Lnet/minecraft/util/hit/EntityHitResult;"))
     private EntityHitResult rayTrace(Entity entity, Vec3d vec3d, Vec3d vec3d2, Box box, Predicate<Entity> predicate, double d) {
-        if (NoEntityTrace.shouldBlock()) {
-            return null;
-        } else {
-            return ProjectileUtil.rayTrace(entity, vec3d, vec3d2, box, predicate, d);
-        }
+        EntityHitResult result = ProjectileUtil.rayTrace(entity, vec3d, vec3d2, box, predicate, d);
+        TargetEntityEvent event = new TargetEntityEvent(entity, vec3d, vec3d2, box, predicate, d, result);
+        KamiMod.EVENT_BUS.post(event);
+        return event.getTrace();
     }
 
     @Inject(

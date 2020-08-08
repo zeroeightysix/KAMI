@@ -1,6 +1,10 @@
 package me.zeroeightsix.kami.feature.module.misc
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.EventHook
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.event.events.TargetEntityEvent
 import me.zeroeightsix.kami.feature.module.Module
 
 /**
@@ -19,8 +23,9 @@ object NoEntityTrace : Module() {
         STATIC, DYNAMIC
     }
 
-    @JvmStatic
-    fun shouldBlock(): Boolean {
-        return isEnabled() && (traceMode == TraceMode.STATIC || mc.interactionManager?.isBreakingBlock?: false)
-    }
+    @EventHandler
+    val targetListener = Listener(EventHook<TargetEntityEvent> {
+        if (traceMode == TraceMode.STATIC || mc.interactionManager?.isBreakingBlock == true)
+            it.trace = null
+    })
 }
