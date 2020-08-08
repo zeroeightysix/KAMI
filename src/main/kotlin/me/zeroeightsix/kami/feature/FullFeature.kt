@@ -33,13 +33,15 @@ open class FullFeature(
     var name: @Setting.Constrain.MinLength(1) String = originalName
 
     @Setting
-    @Listener("enabledChanged")
     @SettingVisibility.Constant(false)
-    var enabled: Boolean = false
+    var enabled = false
 
-    private fun enabledChanged(old: Boolean, new: Boolean) {
-        if (old != new) {
-            if (new) onEnable()
+    // do not listen to intellij
+    // it lies
+    @Listener("Enabled")
+    private fun enabledChanged(old: java.lang.Boolean, new: java.lang.Boolean) {
+        if (old != null && new != null && !old.equals(new)) {
+            if (new.booleanValue()) onEnable()
             else onDisable()
         }
     }

@@ -2,6 +2,9 @@ package me.zeroeightsix.kami.feature.module.render;
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.events.ApplyFogEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
@@ -10,20 +13,9 @@ import me.zeroeightsix.kami.feature.module.Module;
 @Module.Info(name = "AntiFog", description = "Disables or reduces fog", category = Module.Category.RENDER)
 public class AntiFog extends Module {
 
-    @Setting
-    public static VisionMode mode = VisionMode.NOFOG;
-    private static AntiFog INSTANCE = new AntiFog();
-
-    public AntiFog() {
-        INSTANCE = this;
-    }
-
-    public static boolean enabled() {
-        return INSTANCE.isEnabled();
-    }
-
-    public enum VisionMode {
-        NOFOG, AIR
-    }
+    @EventHandler
+    public Listener<ApplyFogEvent> applyFogListener = new Listener<>(event -> {
+        event.cancel();
+    });
 
 }

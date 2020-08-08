@@ -20,10 +20,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayerEntity.class)
 public class MixinClientPlayerEntity {
 
-    @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(ZZ)V"))
-    public void tick(Input input, boolean bl, boolean bl2) {
+    @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(Z)V"))
+    public void tick(Input input, boolean bl) {
         Input prev = ((ExtendedInput) input).copy(); // Create a copy of the previous input state
-        input.tick(bl, bl2); // Update the current one
+        input.tick(bl); // Update the current one
         InputUpdateEvent ev = new InputUpdateEvent(prev, input); // fire an event to notify the (potential) change in input
         KamiMod.EVENT_BUS.post(ev);
         if (ev.isCancelled()) ((ExtendedInput) input).update(prev); // revert to old when event is cancelled

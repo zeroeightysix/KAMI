@@ -4,8 +4,8 @@ import me.zeroeightsix.kami.mc
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.FluidState
 import net.minecraft.tag.FluidTags
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.BlockPos.PooledMutable
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
@@ -41,21 +41,23 @@ interface TrajectoryMimic {
         val l = MathHelper.ceil(box.maxY)
         val m = MathHelper.floor(box.minZ)
         val n = MathHelper.ceil(box.maxZ)
-        val pooledMutable = PooledMutable.get()
+        val pooledMutable = BlockPos.Mutable()
         try {
             for (p in i until j) {
                 for (q in k until l) {
                     for (r in m until n) {
-                        pooledMutable.method_10113(p, q, r)
-                        val fluidState: FluidState = mc.world.getFluidState(pooledMutable)
-                        if (fluidState.matches(FluidTags.WATER)) {
-                            val e =
-                                (q.toFloat() + fluidState.getHeight(
-                                    mc.world,
-                                    pooledMutable
-                                )).toDouble()
-                            if (e >= box.minY) {
-                                return true
+                        pooledMutable.set(p, q, r)
+                        val fluidState: FluidState? = mc.world?.getFluidState(pooledMutable)
+                        if (fluidState != null) {
+                            if (fluidState.isIn(FluidTags.WATER)) {
+                                val e =
+                                    (q.toFloat() + fluidState.getHeight(
+                                        mc.world,
+                                        pooledMutable
+                                    )).toDouble()
+                                if (e >= box.minY) {
+                                    return true
+                                }
                             }
                         }
                     }
@@ -63,7 +65,6 @@ interface TrajectoryMimic {
             }
         } catch (e: Throwable) {
         } finally {
-            pooledMutable?.close()
         }
 
         return false

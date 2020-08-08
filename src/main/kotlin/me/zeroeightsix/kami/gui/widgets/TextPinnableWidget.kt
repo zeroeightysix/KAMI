@@ -59,11 +59,11 @@ open class TextPinnableWidget(
         internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
             val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
                 Pair("none", { CompiledText.ConstantVariable(string = "No variable selected") }),
-                Pair("x", { CompiledText.NumericalVariable({ mc.player.pos.x }, 0) }),
-                Pair("y", { CompiledText.NumericalVariable({ mc.player.pos.y }, 0) }),
-                Pair("z", { CompiledText.NumericalVariable({ mc.player.pos.z }, 0) }),
-                Pair("yaw", { CompiledText.NumericalVariable({ mc.player.yaw.toDouble() }, 0) }),
-                Pair("pitch", { CompiledText.NumericalVariable({ mc.player.pitch.toDouble() }, 0) }),
+                Pair("x", { CompiledText.NumericalVariable({ mc.player?.pos?.x }, 0) }),
+                Pair("y", { CompiledText.NumericalVariable({ mc.player?.pos?.y }, 0) }),
+                Pair("z", { CompiledText.NumericalVariable({ mc.player?.pos?.z }, 0) }),
+                Pair("yaw", { CompiledText.NumericalVariable({ mc.player?.yaw?.toDouble() }, 0) }),
+                Pair("pitch", { CompiledText.NumericalVariable({ mc.player?.pitch?.toDouble() }, 0) }),
                 Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0) }),
                 Pair("username", { CompiledText.ConstantVariable(string = mc.session.username) })
             )
@@ -88,7 +88,7 @@ open class TextPinnableWidget(
                 // For god knows what reason, rendering minecraft text in here results in fucked textures.
                 // Even if you revert the GL state to exactly what it was before rendering imgui.
                 // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
-                KamiHud.postDraw {
+                KamiHud.postDraw { matrices ->
                     val scale = KamiHud.getScale()
                     val x = cmd.clipRect.x / scale + 4
                     var y = cmd.clipRect.y / scale + 4
@@ -101,6 +101,7 @@ open class TextPinnableWidget(
                                 command.toString().split("\n").forEach {
                                     val width = if (command.shadow)
                                         mc.textRenderer.drawWithShadow(
+                                            matrices,
                                             codes + it,
                                             x + xOffset,
                                             y,
@@ -108,6 +109,7 @@ open class TextPinnableWidget(
                                         ) - (x + xOffset)
                                     else
                                         mc.textRenderer.draw(
+                                            matrices,
                                             codes + it,
                                             x + xOffset,
                                             y,
@@ -123,6 +125,7 @@ open class TextPinnableWidget(
                                 val str = command.codes + command // toString is called here -> supplier.get()
                                 val width = if (command.shadow)
                                     mc.textRenderer.drawWithShadow(
+                                        matrices,
                                         str,
                                         x + xOffset,
                                         y,
@@ -130,6 +133,7 @@ open class TextPinnableWidget(
                                     ) - (x + xOffset)
                                 else
                                     mc.textRenderer.draw(
+                                        matrices,
                                         str,
                                         x + xOffset,
                                         y,
@@ -183,9 +187,9 @@ open class TextPinnableWidget(
             val width = (text.map {
                 it.parts.sumBy { part ->
                     if (part.multiline)
-                        part.toString().split("\n").map { slice -> mc.textRenderer.getStringWidth(slice) }.max() ?: 0
+                        part.toString().split("\n").map { slice -> mc.textRenderer.getWidth(slice) }.max() ?: 0
                     else
-                        mc.textRenderer.getStringWidth(part.toString())
+                        mc.textRenderer.getWidth(part.toString())
                 }
             }.max()?.times(scale) ?: 0) + 24
             val lines = (text.map {
@@ -572,7 +576,7 @@ open class TextPinnableWidget(
             }
         }
 
-        class NumericalVariable(private val provider: () -> Double, var digits: Int = 0) : Variable() {
+        class NumericalVariable(private val provider: () -> Double?, var digits: Int = 0) : Variable() {
             override val multiline = false
 
             override fun provide(): String {

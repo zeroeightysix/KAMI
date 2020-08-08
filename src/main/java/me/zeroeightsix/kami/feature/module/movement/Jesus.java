@@ -14,7 +14,7 @@ import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -76,20 +76,21 @@ public class Jesus extends Module {
     private static boolean isAboveLand(Entity entity){
         if(entity == null) return false;
 
-        double y = entity.y - 0.01;
+        double y = entity.getY() - 0.01;
 
-        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
-            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
+        for(int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++)
+            for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
-                if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
+                //if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
+                if (Wrapper.getWorld().getBlockState(pos).isOpaque()) return true;
             }
 
         return false;
     }
 
     private static boolean isAboveBlock(Entity entity, BlockPos pos) {
-        return entity.y  >= pos.getY();
+        return entity.getY()  >= pos.getY();
     }
 
 }

@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.feature.module.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
@@ -18,7 +18,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.SystemUtils;
-import org.lwjgl.opengl.GL11;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -75,26 +74,26 @@ public class ChunkFinder extends Module {
     @EventHandler
     private Listener<RenderEvent.World> worldRenderListener = new Listener<>(event -> {
         if (dirty) {
-            if (list == -1) {
-                list = GlStateManager.genLists(1);
+            /*if (list == -1) {
+                list = GL11.glGenLists(1);
             }
-            GlStateManager.newList(list, GL11.GL_COMPILE);
+            GL11.glNewList(list, GL11.GL_COMPILE);*/
 
-            GlStateManager.pushMatrix();
-            GlStateManager.disableDepthTest();
-            GlStateManager.disableTexture();
-            GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            GlStateManager.enableBlend();
-            GlStateManager.lineWidth(1.0f);
+            RenderSystem.pushMatrix();
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            RenderSystem.enableBlend();
+            RenderSystem.lineWidth(1.0f);
             for (Chunk chunk : chunks) {
                 double x = chunk.getPos().x * 16;
                 double y = 0;
                 double z = chunk.getPos().z * 16;
 
-                GlStateManager.color3f(.6f, .1f, .2f);
+                RenderSystem.color4f(.6f, .1f, .2f,1.0f);
 
                 Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
+                BufferBuilder bufferBuilder = tessellator.getBuffer();
                 bufferBuilder.begin(GL_LINE_LOOP, VertexFormats.POSITION_COLOR);
                 bufferBuilder.vertex(x, y, z).color(.6f, .1f, .2f, 1f).next();
                 bufferBuilder.vertex(x + 16, y, z).color(.6f, .1f, .2f, 1f).next();
@@ -103,12 +102,12 @@ public class ChunkFinder extends Module {
                 bufferBuilder.vertex(x, y, z).color(.6f, .1f, .2f, 1f).next();
                 tessellator.draw();
             }
-            GlStateManager.disableBlend();
-            GlStateManager.enableTexture();
-            GlStateManager.enableDepthTest();
-            GlStateManager.popMatrix();
+            RenderSystem.disableBlend();
+            RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
+            RenderSystem.popMatrix();
 
-            GlStateManager.endList();
+            //GL11.glEndList();
             dirty = false;
         }
 
@@ -117,9 +116,9 @@ public class ChunkFinder extends Module {
         double x = camera.getPos().x;
         double y = (relative ? 1 : -1) * camera.getPos().y + yOffset;
         double z = camera.getPos().z;
-        GlStateManager.translated(-x, y, -z);
-        GlStateManager.callList(list);
-        GlStateManager.translated(x, -y, z);
+        RenderSystem.translated(-x, y, -z);
+        //GL11.glCallList(list);
+        RenderSystem.translated(x, -y, z);
     });
 
     @Override
@@ -172,12 +171,13 @@ public class ChunkFinder extends Module {
     private Path getPath() {
         // code from baritone (https://github.com/cabaletta/baritone/blob/master/src/main/java/baritone/cache/WorldProvider.java)
         File file = null;
-        DimensionType dimension = mc.player.dimension;
+        DimensionType dimension = mc.player.getEntityWorld().getDimension();
 
         // If there is an integrated server running (Aka Singleplayer) then do magic to find the world save file
         if (mc.isInSingleplayer()) {
             try {
-                file = mc.getServer().getWorld(dimension).getSaveHandler().getWorldDir();
+                file = DimensionType.getSaveDirectory(mc.world.getRegistryKey(),mc.runDirectory);
+                //I don't know if this actually does anything
             } catch (Exception e) {
                 e.printStackTrace();
                 KamiMod.getLog().error("some exception happened when getting canonicalFile -> " + e.getMessage());
@@ -196,7 +196,7 @@ public class ChunkFinder extends Module {
         }
 
         // We will actually store the world data in a subfolder: "DIM<id>"
-        if (dimension.getRawId() != 0) { // except if it's the overworld
+        if (dimension != DimensionType.getOverworldDimensionType()) { // except if it's the overworld
             file = new File(file, "DIM" + dimension);
         }
 
@@ -340,7 +340,7 @@ public class ChunkFinder extends Module {
             if (alsoSaveNormalCoords != lastSaveNormal) {
                 return true;
             }
-            if (dimension != mc.player.dimension) {
+            if (dimension != mc.player.getEntityWorld().getDimension()) {
                 return true;
             }
             if (!mc.getCurrentServerEntry().address.equals(ip)) { // strings need equals + this way because could be null
@@ -353,7 +353,7 @@ public class ChunkFinder extends Module {
             lastSaveOption = saveOption;
             lastInRegion = saveInRegionFolder;
             lastSaveNormal = alsoSaveNormalCoords;
-            dimension = mc.player.dimension;
+            dimension = mc.player.getEntityWorld().getDimension();
             ip = mc.getCurrentServerEntry().address;
         }
     }

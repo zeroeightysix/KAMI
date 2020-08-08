@@ -12,7 +12,6 @@ import java.util.function.Function;
 
 /**
  * Created by 086 on 12/12/2017.
- * @see me.zeroeightsix.kami.mixin.client.MixinEntityRenderer
  */
 @Module.Info(name = "Brightness", description = "Makes everything brighter!", category = Module.Category.RENDER)
 public class Brightness extends Module {
@@ -24,7 +23,7 @@ public class Brightness extends Module {
     private @Setting.Constrain.Range(min = 0, max = 10) float seconds = 1;
     @Setting(name = "Mode")
     private Transition mode = Transition.SINE;
-    
+
     public boolean ifTransition() {
         return transition;
     }

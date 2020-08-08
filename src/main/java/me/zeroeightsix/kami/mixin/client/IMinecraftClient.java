@@ -9,9 +9,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMinecraftClient {
 
     @Accessor
-    int getItemUseCooldown();
-
-    @Accessor
     void setItemUseCooldown(int itemUseCooldown);
 
     @Invoker

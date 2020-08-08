@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -18,21 +18,9 @@ import net.minecraft.util.math.Vec3d;
 public class Flight extends Module {
 
     @Setting(name = "Speed")
-    private float speed = 10f;
+    private @Setting.Constrain.Range(min = 0, max = 10, step = 0.5) float speed = 1f;
     @Setting(name = "Mode")
     private FlightMode mode = FlightMode.VANILLA;
-
-    @Override
-    public void onEnable() {
-        if (mc.player == null) return;
-        switch (mode) {
-            case VANILLA:
-                mc.player.abilities.flying = true;
-                if (mc.player.abilities.creativeMode) return;
-                mc.player.abilities.allowFlying = true;
-                break;
-        }
-    }
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
@@ -40,7 +28,7 @@ public class Flight extends Module {
             case STATIC:
                 mc.player.abilities.flying = false;
                 mc.player.setVelocity(Vec3d.ZERO);
-                mc.player.field_6281 = speed; // jumpMovementFactor
+                mc.player.flyingSpeed = speed;
 
                 if (mc.options.keyJump.isPressed()) {
                     mc.player.addVelocity(0, speed, 0);
@@ -50,7 +38,7 @@ public class Flight extends Module {
                 }
                 break;
             case VANILLA:
-                mc.player.abilities.setFlySpeed(speed / 100f);
+                mc.player.abilities.setFlySpeed(speed / 20f);
                 mc.player.abilities.flying = true;
                 if (mc.player.abilities.creativeMode) return;
                 mc.player.abilities.allowFlying = true;
@@ -77,26 +65,22 @@ public class Flight extends Module {
                 }
 
                 EntityUtil.updateVelocityY(mc.player, 0);
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, false));
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.x + mc.player.getVelocity().x, mc.player.y - 42069, mc.player.z + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.getZ() + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, false));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Both(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() - 42069 /* nice */, mc.player.getZ() + mc.player.getVelocity().z, mc.player.yaw, mc.player.pitch, true));
                 break;
         }
     });
 
     @Override
     public void onDisable() {
-        switch (mode) {
-            case VANILLA:
-                mc.player.abilities.flying = false;
-                mc.player.abilities.setFlySpeed(0.05f);
-                if (mc.player.abilities.creativeMode) return;
-                mc.player.abilities.allowFlying = false;
-                break;
-        }
-    }
+        super.onDisable();
 
-    public double[] moveLooking() {
-        return new double[]{mc.player.yaw * 360.0F / 360.0F * 180.0F / 180.0F, 0.0D};
+        if (mode == FlightMode.VANILLA && mc.player != null) {
+            mc.player.abilities.flying = false;
+            mc.player.abilities.setFlySpeed(0.05f);
+            if (mc.player.abilities.creativeMode) return;
+            mc.player.abilities.allowFlying = false;
+        }
     }
 
     public enum FlightMode {

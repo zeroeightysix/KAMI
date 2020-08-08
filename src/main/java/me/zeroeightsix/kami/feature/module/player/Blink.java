@@ -6,8 +6,7 @@ import me.zeroeightsix.kami.event.events.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
-
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import java.util.LinkedList;
 import java.util.Queue;
 

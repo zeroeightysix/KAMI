@@ -16,7 +16,7 @@ import me.zeroeightsix.kami.util.ShulkerBoxCommon
 import net.minecraft.block.ShulkerBoxBlock
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
-import net.minecraft.container.ShulkerBoxContainer
+import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.item.BlockItem
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -36,14 +36,16 @@ object PeekCommand : Command(), Listenable {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("peek").executes { context: CommandContext<CommandSource>? ->
-                val stack = mc.player.inventory.mainHandStack
-            if (ShulkerBoxCommon.isShulkerBox(stack.item)) {
-                val entityBox =
-                    ShulkerBoxBlockEntity(((stack.item as BlockItem).block as ShulkerBoxBlock).color)
-                entityBox.world = mc.world
+                val stack = mc.player?.inventory?.mainHandStack
+            if (ShulkerBoxCommon.isShulkerBox(stack?.item)) {
+                var entityBox =
+                    ShulkerBoxBlockEntity(((stack?.item as BlockItem).block as ShulkerBoxBlock).color)
+                //Changed 'val' to 'var', but now IDEA is telling me "Variable is never modified and can be declared immutable using 'val'"???
+                //entityBox.world = mc.world
                 val tag = stack.getSubTag("BlockEntityTag")
-                if (tag != null) {
-                    entityBox.fromTag(tag)
+                val state = mc.world?.getBlockState(entityBox.pos)
+                if (tag != null && state != null) {
+                    entityBox.fromTag(state, tag)
                     sb = entityBox
                     KamiMod.EVENT_BUS.subscribe(this)
                 } else {
@@ -60,13 +62,13 @@ object PeekCommand : Command(), Listenable {
     var tickListener = Listener(
         EventHook<TickEvent.Client.InGame> {
             if (sb != null) {
-                val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateContainer(
+                val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateScreenHandler(
                     -1,
-                    mc.player.inventory
-                ) as ShulkerBoxContainer
+                    mc.player?.inventory
+                ) as ShulkerBoxScreenHandler
                 val gui = ShulkerBoxScreen(
                     container,
-                    mc.player.inventory,
+                    mc.player?.inventory,
                     sb!!.displayName
                 )
                 mc.openScreen(gui)

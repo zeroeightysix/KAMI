@@ -4,11 +4,11 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import net.minecraft.client.gui.screen.ingame.ContainerScreen54;
-import net.minecraft.container.SlotActionType;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.screen.slot.SlotActionType;
 
 /**
  * Created by 086 on 24/01/2018.
@@ -20,7 +20,7 @@ public class AutoArmour extends Module {
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (mc.player.age % 2 == 0) return;
         // check screen
-        if(mc.currentScreen instanceof ContainerScreen54)
+        if(mc.currentScreen instanceof GenericContainerScreen)
             return;
 
         // store slots and values of best armor pieces
@@ -41,7 +41,7 @@ public class AutoArmour extends Module {
         // search inventory for better armor
         for(int slot = 0; slot < 36; slot++)
         {
-            ItemStack stack = mc.player.inventory.getInvStack(slot);
+            ItemStack stack = mc.player.inventory.getStack(slot);
 
             if (stack.getCount() > 1)
                 continue;
@@ -82,9 +82,9 @@ public class AutoArmour extends Module {
                     slot += 36;
 
                 // swap armor
-                mc.interactionManager.method_2906(0, 8 - armorType, 0,
+                mc.interactionManager.clickSlot(0, 8 - armorType, 0,
                         SlotActionType.QUICK_MOVE, mc.player);
-                mc.interactionManager.method_2906(0, slot, 0,
+                mc.interactionManager.clickSlot(0, slot, 0,
                         SlotActionType.QUICK_MOVE, mc.player);
 
                 break;

@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
+import me.zeroeightsix.kami.event.events.ClipAtLedgeEvent;
 import me.zeroeightsix.kami.event.events.EntityEvent;
 import me.zeroeightsix.kami.event.events.PlayerAttackEntityEvent;
 import net.minecraft.entity.Entity;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class MixinPlayerEntity {
@@ -33,6 +35,13 @@ public class MixinPlayerEntity {
         if (info.isCancelled()) {
             info.cancel();
         }
+    }
+
+    @Inject(method = "clipAtLedge", at = @At("HEAD"), cancellable = true)
+    public void onClipAtLedge(CallbackInfoReturnable<Boolean> cir) {
+        ClipAtLedgeEvent event = new ClipAtLedgeEvent((PlayerEntity) (Object) this, null);
+        KamiMod.EVENT_BUS.post(event);
+        if (event.getClip() != null) cir.setReturnValue(event.getClip());
     }
 
 }

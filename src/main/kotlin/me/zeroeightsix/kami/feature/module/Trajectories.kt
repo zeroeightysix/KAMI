@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.module
 
 import com.mojang.blaze3d.platform.GlStateManager.*
+import com.mojang.blaze3d.systems.RenderSystem
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
@@ -8,12 +9,12 @@ import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
-import me.zeroeightsix.kami.setNoBobbingCamera
+import me.zeroeightsix.kami.noBobbingCamera
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
-import net.minecraft.client.util.GlAllocationUtils
+import net.minecraft.client.render.debug.ChunkBorderDebugRenderer
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -38,11 +39,8 @@ object Trajectories : Module() {
     private var circleList = -1
 
     private fun compileList() {
-        circleList = GlAllocationUtils.genLists(1)
-        newList(circleList, GL11.GL_COMPILE)
-
         val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.bufferBuilder
+        val buffer = tessellator.buffer
 
         with(buffer) {
             begin(GL11.GL_TRIANGLE_FAN, VertexFormats.POSITION_COLOR)
@@ -55,8 +53,6 @@ object Trajectories : Module() {
 
             tessellator.draw()
         }
-
-        endList()
     }
 
     private fun LivingEntity.getHeldItem(): ItemStack? {
@@ -89,20 +85,21 @@ object Trajectories : Module() {
         val cZ = camera.pos.z
 
         val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.bufferBuilder
+        val buffer = tessellator.buffer
 
-        enableDepthTest()
-        enableBlend()
+        RenderSystem.shadeModel(GL11.GL_SMOOTH)
+        RenderSystem.enableAlphaTest()
+        RenderSystem.defaultAlphaFunc()
+        RenderSystem.disableTexture()
         lineWidth(0.5F)
 
         if (circleList == -1)
             compileList()
 
-        matrix {
-            setNoBobbingCamera()
-            mc.world.entities
-                .filterIsInstance<LivingEntity>()
-                .forEach {
+        noBobbingCamera(it.matrixStack) {
+            mc.world?.entities
+                ?.filterIsInstance<LivingEntity>()
+                ?.forEach {
                     val stack = it.getHeldItem() ?: return@forEach
                     val mimic = when (stack.item) {
                         is BowItem, is TridentItem -> {
@@ -117,7 +114,7 @@ object Trajectories : Module() {
                             }
 
                             val mimic = ProjectileMimic(
-                                mc.world,
+                                mc?.world!!,
                                 it,
                                 if (isBow) {
                                     EntityType.ARROW
@@ -154,7 +151,7 @@ object Trajectories : Module() {
                                 else -> Triple(1.5f, 0f, 0.03)
                             }
 
-                            val mimic = ThrowableMimic(mc.world, it, type, gravity, 1.0)
+                            val mimic = ThrowableMimic(mc.world!!, it, type, gravity, 1.0)
 
                             mimic.setProperties(
                                 it.pitch,
@@ -170,8 +167,8 @@ object Trajectories : Module() {
 
                     var offset = if (it == mc.player) {
                         Vec3d(-0.1, 0.075, 0.0)
-                            .rotateX((-Math.toRadians(mc.player.pitch.toDouble())).toFloat())
-                            .rotateY((-Math.toRadians(mc.player.yaw.toDouble())).toFloat())
+                            .rotateX((-Math.toRadians(mc.player!!.pitch.toDouble())).toFloat())
+                            .rotateY((-Math.toRadians(mc.player!!.yaw.toDouble())).toFloat())
                     } else {
                         Vec3d(0.0, 0.0, 0.0)
                     }
@@ -197,16 +194,18 @@ object Trajectories : Module() {
                                 }
                             }
 
-                            disableCull()
-                            disableDepthTest()
-                            callList(circleList)
-                            enableDepthTest()
-                            enableCull()
+                            RenderSystem.disableCull()
+                            RenderSystem.disableDepthTest()
+                            RenderSystem.enableDepthTest()
+                            RenderSystem.enableCull()
                         }
                     }
                 }
         }
 
-        lineWidth(1.0f)
+        RenderSystem.lineWidth(1.0f)
+        RenderSystem.enableBlend()
+        RenderSystem.enableTexture()
+        RenderSystem.shadeModel(GL11.GL_FLAT)
     })
 }

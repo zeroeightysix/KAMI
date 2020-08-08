@@ -8,8 +8,8 @@ import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
 import me.zeroeightsix.kami.mixin.client.IChatMessageS2CPacket;
-import net.minecraft.client.network.packet.ChatMessageS2CPacket;
-import net.minecraft.server.network.packet.ChatMessageC2SPacket;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.text.LiteralText;
 
 import java.nio.CharBuffer;
@@ -66,8 +66,8 @@ public class ChatEncryption extends Module {
 
     @EventHandler
     private Listener<PacketEvent.Receive> receiveListener = new Listener<>(event -> {
-        if (event.getPacket() instanceof ChatMessageS2CPacket) {
-            String s = ((ChatMessageS2CPacket) event.getPacket()).getMessage().getString();
+        if (event.getPacket() instanceof GameMessageS2CPacket) {
+            String s = ((GameMessageS2CPacket) event.getPacket()).getMessage().getString();
 
             Matcher matcher = CHAT_PATTERN.matcher(s);
             String username = "unnamed";

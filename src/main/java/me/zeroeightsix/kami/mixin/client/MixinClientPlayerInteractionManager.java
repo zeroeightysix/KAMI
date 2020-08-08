@@ -25,7 +25,7 @@ public class MixinClientPlayerInteractionManager {
         KamiMod.EVENT_BUS.post(event);
     }
 
-    @Redirect(method = "method_2902", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;calcBlockBreakingDelta(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)F"))
+    @Redirect(method = "updateBlockBreakingProgress", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;calcBlockBreakingDelta(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)F"))
     public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView view, BlockPos pos) {
         return state.calcBlockBreakingDelta(player, view, pos) * (TpsSync.isSync() ? (LagCompensator.INSTANCE.getTickRate() / 20f) : 1);
     }

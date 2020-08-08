@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.setting.KamiConfig;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,10 +26,12 @@ public class MixinMinecraftClient {
 
     @Shadow public ClientWorld world;
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/DisableableProfiler;push(Ljava/lang/String;)V", ordinal = 0), cancellable = true)
+    @Shadow public ClientPlayerEntity player;
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 0), cancellable = true)
     public void tick(CallbackInfo info) {
         TickEvent.Client event;
-        if (Wrapper.getMinecraft().player != null && Wrapper.getMinecraft().world != null) {
+        if (player != null && world != null) {
             event = new TickEvent.Client.InGame();
         } else {
             event = new TickEvent.Client.OutOfGame();
@@ -52,7 +55,7 @@ public class MixinMinecraftClient {
         return displayedEvent.getScreen();
     }
 
-    @Inject(method = "start", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;printCrashReport(Lnet/minecraft/util/crash/CrashReport;)V"))
+    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;printCrashReport(Lnet/minecraft/util/crash/CrashReport;)V"))
     public void displayCrashReport(CallbackInfo info) {
         save();
     }

@@ -25,7 +25,7 @@ public class MutableProperty<T> implements KMutableProperty0<T> {
 
     //    @NotNull
     @Override
-    public Setter<T> getSetter() {
+    public kotlin.reflect.KMutableProperty0.Setter<T> getSetter() {
         return null;
     }
 

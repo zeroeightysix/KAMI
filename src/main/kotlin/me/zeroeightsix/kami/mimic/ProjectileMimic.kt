@@ -95,7 +95,7 @@ class ProjectileMimic(
         setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), speed)
 
         this.setVelocity(i.toDouble(), j.toDouble(), k.toDouble(), speed)
-        velocity = velocity.add(user.velocity.x, if (user.onGround) 0.0 else user.velocity.y, user.velocity.z)
+        velocity = velocity.add(user.velocity.x, if (user.isOnGround) 0.0 else user.velocity.y, user.velocity.z)
 
         divergence = _divergence * speed
     }

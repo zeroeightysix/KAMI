@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.module.AutoReconnect;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.packet.DisconnectS2CPacket;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.text.LiteralText;
 
 /**

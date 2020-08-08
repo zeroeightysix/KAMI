@@ -4,11 +4,11 @@ import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.AmbientEntity;
 import net.minecraft.entity.mob.EndermanEntity;
-import net.minecraft.entity.mob.ZombiePigmanEntity;
+import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -17,7 +17,7 @@ import net.minecraft.util.math.Vec3d;
 public class EntityUtil {
 
     public static boolean isPassive(Entity e){
-        if (e instanceof WolfEntity && ((WolfEntity) e).isAngry()) return false;
+        if (e instanceof WolfEntity && ((WolfEntity) e).getAngryAt() != null) return false;
         if (e instanceof AnimalEntity || e instanceof AmbientEntity || e instanceof SquidEntity) return true;
         return e instanceof IronGolemEntity && ((IronGolemEntity) e).getTarget() == null;
     }
@@ -44,14 +44,15 @@ public class EntityUtil {
     }
 
     public static boolean isMobAggressive(Entity entity) {
-        if(entity instanceof ZombiePigmanEntity) {
+        if(entity instanceof ZombifiedPiglinEntity) {
             // angry = either game or we have set the anger cooldown
-            if(((ZombiePigmanEntity) entity).isAngryAt(MinecraftClient.getInstance().player)) {
+            if(((ZombifiedPiglinEntity) entity).isAngryAt(MinecraftClient.getInstance().player)) {
                 return true;
             }
         } else if(entity instanceof WolfEntity) {
-            return ((WolfEntity) entity).isAngry() &&
-                    !Wrapper.getPlayer().equals(((WolfEntity) entity).getOwner());
+            /*return ((WolfEntity) entity).isAngry() &&
+                !Wrapper.getPlayer().equals(((WolfEntity) entity).getOwner());*/
+            return ((WolfEntity) entity).getAngryAt() == Wrapper.getPlayer().getUuid();
         } else if(entity instanceof EndermanEntity) {
             return ((EndermanEntity) entity).isAngry();
         }
@@ -62,7 +63,7 @@ public class EntityUtil {
      * If the mob by default wont attack the player, but will if the player attacks it
      */
     public static boolean isNeutralMob(Entity entity) {
-        return entity instanceof ZombiePigmanEntity ||
+        return entity instanceof ZombifiedPiglinEntity ||
                 entity instanceof WolfEntity ||
                 entity instanceof EndermanEntity;
     }
@@ -71,8 +72,8 @@ public class EntityUtil {
      * If the mob is friendly (not aggressive)
      */
     public static boolean isFriendlyMob(Entity entity) {
-        return (entity.getType().getCategory() == EntityCategory.CREATURE && !EntityUtil.isNeutralMob(entity)) ||
-                (entity.getType().getCategory() == EntityCategory.AMBIENT ||
+        return (entity.getType().getSpawnGroup() == SpawnGroup.CREATURE && !EntityUtil.isNeutralMob(entity)) ||
+                (entity.getType().getSpawnGroup() == SpawnGroup.AMBIENT ||
                 entity instanceof VillagerEntity ||
                 entity instanceof IronGolemEntity ||
                 (isNeutralMob(entity) && !EntityUtil.isMobAggressive(entity)));
@@ -82,7 +83,7 @@ public class EntityUtil {
      * If the mob is hostile
      */
     public static boolean isHostileMob(Entity entity) {
-        return (entity.getType().getCategory() == EntityCategory.MONSTER && !EntityUtil.isNeutralMob(entity));
+        return (entity.getType().getSpawnGroup() == SpawnGroup.MONSTER && !EntityUtil.isNeutralMob(entity));
     }
 
     /**
@@ -92,18 +93,13 @@ public class EntityUtil {
         return new Vec3d(entity.prevX, entity.prevY, entity.prevZ).add(getInterpolatedAmount(entity, ticks));
     }
 
-    public static Vec3d getInterpolatedRenderPos(Entity entity, float ticks) {
-        Vec3d renderPos = Wrapper.getRenderPosition();
-        return getInterpolatedPos(entity, ticks).subtract(renderPos);
-    }
-
     public static boolean isInWater(Entity entity) {
         if(entity == null) return false;
 
-        double y = entity.y + 0.01;
+        double y = entity.getY() + 0.01;
 
-        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
-            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
+        for(int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++)
+            for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
                 BlockPos pos = new BlockPos(x, (int) y, z);
 
                 if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
@@ -120,10 +116,10 @@ public class EntityUtil {
     public static boolean isAboveWater(Entity entity, boolean packet){
         if (entity == null) return false;
 
-        double y = entity.y - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
+        double y = entity.getY() - (packet ? 0.03 : (EntityUtil.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
-        for(int x = MathHelper.floor(entity.x); x < MathHelper.ceil(entity.x); x++)
-            for (int z = MathHelper.floor(entity.z); z < MathHelper.ceil(entity.z); z++) {
+        for(int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++)
+            for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
                 if (Wrapper.getWorld().getBlockState(pos).getBlock() instanceof FluidBlock) return true;
@@ -133,9 +129,9 @@ public class EntityUtil {
     }
 
     public static double[] calculateLookAt(double px, double py, double pz, ClientPlayerEntity me) {
-        double dirx = me.x - px;
-        double diry = me.y - py;
-        double dirz = me.z - pz;
+        double dirx = me.getX() - px;
+        double diry = me.getY() - py;
+        double dirz = me.getZ() - pz;
 
         double len = Math.sqrt(dirx*dirx + diry*diry + dirz*dirz);
 

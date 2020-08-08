@@ -7,8 +7,7 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.TickEvent
-import me.zeroeightsix.kami.matrix
-import me.zeroeightsix.kami.setNoBobbingCamera
+import me.zeroeightsix.kami.noBobbingCamera
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
@@ -57,7 +56,7 @@ object Tracers : Module() {
         EventHook<RenderEvent.World> {
             val camera: Camera = mc.gameRenderer.camera
             val tessellator = Tessellator.getInstance()
-            val bufferBuilder = tessellator.bufferBuilder
+            val bufferBuilder = tessellator.buffer
             val cX = camera.pos.x
             val cY = camera.pos.y
             val cZ = camera.pos.z
@@ -66,34 +65,36 @@ object Tracers : Module() {
             disableTexture()
             disableDepthTest()
 
-            matrix {
-                setNoBobbingCamera()
-
+            noBobbingCamera(it.matrixStack) {
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                     .rotateX(
-                        (-Math
-                            .toRadians(mc.player.pitch.toDouble())).toFloat()
+                        (-mc.player?.pitch?.toDouble()?.let { it1 ->
+                            Math
+                                    .toRadians(it1)
+                        }!!).toFloat()
                     )
                     .rotateY(
-                        (-Math
-                            .toRadians(mc.player.yaw.toDouble())).toFloat()
+                        (-mc.player?.yaw?.toDouble()?.let { it1 ->
+                            Math
+                                    .toRadians(it1)
+                        }!!).toFloat()
                     )
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                mc.world.entities
-                    .filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
-                    .filter {
-                        when {
-                            it is PlayerEntity -> players && mc.player !== it
-                            EntityUtil.isPassive(
-                                it
-                            ) -> animals
-                            else -> mobs
+                mc.world?.entities
+                        ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
+                        ?.filter {
+                            when {
+                                it is PlayerEntity -> players && mc.player !== it
+                                EntityUtil.isPassive(
+                                        it
+                                ) -> animals
+                                else -> mobs
+                            }
                         }
-                    }
-                    .filter { mc.player.distanceTo(it) < range }
-                    .forEach {
+                    ?.filter { mc.player?.distanceTo(it)!! < range }
+                    ?.forEach {
                         var colour = getColour(it)
                         if (colour == ColourUtils.Colors.RAINBOW) {
                             if (!friends) return@forEach
@@ -147,9 +148,9 @@ object Tracers : Module() {
 
     private fun interpolate(entity: Entity): Vec3d {
         return Vec3d(
-            interpolate(entity.x, entity.prevRenderX),
-            interpolate(entity.y, entity.prevRenderY),
-            interpolate(entity.z, entity.prevRenderZ)
+            interpolate(entity.x, entity.lastRenderX),
+            interpolate(entity.y, entity.lastRenderY),
+            interpolate(entity.z, entity.lastRenderZ)
         )
     }
 }

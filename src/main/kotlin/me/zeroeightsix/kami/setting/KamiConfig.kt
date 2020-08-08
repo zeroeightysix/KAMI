@@ -1,3 +1,5 @@
+//TODO: Ask for help with all of this
+
 package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
@@ -29,6 +31,7 @@ import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.RegistryKey
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.file.Files
@@ -92,8 +95,9 @@ object KamiConfig {
     val friendsType =
         ConfigTypes.makeList(profileType)
 
+    //TODO: Ask what all of this does... then figure out how to make it work(?)
     private val bindMap = (InputUtil.Type.KEYSYM.getMap()).mapNotNull {
-        val name = it.value.name.also { s ->
+        val name = it.value.translationKey.also { s ->
             if (!s.startsWith("key.keyboard")) return@mapNotNull null
         }.removePrefix("key.keyboard.").replace('.', '-')
 
@@ -233,7 +237,7 @@ object KamiConfig {
 
     fun initAndLoad(): ConfigTree? {
         typeMap.values.forEach {
-            SettingInterface.Registry.add(it.id, it)
+            SettingInterface.Registry.add(RegistryKey.of(SettingInterface.registryKey, it.id), it)
         }
 
         return try {

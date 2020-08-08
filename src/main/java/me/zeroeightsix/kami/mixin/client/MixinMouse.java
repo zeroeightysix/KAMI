@@ -13,7 +13,7 @@ public class MixinMouse {
 
     @Inject(method = "onMouseScroll", at = @At("HEAD"))
     private void onMouseScroll(long window, double d, double e, CallbackInfo info) {
-        if (window == Wrapper.getMinecraft().window.getHandle()) {
+        if (window == Wrapper.getMinecraft().getWindow().getHandle()) {
             KamiHud.INSTANCE.mouseScroll(d, e);
         }
     }

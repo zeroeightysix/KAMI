@@ -27,7 +27,8 @@ public class KamiTessellator extends Tessellator {
     public static void prepareGL() {
 //        GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        //GLStateManager.SourceFactor and GLStateManager.DestFactor don't exist anymore
+        GlStateManager.blendFuncSeparate(770, 771, 1, 0);
         GlStateManager.lineWidth(1.5F);
         GlStateManager.disableTexture();
         GlStateManager.depthMask(false);
@@ -36,11 +37,11 @@ public class KamiTessellator extends Tessellator {
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.enableAlphaTest();
-        GlStateManager.color3f(1f,1f,1f);
+        GlStateManager.color4f(1f,1f,1f,1.0f);
     }
 
     public static void begin(int mode) {
-        getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
+        INSTANCE.getBuffer().begin(mode, VertexFormats.POSITION_COLOR);
     }
 
     public static void release() {
@@ -68,7 +69,7 @@ public class KamiTessellator extends Tessellator {
         drawBox(blockPos, r, g, b, a, sides);
     }
 
-    public static void drawBox(float x, float y, float z, int argb, int sides) {
+    public void drawBox(float x, float y, float z, int argb, int sides) {
         final int a = (argb >>> 24) & 0xFF;
         final int r = (argb >>> 16) & 0xFF;
         final int g = (argb >>> 8) & 0xFF;
@@ -77,11 +78,12 @@ public class KamiTessellator extends Tessellator {
     }
 
     public static void drawBox(BlockPos blockPos, int r, int g, int b, int a, int sides) {
-        drawBox(getBuffer(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, r, g, b, a, sides);
+        drawBox(INSTANCE.getBuffer(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, r, g, b, a, sides);
     }
 
-    public static BufferBuilder getBuffer() {
-        return INSTANCE.getBufferBuilder();
+    //I removed static references because static getBuffer can't overwrite getBuffer(?)
+    public BufferBuilder getBuffer() {
+        return INSTANCE.getBuffer();
     }
 
     public static void drawBox(final BufferBuilder buffer, float x, float y, float z, float w, float h, float d, int r, int g, int b, int a, int sides) {

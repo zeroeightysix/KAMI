@@ -1,11 +1,11 @@
 # KAMI
-[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=fabric-1.14)](https://travis-ci.com/zeroeightysix/KAMI)
+[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=fabric)](https://travis-ci.com/zeroeightysix/KAMI)
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
 ## A Minecraft utility mod for anarchy servers.
 
-The Fabric 1.14.4 version is in active development. 
+The Fabric 1.16.1 version is in active development.
 
 ## Preview
 
@@ -55,7 +55,7 @@ If you experience an issue and it's not listed there, please [open a new issue](
 You are free to clone, modify KAMI and make pull requests as you wish. To set up your development environment, make use of the following commands:
 
 ```
-git clone -b fabric-1.14 https://github.com/zeroeightysix/KAMI/
+git clone -b fabric https://github.com/zeroeightysix/KAMI/
 cd KAMI
 ```
 
@@ -64,10 +64,6 @@ On GNU/Linux, run `chmod +x gradlew` beforehand.
 On Windows, for the following commands use `gradlew.bat` instead of `./gradlew`
 
 Of-course you can also use a Gradle installation if you for some reason want another version of gradle
-
-```
-./gradlew setupDecompWorkspace
-```
 
 Import KAMI into your IDE of choice. 
 
@@ -82,7 +78,7 @@ If you do not wish to run from an IDE, use `./gradlew runClient` to run KAMI.
 You can build by running these commands (without the <>) in a terminal.
 
 ```
-git clone -b fabric-1.14 https://github.com/zeroeightysix/KAMI/
+git clone -b fabric https://github.com/zeroeightysix/KAMI/
 cd KAMI
 
 chmod +x gradlew
