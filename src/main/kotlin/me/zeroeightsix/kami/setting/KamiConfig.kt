@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import glm_.asHexString
 import glm_.vec2.Vec2
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
@@ -17,6 +18,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerial
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
+import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
@@ -43,6 +45,14 @@ import kotlin.collections.HashMap
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    val colourType =
+        ConfigTypes.makeList(ConfigTypes.FLOAT)
+            .derive(Colour::class.java, { list ->
+                Colour(list[0], list[1], list[2], list[3])
+            }, {
+                listOf(it.r, it.g, it.b, it.a)
+            })
 
     var bindType =
         ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER)
@@ -101,6 +111,27 @@ object KamiConfig {
     }.toMap()
 
     val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
+        Pair(
+            Colour::class.java,
+            createInterface({
+                Pair("colour", colourType.toRuntimeType(it.value).asRGBA().asHexString)
+            }, {
+                colourType.toSerializedType(
+                    Colour.fromRGBA(it.toInt(radix = 16))
+                )
+            }, {
+                with(ImGui) {
+                    val floats = colourType.toRuntimeType(it.value).asFloats().toFloatArray()
+                    colorEdit4(
+                        it.name,
+                        floats
+                    )
+                    it.value = colourType.toSerializedType(
+                        Colour(floats[0], floats[1], floats[2], floats[3])
+                    )
+                }
+            }, { b -> b.buildFuture() })
+        ),
         Pair(
             Bind::class.java,
             createInterface({
@@ -258,6 +289,7 @@ object KamiConfig {
             .useNamingConvention(ProperCaseConvention)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
+            .registerTypeMapping(Colour::class.java, colourType)
             .registerSettingProcessor(
                 Setting::class.java,
                 SettingAnnotationProcessor

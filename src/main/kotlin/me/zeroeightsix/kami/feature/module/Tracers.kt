@@ -20,8 +20,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
 
-typealias Colour = Int
-
 /**
  * Created by 086 on 11/12/2017.
  */
@@ -134,7 +132,7 @@ object Tracers : Module() {
         }
     )
 
-    private fun getColour(entity: Entity): Colour {
+    private fun getColour(entity: Entity): Int {
         return if (entity is PlayerEntity) {
             if (Friends.isFriend(entity.gameProfile.name)) ColourUtils.Colors.RAINBOW else ColourUtils.Colors.WHITE
         } else {

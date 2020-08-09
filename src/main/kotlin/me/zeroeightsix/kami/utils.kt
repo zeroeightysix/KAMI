@@ -7,11 +7,11 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
 import me.zeroeightsix.kami.mixin.extend.getStack
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11
 import java.util.stream.Stream
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
@@ -114,3 +114,26 @@ fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
         mc.gameRenderer.loadProjectionMatrix(peek().model)
     }
 }
+
+data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
+    fun asInts() = arrayOf((r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt(), (a * 255).toInt())
+
+    fun asFloats() = arrayOf(r, g, b, a)
+
+    fun asRGBA(): Int {
+        val integers = asInts()
+        return (integers[0] shl 24) or (integers[1] shl 16) or (integers[2] shl 8) or integers[3]
+    }
+
+    companion object {
+        fun fromRGBA(rgba: Int): Colour {
+            val r = ((rgba shr 24) and 0xFF) / 255f
+            val g = ((rgba shr 16) and 0xFF) / 255f
+            val b = ((rgba shr 8) and 0xFF) / 255f
+            val a = (rgba and 0xFF) / 255f
+            return Colour(r, g, b, a)
+        }
+    }
+}
+
+fun VertexConsumer.color(color: Colour) = this.color(color.r, color.g, color.b, color.a)
