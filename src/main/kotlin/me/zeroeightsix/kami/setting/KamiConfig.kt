@@ -6,6 +6,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import glm_.asHexString
 import glm_.vec2.Vec2
+import imgui.ColorEditFlag
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
@@ -124,7 +125,8 @@ object KamiConfig {
                     val floats = colourType.toRuntimeType(it.value).asFloats().toFloatArray()
                     colorEdit4(
                         it.name,
-                        floats
+                        floats,
+                        ColorEditFlag.AlphaBar.i
                     )
                     it.value = colourType.toSerializedType(
                         Colour(floats[0], floats[1], floats[2], floats[3])
