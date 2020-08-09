@@ -2,19 +2,16 @@ package me.zeroeightsix.kami.feature.module
 
 import com.mojang.blaze3d.platform.GlStateManager.*
 import com.mojang.blaze3d.systems.RenderSystem
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.events.RenderEvent
-import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
-import me.zeroeightsix.kami.noBobbingCamera
-import me.zeroeightsix.kami.times
-import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
-import net.minecraft.client.render.debug.ChunkBorderDebugRenderer
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -35,6 +32,9 @@ import kotlin.math.sin
     category = Module.Category.RENDER
 )
 object Trajectories : Module() {
+
+    @Setting
+    private var lineColour = Colour(1f, 1f, 1f, 1f)
 
     private var circleList = -1
 
@@ -176,7 +176,7 @@ object Trajectories : Module() {
                     buffer.begin(GL11.GL_LINE_STRIP, VertexFormats.POSITION_COLOR)
                     while (!mimic.landed) {
                         buffer.vertex(mimic.x - cX + offset.x, mimic.y - cY + offset.y, mimic.z - cZ + offset.z)
-                            .color(1f, 1f, 1f, 1f)
+                            .color(lineColour)
                             .next()
                         mimic.tick()
                         offset *= 0.8
