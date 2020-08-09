@@ -16,7 +16,7 @@ public class MixinClientChunkManager {
     @Inject(
             method = "unload",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientChunkManager;positionEquals(Lnet/minecraft/world/chunk/WorldChunk;II)Z"),
-            locals = LocalCapture.PRINT,
+            locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
     public void onUnload(int chunkX, int chunkZ, CallbackInfo ci, WorldChunk worldChunk) {

@@ -35,7 +35,7 @@ public class MixinBossBarHud {
         return event.getText();
     }
 
-    @ModifyConstant(method = "render", constant = @Constant(intValue = 9, log = true, ordinal = 1))
+    @ModifyConstant(method = "render", constant = @Constant(intValue = 9, ordinal = 1))
     public int modifySpacingConstant(int j) {
         RenderBossBarEvent.Spacing spacing = new RenderBossBarEvent.Spacing(j);
         KamiMod.EVENT_BUS.post(spacing);
