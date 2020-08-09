@@ -19,7 +19,7 @@ public class MixinClientChunkManager {
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
-    public void onUnload(int chunkX, int chunkZ, CallbackInfo ci, WorldChunk worldChunk) {
+    public void onUnload(int chunkX, int chunkZ, CallbackInfo ci, int i, WorldChunk worldChunk) {
         ChunkEvent.Unload unload = new ChunkEvent.Unload(worldChunk);
         KamiMod.EVENT_BUS.post(unload);
         if (unload.isCancelled()) ci.cancel();
