@@ -137,17 +137,19 @@ object Trajectories : Module() {
 
                             mimic
                         }
-                        is SnowballItem, is EggItem, is EnderPearlItem, is ExperienceBottleItem -> {
+                        is SnowballItem, is EggItem, is EnderPearlItem, is ExperienceBottleItem, is ThrowablePotionItem -> {
                             val type = when (stack.item) {
                                 is SnowballItem -> EntityType.SNOWBALL
                                 is EggItem -> EntityType.EGG
                                 is EnderPearlItem -> EntityType.ENDER_PEARL
                                 is ExperienceBottleItem -> EntityType.EXPERIENCE_BOTTLE
+                                is ThrowablePotionItem -> EntityType.POTION
                                 else -> unreachable()
                             }
 
                             val (power, pitchOffset, gravity) = when (stack.item) {
                                 is ExperienceBottleItem -> Triple(0.7f, -20f, 0.06)
+                                is ThrowablePotionItem -> Triple(0.5f, -20f, 0.06)
                                 else -> Triple(1.5f, 0f, 0.03)
                             }
 
@@ -162,6 +164,29 @@ object Trajectories : Module() {
 
                             mimic
                         }
+                        /*
+                        Crossbow issues:
+                            The line expects the object to be from the right side of the screen, but the crossbow is in the center of the screen
+                            The power values aren't correct. Fireworks travel in a mostly straight line, and arrows go further than the line says
+                        */
+                        /*is CrossbowItem -> {
+                            if (CrossbowItem.isCharged(stack)) {
+                                val type = if (stack.item === Items.CROSSBOW && CrossbowItem.hasProjectile(stack, Items.FIREWORK_ROCKET)) EntityType.FIREWORK_ROCKET else EntityType.ARROW
+                                val power = if (stack.item === Items.CROSSBOW && CrossbowItem.hasProjectile(stack, Items.FIREWORK_ROCKET)) 1.6f else 3.15f
+                                val mimic = ProjectileMimic(mc.world!!, it, type, 0.6, 1.0)
+
+                                mimic.setProperties(
+                                    it,
+                                    it.pitch,
+                                    it.yaw,
+                                    power
+                                )
+
+                                mimic
+                            } else {
+                                return@forEach
+                            }
+                        }*/
                         else -> return@forEach
                     }
 
