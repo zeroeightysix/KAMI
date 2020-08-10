@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
-import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -28,38 +28,38 @@ object SettingsCommand : Command() {
         })
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
-        val moduleArgumentType = ModuleArgumentType.module()
-        val settingArgumentType = SettingArgumentType.setting(moduleArgumentType, "module", 1)
+        val featureArgumentType = FullFeatureArgumentType.feature()
+        val settingArgumentType = SettingArgumentType.setting(featureArgumentType, "feature", 1)
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("settings")
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("list").then(
-                        RequiredArgumentBuilder.argument<CommandSource, Module>(
-                            "module",
-                            ModuleArgumentType.module()
+                        RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
+                            "feature",
+                            FullFeatureArgumentType.feature()
                         )
                             .executes { context: CommandContext<CommandSource> ->
                                 val source = context.source as KamiCommandSource
-                                val m =
+                                val f =
                                     context.getArgument(
                                         "module",
-                                        Module::class.java
-                                    ) as Module
+                                        FullFeature::class.java
+                                    ) as FullFeature
                                 source.sendFeedback(
                                     Texts.i(
                                             Texts.append(
                                                     Texts.flit(
-                                                            Formatting.YELLOW,
-                                                            m.name
+                                                        Formatting.YELLOW,
+                                                        f.name
                                                     ),
-                                                    Texts.flit(
-                                                            Formatting.GOLD,
-                                                            " has the following properties:"
-                                                    )
+                                                Texts.flit(
+                                                    Formatting.GOLD,
+                                                    " has the following properties:"
+                                                )
                                             )
                                     )
                                 )
-                                m.config.list().forEach {
+                                f.config.list().forEach {
                                     source.sendFeedback(it)
                                 }
                                 0
@@ -69,9 +69,9 @@ object SettingsCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("set")
                         .then(
-                            RequiredArgumentBuilder.argument<CommandSource, Module>(
-                                "module",
-                                moduleArgumentType
+                            RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
+                                "feature",
+                                featureArgumentType
                             )
                                 .then(
                                     RequiredArgumentBuilder.argument<CommandSource, ConfigLeaf<Any>>(
@@ -81,14 +81,18 @@ object SettingsCommand : Command() {
                                         .then(
                                             RequiredArgumentBuilder.argument<CommandSource, String>(
                                                 "value",
-                                                SettingValueArgumentType.value(settingArgumentType as ArgumentType<ConfigLeaf<*>>, "setting", 1)
+                                                SettingValueArgumentType.value(
+                                                    settingArgumentType as ArgumentType<ConfigLeaf<*>>,
+                                                    "setting",
+                                                    1
+                                                )
                                             )
                                                 .executes { context: CommandContext<CommandSource> ->
-                                                    val module =
+                                                    val feature =
                                                         context.getArgument(
-                                                            "module",
-                                                            Module::class.java
-                                                        ) as Module
+                                                            "feature",
+                                                            FullFeature::class.java
+                                                        ) as FullFeature
                                                     val setting =
                                                         context.getArgument(
                                                             "setting",
@@ -99,7 +103,7 @@ object SettingsCommand : Command() {
                                                         String::class.java
                                                     ) as String
                                                     val interf = setting.getInterface()
-                                                    setting.value = stringValue
+                                                    setting.value = interf.valueFromString(stringValue)
                                                     val (_, value) = interf.displayTypeAndValue(setting)
                                                     (context.source as KamiCommandSource).sendFeedback(
                                                         Texts.f(
@@ -113,7 +117,7 @@ object SettingsCommand : Command() {
                                                                         Texts.lit(" of module "),
                                                                         Texts.flit(
                                                                                 Formatting.YELLOW,
-                                                                                module.name
+                                                                            feature.name
                                                                         ),
                                                                         Texts.lit(" to "),
                                                                         Texts.flit(

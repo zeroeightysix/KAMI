@@ -25,16 +25,16 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 @FindFeature
-object PrepHandler : FullFeature(hidden = true, _alwaysListening = true) {
+object PrepHandler : FullFeature(originalName = "PrepHandler", hidden = true, _alwaysListening = true) {
 
     private var displayWidth = 0
     private var displayHeight = 0
 
     @EventHandler
-    private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() } )
+    private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() })
 
     @EventHandler
-    private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() } )
+    private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() })
 
     private fun update() {
         if (mc.window.width != displayWidth || mc.window.height != displayHeight) {

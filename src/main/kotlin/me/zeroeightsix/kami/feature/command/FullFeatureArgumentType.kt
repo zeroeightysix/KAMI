@@ -9,19 +9,18 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.feature.FeatureManager.features
 import me.zeroeightsix.kami.feature.FullFeature
-import me.zeroeightsix.kami.feature.module.Module
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
-class ModuleArgumentType : ArgumentType<Module> {
+class FullFeatureArgumentType : ArgumentType<FullFeature> {
     @Throws(CommandSyntaxException::class)
-    override fun parse(reader: StringReader): Module {
+    override fun parse(reader: StringReader): FullFeature {
         val string = reader.readUnquotedString()
         try {
-            return features.filterIsInstance<Module>().first { it.name.equals(string, ignoreCase = true) }
+            return features.filterIsInstance<FullFeature>().first { it.name.equals(string, ignoreCase = true) }
         } catch (e: NoSuchElementException) {
             throw INVALID_MODULE_EXCEPTION.create(string)
         }
@@ -44,11 +43,11 @@ class ModuleArgumentType : ArgumentType<Module> {
         private val EXAMPLES: Collection<String> = listOf("Aura", "CameraClip", "Flight")
         val INVALID_MODULE_EXCEPTION =
             DynamicCommandExceptionType(Function { `object`: Any ->
-                LiteralText("Unknown module '$`object`'")
+                LiteralText("Unknown feature '$`object`'")
             })
 
-        fun module(): ModuleArgumentType {
-            return ModuleArgumentType()
+        fun feature(): FullFeatureArgumentType {
+            return FullFeatureArgumentType()
         }
     }
 }

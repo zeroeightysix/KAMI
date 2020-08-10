@@ -38,7 +38,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                         {
                             Pair("enum", it.value.toString())
                         }, {
-                            values.find { e -> it.equals(e.toString(), ignoreCase = true) }
+                            strings.find { e -> it.equals(e, ignoreCase = true) }
                                 ?: throw InvalidValueException(
                                     "$it is not a valid value for this setting. Possible values are: ${strings.joinToString(
                                         ", "
@@ -49,7 +49,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                             with(ImGui) {
                                 val current = IntArray(1) { strings.indexOf(leaf.value as String) }
                                 combo(leaf.name, current, strings)
-                                leaf.value = strings.getOrElse(current[0]) { values[0] }
+                                leaf.value = strings.getOrElse(current[0]) { strings[0] }
                             }
                         },
                         {
