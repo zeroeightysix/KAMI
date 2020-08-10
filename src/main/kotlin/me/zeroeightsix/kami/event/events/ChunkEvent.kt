@@ -7,7 +7,7 @@ import net.minecraft.world.chunk.Chunk
 /**
  * @author 086
  */
-open class ChunkEvent private constructor(val chunk: Chunk) : KamiEvent() {
+open class ChunkEvent private constructor(val chunk: Chunk?) : KamiEvent() {
     class Load(chunk: Chunk, val packet: ChunkDataS2CPacket) : ChunkEvent(chunk)
-    class Unload(chunk: Chunk) : ChunkEvent(chunk)
+    class Unload(chunk: Chunk?) : ChunkEvent(chunk)
 }
