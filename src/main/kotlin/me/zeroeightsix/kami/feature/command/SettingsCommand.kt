@@ -13,10 +13,8 @@ import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
-import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import java.util.function.Consumer
 import java.util.function.Function
 import java.util.stream.Stream
 
@@ -101,7 +99,7 @@ object SettingsCommand : Command() {
                                                         String::class.java
                                                     ) as String
                                                     val interf = setting.getInterface()
-                                                    setting.value = interf.valueFromString(stringValue)
+                                                    setting.value = stringValue
                                                     val (_, value) = interf.displayTypeAndValue(setting)
                                                     (context.source as KamiCommandSource).sendFeedback(
                                                         Texts.f(

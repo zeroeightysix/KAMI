@@ -10,6 +10,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfig
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import me.zeroeightsix.kami.setting.KamiConfig.createInterface
 import me.zeroeightsix.kami.setting.KamiConfig.typeMap
+import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
 
@@ -38,6 +39,11 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                             Pair("enum", it.value.toString())
                         }, {
                             values.find { e -> it.equals(e.toString(), ignoreCase = true) }
+                                ?: throw InvalidValueException(
+                                    "$it is not a valid value for this setting. Possible values are: ${strings.joinToString(
+                                        ", "
+                                    )}"
+                                )
                         },
                         { leaf ->
                             with(ImGui) {
@@ -47,7 +53,7 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                             }
                         },
                         {
-                            it.buildFuture()
+                            CommandSource.suggestMatching(strings, it)
                         }, "enum-${field.type.simpleName.toLowerCase()}"
                     )
 
