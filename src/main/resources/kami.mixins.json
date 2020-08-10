@@ -21,7 +21,6 @@
     "IShulkerBoxBlockEntity",
     "MixinBackgroundRenderer",
     "MixinBlockState",
-    "MixinBoatEntityModel",
     "MixinBossBarHud",
     "MixinCamera",
     "MixinChatScreen",

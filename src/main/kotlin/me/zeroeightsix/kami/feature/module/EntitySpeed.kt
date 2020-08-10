@@ -16,7 +16,6 @@ import net.minecraft.entity.passive.PigEntity
 import net.minecraft.entity.passive.StriderEntity
 import net.minecraft.entity.vehicle.BoatEntity
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.chunk.EmptyChunk
 import kotlin.math.sin
 
 /**
@@ -40,9 +39,6 @@ object EntitySpeed : Module() {
 
     @Setting
     private var wobble = true
-
-    @Setting(name = "Boat opacity")
-    var opacity = .5f
 
     @EventHandler
     private val updateListener = Listener(
