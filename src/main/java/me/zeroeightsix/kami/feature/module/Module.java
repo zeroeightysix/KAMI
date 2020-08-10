@@ -23,11 +23,12 @@ public class Module extends FullFeature {
 
     public Module() {
         Module.Info annotation = getAnnotation();
-        setOriginalName(annotation.name());
         setName(annotation.name());
+        setDisplayName(annotation.name());
         setDescription(annotation.description());
     }
 
+    @Override
     public void initListening() {
         setAlwaysListening(getAnnotation().alwaysListening());
     }

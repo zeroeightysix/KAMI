@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -20,7 +21,7 @@ public class Blink extends Module {
     Queue<PlayerMoveC2SPacket> packets = new LinkedList<>();
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-        if (isEnabled() && event.getPacket() instanceof PlayerMoveC2SPacket) {
+        if (event.getPacket() instanceof PlayerMoveC2SPacket) {
             event.cancel();
             packets.add((PlayerMoveC2SPacket) event.getPacket());
         }

@@ -4,14 +4,15 @@ import com.mojang.blaze3d.platform.GlStateManager
 import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
+import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent
 import me.zeroeightsix.kami.event.events.RenderEvent
 import me.zeroeightsix.kami.event.events.RenderHudEvent
 import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
-import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud.renderHud
 import me.zeroeightsix.kami.gui.windows.Settings
@@ -25,10 +26,17 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 @FindFeature
-object PrepHandler : FullFeature(originalName = "PrepHandler", hidden = true, _alwaysListening = true) {
+object PrepHandler : Feature, Listenable {
+
+    override var name = "PrepHandler"
+    override var hidden = true
 
     private var displayWidth = 0
     private var displayHeight = 0
+
+    override fun initListening() {
+        KamiMod.EVENT_BUS.subscribe(this)
+    }
 
     @EventHandler
     private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() })

@@ -2,9 +2,7 @@ package me.zeroeightsix.kami
 
 import me.zero.alpine.bus.EventBus
 import me.zero.alpine.bus.EventManager
-import me.zeroeightsix.kami.feature.AbstractFeature
 import me.zeroeightsix.kami.feature.FeatureManager
-import me.zeroeightsix.kami.feature.FeatureManager.features
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.LagCompensator
 import net.fabricmc.api.ModInitializer
@@ -33,10 +31,6 @@ class KamiMod : ModInitializer {
         FeatureManager // Initialises FeatureManager, which finds & initialises ALL features
         LagCompensator.INSTANCE = LagCompensator()
         KamiConfig // Initialises KamiConfig, which constructs & loads config
-
-        // After settings loaded, we want to let the enabled modules know they've been enabled (since the setting is done through reflection)
-        features.stream()
-            .filter { obj: AbstractFeature -> obj.isEnabled() }.forEach { obj: AbstractFeature -> obj.enable() }
 
         log.info("$MODNAME initialised")
     }

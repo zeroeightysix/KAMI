@@ -7,7 +7,6 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.events.ScreenEvent
 import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
-import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
@@ -47,7 +46,7 @@ object AutoReconnect : Module() {
     @EventHandler
     val displayedListener = Listener(
         EventHook { event: Displayed ->
-            if (isEnabled() && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
+            if (enabled && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
                 KamiDisconnectedScreen(event.screen as DisconnectedScreen)
         }
     )

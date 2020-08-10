@@ -14,7 +14,7 @@ public abstract class MixinCamera {
 
     @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;clipToSpace(D)D"))
     private double redirectClipToSpace(Camera camera, double desiredCameraDistance) {
-        if (ModuleCamera.INSTANCE.isEnabled()) {
+        if (ModuleCamera.INSTANCE.getEnabled()) {
             desiredCameraDistance = ModuleCamera.INSTANCE.getDesiredDistance();
             if (ModuleCamera.INSTANCE.getClip()) return desiredCameraDistance;
         }

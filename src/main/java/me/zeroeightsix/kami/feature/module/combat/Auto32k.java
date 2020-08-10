@@ -1,9 +1,8 @@
 package me.zeroeightsix.kami.feature.module.combat;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
 import me.zeroeightsix.kami.event.events.TickEvent;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Aura;
@@ -84,10 +83,49 @@ public class Auto32k extends Module {
     private int swordSlot;
     private static boolean isSneaking;
 
+    @EventHandler
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+        if (Freecam.INSTANCE.getEnabled()) {
+            return;
+        }
+
+        if (!(mc.currentScreen instanceof HandledScreen)) {
+            return;
+        }
+
+        if (!moveToHotbar) {
+            this.disable();
+            return;
+        }
+
+        if (swordSlot == -1) {
+            return;
+        }
+
+        boolean swapReady = true;
+
+        ScreenHandler container = ((HandledScreen) mc.currentScreen).getScreenHandler();
+
+        if (container.getSlot(0).getStack().isEmpty()) {
+            swapReady = false;
+        }
+
+        if (!(container.getSlot(swordSlot).getStack().isEmpty())) {
+            swapReady = false;
+        }
+
+        if (swapReady) {
+            mc.interactionManager.clickSlot(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
+            if (autoEnableHitAura) {
+                Aura.INSTANCE.enable();
+            }
+            this.disable();
+        }
+    });
+
     @Override
     public void onEnable() {
-
-        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) {
+        if (mc.player == null || Freecam.INSTANCE.getEnabled()) {
             this.disable();
             return;
         }
@@ -261,46 +299,6 @@ public class Auto32k extends Module {
         swordSlot = shulkerSlot + 32;
 
     }
-
-    @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (isDisabled() || Freecam.INSTANCE.isEnabled()) {
-            return;
-        }
-
-        if (!(mc.currentScreen instanceof HandledScreen)) {
-            return;
-        }
-
-        if (!moveToHotbar) {
-            this.disable();
-            return;
-        }
-
-        if (swordSlot == -1) {
-            return;
-        }
-
-        boolean swapReady = true;
-
-        ScreenHandler container = ((HandledScreen) mc.currentScreen).getScreenHandler();
-
-        if (container.getSlot(0).getStack().isEmpty()) {
-            swapReady = false;
-        }
-
-        if (!(container.getSlot(swordSlot).getStack().isEmpty())) {
-            swapReady = false;
-        }
-
-        if (swapReady) {
-            mc.interactionManager.clickSlot(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
-            if (autoEnableHitAura) {
-                Aura.INSTANCE.enable();
-            }
-            this.disable();
-        }
-    });
 
     private boolean isAreaPlaceable(BlockPos blockPos) {
         for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {

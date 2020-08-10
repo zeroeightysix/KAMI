@@ -14,7 +14,7 @@ public class PortalGodMode extends Module {
 
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-        if (isEnabled() && event.getPacket() instanceof TeleportConfirmC2SPacket) {
+        if (event.getPacket() instanceof TeleportConfirmC2SPacket) {
             event.cancel();
         }
     });

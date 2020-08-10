@@ -92,7 +92,7 @@ object Modules {
         ImGui.io.mouseDoubleClicked[0] = doubleClicked
 
         if (clickedLeft) {
-            module.toggle()
+            module.enabled = !module.enabled
         } else if (clickedRight) {
             val id = currentWindow.getID(label)
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)

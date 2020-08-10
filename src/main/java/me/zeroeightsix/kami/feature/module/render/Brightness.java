@@ -76,7 +76,7 @@ public class Brightness extends Module {
             if (transitionStack.isEmpty()) {
                 inTransition = false;
                 setAlwaysListening(false);
-                currentBrightness = isEnabled() ? 1 : 0;
+                currentBrightness = getEnabled() ? 1 : 0;
             } else {
                 currentBrightness = transitionStack.pop();
             }

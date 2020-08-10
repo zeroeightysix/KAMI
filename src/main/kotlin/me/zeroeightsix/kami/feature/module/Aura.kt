@@ -119,7 +119,7 @@ object Aura : Module() {
                         // We want to skip this if switchTo32k is true,
                         // because it only accounts for tools and weapons.
                         // Maybe someone could refactor this later? :3
-                        if (!switchTo32k && AutoTool.isEnabled()) {
+                        if (!switchTo32k && AutoTool.enabled) {
                             AutoTool.equipBestWeapon()
                         }
                         attack(target)

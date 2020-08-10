@@ -15,7 +15,7 @@ public class TpsSync extends Module {
     }
 
     public static boolean isSync() {
-        return INSTANCE.isEnabled();
+        return INSTANCE.getEnabled();
     }
 
 }

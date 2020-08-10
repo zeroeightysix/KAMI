@@ -52,9 +52,9 @@ object KamiConfig {
     const val CONFIG_FILENAME = "KAMI_config.json5"
 
     val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
-        FeatureManager.modules.find { it.originalName == name }
+        FeatureManager.modules.find { it.name == name }
     }, { m ->
-        m.originalName
+        m.name
     })
     val moduleListType = ConfigTypes.makeList(moduleType)
     val modulesGroupsType = ConfigTypes.makeMap(ConfigTypes.STRING, moduleListType)

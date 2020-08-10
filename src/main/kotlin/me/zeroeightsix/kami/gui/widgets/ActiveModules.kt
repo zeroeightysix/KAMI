@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.feature.FeatureManager
 object ActiveModules : TextPinnableWidget("Active modules", variableMap = extendStd(mapOf(
     "modules" to {
         object : CompiledText.StringVariable(_multiline = true, provider = {
-            FeatureManager.modules.filter { it.isEnabled() && it.showInActiveModules }.joinToString("\n") { it.name }
+            FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
         }) {
             var filter = ByteArray(128)
             override var editLabel: String = "(active modules)"

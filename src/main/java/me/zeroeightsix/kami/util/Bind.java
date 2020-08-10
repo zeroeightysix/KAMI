@@ -73,6 +73,12 @@ public class Bind {
                         capitalise(code.toString());
     }
 
+    public void update(int key, int scancode, boolean pressed) {
+        if ((code.keysym && code.key == key) || (!code.keysym && code.scan == scancode)) {
+            this.pressed = pressed;
+        }
+    }
+
     public static class Code {
         public final boolean keysym;
         public final int key;

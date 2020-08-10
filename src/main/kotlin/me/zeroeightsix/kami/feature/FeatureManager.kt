@@ -4,7 +4,6 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
-import me.zeroeightsix.kami.util.Wrapper
 import org.reflections.Reflections
 import java.util.stream.Stream
 
@@ -13,7 +12,7 @@ import java.util.stream.Stream
  */
 object FeatureManager {
 
-    val features = mutableListOf<AbstractFeature>()
+    val features = mutableListOf<Feature>()
 
     val modules get() = features.filterIsInstance<Module>()
     val plugins get() = features.filterIsInstance<Plugin>()
@@ -27,29 +26,11 @@ object FeatureManager {
         return this.firstOrNull { it.name == name }
     }
 
-    @JvmStatic
-    fun onBind(key: Int, scancode: Int, i: Int) {
-        val pressed = i != 0
-        if (Wrapper.getMinecraft().currentScreen != null && pressed) {
-            return
-        }
-        features.filter { it is Listening }.forEach {
-            val l = it as Listening
-            val bind = l.getBind()
-            if ((bind.code.keysym && bind.code.key == key) || (!bind.code.keysym && bind.code.scan == scancode))
-                bind.pressed = pressed
-
-            if (bind.isDown) {
-                it.toggle()
-            }
-        }
-    }
-
-    fun addFeature(feature: AbstractFeature): Boolean {
+    fun addFeature(feature: Feature): Boolean {
         return features.add(feature)
     }
 
-    fun removeFeature(feature: AbstractFeature): Boolean {
+    fun removeFeature(feature: Feature): Boolean {
         return features.remove(feature)
     }
 
@@ -75,15 +56,15 @@ object FeatureManager {
                 }
             }
             tryErr({
-                val feature = it.getConstructor().newInstance() as AbstractFeature
+                val feature = it.getConstructor().newInstance() as Feature
                 features.add(feature)
             }, {
-                val instFeature = it.getDeclaredField("INSTANCE").get(null) as AbstractFeature
+                val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
                 features.add(instFeature)
             })
         }
 
-        modules.forEach {
+        features.forEach {
             it.initListening()
         }
 
@@ -94,15 +75,6 @@ object FeatureManager {
         features.sortWith(compareBy {
             if (it is FullFeature) it.name else null
         })
-
-        // All 'always listening' features are now registered to the event bus, never to be unregistered.
-        features.filterIsInstance<Listening>()
-            .filter { it.isAlwaysListening() }
-            .forEach {
-                KamiMod.EVENT_BUS.subscribe(
-                    it
-                )
-            }
 
         KamiMod.log.info("Features initialised")
     }
