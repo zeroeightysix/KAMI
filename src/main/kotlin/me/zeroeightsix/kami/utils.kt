@@ -48,6 +48,11 @@ fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -
     }
 }
 
+fun String.splitFirst(char: Char): Pair<String, String> {
+    val index = this.indexOf(char)
+    return Pair(this.substring(0, index), this.substring(index + 1))
+}
+
 /**
  * Returns a resettable, infinitely cycling iterator over this iterable.
  * Please note this will throw an exception if the underlying collection is empty.

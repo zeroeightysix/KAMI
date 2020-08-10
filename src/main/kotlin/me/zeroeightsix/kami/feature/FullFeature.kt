@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
 
 open class FullFeature(
-    protected var originalName: String = "No name",
+    var originalName: String = "No name",
     var description: String = "No description",
     hidden: Boolean = false,
     _alwaysListening: Boolean = false

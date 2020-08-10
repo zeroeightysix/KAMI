@@ -22,11 +22,15 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
+import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.windows.Settings
+import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.mixin.extend.getMap
+import me.zeroeightsix.kami.splitFirst
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
@@ -46,6 +50,36 @@ import kotlin.collections.HashMap
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
+        FeatureManager.modules.find { it.originalName == name }
+    }, { m ->
+        m.originalName
+    })
+    val moduleListType = ConfigTypes.makeList(moduleType)
+    val modulesGroupsType = ConfigTypes.makeMap(ConfigTypes.STRING, moduleListType)
+    val windowsType = ConfigTypes.makeMap(ConfigTypes.STRING, modulesGroupsType)
+        .derive(Modules.Windows::class.java, {
+            val windows = mutableListOf<Modules.ModuleWindow>()
+            for ((nameAndId, groups) in it) {
+                val (id, name) = nameAndId.splitFirst('-')
+                windows.add(
+                    Modules.ModuleWindow(
+                        name,
+                        groups = groups.mapValues { it.value.toMutableList() }.toMutableMap(),
+                        id = id.toInt()
+                    )
+                )
+            }
+            Modules.Windows(windows)
+        }, {
+            val map = mutableMapOf<String, Map<String, List<Module>>>()
+            for (window in it) {
+                val nameAndId = "${window.id}-${window.title}"
+                map[nameAndId] = window.groups.toMutableMap()
+            }
+            map
+        })
 
     val colourType =
         ConfigTypes.makeList(ConfigTypes.FLOAT)
@@ -292,6 +326,7 @@ object KamiConfig {
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
+            .registerTypeMapping(Modules.Windows::class.java, windowsType)
             .registerSettingProcessor(
                 Setting::class.java,
                 SettingAnnotationProcessor
@@ -309,9 +344,11 @@ object KamiConfig {
         val builder = ConfigTree.builder()
 
         constructFeaturesConfiguration(builder, settings)
+
         builder.applyFromPojo(Settings, settings)
-            .applyFromPojo(Wizard, settings)
             .applyFromPojo(Friends, settings)
+            .applyFromPojo(Modules, settings)
+            .applyFromPojo(Wizard, settings)
 
         val built = builder.build()
 

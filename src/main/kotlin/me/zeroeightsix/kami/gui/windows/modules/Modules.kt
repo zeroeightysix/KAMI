@@ -21,6 +21,7 @@ import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.command.getInterface
@@ -33,6 +34,7 @@ import me.zeroeightsix.kami.setting.visibilityType
 
 object Modules {
 
+    @Setting(name = "Windows")
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
     private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
@@ -98,7 +100,7 @@ object Modules {
             window.dc.stateStorage[id] = !open
             window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
         }
-        
+
         return moduleWindow
     }
 
@@ -113,19 +115,36 @@ object Modules {
         }
     }
 
-    private fun getDefaultWindows() = mutableListOf(
-        ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
-            it.category.getName()
-        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
+    private fun getDefaultWindows() = Windows(
+        mutableListOf(
+            ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
+                it.category.getName()
+            }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }), id = 0)
+        )
     )
-    
+
+    private fun nextId(): Int {
+        var id = 0
+        while (windows.map { it.id }.contains(id)) id += 1
+        return id
+    }
+
     fun reset() {
         windows = getDefaultWindows()
     }
 
-    class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
+    class ModuleWindow(
+        internal var title: String,
+        val pos: Vec2? = null,
+        var groups: Map<String, MutableList<Module>> = mapOf(),
+        val id: Int = nextId()
+    ) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
+        constructor(title: String, pos: Vec2? = null, module: Module) : this(
+            title,
+            pos,
+            mapOf(Pair("Group 1", mutableListOf(module)))
+        )
 
         var closed = false
 
@@ -133,7 +152,7 @@ object Modules {
             pos?.let {
                 setNextWindowPos(pos, Cond.Appearing)
             }
-            
+
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
@@ -145,7 +164,7 @@ object Modules {
                 }
             }
 
-            window("$title###${hashCode()}"){
+            window("$title###ModuleWindow$id") {
                 when {
                     groups.isEmpty() -> {
                         return true // close this window
@@ -177,6 +196,17 @@ object Modules {
         }
 
     }
+
+    class Windows(val backing: MutableList<ModuleWindow>) : MutableList<ModuleWindow> by backing {
+        override fun equals(other: Any?): Boolean {
+            return false
+        }
+
+        override fun hashCode(): Int {
+            return backing.hashCode()
+        }
+    }
+
 }
 
 private fun showModuleSettings(module: Module, block: () -> Unit) {

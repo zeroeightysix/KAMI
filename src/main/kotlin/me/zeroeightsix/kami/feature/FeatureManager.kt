@@ -4,7 +4,6 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
-import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.util.Wrapper
 import org.reflections.Reflections
 import java.util.stream.Stream
@@ -31,11 +30,8 @@ object FeatureManager {
     @JvmStatic
     fun onBind(key: Int, scancode: Int, i: Int) {
         val pressed = i != 0
-        if (Wrapper.getMinecraft().currentScreen != null) {
+        if (Wrapper.getMinecraft().currentScreen != null && pressed) {
             return
-        }
-        if (key == 89 && scancode == 29) {
-            Wrapper.getMinecraft().openScreen(KamiGuiScreen)
         }
         features.filter { it is Listening }.forEach {
             val l = it as Listening
