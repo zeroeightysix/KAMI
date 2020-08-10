@@ -49,6 +49,7 @@
     "MixinRenderLiving",
     "MixinRenderPlayer",
     "MixinScreen",
-    "MixinStriderEntity"
+    "MixinStriderEntity",
+    "MixinWorldRenderer"
   ]
 }
