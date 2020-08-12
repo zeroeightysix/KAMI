@@ -6,10 +6,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.setting.visibilityType
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
@@ -143,7 +145,12 @@ fun ConfigNode.list() : Stream<Text> = when (this) {
         this.items.stream().flatMap { it.list() }
     }
     is ConfigLeaf<*> -> {
-        Stream.of(this.list())
+        if (getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { it.isVisible() }
+                .orElse(true)) {
+            Stream.of(this.list())
+        } else {
+            Stream.empty()
+        }
     }
     else -> {
         Stream.of(Texts.lit("unknown node"))

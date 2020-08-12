@@ -43,6 +43,7 @@ open class FullFeature(
     }
 
     @Setting(name = "Bind")
+    @SettingVisibility.Constant(false)
     var bind = Bind.none()
 
     @Setting
