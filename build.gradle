@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}"
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
 //    compile "me.zeroeightsix:fiber:${project.fiber_version}-SNAPSHOT"
