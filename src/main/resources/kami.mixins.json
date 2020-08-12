@@ -21,7 +21,6 @@
     "IPlayerPositionLookS2CPacket",
     "IShulkerBoxBlockEntity",
     "MixinBackgroundRenderer",
-    "MixinBlockState",
     "MixinBossBarHud",
     "MixinCamera",
     "MixinChatScreen",
