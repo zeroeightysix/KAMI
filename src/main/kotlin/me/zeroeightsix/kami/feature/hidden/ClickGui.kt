@@ -15,10 +15,10 @@ import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
 @FindFeature
-class ClickGui : Feature, Listenable {
+object ClickGui : Feature, Listenable {
 
     @Setting
-    private var bind: Bind = Bind(false, false, false, Bind.Code(InputUtil.fromTranslationKey("key.keyboard.y")))
+    var bind: Bind = Bind(false, false, false, Bind.Code(InputUtil.fromTranslationKey("key.keyboard.y")))
 
     @EventHandler
     val bindListener = Listener(
