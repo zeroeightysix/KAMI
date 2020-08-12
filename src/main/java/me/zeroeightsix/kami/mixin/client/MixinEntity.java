@@ -41,7 +41,7 @@ public abstract class MixinEntity  {
         return event.isCancelled() ? Vec3d.ZERO : event.getMovement();
     }
 
-    @Inject(method = "getVelocityMultiplier", at = @At("RETURN"))
+    @Inject(method = "getVelocityMultiplier", at = @At("RETURN"), cancellable = true)
     public void onGetVelocityMultiplier(CallbackInfoReturnable<Float> cir) {
         float returnValue = cir.getReturnValue();
         EntityVelocityMultiplierEvent event = new EntityVelocityMultiplierEvent((Entity) (Object) this, returnValue);
