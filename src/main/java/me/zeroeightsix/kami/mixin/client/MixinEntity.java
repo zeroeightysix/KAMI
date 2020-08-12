@@ -2,8 +2,8 @@ package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.events.EntityEvent;
+import me.zeroeightsix.kami.event.events.EntityVelocityMultiplierEvent;
 import me.zeroeightsix.kami.event.events.MoveEntityFluidEvent;
-import me.zeroeightsix.kami.feature.module.movement.SafeWalk;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
@@ -13,7 +13,9 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Created by 086 on 16/11/2017.
@@ -38,4 +40,15 @@ public abstract class MixinEntity  {
         KamiMod.EVENT_BUS.post(event);
         return event.isCancelled() ? Vec3d.ZERO : event.getMovement();
     }
+
+    @Inject(method = "getVelocityMultiplier", at = @At("RETURN"))
+    public void onGetVelocityMultiplier(CallbackInfoReturnable<Float> cir) {
+        float returnValue = cir.getReturnValue();
+        EntityVelocityMultiplierEvent event = new EntityVelocityMultiplierEvent((Entity) (Object) this, returnValue);
+        KamiMod.EVENT_BUS.post(event);
+        if (!event.isCancelled() && event.getMultiplier() != returnValue) {
+            cir.setReturnValue(event.getMultiplier());
+        }
+    }
+
 }

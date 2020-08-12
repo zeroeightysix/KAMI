@@ -301,7 +301,7 @@ public class Auto32k extends Module {
     }
 
     private boolean isAreaPlaceable(BlockPos blockPos) {
-        for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
+        for (Entity entity : mc.world.getOtherEntities(null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
             return false; // entity on block
         }
 

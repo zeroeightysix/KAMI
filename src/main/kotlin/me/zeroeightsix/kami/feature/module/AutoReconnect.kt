@@ -53,7 +53,7 @@ object AutoReconnect : Module() {
 
     private class KamiDisconnectedScreen(disconnected: DisconnectedScreen) : DisconnectedScreen(
         (disconnected as IDisconnectedScreen).parent,
-        disconnected.title.asString(),
+        disconnected.title,
         (disconnected as IDisconnectedScreen).reason
     ) {
         private val parent: Screen

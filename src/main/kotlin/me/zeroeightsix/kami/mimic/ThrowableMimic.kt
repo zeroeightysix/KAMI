@@ -80,8 +80,8 @@ class ThrowableMimic(
     override fun tick() {
         val box: Box = boundingBox.stretch(velocity).expand(1.0)
         val collisions =
-            world.getEntities(null as Entity?, box) { entityx: Entity -> !entityx.isSpectator && entityx.collides() }
-                .filterNot { it == shooter }
+            world.getOtherEntities(null, box) { entityx: Entity -> !entityx.isSpectator && entityx.collides() }
+                .filterNot { it.isSpectator || !it.collides() || it == shooter }
 
         if (collisions.isNotEmpty()) {
             landed = true

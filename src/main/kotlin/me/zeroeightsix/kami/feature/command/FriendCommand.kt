@@ -13,7 +13,7 @@ import me.zeroeightsix.kami.util.Texts
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.command.EntitySelector
-import net.minecraft.command.arguments.EntityArgumentType
+import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText

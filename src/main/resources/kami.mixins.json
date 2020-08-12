@@ -6,6 +6,7 @@
     "IChatMessageC2SPacket",
     "IChatMessageS2CPacket",
     "IClientPlayerInteractionManager",
+    "IDimensionType",
     "IDisconnectedScreen",
     "IEntity",
     "IEntitySelector",

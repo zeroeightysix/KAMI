@@ -9,6 +9,7 @@ import me.zeroeightsix.kami.event.events.ChunkEvent;
 import me.zeroeightsix.kami.event.events.RenderEvent;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.mixin.client.IDimensionType;
 import me.zeroeightsix.kami.setting.SettingVisibility;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
@@ -97,7 +98,7 @@ public class ChunkFinder extends Module {
             dirty = false;
         }
 
-        Camera camera = mc.getEntityRenderManager().camera;
+        Camera camera = mc.getEntityRenderDispatcher().camera;
 
         double x = camera.getPos().x;
         double y = (relative ? 1 : -1) * camera.getPos().y + yOffset;
@@ -197,7 +198,7 @@ public class ChunkFinder extends Module {
         }
 
         // We will actually store the world data in a subfolder: "DIM<id>"
-        if (mc.player.getEntityWorld().getDimension() != DimensionType.getOverworldDimensionType()) { // except if it's the overworld
+        if (mc.player.getEntityWorld().getDimension() != IDimensionType.getOverworld()) { // except if it's the overworld
             file = new File(file, "DIM" + worldKey);
         }
 
