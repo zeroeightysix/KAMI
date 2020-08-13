@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.input.Input
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.client.render.BufferBuilder
+import net.minecraft.client.render.Camera
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.util.Window
@@ -24,6 +25,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import java.util.function.Predicate
@@ -182,3 +184,12 @@ open class TickEvent private constructor(private val stage: Stage) : KamiEvent()
     }
 
 }
+
+class CameraUpdateEvent(
+    val camera: Camera,
+    val area: BlockView?,
+    val focusedEntity: Entity?,
+    val thirdPerson: Boolean,
+    val inverseView: Boolean,
+    val tickDelta: Float
+) : KamiEvent()

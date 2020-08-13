@@ -4,14 +4,14 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.PacketEvent.Send
-import me.zeroeightsix.kami.event.PlayerMoveEvent
-import me.zeroeightsix.kami.event.TickEvent
-import net.minecraft.client.network.OtherClientPlayerEntity
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import me.zeroeightsix.kami.event.CameraUpdateEvent
+import me.zeroeightsix.kami.event.InputUpdateEvent
+import me.zeroeightsix.kami.interpolated
+import me.zeroeightsix.kami.mixin.client.IEntity
+import me.zeroeightsix.kami.mixin.extend.setPos
+import me.zeroeightsix.kami.mixin.extend.update
+import me.zeroeightsix.kami.plus
+import net.minecraft.client.input.Input
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -24,97 +24,43 @@ import net.minecraft.util.math.Vec3d
 )
 object Freecam : Module() {
     @Setting
-    private var speed = 5
-    private var x = 0.0
-    private var y = 0.0
-    private var z = 0.0
-    private var pitch = 0f
-    private var yaw = 0f
-    private var clonedPlayer: OtherClientPlayerEntity? = null
-    private var isRidingEntity = false
-    private var ridingEntity: Entity? = null
+    private var speed: @Setting.Constrain.Range(min = 0.0, max = 5.0, step = 0.1) Float = 2f
+
+    val EMPTY_INPUT = Input()
+
+    var pos: Vec3d = Vec3d.ZERO
+    var velocity: Vec3d = Vec3d.ZERO
 
     override fun onEnable() {
-        if (mc.player != null) {
-            isRidingEntity = mc.player!!.vehicle != null
-            if (mc.player!!.vehicle == null) {
-                x = mc.player!!.x
-                y = mc.player!!.y
-                z = mc.player!!.z
-            } else {
-                ridingEntity = mc.player!!.vehicle
-                mc.player!!.stopRiding()
-            }
-            pitch = mc.player!!.pitch
-            yaw = mc.player!!.yaw
-            clonedPlayer = OtherClientPlayerEntity(
-                mc.world,
-                mc.session.profile
-            )
-            clonedPlayer!!.copyFrom(mc.player)
-            clonedPlayer!!.headYaw = mc.player!!.headYaw
-            mc.world?.addEntity(-100, clonedPlayer)
-            mc.player!!.abilities.flying = true
-            mc.player!!.abilities.flySpeed = speed / 100f
-            mc.player!!.noClip = true
-        }
-    }
-
-    override fun onDisable() {
-        val localPlayer: PlayerEntity? = mc.player
-        if (localPlayer != null) {
-            mc.player!!.refreshPositionAndAngles(
-                x,
-                y,
-                z,
-                yaw,
-                pitch
-            )
-            mc.world?.removeEntity(-100)
-            clonedPlayer = null
-            z = 0.0
-            y =
-                z
-            x =
-                y
-            yaw = 0f
-            pitch =
-                yaw
-            mc.player!!.abilities.flying =
-                false //getModManager().getMod("ElytraFlight").isEnabled();
-            mc.player!!.abilities.flySpeed = 0.05f
-            mc.player!!.noClip = false
-            mc.player!!.velocity = Vec3d.ZERO
-            if (isRidingEntity) {
-                mc.player!!.startRiding(ridingEntity, true)
-            }
+        with(mc.player!!.pos) {
+            pos = Vec3d(x, y, z)
         }
     }
 
     @EventHandler
-    private val updateListener =
-        Listener(
-            EventHook<TickEvent.Client.InGame> {
-                mc.player?.abilities?.flying = true
-                mc.player?.abilities?.flySpeed = speed / 100f
-                mc.player?.noClip = true
-                mc.player?.isOnGround = false
-                mc.player?.fallDistance = 0f
-            }
-        )
-    @EventHandler
-    private val moveListener =
-        Listener(
-            EventHook<PlayerMoveEvent> { event: PlayerMoveEvent? ->
-                mc.player?.noClip = true
-            }
-        )
-    @EventHandler
-    private val sendListener = Listener(
-        EventHook { event: Send ->
-            if (event.packet is PlayerMoveC2SPacket || event.packet is PlayerInputC2SPacket) {
-                event.cancel()
-            }
+    val updateListener = Listener<CameraUpdateEvent>(EventHook {
+        with(it.camera) {
+            setPos(Freecam.pos.interpolated(mc.tickDelta.toDouble(), velocity))
         }
-    )
+    })
+
+    @EventHandler
+    val inputUpdateListener = Listener<InputUpdateEvent>(EventHook {
+        val input = it.newState.movementInput
+
+        val velocity = IEntity.movementInputToVelocity(
+            Vec3d(input.x.toDouble(), 0.0, input.y.toDouble()),
+            speed,
+            mc.player!!.yaw
+        ).add(0.0, ((mc.options.keyJump.isPressed * speed) - (mc.options.keySneak.isPressed * speed)).toDouble(), 0.0)
+        this.pos += velocity
+        this.velocity = velocity
+
+        it.newState.update(EMPTY_INPUT)
+    })
+
+    operator fun Boolean.times(times: Float) = if (this) {
+        times
+    } else 0f
+
 }
