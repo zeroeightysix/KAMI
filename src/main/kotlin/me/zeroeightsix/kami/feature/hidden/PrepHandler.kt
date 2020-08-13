@@ -7,10 +7,10 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.events.DisplaySizeChangedEvent
-import me.zeroeightsix.kami.event.events.RenderEvent
-import me.zeroeightsix.kami.event.events.RenderHudEvent
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.DisplaySizeChangedEvent
+import me.zeroeightsix.kami.event.RenderEvent
+import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.gui.KamiGuiScreen

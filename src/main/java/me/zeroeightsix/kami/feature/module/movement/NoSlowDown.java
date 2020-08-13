@@ -2,8 +2,8 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.EntityVelocityMultiplierEvent;
-import me.zeroeightsix.kami.event.events.InputUpdateEvent;
+import me.zeroeightsix.kami.event.EntityVelocityMultiplierEvent;
+import me.zeroeightsix.kami.event.InputUpdateEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**

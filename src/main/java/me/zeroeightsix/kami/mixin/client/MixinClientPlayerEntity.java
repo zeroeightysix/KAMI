@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.CloseScreenInPortalEvent;
-import me.zeroeightsix.kami.event.events.InputUpdateEvent;
-import me.zeroeightsix.kami.event.events.PlayerMoveEvent;
+import me.zeroeightsix.kami.event.CloseScreenInPortalEvent;
+import me.zeroeightsix.kami.event.InputUpdateEvent;
+import me.zeroeightsix.kami.event.PlayerMoveEvent;
 import me.zeroeightsix.kami.mixin.extend.ExtendedInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

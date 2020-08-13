@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.module.render;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.CameraHurtEvent;
+import me.zeroeightsix.kami.event.CameraHurtEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**

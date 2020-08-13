@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.ChunkEvent;
+import me.zeroeightsix.kami.event.ChunkEvent;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;

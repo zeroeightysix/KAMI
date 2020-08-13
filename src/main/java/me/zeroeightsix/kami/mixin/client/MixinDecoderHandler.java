@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
 import net.minecraft.network.DecoderHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;

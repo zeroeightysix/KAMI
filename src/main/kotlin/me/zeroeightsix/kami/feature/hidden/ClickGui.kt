@@ -6,7 +6,7 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.events.BindEvent
+import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.gui.KamiGuiScreen

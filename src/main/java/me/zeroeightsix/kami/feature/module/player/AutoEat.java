@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
+import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.item.ItemGroup;

@@ -7,7 +7,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.*
-import me.zeroeightsix.kami.event.events.RenderEvent
+import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.mimic.ProjectileMimic
 import me.zeroeightsix.kami.mimic.ThrowableMimic
 import net.minecraft.client.render.Tessellator

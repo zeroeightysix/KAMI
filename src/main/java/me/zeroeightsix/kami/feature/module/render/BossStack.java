@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.render;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.RenderBossBarEvent;
+import me.zeroeightsix.kami.event.RenderBossBarEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.setting.SettingVisibility;
 import net.minecraft.client.gui.hud.ClientBossBar;

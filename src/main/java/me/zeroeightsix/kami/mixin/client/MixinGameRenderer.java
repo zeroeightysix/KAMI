@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.mixin.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.CameraHurtEvent;
-import me.zeroeightsix.kami.event.events.RenderEvent;
-import me.zeroeightsix.kami.event.events.RenderHudEvent;
-import me.zeroeightsix.kami.event.events.TargetEntityEvent;
+import me.zeroeightsix.kami.event.CameraHurtEvent;
+import me.zeroeightsix.kami.event.RenderEvent;
+import me.zeroeightsix.kami.event.RenderHudEvent;
+import me.zeroeightsix.kami.event.TargetEntityEvent;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.Window;

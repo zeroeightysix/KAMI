@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.misc;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;

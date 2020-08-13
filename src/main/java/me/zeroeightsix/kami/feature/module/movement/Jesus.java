@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.AddCollisionBoxToListEvent;
 import me.zeroeightsix.kami.event.KamiEvent;
-import me.zeroeightsix.kami.event.events.AddCollisionBoxToListEvent;
-import me.zeroeightsix.kami.event.events.PacketEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Freecam;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;

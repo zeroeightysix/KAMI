@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.movement
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.ClipAtLedgeEvent
+import me.zeroeightsix.kami.event.ClipAtLedgeEvent
 import me.zeroeightsix.kami.feature.module.Module
 
 /**

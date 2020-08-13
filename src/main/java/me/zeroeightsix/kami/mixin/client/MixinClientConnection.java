@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
 import me.zeroeightsix.kami.feature.module.NoPacketKick;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;

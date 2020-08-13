@@ -1,13 +1,12 @@
 package me.zeroeightsix.kami.feature.module
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings
-import me.zeroeightsix.kami.event.events.PacketEvent.Send
-import me.zeroeightsix.kami.event.events.PlayerMoveEvent
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.PacketEvent.Send
+import me.zeroeightsix.kami.event.PlayerMoveEvent
+import me.zeroeightsix.kami.event.TickEvent
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity

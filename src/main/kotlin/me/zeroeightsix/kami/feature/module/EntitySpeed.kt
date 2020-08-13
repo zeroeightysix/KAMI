@@ -4,9 +4,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.CanBeControlledEvent
-import me.zeroeightsix.kami.event.events.RenderHudEvent
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.CanBeControlledEvent
+import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.entity.Entity

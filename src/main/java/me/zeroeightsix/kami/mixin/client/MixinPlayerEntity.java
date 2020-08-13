@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.ClipAtLedgeEvent;
-import me.zeroeightsix.kami.event.events.EntityEvent;
-import me.zeroeightsix.kami.event.events.PlayerAttackEntityEvent;
+import me.zeroeightsix.kami.event.ClipAtLedgeEvent;
+import me.zeroeightsix.kami.event.EntityEvent;
+import me.zeroeightsix.kami.event.PlayerAttackEntityEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;

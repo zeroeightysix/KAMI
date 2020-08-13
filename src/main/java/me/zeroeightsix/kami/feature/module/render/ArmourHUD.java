@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.RenderHudEvent;
+import me.zeroeightsix.kami.event.RenderHudEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;

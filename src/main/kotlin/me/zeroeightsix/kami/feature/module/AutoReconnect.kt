@@ -4,8 +4,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.ScreenEvent
-import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
+import me.zeroeightsix.kami.event.ScreenEvent
+import me.zeroeightsix.kami.event.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen

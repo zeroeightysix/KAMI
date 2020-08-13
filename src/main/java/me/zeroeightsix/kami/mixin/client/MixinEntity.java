@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.EntityEvent;
-import me.zeroeightsix.kami.event.events.EntityVelocityMultiplierEvent;
-import me.zeroeightsix.kami.event.events.MoveEntityFluidEvent;
+import me.zeroeightsix.kami.event.EntityEvent;
+import me.zeroeightsix.kami.event.EntityVelocityMultiplierEvent;
+import me.zeroeightsix.kami.event.MoveEntityFluidEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;

@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.render;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.setting.SettingVisibility;
 

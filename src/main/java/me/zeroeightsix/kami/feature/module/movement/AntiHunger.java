@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.PacketEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import me.zeroeightsix.kami.feature.module.Module;
 
 /**
  * Created by 086 on 8/04/2018.
