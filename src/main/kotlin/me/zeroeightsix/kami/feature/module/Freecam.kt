@@ -32,8 +32,8 @@ object Freecam : Module() {
     var velocity: Vec3d = Vec3d.ZERO
 
     override fun onEnable() {
-        with(mc.player!!.pos) {
-            pos = Vec3d(x, y, z)
+        with(mc.player!!) {
+            Freecam.pos = Vec3d(pos.x, pos.y + getEyeHeight(pose), pos.z)
         }
     }
 
