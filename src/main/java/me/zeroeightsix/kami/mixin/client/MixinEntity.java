@@ -4,6 +4,7 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.EntityEvent;
 import me.zeroeightsix.kami.event.EntityVelocityMultiplierEvent;
 import me.zeroeightsix.kami.event.MoveEntityFluidEvent;
+import me.zeroeightsix.kami.event.UpdateLookEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -49,6 +51,13 @@ public abstract class MixinEntity  {
         if (!event.isCancelled() && event.getMultiplier() != returnValue) {
             cir.setReturnValue(event.getMultiplier());
         }
+    }
+
+    @Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
+    public void onChangeLookDirection(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
+        UpdateLookEvent event = new UpdateLookEvent(cursorDeltaX, cursorDeltaY);
+        KamiMod.EVENT_BUS.post(event);
+        if (event.isCancelled()) ci.cancel();
     }
 
 }

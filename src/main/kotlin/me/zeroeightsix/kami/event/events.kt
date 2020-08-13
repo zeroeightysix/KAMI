@@ -193,3 +193,8 @@ class CameraUpdateEvent(
     val inverseView: Boolean,
     val tickDelta: Float
 ) : KamiEvent()
+
+class UpdateLookEvent(
+    val deltaX: Double,
+    val deltaY: Double
+) : KamiEvent()
