@@ -9,13 +9,13 @@ import me.zeroeightsix.kami.util.EntityUtil;
 /**
  * Created by 086 on 24/12/2017.
  */
-@Module.Info(name = "AutoJump", category = Module.Category.PLAYER, description = "Automatically jumps if possible")
+@Module.Info(name = "FlyWhenYouTouchABlock", category = Module.Category.PLAYER, description = "flys if you are near a block :3")
 public class AutoJump extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (mc.player.isSubmergedInWater() || mc.player.isInLava()) {
-            EntityUtil.updateVelocityY(mc.player, 0.1);
+            EntityUtil.updateVelocityY(mc.player, 10000);
         }
         else if (mc.player.isOnGround()) mc.player.jump();
     });
