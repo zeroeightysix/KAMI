@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.CameraUpdateEvent;
-import me.zeroeightsix.kami.feature.module.render.ModuleCamera;
+import me.zeroeightsix.kami.feature.module.ModuleCamera;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.BlockView;

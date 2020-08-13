@@ -1,10 +1,9 @@
-package me.zeroeightsix.kami.feature.module.movement
+package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.ClipAtLedgeEvent
-import me.zeroeightsix.kami.feature.module.Module
 
 /**
  * Created by 086 on 11/10/2018.
