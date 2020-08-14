@@ -31,14 +31,22 @@ object Settings {
 
     @Setting
     var hideModuleDescriptions = false
+
+    @Setting
+    var openSettingsInPopup = true
+
     @Setting
     var styleIdx = 0
+
     @Setting
     var borderOffset = 10f
+
     @Setting
     var rainbowSpeed = 32
+
     @Setting
     var rainbowSaturation = 1f
+
     @Setting
     var rainbowBrightness = 1f
 
@@ -82,7 +90,16 @@ object Settings {
                         ::swapModuleListButtons,
                         "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
                     )
-                    setting("Hide descriptions", ::hideModuleDescriptions, "Hide module descriptions when its settings are opened.")
+                    setting(
+                        "Hide descriptions",
+                        ::hideModuleDescriptions,
+                        "Hide module descriptions when its settings are opened."
+                    )
+                    setting(
+                        "Settings popup",
+                        ::openSettingsInPopup,
+                        "Show module settings in a popup instead of a collapsible"
+                    )
                     button("Reset module windows") {
                         Modules.reset()
                     }

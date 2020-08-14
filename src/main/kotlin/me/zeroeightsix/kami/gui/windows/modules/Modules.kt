@@ -7,10 +7,13 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
+import imgui.ImGui.openPopupOnItemClick
+import imgui.ImGui.selectable
 import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.dsl.dragDropTarget
+import imgui.dsl.popup
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
@@ -25,6 +28,7 @@ import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.setting.visibilityType
+import me.zeroeightsix.kami.then
 
 object Modules {
 
@@ -45,10 +49,6 @@ object Modules {
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
-        // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-        val doubleClicked = ImGui.io.mouseDoubleClicked[0]
-        ImGui.io.mouseDoubleClicked[0] = false
-
         var clickedLeft = false
         var clickedRight = false
 
@@ -57,20 +57,32 @@ object Modules {
             clickedRight = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeEx(label, nodeFlags, module.name)
-        dragDropTarget {
-            acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                val payload = it.data!! as ModulePayload
-                payload.moveTo(source, sourceGroup)
+        if (!Settings.openSettingsInPopup) {
+            // We don't want imgui to handle open/closing at all, so we hack out the behaviour
+            val doubleClicked = ImGui.io.mouseDoubleClicked[0]
+            ImGui.io.mouseDoubleClicked[0] = false
+
+            val open = treeNodeEx(label, nodeFlags, module.name)
+            dragDropTarget {
+                acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
+                    val payload = it.data!! as ModulePayload
+                    payload.moveTo(source, sourceGroup)
+                }
+            }
+            if (open) {
+                updateClicked()
+                showModuleSettings(module)
+            } else updateClicked()
+
+            // Restore state
+            ImGui.io.mouseDoubleClicked[0] = doubleClicked
+        } else {
+            selectable(module.name, module.enabled).then { module.enabled = !module.enabled }
+            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right)
+            popup("module-settings-${module.name}") {
+                showModuleSettings(module)
             }
         }
-        if (open) {
-            updateClicked()
-            showModuleSettings(module)
-        } else updateClicked()
-
-        // Restore state
-        ImGui.io.mouseDoubleClicked[0] = doubleClicked
 
         if (clickedLeft) {
             module.enabled = !module.enabled
@@ -202,7 +214,7 @@ private fun showModuleSettings(module: Module) {
 
     if (!Settings.hideModuleDescriptions) {
         ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        ImGui.textWrapped("%s", module.description)
+        ImGui.text("%s", module.description)
         ImGui.popStyleColor()
     }
 
