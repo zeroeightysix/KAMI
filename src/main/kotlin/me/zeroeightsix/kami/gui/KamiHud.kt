@@ -57,6 +57,11 @@ object KamiHud {
             pixelSnapH = true
             glyphOffset = Vec2(0, -2)
         })
+        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 24f, fontCfg {
+            oversample put 1
+            pixelSnapH = true
+            glyphOffset = Vec2(0, -2)
+        })
         ImGui.io.fonts.addFontDefault()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle()
