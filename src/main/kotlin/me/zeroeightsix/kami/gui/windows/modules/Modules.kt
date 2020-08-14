@@ -7,16 +7,10 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.setDragDropPayload
 import imgui.ImGui.setNextWindowPos
-import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
-import imgui.api.demoDebugInformations
-import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
-import imgui.dsl.menuItem
-import imgui.dsl.popupContextItem
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
@@ -72,20 +66,7 @@ object Modules {
         }
         if (open) {
             updateClicked()
-            showModuleSettings(module) {
-                dragDropSource(DragDropFlag.SourceAllowNullID.i) {
-                    setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), source))
-                    text("Merge")
-                }
-
-                popupContextItem("$label-popup") {
-                    menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name, module = module)
-                    }
-                }
-            }
-
-//            treePop()
+            showModuleSettings(module)
         } else updateClicked()
 
         // Restore state
@@ -209,7 +190,7 @@ object Modules {
 
 }
 
-private fun showModuleSettings(module: Module, block: () -> Unit) {
+private fun showModuleSettings(module: Module) {
     // We introduce a generic <T> to allow displayImGui to be called even though we don't actually know the type of ConfigLeaf we have!
     // the flattenedStream() method returns a stream over ConfigLeaf<*>, where <*> is any type.
     // Because the interface (SettingInterface<T>) requires a ConfigLeaf<T> and we only have a ConfigLeaf<*> and SettingInterface<*> (and <*> != <*>), calling displayImGui is illegal.
@@ -219,18 +200,11 @@ private fun showModuleSettings(module: Module, block: () -> Unit) {
         this.getInterface().displayImGui(this)
     }
 
-    val editMarkerShown = Settings.oldModuleEditMode
     if (!Settings.hideModuleDescriptions) {
         ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
         ImGui.textWrapped("%s", module.description)
         ImGui.popStyleColor()
-        if (editMarkerShown)
-            ImGui.sameLine()
     }
-    if (editMarkerShown) {
-        demoDebugInformations.helpMarker("Start dragging from this question mark to merge this module into another module window. Right click this question mark and press 'Detach' to seperate it into a new window.")
-    }
-    block()
 
     module.config.flattenedStream().filter {
         it.getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { vis ->

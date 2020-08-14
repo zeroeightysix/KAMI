@@ -30,9 +30,6 @@ object Settings {
     var swapModuleListButtons = false
 
     @Setting
-    var oldModuleEditMode = false
-
-    @Setting
     var hideModuleDescriptions = false
     @Setting
     var styleIdx = 0
@@ -86,7 +83,6 @@ object Settings {
                         "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
                     )
                     setting("Hide descriptions", ::hideModuleDescriptions, "Hide module descriptions when its settings are opened.")
-                    setting("Old edit method", ::oldModuleEditMode,"Enable the old module edit method. A question mark will appear next to module descriptions that will allow you to merge or detach modules.")
                     button("Reset module windows") {
                         Modules.reset()
                     }
