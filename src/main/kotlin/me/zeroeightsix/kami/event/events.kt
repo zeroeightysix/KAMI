@@ -36,7 +36,7 @@ class AddCollisionBoxToListEvent(
     val world: World,
     val pos: BlockPos,
     val entityBox: Box,
-    val collidingBoxes: List<Box>,
+    val collidingBoxes: MutableList<Box>,
     val entity: Entity,
     val isBool: Boolean
 ) : KamiEvent()
