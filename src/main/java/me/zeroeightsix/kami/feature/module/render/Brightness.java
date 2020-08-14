@@ -52,9 +52,10 @@ public class Brightness extends Module {
             for (float v : values) {
                 transitionStack.add(v);
             }
-
-            inTransition = true;
+        } else {
+            transitionStack.add(isUpwards ? 1f : 0f);
         }
+        inTransition = true;
     }
 
     @Override
