@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui
 
+import glm_.c
 import glm_.vec2.Vec2
 import glm_.vec2.Vec2d
 import imgui.ImGui
@@ -26,6 +27,17 @@ object KamiHud {
     private val postDrawStack: Stack<(MatrixStack) -> Unit>
 
     init {
+        fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: FontConfig) {
+            val chars = javaClass.getResourceAsStream("/assets/kami/Minecraftia.ttf")?.let {
+                val bytes = it.readBytes()
+                CharArray(bytes.size) { bytes[it].c }
+            } ?: return
+            if (fontCfg.name.isEmpty())
+            // Store a short copy of filename into into the font name for convenience
+                fontCfg.name = "${filename.substringAfterLast('/')}, %.0fpx".format(ImGui.style.locale, sizePixels)
+            ImGui.io.fonts.addFontFromMemoryTTF(chars, sizePixels, fontCfg, arrayOf())
+        }
+
         val window = GlfwWindow.from(mc.window.handle)
         window.makeContextCurrent()
         context = Context()
@@ -34,11 +46,17 @@ object KamiHud {
         io = ImGui.io
         io.iniFilename = "kami-imgui.ini"
 
-        val fontCfg = FontConfig()
-        fontCfg.oversample put 1
-        fontCfg.pixelSnapH = true
-        fontCfg.glyphOffset = Vec2(0, -2)
-        ImGui.io.fonts.addFontFromFileTTF("assets/kami/Minecraftia.ttf", 12f, fontCfg)
+        fun fontCfg(block: FontConfig.() -> Unit): FontConfig {
+            val fontCfg = FontConfig()
+            fontCfg.block()
+            return fontCfg
+        }
+
+        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 12f, fontCfg {
+            oversample put 1
+            pixelSnapH = true
+            glyphOffset = Vec2(0, -2)
+        })
         ImGui.io.fonts.addFontDefault()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle()
