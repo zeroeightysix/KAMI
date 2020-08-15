@@ -67,7 +67,9 @@ object Freecam : Module() {
         this.pos += velocity
         this.velocity = velocity
 
-        it.newState.update(EMPTY_INPUT)
+        if (blockInputs) {
+            it.newState.update(EMPTY_INPUT)
+        }
     })
 
     @EventHandler
