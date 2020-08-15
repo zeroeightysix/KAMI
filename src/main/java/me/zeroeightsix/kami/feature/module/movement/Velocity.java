@@ -26,6 +26,7 @@ public class Velocity extends Module {
 
     @EventHandler
     private Listener<PacketEvent.Receive> packetEventListener = new Listener<>(event -> {
+        if (mc.player == null) return;
         if (event.getEra() == KamiEvent.Era.PRE) {
             if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket) {
                 EntityVelocityUpdateS2CPacket velocity = (EntityVelocityUpdateS2CPacket) event.getPacket();
