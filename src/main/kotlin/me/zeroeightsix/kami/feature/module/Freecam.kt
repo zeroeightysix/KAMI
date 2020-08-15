@@ -11,6 +11,7 @@ import me.zeroeightsix.kami.event.UpdateLookEvent
 import me.zeroeightsix.kami.interpolated
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.mixin.extend.setPos
+import me.zeroeightsix.kami.mixin.extend.setRenderHand
 import me.zeroeightsix.kami.mixin.extend.setRotation
 import me.zeroeightsix.kami.mixin.extend.update
 import me.zeroeightsix.kami.plus
@@ -45,6 +46,12 @@ object Freecam : Module() {
             Freecam.yaw = yaw
             Freecam.pitch = pitch
         }
+
+        mc.gameRenderer.setRenderHand(false)
+    }
+
+    override fun onDisable() {
+        mc.gameRenderer.setRenderHand(true)
     }
 
     @EventHandler
