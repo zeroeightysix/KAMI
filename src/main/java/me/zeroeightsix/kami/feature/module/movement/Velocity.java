@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.event.MoveEntityFluidEvent;
 import me.zeroeightsix.kami.event.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IEntityVelocityUpdateS2CPacket;
-import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
+import me.zeroeightsix.kami.mixin.client.IExplosionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 
@@ -38,11 +38,10 @@ public class Velocity extends Module {
                 }
             } else if (event.getPacket() instanceof ExplosionS2CPacket) {
                 if (horizontal == 0 && vertical == 0) event.cancel();
-                IPlayerMoveC2SPacket xyz = (IPlayerMoveC2SPacket) event.getPacket();
-                xyz.setX(xyz.getX());
-                xyz.setX((int) (xyz.getX() * horizontal));
-                xyz.setY((int) (xyz.getY() * vertical));
-                xyz.setZ((int) (xyz.getZ() * horizontal));
+                IExplosionS2CPacket xyz = (IExplosionS2CPacket) event.getPacket();
+                xyz.setPlayerVelocityX(xyz.getPlayerVelocityX() * horizontal);
+                xyz.setPlayerVelocityY(xyz.getPlayerVelocityY() * vertical);
+                xyz.setPlayerVelocityZ(xyz.getPlayerVelocityZ() * horizontal);
             }
         }
     });

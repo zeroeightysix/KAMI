@@ -12,6 +12,7 @@
     "IEntity",
     "IEntitySelector",
     "IEntityVelocityUpdateS2CPacket",
+    "IExplosionS2CPacket",
     "IInputUtilType",
     "IKeyBinding",
     "IMatrixStack",
