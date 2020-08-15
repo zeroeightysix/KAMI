@@ -65,7 +65,7 @@ object KamiHud {
         ImGui.io.fonts.addFontDefault()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle()
-        ImGui.io.fontDefault = ImGui.io.fonts.fonts[Settings.font]
+        ImGui.io.fontDefault = ImGui.io.fonts.fonts.getOrElse(Settings.font) { ImGui.io.fonts.fonts.first() }
 
         postDrawStack = Stack()
     }
