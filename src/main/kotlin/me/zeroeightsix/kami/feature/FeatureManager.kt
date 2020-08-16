@@ -35,7 +35,7 @@ object FeatureManager {
     }
 
     private fun initFeatures() {
-        val reflections = Reflections()
+        val reflections = Reflections("me.zeroeightsix.kami")
         Stream.concat(
             Stream.concat(
                 reflections.getSubTypesOf(Module::class.java).stream(),
