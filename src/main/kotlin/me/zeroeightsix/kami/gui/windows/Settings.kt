@@ -12,12 +12,14 @@ import imgui.dsl.checkbox
 import imgui.dsl.collapsingHeader
 import imgui.dsl.window
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import kotlin.reflect.KMutableProperty0
 
+@FindSettings
 object Settings {
 
     @Setting

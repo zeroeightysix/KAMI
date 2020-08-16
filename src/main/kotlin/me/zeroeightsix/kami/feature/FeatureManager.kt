@@ -5,7 +5,7 @@ import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
 import org.reflections.Reflections
-import java.util.stream.Stream
+import java.util.*
 
 /**
  * Created by 086 on 23/08/2017.
@@ -34,15 +34,27 @@ object FeatureManager {
         return features.remove(feature)
     }
 
-    private fun initFeatures() {
+    /**
+     * Resolves all features annotated by [FindFeature] or affected by the annotation on a superclass.
+     *
+     * @see KamiConfig.findAnnotatedSettings
+     */
+    fun findAnnotatedFeatures(): Set<Class<out Any>> {
         val reflections = Reflections("me.zeroeightsix.kami")
-        Stream.concat(
-            Stream.concat(
-                reflections.getSubTypesOf(Module::class.java).stream(),
-                reflections.getSubTypesOf(Command::class.java).stream()
-            ),
-            reflections.getTypesAnnotatedWith(FindFeature::class.java).stream()
-        ).forEach {
+        return reflections.getTypesAnnotatedWith(FindFeature::class.java).flatMap {
+            val ffAnnot = it.getAnnotation(FindFeature::class.java)
+            ffAnnot?.findDescendants?.let { des ->
+                if (des) {
+                    reflections.getSubTypesOf(it)
+                } else {
+                    null
+                }
+            } ?: Collections.singleton(it)
+        }.toSet() // to remove duplicates
+    }
+
+    private fun initFeatures() {
+        findAnnotatedFeatures().forEach {
             fun tryErr(block: () -> Unit, or: () -> Unit) {
                 try {
                     block()

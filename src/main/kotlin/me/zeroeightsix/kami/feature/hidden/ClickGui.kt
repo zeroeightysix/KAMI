@@ -9,12 +9,14 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
 @FindFeature
+@FindSettings
 object ClickGui : Feature, Listenable {
 
     @Setting

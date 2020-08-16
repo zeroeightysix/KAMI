@@ -3,11 +3,13 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.Feature
+import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.mc
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.regex.Pattern
 
+@FindFeature(findDescendants = true)
 abstract class Command : Feature {
 
     override var hidden: Boolean = true

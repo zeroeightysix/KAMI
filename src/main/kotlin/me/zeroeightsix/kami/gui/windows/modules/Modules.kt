@@ -21,6 +21,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.command.getInterface
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
@@ -30,6 +31,7 @@ import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.setting.visibilityType
 import me.zeroeightsix.kami.then
 
+@FindSettings
 object Modules {
 
     @Setting(name = "Windows")
