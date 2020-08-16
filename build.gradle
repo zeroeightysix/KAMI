@@ -2,6 +2,7 @@ plugins {
     id 'fabric-loom'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
@@ -45,25 +46,21 @@ dependencies {
     implementation "com.github.kotlin-graphics:uno-sdk:${project.kg_version}"
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
 
-    // JIJ includes
-    // this is terrible!
-    // kill me!
+    shadow 'com.github.ZeroMemes:Alpine:1.9'
+    shadow 'net.jodah:typetools:0.5.0'
+    shadow(group: 'org.reflections', name: 'reflections', version: '0.9.11')
+    shadow "com.github.kotlin-graphics.imgui:imgui-core:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.imgui:imgui-gl:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.imgui:imgui-glfw:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:glm:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno-core:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:kool:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:kotlin-unsigned:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:gln:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:gli:${project.kg_version}"
+
     include "com.github.fablabsmc:fiber:${project.fiber_version}"
-    include 'com.github.ZeroMemes:Alpine:1.9'
-    include 'net.jodah:typetools:0.5.0'
-    include(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
-        exclude group: 'com.google.guava', module: 'guava'
-    }
-    include "com.github.kotlin-graphics.imgui:imgui-core:${project.kg_version}"
-    include "com.github.kotlin-graphics.imgui:imgui-gl:${project.kg_version}"
-    include "com.github.kotlin-graphics.imgui:imgui-glfw:${project.kg_version}"
-    include "com.github.kotlin-graphics:glm:${project.kg_version}"
-    include "com.github.kotlin-graphics.uno-sdk:uno:${project.kg_version}"
-    include "com.github.kotlin-graphics.uno-sdk:uno-core:${project.kg_version}"
-    include "com.github.kotlin-graphics:kool:${project.kg_version}"
-    include "com.github.kotlin-graphics:kotlin-unsigned:${project.kg_version}"
-    include "com.github.kotlin-graphics:gln:${project.kg_version}"
-    include "com.github.kotlin-graphics:gli:${project.kg_version}"
     include group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
     include group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-common', version: project.kotlin_version
     include group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: project.kotlin_version
@@ -91,6 +88,24 @@ tasks.withType(JavaCompile) {
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = "sources"
     from sourceSets.main.allSource
+}
+
+configurations {
+    shadow {
+        transitive = false
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    classifier = "shadow"
+
+    exclude '/fonts/*'
+}
+
+remapJar {
+    dependsOn shadowJar
+    input.set shadowJar.archiveFile.get()
 }
 
 jar {
