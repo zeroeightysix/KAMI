@@ -307,7 +307,7 @@ object KamiConfig {
      * @return All found roots, mapped to a set of affected classes
      * @see FeatureManager.findAnnotatedFeatures
      */
-    fun findAnnotatedSettings(): Map<String, List<Class<*>>> {
+    fun findAnnotatedSettings(): Map<String, Set<Class<*>>> {
         val reflections = Reflections("me.zeroeightsix.kami")
         return reflections.getTypesAnnotatedWith(FindSettings::class.java).filter {
             it.isAnnotationPresent(FindSettings::class.java)
@@ -321,7 +321,7 @@ object KamiConfig {
         }.groupBy {
             it.first.settingsRoot
         }.mapValues {
-            it.value.stream().flatMap { it.second.stream() }.collect(Collectors.toList())
+            it.value.stream().flatMap { it.second.stream() }.collect(Collectors.toSet())
         }
     }
 
