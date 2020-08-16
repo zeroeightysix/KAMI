@@ -366,7 +366,7 @@ object KamiConfig {
                     val config = builder.applyFromPojo(instance, settings)
                     if (root.isNotEmpty()) {
                         val config = config.build()
-                        if (instance is FullFeature) { // TODO: Maybe a `HasConfig` interface instead of relying on FullFeature
+                        if (instance is HasConfig) {
                             instance.config = config
                         }
                     }
