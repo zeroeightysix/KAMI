@@ -1,11 +1,14 @@
 package me.zeroeightsix.kami.gui.windows
 
+import glm_.vec2.Vec2
 import imgui.ImGui
 import imgui.ImGui.dragFloat
 import imgui.ImGui.dragInt
+import imgui.ImGui.dummy
 import imgui.ImGui.popID
 import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
+import imgui.ImGui.textWrapped
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
@@ -23,10 +26,14 @@ import kotlin.reflect.KMutableProperty0
 object Settings {
 
     @Setting
-    var modifiersEnabled = false
+    var settingsWindowOpen = false
 
     @Setting
-    var settingsWindowOpen = false
+    var commandPrefix = '.'
+
+    // Behaviour
+    @Setting
+    var modifiersEnabled = false
 
     @Setting
     var swapModuleListButtons = false
@@ -36,6 +43,10 @@ object Settings {
 
     @Setting
     var openSettingsInPopup = true
+
+    // Appearance
+    @Setting
+    var font: Int = 0
 
     @Setting
     var styleIdx = 0
@@ -52,23 +63,12 @@ object Settings {
     @Setting
     var rainbowBrightness = 1f
 
-    @Setting
-    var experimental = false
-
-    @Setting
-    var interactOutsideGUI = false
-
-    @Setting
-    var hudWithDebug = false
-
+    // Other
     @Setting
     var demoWindowVisible = false
 
     @Setting
-    var commandPrefix = '.'
-
-    @Setting
-    var font: Int = 0
+    var hudWithDebug = false
 
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
@@ -81,12 +81,17 @@ object Settings {
 
         if (settingsWindowOpen) {
             window("Settings", ::settingsWindowOpen) {
-                setting(
-                    "Experimental features",
-                    ::experimental,
-                    "Shows settings that are considered experimental or buggy"
-                )
-                collapsingHeader("Module windows") {
+                collapsingHeader("Behaviour") {
+                    setting(
+                        "Keybind modifiers",
+                        ::modifiersEnabled,
+                        "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K."
+                    )
+                    setting(
+                        "Settings popup",
+                        ::openSettingsInPopup,
+                        "Show module settings in a popup instead of a collapsible"
+                    )
                     setting(
                         "Swap list buttons",
                         ::swapModuleListButtons,
@@ -97,11 +102,7 @@ object Settings {
                         ::hideModuleDescriptions,
                         "Hide module descriptions when its settings are opened."
                     )
-                    setting(
-                        "Settings popup",
-                        ::openSettingsInPopup,
-                        "Show module settings in a popup instead of a collapsible"
-                    )
+                    dummy(Vec2(0, 5))
                     button("Reset module windows") {
                         Modules.reset()
                     }
@@ -113,12 +114,14 @@ object Settings {
                     }
                 }
 
-                collapsingHeader("GUI") {
+                collapsingHeader("Appearance") {
+                    showFontSelector("Font###kami-settings-font-selector")
+
                     if (ImGui.combo("Theme", ::styleIdx, themes)) {
                         Themes.Variants.values()[styleIdx].applyStyle()
                     }
 
-                    showFontSelector("Font###kami-settings-font-selector")
+                    dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
 
                     if (dragInt("Rainbow speed", ::rainbowSpeed, vSpeed = 0.1F, vMin = 1, vMax = 128)) {
                         rainbowSpeed = rainbowSpeed.coerceAtLeast(1) // Do not let users custom edit this below 1
@@ -130,20 +133,22 @@ object Settings {
                         rainbowBrightness = rainbowBrightness.coerceIn(0f, 1f)
                     }
 
-                    if (experimental) {
-                        setting("Always interactable GUI", ::interactOutsideGUI, "Allows you to interact with the GUI at any time, e.g. when chat is opened, or the game is paused.")
-                        setting("Show HUD with debug screen", ::hudWithDebug, "Shows the HUD even when the debug screen is open")
-                        setting("Show demo window in 'View'", ::demoWindowVisible, "Allows the demo window to be shown through the 'View' submenu of the main menu bar")
-                    }
-                }
-
-                collapsingHeader("Overlay") {
-                    dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+                    dummy(Vec2(0, 5))
+                    textWrapped("Enabled HUD elements:")
                     EnabledWidgets.enabledButtons()
                 }
 
-                collapsingHeader("In-game") {
-                    setting("Keybind modifiers", ::modifiersEnabled, "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
+                collapsingHeader("Other") {
+                    setting(
+                        "Show demo window in 'View'",
+                        ::demoWindowVisible,
+                        "Allows the demo window to be shown through the 'View' submenu of the main menu bar"
+                    )
+                    setting(
+                        "Show HUD with debug screen",
+                        ::hudWithDebug,
+                        "Shows the HUD even when the debug screen is open"
+                    )
                 }
             }
         }
