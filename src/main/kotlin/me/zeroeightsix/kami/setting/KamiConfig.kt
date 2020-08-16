@@ -89,34 +89,36 @@ object KamiConfig {
                 listOf(it.r, it.g, it.b, it.a)
             })
 
-    var bindType =
-        ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER)
-            .derive(
-                Bind::class.java,
-                { map: Map<String, Int> ->
-                    val alt = map["alt"] ?: 0 == 1
-                    val ctrl = map["ctrl"] ?: 0 == 1
-                    val shift = map["shift"] ?: 0 == 1
-                    val keysym = map["keysm"] ?: 0 == 1
-                    val key = map["key"] ?: -1
-                    val scan = map["scan"] ?: -1
-                    Bind(
-                        ctrl,
-                        alt,
-                        shift,
-                        Bind.Code(keysym, key, scan)
-                    )
-                }
-            ) { bind: Bind ->
-                val map = HashMap<String?, Int>()
-                map["alt"] = if (bind.isAlt) 1 else 0
-                map["ctrl"] = if (bind.isCtrl) 1 else 0
-                map["shift"] = if (bind.isShift) 1 else 0
-                map["keysm"] = if (bind.code.keysym) 1 else 0
-                map["key"] = bind.code.key
-                map["scan"] = bind.code.scan
-                map
-            }
+    var bindType = ConfigTypes.STRING.derive(Bind::class.java, {
+        var s = it.toLowerCase()
+
+        fun remove(part: String): Boolean {
+            val removed = s.replace(part, "")
+            val changed = s != removed
+            s = removed
+            return changed
+        }
+
+        val ctrl = remove("ctrl+")
+        val alt = remove("alt+")
+        val shift = remove("shift+")
+
+        s = s.removePrefix("key.keyboard.")
+
+        Bind(
+            ctrl,
+            alt,
+            shift,
+            bindMap[s] ?: Bind.Code.none()
+        )
+    }, {
+        var s = ""
+        if (it.isCtrl) s += "ctrl+"
+        if (it.isAlt) s += "alt+"
+        if (it.isShift) s += "shift+"
+        s += it.code.translationKey
+        s
+    })
 
     val profileType =
         ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING)
@@ -173,27 +175,7 @@ object KamiConfig {
             createInterface({
                 Pair("bind", bindType.toRuntimeType(it.value).toString())
             }, {
-                var s = it.toLowerCase()
-
-                fun remove(part: String): Boolean {
-                    val removed = s.replace(part, "")
-                    val changed = s != removed
-                    s = removed
-                    return changed
-                }
-
-                val ctrl = remove("ctrl+")
-                val alt = remove("alt+")
-                val shift = remove("shift+")
-
-                bindType.toSerializedType(
-                    Bind(
-                        ctrl,
-                        alt,
-                        shift,
-                        bindMap[s]
-                    )
-                )
+                it
             }, {
                 with(ImGui) {
                     val bind = bindType.toRuntimeType(it.value)

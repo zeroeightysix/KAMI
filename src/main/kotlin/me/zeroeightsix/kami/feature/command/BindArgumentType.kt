@@ -7,7 +7,6 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.Bind
-import java.math.BigDecimal
 import java.util.concurrent.CompletableFuture
 
 class BindArgumentType private constructor() : ArgumentType<Bind> {
@@ -18,7 +17,7 @@ class BindArgumentType private constructor() : ArgumentType<Bind> {
     }
 
     override fun parse(reader: StringReader?): Bind =
-        KamiConfig.bindType.toRuntimeType(bindInterface.valueFromString(reader!!.readUnquotedString()) as MutableMap<String, BigDecimal>?)
+        KamiConfig.bindType.toRuntimeType(reader!!.readUnquotedString())
 
     override fun <S : Any?> listSuggestions(
         context: CommandContext<S>?,
