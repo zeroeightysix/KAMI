@@ -74,11 +74,9 @@ object KamiHud {
         frame(matrixStack) {
             if (!EnabledWidgets.hideAll) {
                 PinnableWidget.drawFadedBackground = false
-                for ((widget, open) in EnabledWidgets.widgets) {
-                    if (open && widget.pinned) {
-                        if (!widget.showWindow(open, false)) {
-                            EnabledWidgets.widgets[widget] = false
-                        }
+                for (widget in EnabledWidgets.widgets) {
+                    if (widget.open && widget.pinned) {
+                        widget.showWindow(false)
                     }
                 }
                 PinnableWidget.drawFadedBackground = true
