@@ -44,16 +44,17 @@ object PrepHandler : Feature, Listenable {
     @EventHandler
     private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() })
 
+    fun getRainbowHue() = (System.currentTimeMillis() * rainbowSpeed * 0.0005) % 360
+
     private fun update() {
         if (mc.window.width != displayWidth || mc.window.height != displayHeight) {
             KamiMod.EVENT_BUS.post(DisplaySizeChangedEvent())
             displayWidth = mc.window.width
             displayHeight = mc.window.height
         }
-        val speed = rainbowSpeed
-        val hue = System.currentTimeMillis() % (360 * speed) / (360f * speed)
+        val hue = getRainbowHue()
         KamiMod.rainbow = Color.HSBtoRGB(
-            hue,
+            hue.toFloat(),
             rainbowSaturation,
             rainbowBrightness
         )

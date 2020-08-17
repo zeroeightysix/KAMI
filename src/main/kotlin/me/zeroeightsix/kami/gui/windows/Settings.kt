@@ -1,9 +1,15 @@
 package me.zeroeightsix.kami.gui.windows
 
+import glm_.func.common.clamp
 import glm_.vec2.Vec2
+import glm_.vec4.Vec4
+import imgui.ColorEditFlag
 import imgui.ImGui
+import imgui.ImGui.button
+import imgui.ImGui.colorConvertHSVtoRGB
+import imgui.ImGui.colorConvertRGBtoHSV
+import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
-import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
 import imgui.ImGui.popID
 import imgui.ImGui.pushID
@@ -12,13 +18,13 @@ import imgui.ImGui.textWrapped
 import imgui.TabBarFlag
 import imgui.WindowFlag
 import imgui.api.demoDebugInformations
-import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.tabBar
 import imgui.dsl.tabItem
 import imgui.dsl.window
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.feature.FindSettings
+import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
@@ -58,7 +64,7 @@ object Settings {
     var borderOffset = 10f
 
     @Setting
-    var rainbowSpeed = 32
+    var rainbowSpeed = 0.1
 
     @Setting
     var rainbowSaturation = 1f
@@ -107,12 +113,12 @@ object Settings {
                             "Hide module descriptions when its settings are opened."
                         )
                         dummy(Vec2(0, 5))
-                        button("Reset module windows") {
+                        if (button("Reset module windows")) {
                             Modules.reset()
                         }
                         if (!ModuleWindowsEditor.open) {
                             sameLine()
-                            button("Open module windows editor") {
+                            if (button("Open module windows editor")) {
                                 ModuleWindowsEditor.open = true
                             }
                         }
@@ -126,29 +132,22 @@ object Settings {
 
                         dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
 
-                        if (dragInt("Rainbow speed", ::rainbowSpeed, vSpeed = 0.1F, vMin = 1, vMax = 128)) {
-                            rainbowSpeed = rainbowSpeed.coerceAtLeast(1) // Do not let users custom edit this below 1
+                        val speed = floatArrayOf(rainbowSpeed.toFloat())
+                        if (dragFloat("Rainbow speed", speed, 0, vSpeed = 0.005f, vMin = 0.05f, vMax = 1f)) {
+                            rainbowSpeed = speed[0].toDouble().clamp(0.0, 1.0)
                         }
-                        if (dragFloat(
-                                "Rainbow saturation",
-                                ::rainbowSaturation,
-                                vSpeed = 0.01F,
-                                vMin = 0f,
-                                vMax = 1f
-                            )
-                        ) {
-                            rainbowSaturation = rainbowSaturation.coerceIn(0f, 1f)
-                        }
-                        if (dragFloat(
-                                "Rainbow brightness",
-                                ::rainbowBrightness,
-                                vSpeed = 0.01F,
-                                vMin = 0f,
-                                vMax = 1f
-                            )
-                        ) {
-                            rainbowBrightness = rainbowBrightness.coerceIn(0f, 1f)
-                        }
+
+                        val col = Vec4(PrepHandler.getRainbowHue(), rainbowSaturation, rainbowBrightness, 1.0f)
+                        colorConvertHSVtoRGB(col)
+                        colorEdit3(
+                            "Rainbow colour",
+                            col,
+                            ColorEditFlag.DisplayHSV or ColorEditFlag.NoPicker
+                        )
+                        val array = col.array
+                        colorConvertRGBtoHSV(array, array)
+                        rainbowSaturation = array[1]
+                        rainbowBrightness = array[2]
 
                         dummy(Vec2(0, 5))
                         textWrapped("Enabled HUD elements:")
