@@ -355,9 +355,9 @@ object KamiConfig {
         constructFeaturesConfiguration(builder, settings)
 
         findAnnotatedSettings().also { println(it) }.entries.forEach { (root, list) ->
-            val (builder, block) = when {
-                root.isEmpty() -> Pair(builder, { _ -> Unit })
-                else -> Pair(builder.fork(root), { builder: ConfigTreeBuilder -> builder.finishBranch(); Unit })
+            val builder = when {
+                root.isEmpty() -> builder
+                else -> builder.fork(root)
             }
 
             list.forEach {
@@ -375,8 +375,6 @@ object KamiConfig {
                     e.printStackTrace()
                 }
             }
-
-            block(builder)
         }
 
         val built = builder.build()
