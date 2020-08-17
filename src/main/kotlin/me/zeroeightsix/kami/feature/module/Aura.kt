@@ -177,7 +177,7 @@ object Aura : Module() {
 
     private val lagComp: Float
         private get() = if (waitMode == WaitMode.DYNAMIC) {
-            -(20 - LagCompensator.INSTANCE.tickRate)
+            -(20 - LagCompensator.tickRate)
         } else 0.0f
 
     private fun canEntityFeetBeSeen(entityIn: Entity): Boolean {

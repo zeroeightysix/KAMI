@@ -65,7 +65,7 @@ open class TextPinnableWidget(
             "z" numeric { mc.player?.pos?.z ?: 0.0 },
             "yaw" numeric { mc.player?.yaw?.toDouble() ?: 0.0 },
             "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
-            "tps" numeric { LagCompensator.INSTANCE.tickRate.toDouble() },
+            "tps" numeric { LagCompensator.tickRate.toDouble() },
             "username" const { mc.session.username },
             "version" const { KamiMod.MODVER },
             "client" const { KamiMod.MODNAME },

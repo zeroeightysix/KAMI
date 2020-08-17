@@ -4,7 +4,6 @@ import me.zero.alpine.bus.EventBus
 import me.zero.alpine.bus.EventManager
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.setting.KamiConfig
-import me.zeroeightsix.kami.util.LagCompensator
 import net.fabricmc.api.ModInitializer
 import org.apache.logging.log4j.LogManager
 
@@ -29,7 +28,6 @@ class KamiMod : ModInitializer {
         log.info("Initialising $MODNAME $MODVER")
 
         FeatureManager // Initialises FeatureManager, which finds & initialises ALL features
-        LagCompensator.INSTANCE = LagCompensator()
         KamiConfig // Initialises KamiConfig, which constructs & loads config
 
         log.info("$MODNAME initialised")
