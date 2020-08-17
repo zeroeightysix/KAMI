@@ -67,7 +67,7 @@ object Settings {
     var rainbowSpeed = 0.1
 
     @Setting
-    var rainbowSaturation = 1f
+    var rainbowSaturation = 0.5f
 
     @Setting
     var rainbowBrightness = 1f
