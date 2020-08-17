@@ -16,7 +16,7 @@ import imgui.dsl.popupContextWindow
 import imgui.or
 import me.zeroeightsix.kami.gui.windows.Settings
 
-abstract class PinnableWidget(val name: String, private var position: Position = Position.TOP_LEFT) {
+abstract class PinnableWidget(val name: String, var position: Position = Position.TOP_LEFT, var open: Boolean = true) {
 
     var pinned = true
     var background = false
@@ -25,7 +25,7 @@ abstract class PinnableWidget(val name: String, private var position: Position =
         var drawFadedBackground = true
     }
 
-    private fun showWidgetContextMenu(open: BooleanArray) {
+    private fun showWidgetContextMenu() {
         popupContextWindow {
             menuItem("Pinned", "", pinned) {
                 pinned = !pinned
@@ -49,7 +49,7 @@ abstract class PinnableWidget(val name: String, private var position: Position =
     /**
      * @return the possibly modified 'open' attribute
      */
-    fun showWindow(open: Boolean, limitY: Boolean): Boolean {
+    fun showWindow(limitY: Boolean) {
         preWindow()
 
         var flags =
@@ -74,20 +74,19 @@ abstract class PinnableWidget(val name: String, private var position: Position =
             } else flags = flags or WindowFlag.NoBackground
         }
 
-        val openArray = booleanArrayOf(open)
+        val openArray = booleanArrayOf(this.open)
         if (begin(name, openArray, flags)) {
-            fillWindow(openArray)
-            showWidgetContextMenu(openArray)
+            fillWindow()
+            showWidgetContextMenu()
 
             end()
         }
-
-        return openArray[0]
+        this.open = openArray[0]
     }
 
     private infix fun Int.has(b: Int) = (this and b) != 0
 
-    protected abstract fun fillWindow(open: BooleanArray)
+    protected abstract fun fillWindow()
     protected open fun fillStyle() {}
     protected open fun fillContextMenu() {}
     protected open fun preWindow() {}

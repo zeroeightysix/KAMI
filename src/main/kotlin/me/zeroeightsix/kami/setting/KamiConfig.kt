@@ -12,8 +12,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
@@ -27,6 +31,9 @@ import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.widgets.PinnableWidget
+import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
@@ -51,6 +58,120 @@ import kotlin.collections.HashMap
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    val colourModeType = ConfigTypes.makeEnum(TextPinnableWidget.CompiledText.Part.ColourMode::class.java)
+    val partSerializableType = RecordSerializableType(
+        mapOf(
+            Pair("obfuscated", BOOLEAN),
+            Pair("bold", BOOLEAN),
+            Pair("strike", BOOLEAN),
+            Pair("underline", BOOLEAN),
+            Pair("italic", BOOLEAN),
+            Pair("shadow", BOOLEAN),
+            Pair("extraspace", BOOLEAN),
+            Pair("colourMode", colourModeType.serializedType),
+            Pair("type", DEFAULT_STRING),
+            Pair("value", DEFAULT_STRING)
+        )
+    )
+    val partType = RecordConfigType(partSerializableType, TextPinnableWidget.CompiledText.Part::class.java, {
+        val obfuscated = it["obfuscated"] as Boolean
+        val bold = it["bold"] as Boolean
+        val strike = it["strike"] as Boolean
+        val underline = it["underline"] as Boolean
+        val italic = it["italic"] as Boolean
+        val shadow = it["shadow"] as Boolean
+        val extraspace = it["extraspace"] as Boolean
+        val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
+        val type = it["type"] as String
+        val value = it["value"] as String
+        when (type) {
+            "literal" -> TextPinnableWidget.CompiledText.LiteralPart(
+                value,
+                obfuscated,
+                bold,
+                strike,
+                underline,
+                italic,
+                shadow,
+                colourMode,
+                extraspace
+            )
+            "variable" -> TextPinnableWidget.CompiledText.VariablePart(TextPinnableWidget.varMap[value]?.let { it() }
+                ?: TextPinnableWidget.varMap["none"]!!(),
+                obfuscated,
+                bold,
+                strike,
+                underline,
+                italic,
+                shadow,
+                colourMode)
+            else -> TextPinnableWidget.CompiledText.LiteralPart(
+                "Invalid part",
+                obfuscated,
+                bold,
+                strike,
+                underline,
+                italic,
+                shadow,
+                colourMode,
+                extraspace
+            )
+        }
+    }, {
+        val (type, value) = when (it) {
+            is TextPinnableWidget.CompiledText.LiteralPart -> "literal" to it.string
+            is TextPinnableWidget.CompiledText.VariablePart -> "variable" to it.variable.name
+            else -> throw IllegalStateException("Unknown part type")
+        }
+        mapOf(
+            "obfuscated" to it.obfuscated,
+            "bold" to it.bold,
+            "strike" to it.strike,
+            "underline" to it.underline,
+            "italic" to it.italic,
+            "shadow" to it.shadow,
+            "extraspace" to it.extraspace,
+            "colourMode" to colourModeType.toSerializedType(it.colourMode),
+            "type" to type,
+            "value" to value
+        )
+    })
+    val compiledTextType = ConfigTypes.makeList(partType).derive(
+        TextPinnableWidget.CompiledText::class.java,
+        {
+            TextPinnableWidget.CompiledText(it)
+        },
+        {
+            it.parts
+        }
+    )
+    val listOfCompiledTextType = ConfigTypes.makeList(compiledTextType)
+    val positionType = ConfigTypes.makeEnum(PinnableWidget.Position::class.java)
+    val textPinnableSerializableType = RecordSerializableType(
+        mapOf(
+            "texts" to listOfCompiledTextType.serializedType,
+            "title" to DEFAULT_STRING,
+            "position" to positionType.serializedType
+        )
+    )
+    val textPinnableWidgetType = RecordConfigType(textPinnableSerializableType, TextPinnableWidget::class.java, {
+        val title = it["title"] as String
+        val position = positionType.toRuntimeType(it["position"] as String?)
+        val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
+        TextPinnableWidget(title, texts.toMutableList(), position)
+    }, {
+        mapOf(
+            "texts" to listOfCompiledTextType.toSerializedType(it.text),
+            "title" to it.title,
+            "position" to positionType.toSerializedType(it.position)
+        )
+    })
+    val widgetsType = ConfigTypes.makeList(textPinnableWidgetType).derive(EnabledWidgets.Widgets::class.java, {
+        EnabledWidgets.Widgets(it.toMutableList())
+    }, {
+        it
+    })
 
     val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
         FeatureManager.modules.find { it.name == name }
@@ -334,6 +455,7 @@ object KamiConfig {
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
+            .registerTypeMapping(EnabledWidgets.Widgets::class.java, widgetsType)
             .registerSettingProcessor(
                 Setting::class.java,
                 SettingAnnotationProcessor
@@ -363,18 +485,25 @@ object KamiConfig {
             list.forEach {
                 try {
                     val instance = it.getDeclaredField("INSTANCE").get(null)
-                    val config = builder.applyFromPojo(instance, settings)
-                    if (root.isNotEmpty()) {
-                        val config = config.build()
-                        if (instance is HasConfig) {
-                            instance.config = config
-                        }
-                    }
+                    builder.applyFromPojo(instance, settings)
+
+
                 } catch (e: NoSuchFieldError) {
                     println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!");
                     e.printStackTrace()
                 }
             }
+
+            if (root.isNotEmpty()) {
+                val config = builder.build()
+                list.forEach {
+                    val instance = it.getDeclaredField("INSTANCE").get(null)
+                    if (instance is HasConfig) {
+                        instance.config = config
+                    }
+                }
+            }
+
         }
 
         val built = builder.build()

@@ -40,8 +40,8 @@ import kotlin.math.abs
 import kotlin.math.floor
 
 open class TextPinnableWidget(
-    private val title: String,
-    private var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
+    val title: String,
+    var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
     position: Position = Position.TOP_LEFT
 ) : PinnableWidget(title, position) {
 
@@ -74,7 +74,7 @@ open class TextPinnableWidget(
         )
     }
 
-    override fun fillWindow(open: BooleanArray) {
+    override fun fillWindow() {
 
         val guiOpen = mc.currentScreen is KamiGuiScreen
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
