@@ -16,7 +16,7 @@ import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
 @FindFeature
-@FindSettings
+@FindSettings(settingsRoot = "clickGui")
 object ClickGui : Feature, Listenable {
 
     @Setting
