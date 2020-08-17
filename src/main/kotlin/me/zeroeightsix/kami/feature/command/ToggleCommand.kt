@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Formatting
@@ -27,7 +28,7 @@ object ToggleCommand : Command() {
                                     "feature",
                                     FullFeature::class.java
                                 )
-                            f.toggle()
+                            f.enabled = !f.enabled
                             (context.source as KamiCommandSource).sendFeedback(
                                 Texts.f(
                                     Formatting.GOLD, Texts.append(
@@ -38,8 +39,8 @@ object ToggleCommand : Command() {
                                         ),
                                         Texts.lit(", now "),
                                         Texts.flit(
-                                            if (f.isEnabled()) Formatting.GREEN else Formatting.RED,
-                                            if (f.isEnabled()) "ON" else "OFF"
+                                            f.enabled.to(Formatting.GREEN, Formatting.RED),
+                                            f.enabled.to("ON", "OFF")
                                         )
                                     )
                                 )

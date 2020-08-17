@@ -9,15 +9,15 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IShulkerBoxBlockEntity
 import me.zeroeightsix.kami.util.ShulkerBoxCommon
 import net.minecraft.block.ShulkerBoxBlock
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
-import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.item.BlockItem
+import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.function.Function

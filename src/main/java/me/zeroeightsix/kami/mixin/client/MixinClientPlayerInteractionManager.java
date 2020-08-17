@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.PlayerAttackBlockEvent;
+import me.zeroeightsix.kami.event.PlayerAttackBlockEvent;
 import me.zeroeightsix.kami.feature.module.player.TpsSync;
 import me.zeroeightsix.kami.util.LagCompensator;
 import net.minecraft.block.BlockState;

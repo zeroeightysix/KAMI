@@ -142,3 +142,6 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
 }
 
 fun VertexConsumer.color(color: Colour) = this.color(color.r, color.g, color.b, color.a)
+
+operator fun Vec3d.plus(other: Vec3d) = add(other)
+fun Vec3d.interpolated(tickDelta: Double, dV: Vec3d) = this + dV.multiply(tickDelta - 1)

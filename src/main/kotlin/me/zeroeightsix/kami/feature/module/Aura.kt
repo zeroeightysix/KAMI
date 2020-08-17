@@ -4,7 +4,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
@@ -119,7 +119,7 @@ object Aura : Module() {
                         // We want to skip this if switchTo32k is true,
                         // because it only accounts for tools and weapons.
                         // Maybe someone could refactor this later? :3
-                        if (!switchTo32k && AutoTool.isEnabled()) {
+                        if (!switchTo32k && AutoTool.enabled) {
                             AutoTool.equipBestWeapon()
                         }
                         attack(target)

@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.player;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Freecam;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
@@ -44,7 +44,7 @@ public class Scaffold extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (isDisabled() || Freecam.INSTANCE.isEnabled()) return;
+        if (Freecam.INSTANCE.getEnabled()) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future);
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();

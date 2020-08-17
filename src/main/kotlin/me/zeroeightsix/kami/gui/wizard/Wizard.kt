@@ -23,6 +23,7 @@ import imgui.dsl.popupModal
 import imgui.internal.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.Themes
@@ -31,8 +32,9 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.to
 
+@FindSettings
 object Wizard {
-    
+
     @Setting
     var firstTime = true
 
@@ -78,7 +80,7 @@ object Wizard {
         text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
         textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
         checkbox("Enable modifier keys", Settings::modifiersEnabled)
-        
+
         separator()
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
@@ -105,7 +107,7 @@ object Wizard {
     }, {
         firstTime = false
     })
-    
+
     var currentPage = 0
 
     /**
@@ -141,5 +143,5 @@ object Wizard {
 
         return firstTime
     }
-    
+
 }

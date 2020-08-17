@@ -25,7 +25,7 @@ object Themes {
         INFERNO({ styleColorsInferno()}),
         CHERRY({ styleColorsCherry() })
     }
-    
+
     private fun resetSizes() {
         ImGui.style.windowRounding = 7f
         ImGui.style.windowBorderSize = 1f
@@ -34,7 +34,7 @@ object Themes {
         ImGui.style.childRounding = 0f
         ImGui.style.frameBorderSize = 0f
     }
-    
+
     private fun styleColorsAqua() {
         val colors = ImGui.style.colors
         colors[Col.Text.i] = Vec4(0.80, 0.78, 0.78, 1.00)
@@ -89,7 +89,7 @@ object Themes {
         resetSizes()
         ImGui.style.windowBorderSize = 0f
     }
-    
+
     private fun styleColorsInferno() {
         val colors = ImGui.style.colors
         colors[Col.Text.i] = Vec4(1.00, 0.96, 0.96, 1.00)
@@ -97,9 +97,9 @@ object Themes {
         colors[Col.WindowBg.i] = Vec4(0.08, 0.08, 0.08, 0.94)
         colors[Col.ChildBg.i] = Vec4(0.00, 0.00, 0.00, 0.00)
         colors[Col.PopupBg.i] = Vec4(0.08, 0.08, 0.08, 0.94)
-        colors[Col.Border.i] = Vec4(0.48, 0.37, 0.37, 0.50)
+        colors[Col.Border.i] = Vec4(0.48, 0.37, 0.37, 0.28)
         colors[Col.BorderShadow.i] = Vec4(0.00, 0.00, 0.00, 0.00)
-        colors[Col.FrameBg.i] = Vec4(0.48, 0.18, 0.16, 0.54)
+        colors[Col.FrameBg.i] = Vec4(0.48, 0.18, 0.16, 0.46)
         colors[Col.FrameBgHovered.i] = Vec4(0.57, 0.31, 0.29, 0.54)
         colors[Col.FrameBgActive.i] = Vec4(0.64, 0.42, 0.40, 0.54)
         colors[Col.TitleBg.i] = Vec4(0.00, 0.00, 0.00, 0.90)

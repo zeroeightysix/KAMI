@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.ScreenEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.ScreenEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.setting.KamiConfig;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;

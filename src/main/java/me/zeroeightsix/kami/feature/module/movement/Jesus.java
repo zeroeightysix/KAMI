@@ -2,13 +2,13 @@ package me.zeroeightsix.kami.feature.module.movement;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
+import me.zeroeightsix.kami.event.AddCollisionBoxToListEvent;
 import me.zeroeightsix.kami.event.KamiEvent;
-import me.zeroeightsix.kami.event.events.AddCollisionBoxToListEvent;
-import me.zeroeightsix.kami.event.events.PacketEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
-import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
-import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Freecam;
+import me.zeroeightsix.kami.feature.module.Module;
+import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import me.zeroeightsix.kami.util.EntityUtil;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.FluidBlock;
@@ -18,7 +18,6 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.EmptyBlockView;
 
 /**
  * Created by 086 on 11/12/2017.
@@ -30,7 +29,7 @@ public class Jesus extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (!Freecam.INSTANCE.isEnabled()) {
+        if (!Freecam.INSTANCE.getEnabled()) {
             if (EntityUtil.isInWater(mc.player) && !mc.player.isSneaking()) {
                 EntityUtil.updateVelocityY(mc.player, 0.1);
                 if (mc.player.getVehicle() != null && !(mc.player.getVehicle() instanceof BoatEntity)) {

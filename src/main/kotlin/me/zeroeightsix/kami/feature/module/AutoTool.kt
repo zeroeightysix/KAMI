@@ -3,10 +3,9 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.PlayerAttackBlockEvent
-import me.zeroeightsix.kami.event.events.PlayerAttackEntityEvent
+import me.zeroeightsix.kami.event.PlayerAttackBlockEvent
+import me.zeroeightsix.kami.event.PlayerAttackEntityEvent
 import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager
-import me.zeroeightsix.kami.mixin.client.IMiningToolItem
 import net.minecraft.block.BlockState
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments

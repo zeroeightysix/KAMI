@@ -5,7 +5,7 @@
 
 ## A Minecraft utility mod for anarchy servers.
 
-The Fabric 1.16.1 version is in active development.
+The Fabric 1.16.2 version is in active development.
 
 ## Preview
 

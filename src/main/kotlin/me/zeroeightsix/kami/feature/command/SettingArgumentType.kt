@@ -8,9 +8,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.setting.visibilityType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
@@ -35,7 +37,10 @@ class SettingArgumentType(
         }
         val s = feature.config.flattenedStream()
             .filter {
-                it.name.equals(string, ignoreCase = true)
+                it.name.equals(string, ignoreCase = true) && it.getAttributeValue(
+                    FiberId("kami", "setting_visibility"),
+                    visibilityType
+                ).map { sup -> sup.isVisible() }.orElse(true)
             }.findAny()
         return if (s.isPresent) {
             s.get()
@@ -53,7 +58,12 @@ class SettingArgumentType(
             if (contains(' ')) return "\"$this\""
             return this
         }
-        return CommandSource.suggestMatching(f.config.items.stream().map { it.name.quoteIfNecessary() }, builder)
+        return CommandSource.suggestMatching(f.config.items.stream().filter {
+            it.getAttributeValue(
+                FiberId("kami", "setting_visibility"),
+                visibilityType
+            ).map { sup -> sup.isVisible() }.orElse(true)
+        }.map { it.name.quoteIfNecessary() }, builder)
     }
 
     override fun getExamples(): Collection<String> {

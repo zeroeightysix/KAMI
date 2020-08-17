@@ -1,67 +1,83 @@
 package me.zeroeightsix.kami.gui.windows
 
+import glm_.func.common.clamp
+import glm_.vec2.Vec2
+import glm_.vec4.Vec4
+import imgui.ColorEditFlag
 import imgui.ImGui
+import imgui.ImGui.button
+import imgui.ImGui.colorConvertHSVtoRGB
+import imgui.ImGui.colorConvertRGBtoHSV
+import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
-import imgui.ImGui.dragInt
+import imgui.ImGui.dummy
 import imgui.ImGui.popID
 import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
+import imgui.ImGui.textWrapped
+import imgui.TabBarFlag
+import imgui.WindowFlag
 import imgui.api.demoDebugInformations
-import imgui.dsl.button
 import imgui.dsl.checkbox
-import imgui.dsl.collapsingHeader
+import imgui.dsl.tabBar
+import imgui.dsl.tabItem
 import imgui.dsl.window
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zeroeightsix.kami.feature.FindSettings
+import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import kotlin.reflect.KMutableProperty0
 
+@FindSettings
 object Settings {
-
-    @Setting
-    var modifiersEnabled = false
 
     @Setting
     var settingsWindowOpen = false
 
     @Setting
+    var commandPrefix = '.'
+
+    // Behaviour
+    @Setting
+    var modifiersEnabled = false
+
+    @Setting
     var swapModuleListButtons = false
 
     @Setting
-    var oldModuleEditMode = false
+    var hideModuleDescriptions = false
 
     @Setting
-    var hideModuleDescriptions = false
+    var openSettingsInPopup = true
+
+    // Appearance
+    @Setting
+    var font: Int = 0
+
     @Setting
     var styleIdx = 0
+
     @Setting
     var borderOffset = 10f
+
     @Setting
-    var rainbowSpeed = 32
+    var rainbowSpeed = 0.1
+
     @Setting
     var rainbowSaturation = 1f
+
     @Setting
     var rainbowBrightness = 1f
 
-    @Setting
-    var experimental = false
-
-    @Setting
-    var interactOutsideGUI = false
-
-    @Setting
-    var hudWithDebug = false
-
+    // Other
     @Setting
     var demoWindowVisible = false
 
     @Setting
-    var commandPrefix = '.'
-
-    @Setting
-    var font: Int = 0
+    var hudWithDebug = false
 
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
@@ -73,62 +89,82 @@ object Settings {
         }
 
         if (settingsWindowOpen) {
-            window("Settings", ::settingsWindowOpen) {
-                setting(
-                    "Experimental features",
-                    ::experimental,
-                    "Shows settings that are considered experimental or buggy"
-                )
-                collapsingHeader("Module windows") {
-                    setting(
-                        "Swap list buttons",
-                        ::swapModuleListButtons,
-                        "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
-                    )
-                    setting("Hide descriptions", ::hideModuleDescriptions, "Hide module descriptions when its settings are opened.")
-                    setting("Old edit method", ::oldModuleEditMode,"Enable the old module edit method. A question mark will appear next to module descriptions that will allow you to merge or detach modules.")
-                    button("Reset module windows") {
-                        Modules.reset()
-                    }
-                    if (!ModuleWindowsEditor.open) {
-                        sameLine()
-                        button("Open module windows editor") {
-                            ModuleWindowsEditor.open = true
+            window("Settings", ::settingsWindowOpen, flags = WindowFlag.AlwaysAutoResize.i) {
+                tabBar("kami-settings-tabbar", TabBarFlag.None.i) {
+                    tabItem("Behaviour") {
+                        setting(
+                            "Keybind modifiers",
+                            ::modifiersEnabled,
+                            "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K."
+                        )
+                        setting(
+                            "Settings popup",
+                            ::openSettingsInPopup,
+                            "Show module settings in a popup instead of a collapsible"
+                        )
+                        setting(
+                            "Swap list buttons",
+                            ::swapModuleListButtons,
+                            "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
+                        )
+                        setting(
+                            "Hide descriptions",
+                            ::hideModuleDescriptions,
+                            "Hide module descriptions when its settings are opened."
+                        )
+                        dummy(Vec2(0, 5))
+                        if (button("Reset module windows")) {
+                            Modules.reset()
+                        }
+                        if (!ModuleWindowsEditor.open) {
+                            sameLine()
+                            if (button("Open module windows editor")) {
+                                ModuleWindowsEditor.open = true
+                            }
                         }
                     }
-                }
+                    tabItem("Appearance") {
+                        showFontSelector("Font###kami-settings-font-selector")
 
-                collapsingHeader("GUI") {
-                    if (ImGui.combo("Theme", ::styleIdx, themes)) {
-                        Themes.Variants.values()[styleIdx].applyStyle()
+                        if (ImGui.combo("Theme", ::styleIdx, themes)) {
+                            Themes.Variants.values()[styleIdx].applyStyle()
+                        }
+
+                        dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+
+                        val speed = floatArrayOf(rainbowSpeed.toFloat())
+                        if (dragFloat("Rainbow speed", speed, 0, vSpeed = 0.005f, vMin = 0.05f, vMax = 1f)) {
+                            rainbowSpeed = speed[0].toDouble().clamp(0.0, 1.0)
+                        }
+
+                        val col = Vec4(PrepHandler.getRainbowHue(), rainbowSaturation, rainbowBrightness, 1.0f)
+                        colorConvertHSVtoRGB(col)
+                        colorEdit3(
+                            "Rainbow colour",
+                            col,
+                            ColorEditFlag.DisplayHSV or ColorEditFlag.NoPicker
+                        )
+                        val array = col.array
+                        colorConvertRGBtoHSV(array, array)
+                        rainbowSaturation = array[1]
+                        rainbowBrightness = array[2]
+
+                        dummy(Vec2(0, 5))
+                        textWrapped("Enabled HUD elements:")
+                        EnabledWidgets.enabledButtons()
                     }
-
-                    showFontSelector("Font###kami-settings-font-selector")
-
-                    if (dragInt("Rainbow speed", ::rainbowSpeed, vSpeed = 0.1F, vMin = 1, vMax = 128)) {
-                        rainbowSpeed = rainbowSpeed.coerceAtLeast(1) // Do not let users custom edit this below 1
+                    tabItem("Other") {
+                        setting(
+                            "Show demo window in 'View'",
+                            ::demoWindowVisible,
+                            "Allows the demo window to be shown through the 'View' submenu of the main menu bar"
+                        )
+                        setting(
+                            "Show HUD with debug screen",
+                            ::hudWithDebug,
+                            "Shows the HUD even when the debug screen is open"
+                        )
                     }
-                    if (dragFloat("Rainbow saturation", ::rainbowSaturation, vSpeed = 0.01F, vMin = 0f, vMax = 1f)) {
-                        rainbowSaturation = rainbowSaturation.coerceIn(0f, 1f)
-                    }
-                    if (dragFloat("Rainbow brightness", ::rainbowBrightness, vSpeed = 0.01F, vMin = 0f, vMax = 1f)) {
-                        rainbowBrightness = rainbowBrightness.coerceIn(0f, 1f)
-                    }
-
-                    if (experimental) {
-                        setting("Always interactable GUI", ::interactOutsideGUI, "Allows you to interact with the GUI at any time, e.g. when chat is opened, or the game is paused.")
-                        setting("Show HUD with debug screen", ::hudWithDebug, "Shows the HUD even when the debug screen is open")
-                        setting("Show demo window in 'View'", ::demoWindowVisible, "Allows the demo window to be shown through the 'View' submenu of the main menu bar")
-                    }
-                }
-
-                collapsingHeader("Overlay") {
-                    dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
-                    EnabledWidgets.enabledButtons()
-                }
-
-                collapsingHeader("In-game") {
-                    setting("Keybind modifiers", ::modifiersEnabled, "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K.")
                 }
             }
         }

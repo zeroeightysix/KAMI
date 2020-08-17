@@ -4,9 +4,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.CanBeControlledEvent
-import me.zeroeightsix.kami.event.events.RenderHudEvent
-import me.zeroeightsix.kami.event.events.TickEvent
+import me.zeroeightsix.kami.event.CanBeControlledEvent
+import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.entity.Entity
@@ -16,7 +16,6 @@ import net.minecraft.entity.passive.PigEntity
 import net.minecraft.entity.passive.StriderEntity
 import net.minecraft.entity.vehicle.BoatEntity
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.chunk.EmptyChunk
 import kotlin.math.sin
 
 /**
@@ -40,9 +39,6 @@ object EntitySpeed : Module() {
 
     @Setting
     private var wobble = true
-
-    @Setting(name = "Boat opacity")
-    var opacity = .5f
 
     @EventHandler
     private val updateListener = Listener(

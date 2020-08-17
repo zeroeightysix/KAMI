@@ -1,13 +1,11 @@
 package me.zeroeightsix.kami.feature.module.player;
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import jdk.nashorn.internal.ir.Block;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.PacketEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.item.Items;

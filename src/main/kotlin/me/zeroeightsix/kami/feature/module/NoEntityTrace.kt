@@ -1,11 +1,10 @@
-package me.zeroeightsix.kami.feature.module.misc
+package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.TargetEntityEvent
-import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.event.TargetEntityEvent
 
 /**
  * Created by 086 on 8/04/2018.

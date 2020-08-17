@@ -7,16 +7,13 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.setDragDropPayload
+import imgui.ImGui.openPopupOnItemClick
+import imgui.ImGui.selectable
 import imgui.ImGui.setNextWindowPos
-import imgui.ImGui.text
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
-import imgui.api.demoDebugInformations
-import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
-import imgui.dsl.menuItem
-import imgui.dsl.popupContextItem
+import imgui.dsl.popup
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
@@ -24,6 +21,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.command.getInterface
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
@@ -31,7 +29,9 @@ import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.setting.visibilityType
+import me.zeroeightsix.kami.then
 
+@FindSettings
 object Modules {
 
     @Setting(name = "Windows")
@@ -51,10 +51,6 @@ object Modules {
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
-        // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-        val doubleClicked = ImGui.io.mouseDoubleClicked[0]
-        ImGui.io.mouseDoubleClicked[0] = false
-
         var clickedLeft = false
         var clickedRight = false
 
@@ -63,36 +59,35 @@ object Modules {
             clickedRight = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeEx(label, nodeFlags, module.name)
-        dragDropTarget {
-            acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                val payload = it.data!! as ModulePayload
-                payload.moveTo(source, sourceGroup)
+        if (!Settings.openSettingsInPopup) {
+            // We don't want imgui to handle open/closing at all, so we hack out the behaviour
+            val doubleClicked = ImGui.io.mouseDoubleClicked[0]
+            ImGui.io.mouseDoubleClicked[0] = false
+
+            val open = treeNodeEx(label, nodeFlags, module.name)
+            dragDropTarget {
+                acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
+                    val payload = it.data!! as ModulePayload
+                    payload.moveTo(source, sourceGroup)
+                }
+            }
+            if (open) {
+                updateClicked()
+                showModuleSettings(module)
+            } else updateClicked()
+
+            // Restore state
+            ImGui.io.mouseDoubleClicked[0] = doubleClicked
+        } else {
+            selectable(module.name, module.enabled).then { module.enabled = !module.enabled }
+            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right)
+            popup("module-settings-${module.name}") {
+                showModuleSettings(module)
             }
         }
-        if (open) {
-            updateClicked()
-            showModuleSettings(module) {
-                dragDropSource(DragDropFlag.SourceAllowNullID.i) {
-                    setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), source))
-                    text("Merge")
-                }
-
-                popupContextItem("$label-popup") {
-                    menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name, module = module)
-                    }
-                }
-            }
-
-//            treePop()
-        } else updateClicked()
-
-        // Restore state
-        ImGui.io.mouseDoubleClicked[0] = doubleClicked
 
         if (clickedLeft) {
-            module.toggle()
+            module.enabled = !module.enabled
         } else if (clickedRight) {
             val id = currentWindow.getID(label)
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
@@ -209,7 +204,7 @@ object Modules {
 
 }
 
-private fun showModuleSettings(module: Module, block: () -> Unit) {
+private fun showModuleSettings(module: Module) {
     // We introduce a generic <T> to allow displayImGui to be called even though we don't actually know the type of ConfigLeaf we have!
     // the flattenedStream() method returns a stream over ConfigLeaf<*>, where <*> is any type.
     // Because the interface (SettingInterface<T>) requires a ConfigLeaf<T> and we only have a ConfigLeaf<*> and SettingInterface<*> (and <*> != <*>), calling displayImGui is illegal.
@@ -219,18 +214,11 @@ private fun showModuleSettings(module: Module, block: () -> Unit) {
         this.getInterface().displayImGui(this)
     }
 
-    val editMarkerShown = Settings.oldModuleEditMode
     if (!Settings.hideModuleDescriptions) {
         ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        ImGui.textWrapped("%s", module.description)
+        ImGui.text("%s", module.description)
         ImGui.popStyleColor()
-        if (editMarkerShown)
-            ImGui.sameLine()
     }
-    if (editMarkerShown) {
-        demoDebugInformations.helpMarker("Start dragging from this question mark to merge this module into another module window. Right click this question mark and press 'Detach' to seperate it into a new window.")
-    }
-    block()
 
     module.config.flattenedStream().filter {
         it.getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { vis ->

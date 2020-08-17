@@ -4,10 +4,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.ScreenEvent
-import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
+import me.zeroeightsix.kami.event.ScreenEvent
+import me.zeroeightsix.kami.event.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
-import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
@@ -47,14 +46,14 @@ object AutoReconnect : Module() {
     @EventHandler
     val displayedListener = Listener(
         EventHook { event: Displayed ->
-            if (isEnabled() && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
+            if (enabled && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
                 KamiDisconnectedScreen(event.screen as DisconnectedScreen)
         }
     )
 
     private class KamiDisconnectedScreen(disconnected: DisconnectedScreen) : DisconnectedScreen(
         (disconnected as IDisconnectedScreen).parent,
-        disconnected.title.asString(),
+        disconnected.title,
         (disconnected as IDisconnectedScreen).reason
     ) {
         private val parent: Screen

@@ -24,11 +24,10 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
-import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
 import me.zeroeightsix.kami.util.Bind
@@ -36,6 +35,7 @@ import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
+import org.reflections.Reflections
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.file.Files
@@ -44,6 +44,7 @@ import java.nio.file.StandardOpenOption
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
+import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.collections.HashMap
 
@@ -52,9 +53,9 @@ object KamiConfig {
     const val CONFIG_FILENAME = "KAMI_config.json5"
 
     val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
-        FeatureManager.modules.find { it.originalName == name }
+        FeatureManager.modules.find { it.name == name }
     }, { m ->
-        m.originalName
+        m.name
     })
     val moduleListType = ConfigTypes.makeList(moduleType)
     val modulesGroupsType = ConfigTypes.makeMap(ConfigTypes.STRING, moduleListType)
@@ -89,34 +90,36 @@ object KamiConfig {
                 listOf(it.r, it.g, it.b, it.a)
             })
 
-    var bindType =
-        ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.INTEGER)
-            .derive(
-                Bind::class.java,
-                { map: Map<String, Int> ->
-                    val alt = map["alt"] ?: 0 == 1
-                    val ctrl = map["ctrl"] ?: 0 == 1
-                    val shift = map["shift"] ?: 0 == 1
-                    val keysym = map["keysm"] ?: 0 == 1
-                    val key = map["key"] ?: -1
-                    val scan = map["scan"] ?: -1
-                    Bind(
-                        ctrl,
-                        alt,
-                        shift,
-                        Bind.Code(keysym, key, scan)
-                    )
-                }
-            ) { bind: Bind ->
-                val map = HashMap<String?, Int>()
-                map["alt"] = if (bind.isAlt) 1 else 0
-                map["ctrl"] = if (bind.isCtrl) 1 else 0
-                map["shift"] = if (bind.isShift) 1 else 0
-                map["keysm"] = if (bind.code.keysym) 1 else 0
-                map["key"] = bind.code.key
-                map["scan"] = bind.code.scan
-                map
-            }
+    var bindType = ConfigTypes.STRING.derive(Bind::class.java, {
+        var s = it.toLowerCase()
+
+        fun remove(part: String): Boolean {
+            val removed = s.replace(part, "")
+            val changed = s != removed
+            s = removed
+            return changed
+        }
+
+        val ctrl = remove("ctrl+")
+        val alt = remove("alt+")
+        val shift = remove("shift+")
+
+        s = s.removePrefix("key.keyboard.")
+
+        Bind(
+            ctrl,
+            alt,
+            shift,
+            bindMap[s] ?: Bind.Code.none()
+        )
+    }, {
+        var s = ""
+        if (it.isCtrl) s += "ctrl+"
+        if (it.isAlt) s += "alt+"
+        if (it.isShift) s += "shift+"
+        s += it.code.translationKey
+        s
+    })
 
     val profileType =
         ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING)
@@ -173,27 +176,7 @@ object KamiConfig {
             createInterface({
                 Pair("bind", bindType.toRuntimeType(it.value).toString())
             }, {
-                var s = it.toLowerCase()
-
-                fun remove(part: String): Boolean {
-                    val removed = s.replace(part, "")
-                    val changed = s != removed
-                    s = removed
-                    return changed
-                }
-
-                val ctrl = remove("ctrl+")
-                val alt = remove("alt+")
-                val shift = remove("shift+")
-
-                bindType.toSerializedType(
-                    Bind(
-                        ctrl,
-                        alt,
-                        shift,
-                        bindMap[s]
-                    )
-                )
+                it
             }, {
                 with(ImGui) {
                     val bind = bindType.toRuntimeType(it.value)
@@ -318,6 +301,30 @@ object KamiConfig {
         }
     }
 
+    /**
+     * Resolves all features annotated by [FindSettings] or affected by the annotation on a superclass.
+     *
+     * @return All found roots, mapped to a set of affected classes
+     * @see FeatureManager.findAnnotatedFeatures
+     */
+    fun findAnnotatedSettings(): Map<String, Set<Class<*>>> {
+        val reflections = Reflections("me.zeroeightsix.kami")
+        return reflections.getTypesAnnotatedWith(FindSettings::class.java).filter {
+            it.isAnnotationPresent(FindSettings::class.java)
+        }.map {
+            val fsAnnot = it.getAnnotation(FindSettings::class.java)!!
+            fsAnnot to if (fsAnnot.findDescendants) {
+                reflections.getSubTypesOf(it)
+            } else {
+                Collections.singleton(it)
+            }
+        }.groupBy {
+            it.first.settingsRoot
+        }.mapValues {
+            it.value.stream().flatMap { it.second.stream() }.collect(Collectors.toSet())
+        }
+    }
+
     private fun constructConfiguration(): ConfigTree {
         val settings = AnnotatedSettings.builder()
             .collectMembersRecursively()
@@ -343,12 +350,34 @@ object KamiConfig {
 
         val builder = ConfigTree.builder()
 
+        // TODO: Eventually, when all modules are kotlin objects, we can reasonably assume that they'll have an INSTANCE field.
+        // Then we can just add @FindSettings to the module class and remove this method
         constructFeaturesConfiguration(builder, settings)
 
-        builder.applyFromPojo(Settings, settings)
-            .applyFromPojo(Friends, settings)
-            .applyFromPojo(Modules, settings)
-            .applyFromPojo(Wizard, settings)
+        findAnnotatedSettings().also { println(it) }.entries.forEach { (root, list) ->
+            val (builder, block) = when {
+                root.isEmpty() -> Pair(builder, { _ -> Unit })
+                else -> Pair(builder.fork(root), { builder: ConfigTreeBuilder -> builder.finishBranch(); Unit })
+            }
+
+            list.forEach {
+                try {
+                    val instance = it.getDeclaredField("INSTANCE").get(null)
+                    val config = builder.applyFromPojo(instance, settings)
+                    if (root.isNotEmpty()) {
+                        val config = config.build()
+                        if (instance is HasConfig) {
+                            instance.config = config
+                        }
+                    }
+                } catch (e: NoSuchFieldError) {
+                    println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!");
+                    e.printStackTrace()
+                }
+            }
+
+            block(builder)
+        }
 
         val built = builder.build()
 

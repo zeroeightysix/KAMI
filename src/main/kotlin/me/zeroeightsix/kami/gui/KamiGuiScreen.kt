@@ -76,11 +76,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     }
 
     override fun onClose() {
-        if (Settings.interactOutsideGUI) {
-            ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
-        } else {
-            ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
-        }
+        ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
         super.onClose()
     }
 
