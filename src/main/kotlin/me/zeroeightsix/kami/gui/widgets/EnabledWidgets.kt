@@ -5,12 +5,24 @@ import imgui.dsl.checkbox
 import imgui.dsl.menu
 import imgui.dsl.menuItem
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.EventHook
+import me.zero.alpine.listener.Listenable
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.event.ConfigSaveEvent
+import me.zeroeightsix.kami.feature.Feature
+import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.feature.FindSettings
 
+@FindFeature
 @FindSettings(settingsRoot = "clickGui")
-object EnabledWidgets {
+object EnabledWidgets : Feature, Listenable {
 
     var hideAll = false
+
+    override var name: String = "EnabledWidgets"
+    override var hidden: Boolean = true
 
     @Setting
     internal var widgets = Widgets(
@@ -51,6 +63,16 @@ object EnabledWidgets {
         override fun hashCode(): Int {
             return widgets.hashCode()
         }
+    }
+
+    @EventHandler
+    val saveListener = Listener<ConfigSaveEvent>(EventHook {
+        // Changes the instance of widgets, invalidating the fiber serialisation cache, forcing fiber to re-serialise widgets.
+        widgets = Widgets(widgets.toMutableList())
+    })
+
+    override fun initListening() {
+        KamiMod.EVENT_BUS.subscribe(saveListener)
     }
 
 }

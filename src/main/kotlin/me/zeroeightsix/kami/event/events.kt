@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.event
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import me.zeroeightsix.kami.mc
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -198,3 +199,5 @@ class UpdateLookEvent(
     val deltaX: Double,
     val deltaY: Double
 ) : KamiEvent()
+
+class ConfigSaveEvent(config: ConfigTree?) : KamiEvent()

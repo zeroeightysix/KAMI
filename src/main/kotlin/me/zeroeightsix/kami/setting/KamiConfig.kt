@@ -26,6 +26,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.MutableProperty
+import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FindSettings
@@ -140,7 +141,7 @@ object KamiConfig {
     val compiledTextType = ConfigTypes.makeList(partType).derive(
         TextPinnableWidget.CompiledText::class.java,
         {
-            TextPinnableWidget.CompiledText(it)
+            TextPinnableWidget.CompiledText(it.toMutableList())
         },
         {
             it.parts
@@ -561,6 +562,9 @@ object KamiConfig {
 
     @Throws(IOException::class)
     private fun saveConfiguration(config: ConfigTree?) {
+        val event = ConfigSaveEvent(config)
+        KamiMod.EVENT_BUS.post(event)
+        if (event.isCancelled) return
         config?.let {
             FiberSerialization.serialize(
                 it,
