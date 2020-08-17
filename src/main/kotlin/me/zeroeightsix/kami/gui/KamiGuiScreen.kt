@@ -69,8 +69,10 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
 
     fun showWidgets(limitY: Boolean = true) {
         for ((widget, open) in EnabledWidgets.widgets) {
-            if (open.get()) {
-                widget.showWindow(open, limitY)
+            if (open) {
+                if (!widget.showWindow(open, limitY)) {
+                    EnabledWidgets.widgets[widget] = false
+                }
             }
         }
     }

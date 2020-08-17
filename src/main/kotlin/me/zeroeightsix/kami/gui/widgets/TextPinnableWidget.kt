@@ -38,11 +38,9 @@ import me.zeroeightsix.kami.util.LagCompensator
 import kotlin.collections.map
 import kotlin.math.abs
 import kotlin.math.floor
-import kotlin.reflect.KMutableProperty0
 
 open class TextPinnableWidget(
     private val title: String,
-    private val variableMap: Map<String, () -> CompiledText.Variable> = extendStd(mapOf()),
     private var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
     position: Position = Position.TOP_LEFT
 ) : PinnableWidget(title, position) {
@@ -54,31 +52,29 @@ open class TextPinnableWidget(
     private var editColourComboIndex = 0
 
     companion object {
-        private var sVarMap: Map<String, () -> CompiledText.Variable>? = null
+        private infix fun String.const(strProvider: () -> String) =
+            this to { CompiledText.ConstantVariable(this, string = strProvider()) }
 
-        internal fun extendStd(extra: Map<String, () -> CompiledText.Variable>): Map<String, () -> CompiledText.Variable> {
-            val std: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
-                Pair("none", { CompiledText.ConstantVariable(string = "No variable selected") }),
-                Pair("x", { CompiledText.NumericalVariable({ mc.player?.pos?.x }, 0) }),
-                Pair("y", { CompiledText.NumericalVariable({ mc.player?.pos?.y }, 0) }),
-                Pair("z", { CompiledText.NumericalVariable({ mc.player?.pos?.z }, 0) }),
-                Pair("yaw", { CompiledText.NumericalVariable({ mc.player?.yaw?.toDouble() }, 0) }),
-                Pair("pitch", { CompiledText.NumericalVariable({ mc.player?.pitch?.toDouble() }, 0) }),
-                Pair("tps", { CompiledText.NumericalVariable({ LagCompensator.INSTANCE.tickRate.toDouble() }, 0) }),
-                Pair("username", { CompiledText.ConstantVariable(string = mc.session.username) })
-            )
-            std.putAll(extra)
-            sVarMap = std
-            return std
-        }
+        private infix fun String.numeric(valProvider: () -> Double) =
+            this to { CompiledText.NumericalVariable(this, valProvider, 0) }
 
-        internal fun getVariable(variable: String): CompiledText.Variable {
-            val f: () -> CompiledText.Variable = sVarMap!![variable] ?: error("Invalid item selected")
-            return f()
-        }
+        val varMap: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
+            "none" const { "No variable selected " },
+            "x" numeric { mc.player?.pos?.x ?: 0.0 },
+            "y" numeric { mc.player?.pos?.y ?: 0.0 },
+            "z" numeric { mc.player?.pos?.z ?: 0.0 },
+            "yaw" numeric { mc.player?.yaw?.toDouble() ?: 0.0 },
+            "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
+            "tps" numeric { LagCompensator.INSTANCE.tickRate.toDouble() },
+            "username" const { mc.session.username },
+            "version" const { KamiMod.MODVER },
+            "client" const { KamiMod.MODNAME },
+            "kanji" const { KamiMod.KAMI_KANJI },
+            "modules" to { modulesVariable }
+        )
     }
 
-    override fun fillWindow(open: KMutableProperty0<Boolean>) {
+    override fun fillWindow(open: BooleanArray) {
 
         val guiOpen = mc.currentScreen is KamiGuiScreen
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
@@ -265,7 +261,7 @@ open class TextPinnableWidget(
                         setEditPart(part)
                     }
                     menuItem("Text") { addPart(CompiledText.LiteralPart("Text")) }
-                    menuItem("Variable") { addPart(CompiledText.VariablePart(CompiledText.ConstantVariable(string = "No variable selected"))) }
+                    menuItem("Variable") { addPart(CompiledText.VariablePart(varMap["none"]!!())) }
                     menu("Line") {
                         menuItem("Before") {
                             iterator.previous()
@@ -312,7 +308,7 @@ open class TextPinnableWidget(
                     else -> {}
                 }
 
-                it.edit(variableMap)
+                it.edit(varMap)
 
                 if (minecraftFont) {
                     val shadow = booleanArrayOf(it.shadow)
@@ -508,7 +504,7 @@ open class TextPinnableWidget(
         }
 
         class VariablePart(
-            private var variable: Variable,
+            var variable: Variable,
             obfuscated: Boolean = false,
             bold: Boolean = false,
             strike: Boolean = false,
@@ -518,7 +514,7 @@ open class TextPinnableWidget(
             colourMode: ColourMode = ColourMode.STATIC,
             extraspace: Boolean = true
         ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
-            private var editVarComboIndex = 0
+            private var editVarComboIndex = -1
             private var editDigits = (variable is NumericalVariable).then(
                 { (variable as NumericalVariable).digits }, { 0 }
             )
@@ -534,13 +530,14 @@ open class TextPinnableWidget(
             }
 
             override fun edit(variableMap: Map<String, () -> Variable>) {
+                if (editVarComboIndex == -1) editVarComboIndex = variableMap.keys.indexOf(this.variable.name)
                 combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
                     val selected: String = variableMap.keys.toList()[editVarComboIndex]
                     val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
                     if (v is NumericalVariable) {
                         v.digits = editDigits
                     }
-                    variable = v
+                    this.variable = v
                 }
                 sameLine()
                 text("+")
@@ -560,15 +557,16 @@ open class TextPinnableWidget(
             }
         }
 
-        abstract class Variable {
+        abstract class Variable(val name: String) {
             abstract val multiline: Boolean
             open val editLabel: String
                 get() = provide()
+
             abstract fun provide(): String
             open fun edit(variableMap: Map<String, () -> Variable>) {}
         }
 
-        class ConstantVariable(_multiline: Boolean = false, private val string: String) : Variable() {
+        class ConstantVariable(name: String, _multiline: Boolean = false, private val string: String) : Variable(name) {
             override val multiline = _multiline
 
             override fun provide(): String {
@@ -576,7 +574,8 @@ open class TextPinnableWidget(
             }
         }
 
-        class NumericalVariable(private val provider: () -> Double?, var digits: Int = 0) : Variable() {
+        class NumericalVariable(name: String, private val provider: () -> Double?, var digits: Int = 0) :
+            Variable(name) {
             override val multiline = false
 
             override fun provide(): String {
@@ -585,7 +584,8 @@ open class TextPinnableWidget(
             }
         }
 
-        open class StringVariable(_multiline: Boolean = false, private val provider: () -> String) : Variable() {
+        open class StringVariable(name: String, _multiline: Boolean = false, private val provider: () -> String) :
+            Variable(name) {
             override val multiline = _multiline
 
             override fun provide(): String {

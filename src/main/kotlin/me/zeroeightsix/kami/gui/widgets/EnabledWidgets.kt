@@ -4,19 +4,17 @@ import imgui.ImGui.separator
 import imgui.dsl.checkbox
 import imgui.dsl.menu
 import imgui.dsl.menuItem
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 
 object EnabledWidgets {
 
     var hideAll = false
 
-    private var informationVisible = true
-    private var coordinatesVisible = true
-    private var activeModulesVisible = true
-
-    internal val widgets = mapOf(
-        Information to ::informationVisible,
-        Coordinates to ::coordinatesVisible,
-        ActiveModules to ::activeModulesVisible
+    @Setting
+    internal var widgets = mutableMapOf(
+        Information to true,
+        Coordinates to true,
+        ActiveModules to true
     )
 
     operator fun invoke() = menu("Overlay") {
@@ -38,8 +36,8 @@ object EnabledWidgets {
 
     fun enabledButtons() {
         for ((widget, open) in widgets) {
-            menuItem(widget.name, "", open.get(), !hideAll) {
-                open.set(!open.get())
+            menuItem(widget.name, "", open, !hideAll) {
+                widgets[widget] = !open
             }
         }
     }
