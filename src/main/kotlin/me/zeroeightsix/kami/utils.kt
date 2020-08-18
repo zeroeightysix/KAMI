@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami
 
 import com.mojang.blaze3d.platform.GlStateManager
+import glm_.vec4.Vec4
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
@@ -130,6 +131,8 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
         return (integers[0] shl 24) or (integers[1] shl 16) or (integers[2] shl 8) or integers[3]
     }
 
+    fun asVec4(): Vec4 = Vec4(r, g, b, a)
+
     companion object {
         fun fromRGBA(rgba: Int): Colour {
             val r = ((rgba shr 24) and 0xFF) / 255f
@@ -138,6 +141,8 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
             val a = (rgba and 0xFF) / 255f
             return Colour(r, g, b, a)
         }
+
+        fun fromVec4(colour: Vec4): Colour = Colour(colour.x, colour.y, colour.z, colour.w)
     }
 }
 

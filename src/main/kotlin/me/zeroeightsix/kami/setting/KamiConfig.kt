@@ -60,6 +60,14 @@ object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
 
+    val colourType =
+        ConfigTypes.makeList(ConfigTypes.FLOAT)
+            .derive(Colour::class.java, { list ->
+                Colour(list[0], list[1], list[2], list[3])
+            }, {
+                listOf(it.r, it.g, it.b, it.a)
+            })
+
     val colourModeType = ConfigTypes.makeEnum(TextPinnableWidget.CompiledText.Part.ColourMode::class.java)
     val partSerializableType = RecordSerializableType(
         mapOf(
@@ -72,7 +80,8 @@ object KamiConfig {
             Pair("extraspace", BOOLEAN),
             Pair("colourMode", colourModeType.serializedType),
             Pair("type", DEFAULT_STRING),
-            Pair("value", DEFAULT_STRING)
+            Pair("value", DEFAULT_STRING),
+            Pair("colour", colourType.serializedType)
         )
     )
     val partType = RecordConfigType(partSerializableType, TextPinnableWidget.CompiledText.Part::class.java, {
@@ -86,7 +95,9 @@ object KamiConfig {
         val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
         val type = it["type"] as String
         val value = it["value"] as String
-        when (type) {
+        val colour = colourType.toRuntimeType(it["colour"] as List<BigDecimal>)
+
+        val part = when (type) {
             "literal" -> TextPinnableWidget.CompiledText.LiteralPart(
                 value,
                 obfuscated,
@@ -119,6 +130,8 @@ object KamiConfig {
                 extraspace
             )
         }
+        part.colour = colour.asVec4()
+        part
     }, {
         val (type, value) = when (it) {
             is TextPinnableWidget.CompiledText.LiteralPart -> "literal" to it.string
@@ -135,7 +148,8 @@ object KamiConfig {
             "extraspace" to it.extraspace,
             "colourMode" to colourModeType.toSerializedType(it.colourMode),
             "type" to type,
-            "value" to value
+            "value" to value,
+            "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour))
         )
     })
     val compiledTextType = ConfigTypes.makeList(partType).derive(
@@ -203,14 +217,6 @@ object KamiConfig {
             }
             map
         })
-
-    val colourType =
-        ConfigTypes.makeList(ConfigTypes.FLOAT)
-            .derive(Colour::class.java, { list ->
-                Colour(list[0], list[1], list[2], list[3])
-            }, {
-                listOf(it.r, it.g, it.b, it.a)
-            })
 
     var bindType = ConfigTypes.STRING.derive(Bind::class.java, {
         var s = it.toLowerCase()
@@ -487,8 +493,6 @@ object KamiConfig {
                 try {
                     val instance = it.getDeclaredField("INSTANCE").get(null)
                     builder.applyFromPojo(instance, settings)
-
-
                 } catch (e: NoSuchFieldError) {
                     println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!");
                     e.printStackTrace()
