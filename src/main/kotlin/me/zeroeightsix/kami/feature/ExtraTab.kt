@@ -1,31 +1,35 @@
-package me.zeroeightsix.kami.feature.module.render;
+package me.zeroeightsix.kami.feature
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import me.zeroeightsix.kami.feature.command.Command;
-import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.util.Friends;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.text.LiteralText;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.util.Friends.isFriend
+import net.minecraft.client.network.PlayerListEntry
+import net.minecraft.scoreboard.Team
+import net.minecraft.text.LiteralText
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 
 /**
  * Created by 086 on 8/04/2018.
  */
 @Module.Info(name = "ExtraTab", description = "Expands the player tab menu", category = Module.Category.RENDER)
-public class ExtraTab extends Module {
+object ExtraTab : Module() {
+    @JvmField
+    @Setting
+    var tabSize = 80
 
     @Setting
-    public @Setting.Constrain.Range(min = 0.0) int tabSize = 80;
+    var highlightFriends = true
 
-    public static ExtraTab INSTANCE;
-
-    public ExtraTab() {
-        ExtraTab.INSTANCE = this;
+    @JvmStatic
+    fun getPlayerName(networkPlayerInfoIn: PlayerListEntry): Text? {
+        val dname =
+            if (networkPlayerInfoIn.displayName != null) networkPlayerInfoIn.displayName else Team.modifyText(
+                networkPlayerInfoIn.scoreboardTeam,
+                LiteralText(networkPlayerInfoIn.profile.name)
+            )
+        return if (highlightFriends && isFriend(dname!!.string)) dname.shallowCopy()
+            .formatted(Formatting.GREEN) else dname
     }
 
-    public static String getPlayerName(PlayerListEntry networkPlayerInfoIn) {
-        String dname = networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getString() : Team.modifyText(networkPlayerInfoIn.getScoreboardTeam(), new LiteralText(networkPlayerInfoIn.getProfile().getName())).getString();
-        if (Friends.isFriend(dname)) return String.format("%sa%s", Command.SECTION_SIGN, dname);
-        return dname;
-    }
 }
