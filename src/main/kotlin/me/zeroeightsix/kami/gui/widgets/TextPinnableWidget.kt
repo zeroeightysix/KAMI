@@ -101,7 +101,7 @@ open class TextPinnableWidget(
                                             codes + it,
                                             x + xOffset,
                                             y,
-                                            command.currentColourRGB()
+                                            command.currentColourARGB()
                                         ) - (x + xOffset)
                                     else
                                         mc.textRenderer.draw(
@@ -109,7 +109,7 @@ open class TextPinnableWidget(
                                             codes + it,
                                             x + xOffset,
                                             y,
-                                            command.currentColourRGB()
+                                            command.currentColourARGB()
                                         ) - (x + xOffset)
                                     lastWidth = width
                                     y += mc.textRenderer.fontHeight + 4
@@ -125,7 +125,7 @@ open class TextPinnableWidget(
                                         str,
                                         x + xOffset,
                                         y,
-                                        command.currentColourRGB()
+                                        command.currentColourARGB()
                                     ) - (x + xOffset)
                                 else
                                     mc.textRenderer.draw(
@@ -133,7 +133,7 @@ open class TextPinnableWidget(
                                         str,
                                         x + xOffset,
                                         y,
-                                        command.currentColourRGB()
+                                        command.currentColourARGB()
                                     ) - (x + xOffset)
                                 xOffset += width
                             }
@@ -239,7 +239,7 @@ open class TextPinnableWidget(
                         }
 
                         dragDropTarget {
-                            acceptDragDropPayload(PAYLOAD_TYPE_COLOR_3F)?.let {
+                            acceptDragDropPayload(PAYLOAD_TYPE_COLOR_4F)?.let {
                                 part.colour = it.data!! as Vec4
                             }
                         }
@@ -294,13 +294,13 @@ open class TextPinnableWidget(
 
                 when (it.colourMode) {
                     CompiledText.Part.ColourMode.STATIC -> {
-                        if (colorEditVec4("Colour", col, flags = ColorEditFlag.NoAlpha.i)) {
+                        if (colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar.i)) {
                             it.colour = col
                         }
                     }
                     CompiledText.Part.ColourMode.ALTERNATING -> {
                         it.colours.forEachIndexed { i, vec ->
-                            colorEditVec4("Colour $i", vec, flags = ColorEditFlag.NoAlpha.i)
+                            colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar.i)
                         }
 
                         // TODO: Allow colours to be added / removed
@@ -414,20 +414,21 @@ open class TextPinnableWidget(
                     codes = toCodes()
                 }
 
-            private fun Vec4.toRGB(): Int {
+            private fun Vec4.toARGB(): Int {
                 val r = (x * 255.0F).toInt()
                 val g = (y * 255.0F).toInt()
                 val b = (z * 255.0F).toInt()
-                return (r shl 16) or (g shl 8) or b
+                val a = (w * 255.0F).toInt()
+                return (a shl 24) or (r shl 16) or (g shl 8) or b
             }
 
             // Static colour
             var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
                 set(value) {
                     field = value
-                    rgb = colour.toRGB()
+                    argb = colour.toARGB()
                 }
-            private var rgb: Int = this.colour.toRGB()
+            private var argb: Int = this.colour.toARGB()
 
             // Alternating colour
             var colours = mutableListOf(
@@ -448,8 +449,8 @@ open class TextPinnableWidget(
                 }
             }
 
-            fun currentColourRGB(): Int {
-                return currentColour().toRGB()
+            fun currentColourARGB(): Int {
+                return currentColour().toARGB()
             }
 
             /**
