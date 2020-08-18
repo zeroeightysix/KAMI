@@ -8,7 +8,6 @@ import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Friends
-import me.zeroeightsix.kami.util.LagCompensator
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -72,9 +71,7 @@ object Aura : Module() {
                 return@EventHook
             }
             if (waitMode == WaitMode.DYNAMIC) {
-                if (mc.player!!.getAttackCooldownProgress(lagComp) < 1) { // TODO: Is the right function?
-                    return@EventHook
-                } else if (mc.player!!.age % 2 != 0) {
+                if (mc.player!!.getAttackCooldownProgress(0f) < 1) {
                     return@EventHook
                 }
             }
@@ -174,11 +171,6 @@ object Aura : Module() {
         )
         mc.player?.swingHand(Hand.MAIN_HAND)
     }
-
-    private val lagComp: Float
-        private get() = if (waitMode == WaitMode.DYNAMIC) {
-            -(20 - LagCompensator.tickRate)
-        } else 0.0f
 
     private fun canEntityFeetBeSeen(entityIn: Entity): Boolean {
         val context = RayTraceContext(
