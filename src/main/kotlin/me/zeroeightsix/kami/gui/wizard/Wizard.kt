@@ -125,7 +125,7 @@ object Wizard {
         separator()
     }, {
         text("How far from the edge should HUD elements be rendered?")
-        ImGui.dragFloat("Border offset", Settings::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+        ImGui.dragFloat("Border offset", Settings::borderOffset, vSpeed = 0.1f, vMin = 0f, vMax = 50f, format = "%.0f")
         separator()
         text("Which elements should be shown in the HUD?")
         EnabledWidgets.enabledButtons()

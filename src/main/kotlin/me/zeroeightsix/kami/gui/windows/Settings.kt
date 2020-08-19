@@ -133,7 +133,14 @@ object Settings {
                             Themes.Variants.values()[styleIdx].applyStyle()
                         }
 
-                        dragFloat("Border offset", ::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+                        dragFloat(
+                            "Border offset",
+                            ::borderOffset,
+                            vSpeed = 0.1f,
+                            vMin = 0f,
+                            vMax = 50f,
+                            format = "%.0f"
+                        )
 
                         val speed = floatArrayOf(rainbowSpeed.toFloat())
                         if (dragFloat("Rainbow speed", speed, 0, vSpeed = 0.005f, vMin = 0.05f, vMax = 1f)) {
