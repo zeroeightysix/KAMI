@@ -12,9 +12,9 @@ import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextVoid
 import imgui.dsl.popupModal
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.backToString
-import me.zeroeightsix.kami.gui.View.demoWindowVisible
-import me.zeroeightsix.kami.gui.View.modulesOpen
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
@@ -22,8 +22,12 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
+@FindSettings(settingsRoot = "view")
 object View {
+    @Setting
     var modulesOpen = true
+
+    @Setting
     var demoWindowVisible = false
 }
 
