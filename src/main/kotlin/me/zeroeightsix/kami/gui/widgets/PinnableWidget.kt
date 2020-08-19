@@ -25,7 +25,7 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
         var drawFadedBackground = true
     }
 
-    private fun showWidgetContextMenu() {
+    private fun showWidgetContextMenu(): Boolean {
         popupContextWindow {
             menuItem("Pinned", "", pinned) {
                 pinned = !pinned
@@ -42,14 +42,18 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
                 menuItem("Background", "", background) { background = !background }
                 fillStyle()
             }
+            menuItem("Delete") {
+                return true
+            }
             fillContextMenu()
         }
+        return false
     }
 
     /**
-     * @return the possibly modified 'open' attribute
+     * @return `true` if this widget should be removed
      */
-    fun showWindow(limitY: Boolean) {
+    fun showWindow(limitY: Boolean): Boolean {
         preWindow()
 
         var flags =
@@ -77,11 +81,13 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
         val openArray = booleanArrayOf(this.open)
         if (begin(name, openArray, flags)) {
             fillWindow()
-            showWidgetContextMenu()
+            if (showWidgetContextMenu()) return true
 
             end()
         }
         this.open = openArray[0]
+
+        return false
     }
 
     private infix fun Int.has(b: Int) = (this and b) != 0

@@ -68,9 +68,10 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     }
 
     fun showWidgets(limitY: Boolean = true) {
-        for (widget in EnabledWidgets.widgets) {
-            if (widget.open) {
-                widget.showWindow(limitY)
+        val iterator = EnabledWidgets.widgets.iterator()
+        for (widget in iterator) {
+            if (widget.open && widget.showWindow(limitY)) {
+                iterator.remove()
             }
         }
     }
