@@ -75,7 +75,7 @@ public class Bind {
     }
 
     public void update(int key, int scancode, boolean pressed) {
-        if ((code.keysym && code.key == key) || (!code.keysym && code.scan == scancode)) {
+        if ((code.keysym && code.key == key && key != -1) || (!code.keysym && code.scan == scancode && scancode != -1)) {
             this.pressed = pressed;
         }
     }
