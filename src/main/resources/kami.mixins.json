@@ -51,7 +51,6 @@
     "MixinRenderLiving",
     "MixinRenderPlayer",
     "MixinRenderTickCounter",
-    "MixinScreen",
     "MixinStriderEntity",
     "MixinWorldRenderer"
   ]
