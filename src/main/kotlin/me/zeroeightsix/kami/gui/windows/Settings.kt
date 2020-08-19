@@ -45,13 +45,13 @@ object Settings {
     var modifiersEnabled = false
 
     @Setting
+    var openSettingsInPopup = true
+
+    @Setting // only if openSettingsInPopup = false
     var swapModuleListButtons = false
 
     @Setting
     var hideModuleDescriptions = false
-
-    @Setting
-    var openSettingsInPopup = true
 
     // Appearance
     @Setting
@@ -102,11 +102,14 @@ object Settings {
                             ::openSettingsInPopup,
                             "Show module settings in a popup instead of a collapsible"
                         )
-                        setting(
-                            "Swap list buttons",
-                            ::swapModuleListButtons,
-                            "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
-                        )
+                        // Swap list buttons only applies to the tree header list
+                        if (!openSettingsInPopup) {
+                            setting(
+                                "Swap list buttons",
+                                ::swapModuleListButtons,
+                                "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
+                            )
+                        }
                         setting(
                             "Hide descriptions",
                             ::hideModuleDescriptions,
