@@ -84,7 +84,10 @@ object MenuBar {
                         // Find an unused position, or, if none, pick CUSTOM.
                         position = PinnableWidget.Position.values()
                             .toMutableSet()
-                            .also { it.removeAll(EnabledWidgets.widgets.map { it.position }) }
+                            .also {
+                                it.removeAll(EnabledWidgets.widgets.map { it.position })
+                                it.remove(PinnableWidget.Position.CUSTOM)
+                            }
                             .firstOrNull() ?: PinnableWidget.Position.CUSTOM
                     )
                 )
