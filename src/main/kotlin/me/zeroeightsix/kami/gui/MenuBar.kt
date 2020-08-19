@@ -16,6 +16,7 @@ import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.gui.View.demoWindowVisible
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
@@ -78,7 +79,14 @@ object MenuBar {
                 val title = buffer.backToString()
                 buffer = ByteArray(128)
                 EnabledWidgets.widgets.add(
-                    TextPinnableWidget(title, mutableListOf())
+                    TextPinnableWidget(
+                        title,
+                        // Find an unused position, or, if none, pick CUSTOM.
+                        position = PinnableWidget.Position.values()
+                            .toMutableSet()
+                            .also { it.removeAll(EnabledWidgets.widgets.map { it.position }) }
+                            .firstOrNull() ?: PinnableWidget.Position.CUSTOM
+                    )
                 )
                 ImGui.closeCurrentPopup()
             }
