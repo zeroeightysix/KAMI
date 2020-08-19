@@ -4,8 +4,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.PacketEvent
-import net.minecraft.client.network.packet.*
+import me.zeroeightsix.kami.event.PacketEvent
+import net.minecraft.network.packet.s2c.play.*
 
 /**
  * Created by 086 on 4/02/2018.
@@ -21,13 +21,7 @@ object NoRender : Module() {
     private var mobs = false
 
     @Setting
-    private var globalEntity = false
-
-    @Setting
     private var objects = false
-
-    @Setting
-    private var items = false
 
     @Setting
     private var experienceOrbs = true
@@ -49,9 +43,7 @@ object NoRender : Module() {
         val packet = event.packet
         when {
             packet is MobSpawnS2CPacket && mobs -> event.cancel()
-            packet is EntitySpawnGlobalS2CPacket && globalEntity -> event.cancel()
             packet is EntitySpawnS2CPacket && objects -> event.cancel()
-            /* TODO: can't find item packet */
             packet is ExperienceOrbSpawnS2CPacket && experienceOrbs -> event.cancel()
             packet is ExplosionS2CPacket && explosions -> event.cancel()
             packet is LightUpdateS2CPacket && skyLightUpdates -> event.cancel()
