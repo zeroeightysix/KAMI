@@ -27,7 +27,7 @@ import net.minecraft.util.math.MathHelper
     description = "Allows you to walk on water",
     category = Module.Category.MOVEMENT
 )
-class Jesus : Module() {
+object Jesus : Module() {
     @EventHandler
     private val updateListener = Listener(
         EventHook<InGame> { event: InGame? ->
@@ -96,26 +96,24 @@ class Jesus : Module() {
         }
     )
 
-    companion object {
-        private val WATER_WALK_AA =
-            Box(0.0, 0.0, 0.0, 1.0, 0.99, 1.0)
+    private val WATER_WALK_AA =
+        Box(0.0, 0.0, 0.0, 1.0, 0.99, 1.0)
 
-        private fun isAboveLand(entity: Entity?): Boolean {
-            if (entity == null) return false
-            val y = entity.y - 0.01
-            for (x in MathHelper.floor(entity.x) until MathHelper.ceil(entity.x)) for (z in MathHelper.floor(
-                entity.z
-            ) until MathHelper.ceil(entity.z)) {
-                val pos = BlockPos(x, MathHelper.floor(y), z)
+    private fun isAboveLand(entity: Entity?): Boolean {
+        if (entity == null) return false
+        val y = entity.y - 0.01
+        for (x in MathHelper.floor(entity.x) until MathHelper.ceil(entity.x)) for (z in MathHelper.floor(
+            entity.z
+        ) until MathHelper.ceil(entity.z)) {
+            val pos = BlockPos(x, MathHelper.floor(y), z)
 
-                //if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
-                if (Wrapper.getWorld().getBlockState(pos).isOpaque) return true
-            }
-            return false
+            //if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
+            if (Wrapper.getWorld().getBlockState(pos).isOpaque) return true
         }
+        return false
+    }
 
-        private fun isAboveBlock(entity: Entity?, pos: BlockPos): Boolean {
-            return entity!!.y >= pos.y
-        }
+    private fun isAboveBlock(entity: Entity?, pos: BlockPos): Boolean {
+        return entity!!.y >= pos.y
     }
 }

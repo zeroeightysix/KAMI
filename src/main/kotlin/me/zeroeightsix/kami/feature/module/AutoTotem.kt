@@ -11,7 +11,7 @@ import net.minecraft.item.Items
 import net.minecraft.screen.slot.SlotActionType
 
 @Module.Info(name = "AutoTotem", category = Module.Category.COMBAT)
-class AutoTotem : Module() {
+object AutoTotem : Module() {
     var totems = 0
     var moving = false
     var returnI = false
