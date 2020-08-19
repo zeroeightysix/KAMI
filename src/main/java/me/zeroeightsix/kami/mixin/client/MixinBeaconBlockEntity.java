@@ -14,7 +14,7 @@ import java.util.List;
 public class MixinBeaconBlockEntity {
     @Inject(method = "getBeamSegments", at = @At("RETURN"), cancellable = true)
     public void shouldBeamRender(CallbackInfoReturnable<List<BeaconBlockEntity.BeamSegment>> cir) {
-        if (NoRender.INSTANCE.isEnabled() && NoRender.INSTANCE.getBeaconBeams()) {
+        if (NoRender.INSTANCE.getEnabled() && NoRender.INSTANCE.getBeaconBeams()) {
             cir.setReturnValue(ImmutableList.of());
         }
     }
