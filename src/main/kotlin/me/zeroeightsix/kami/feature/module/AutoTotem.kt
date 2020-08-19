@@ -1,65 +1,64 @@
-package me.zeroeightsix.kami.feature.module.combat;
+package me.zeroeightsix.kami.feature.module
 
-import me.zeroeightsix.kami.feature.module.Module;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.EventHook
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.event.TickEvent
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
+import net.minecraft.screen.slot.SlotActionType
 
 @Module.Info(name = "AutoTotem", category = Module.Category.COMBAT)
-public class AutoTotem extends Module {
+class AutoTotem : Module() {
+    var totems = 0
+    var moving = false
+    var returnI = false
 
-    /*int totems;
-    boolean moving = false;
-    boolean returnI = false;
-    private Setting<Boolean> soft = register(Settings.b("Soft"));
+    @Setting(comment = "When enabled, AutoTotem will not replace your offhand if it's already carrying an item.")
+    private var soft = false
 
-    @Override
-    public void onUpdate() {
-        if (mc.currentScreen instanceof GuiContainer) return;
+    @EventHandler
+    val updateListener = Listener<TickEvent.Client.InGame>(EventHook {
+        if (mc.currentScreen is GenericContainerScreen) return@EventHook
         if (returnI) {
-            int t = -1;
-            for (int i = 0; i < 45; i++)
-                if (mc.player.inventory.getStackInSlot(i).isEmpty) {
-                    t = i;
-                    break;
-                }
-            if (t == -1) return;
-            mc.interactionManager.windowClick(0, t < 9 ? t + 36 : t, 0, ClickType.PICKUP, mc.player);
-            returnI = false;
+            moveTotem()
         }
-        totems = mc.player.inventory.mainInventory.stream().filter(itemStack -> itemStack.getItem() == Items.TOTEM_OF_UNDYING).mapToInt(ItemStack::getCount).sum();
-        if (mc.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING) totems++;
-        else {
-            if (soft && !mc.player.getHeldItemOffhand().isEmpty) return;
+        totems = mc.player!!.inventory.main.stream()
+            .filter { itemStack -> itemStack.item === Items.TOTEM_OF_UNDYING }.mapToInt(ItemStack::getCount).sum()
+        if (mc.player?.offHandStack?.item === Items.TOTEM_OF_UNDYING) totems++ else {
+            if (soft && mc.player?.offHandStack?.isEmpty != true) return@EventHook
             if (moving) {
-                mc.interactionManager.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                moving = false;
-                if (!mc.player.inventory.itemStack.isEmpty()) returnI = true;
-                return;
+                mc.interactionManager?.clickSlot(0, 45, 0, SlotActionType.PICKUP, mc.player)
+                moving = false
+                if (!mc.player!!.inventory.cursorStack.isEmpty) returnI = true
+                return@EventHook
             }
-            if (mc.player.inventory.itemStack.isEmpty()) {
-                if (totems == 0) return;
-                int t = -1;
-                for (int i = 0; i < 45; i++)
-                    if (mc.player.inventory.getStackInSlot(i).getItem() == Items.TOTEM_OF_UNDYING) {
-                        t = i;
-                        break;
-                    }
-                if (t == -1) return; // Should never happen!
-                mc.interactionManager.windowClick(0, t < 9 ? t + 36 : t, 0, ClickType.PICKUP, mc.player);
-                moving = true;
+            if (mc.player!!.inventory.cursorStack.isEmpty) {
+                if (totems == 0) return@EventHook
+                var t = -1
+                for (i in 0..44) if (mc.player!!.inventory.getStack(i).item === Items.TOTEM_OF_UNDYING) {
+                    t = i
+                    break
+                }
+                if (t == -1) return@EventHook // Should never happen!
+                mc.interactionManager?.clickSlot(0, if (t < 9) t + 36 else t, 0, SlotActionType.PICKUP, mc.player)
+                moving = true
             } else if (!soft) {
-                int t = -1;
-                for (int i = 0; i < 45; i++)
-                    if (mc.player.inventory.getStackInSlot(i).isEmpty) {
-                        t = i;
-                        break;
-                    }
-                if (t == -1) return;
-                mc.interactionManager.windowClick(0, t < 9 ? t + 36 : t, 0, ClickType.PICKUP, mc.player);
+                if (moveTotem()) return@EventHook
             }
         }
-    }
+    })
 
-    @Override
-    public String getHudInfo() {
-        return String.valueOf(totems);
-    }*/ //TODO
+    private fun moveTotem(): Boolean {
+        var t = -1
+        for (i in 0..44) if (mc.player!!.inventory.getStack(i).isEmpty) {
+            t = i
+            break
+        }
+        if (t == -1) return true
+        mc.interactionManager?.clickSlot(0, if (t < 9) t + 36 else t, 0, SlotActionType.PICKUP, mc.player)
+        return false
+    }
 }
