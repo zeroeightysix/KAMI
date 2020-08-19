@@ -117,7 +117,9 @@ object KamiConfig {
                 underline,
                 italic,
                 shadow,
-                colourMode)
+                colourMode,
+                extraspace
+            )
             else -> TextPinnableWidget.CompiledText.LiteralPart(
                 "Invalid part",
                 obfuscated,
