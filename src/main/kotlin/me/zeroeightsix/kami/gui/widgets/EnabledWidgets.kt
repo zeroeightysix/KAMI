@@ -19,6 +19,7 @@ import me.zeroeightsix.kami.feature.FindSettings
 @FindSettings(settingsRoot = "clickGui")
 object EnabledWidgets : Feature, Listenable {
 
+    @Setting
     var hideAll = false
 
     override var name: String = "EnabledWidgets"
