@@ -11,6 +11,7 @@ import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting
 import java.lang.Exception
 import java.nio.file.Paths
@@ -58,8 +59,8 @@ object ConfigCommand : Command() {
                             val path = Paths.get(KamiConfig.CONFIG_FILENAME)
                             (it.source as KamiCommandSource).sendFeedback(
                                 Texts.append(
-                                    Texts.flit(Formatting.GOLD, "The configuration file is at "),
-                                    Texts.flit(Formatting.YELLOW, path.toAbsolutePath().toString())
+                                        Texts.flit(Formatting.GOLD, "The configuration file is at "),
+                                        Texts.flit(Formatting.YELLOW, path.toAbsolutePath().toString())
                                 )
                             )
                             0

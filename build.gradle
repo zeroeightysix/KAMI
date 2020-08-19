@@ -2,12 +2,13 @@ plugins {
     id 'fabric-loom'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 version = minecraft_version + "-" + mod_version
-group = "me.zeroeightsix"
+group = project.maven_group
 
 minecraft {}
 
@@ -30,22 +31,41 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}"
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    compile "me.zeroeightsix:fiber:${project.fiber_version}-SNAPSHOT"
+//    compile "me.zeroeightsix:fiber:${project.fiber_version}-SNAPSHOT"
+    implementation "com.github.fablabsmc:fiber:${project.fiber_version}"
 
-    compile "com.github.ZeroMemes:Alpine:1.9"
-    compile group: 'net.jodah', name: 'typetools', version: '0.5.0'
-    compile group: 'org.yaml', name: 'snakeyaml', version: '1.19'
-    compile(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
+    implementation "com.github.ZeroMemes:Alpine:1.9"
+    implementation(group: 'org.reflections', name: 'reflections', version: '0.9.11') {
         exclude group: 'com.google.guava', module: 'guava'
     }
+    implementation "com.github.kotlin-graphics:imgui:${project.kg_version}"
+    implementation "com.github.kotlin-graphics:glm:${project.kg_version}"
+    implementation "com.github.kotlin-graphics:uno-sdk:${project.kg_version}"
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
 
-    compile 'com.github.kotlin-graphics:imgui:jdk8-SNAPSHOT'
-    compile 'com.github.kotlin-graphics:glm:jdk8-SNAPSHOT'
-    compile 'com.github.kotlin-graphics:uno-sdk:jdk8-SNAPSHOT'
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.3.61'
+    shadow 'com.github.ZeroMemes:Alpine:1.9'
+    shadow 'net.jodah:typetools:0.5.0'
+    shadow(group: 'org.reflections', name: 'reflections', version: '0.9.11')
+    shadow "com.github.kotlin-graphics.imgui:imgui-core:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.imgui:imgui-gl:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.imgui:imgui-glfw:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:glm:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno:${project.kg_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno-core:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:kool:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:kotlin-unsigned:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:gln:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:gli:${project.kg_version}"
+
+    include "com.github.fablabsmc:fiber:${project.fiber_version}"
+    include group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
+    include group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-common', version: project.kotlin_version
+    include group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: project.kotlin_version
+    include 'org.javassist:javassist:3.21.0-GA'
+    include 'org.jetbrains:annotations:13.0'
 }
 
 processResources {
@@ -70,31 +90,26 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+configurations {
+    shadow {
+        transitive = false
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    classifier = "shadow"
+
+    exclude '/fonts/*'
+}
+
+remapJar {
+    dependsOn shadowJar
+    input.set shadowJar.archiveFile.get()
+}
+
 jar {
     from "LICENSE"
-}
-
-// extra kami tasks
-
-task mkdir {
-    group = "kami"
-    doLast {
-        mkdir System.getProperty("user.home") + "/.minecraft/mods/"
-    }
-}
-
-task rmOld(type: Delete) {
-    group = "kami"
-    delete fileTree(System.getProperty("user.home") + "/.minecraft/mods/").matching {
-        include "KAMI*-release.jar"
-    }
-}
-
-task copy(type: Copy) {
-    group = "kami"
-    from file("build/libs/")
-    include 'KAMI*-release.jar'
-    into file(System.getProperty("user.home") + "/.minecraft/mods/")
 }
 
 compileKotlin.kotlinOptions.jvmTarget = "1.8"

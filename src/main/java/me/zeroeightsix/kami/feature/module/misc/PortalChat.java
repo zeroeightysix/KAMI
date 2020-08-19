@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.module.misc;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.CloseScreenInPortalEvent;
+import me.zeroeightsix.kami.event.CloseScreenInPortalEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**

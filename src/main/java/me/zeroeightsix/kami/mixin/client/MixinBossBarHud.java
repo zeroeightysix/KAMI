@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.events.RenderBossBarEvent;
+import me.zeroeightsix.kami.event.RenderBossBarEvent;
 import net.minecraft.client.gui.hud.BossBarHud;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.text.Text;
@@ -35,7 +35,7 @@ public class MixinBossBarHud {
         return event.getText();
     }
 
-    @ModifyConstant(method = "render", constant = @Constant(intValue = 9, log = true, ordinal = 1))
+    @ModifyConstant(method = "render", constant = @Constant(intValue = 9, ordinal = 1))
     public int modifySpacingConstant(int j) {
         RenderBossBarEvent.Spacing spacing = new RenderBossBarEvent.Spacing(j);
         KamiMod.EVENT_BUS.post(spacing);

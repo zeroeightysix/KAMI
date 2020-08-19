@@ -10,11 +10,12 @@ import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.util.Texts.lit
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
-    
+
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
         if (!returned) {
@@ -39,16 +40,16 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         return returned
     }
 
-    override fun render(mouseX: Int, mouseY: Int, delta: Float) {
-        super.render(mouseX, mouseY, delta)
+    override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+        super.render(matrices, mouseX, mouseY, delta)
 
-        KamiHud.frame {
+        KamiHud.frame(matrices!!) {
             if (Wizard()) return@frame;
-            
+
             this()
         }
     }
-    
+
     operator fun invoke() {
         // Draw the main menu bar.
         MenuBar()
@@ -67,19 +68,16 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
     }
 
     fun showWidgets(limitY: Boolean = true) {
-        for ((widget, open) in EnabledWidgets.widgets) {
-            if (open.get()) {
-                widget.showWindow(open, limitY)
+        val iterator = EnabledWidgets.widgets.iterator()
+        for (widget in iterator) {
+            if (widget.open && widget.showWindow(limitY)) {
+                iterator.remove()
             }
         }
     }
 
     override fun onClose() {
-        if (Settings.interactOutsideGUI) {
-            ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
-        } else {
-            ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
-        }
+        ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
         super.onClose()
     }
 

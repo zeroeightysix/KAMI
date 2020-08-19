@@ -3,10 +3,9 @@ package me.zeroeightsix.kami.feature.module
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.PlayerAttackBlockEvent
-import me.zeroeightsix.kami.event.events.PlayerAttackEntityEvent
+import me.zeroeightsix.kami.event.PlayerAttackBlockEvent
+import me.zeroeightsix.kami.event.PlayerAttackEntityEvent
 import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager
-import me.zeroeightsix.kami.mixin.client.IMiningToolItem
 import net.minecraft.block.BlockState
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
@@ -28,11 +27,13 @@ object AutoTool : Module() {
     private val leftClickListener =
         Listener(
             EventHook { event: PlayerAttackBlockEvent ->
-                equipBestTool(
-                    mc.world.getBlockState(
-                        event.position
+                mc.world?.getBlockState(
+                    event.position
+                )?.let {
+                    equipBestTool(
+                        it
                     )
-                )
+                }
             }
         )
     @EventHandler
@@ -45,17 +46,21 @@ object AutoTool : Module() {
         var bestSlot = -1
         var max = 0.0
         for (i in 0..8) {
-            val stack = mc.player.inventory.getInvStack(i)
-            if (stack.isEmpty) continue
-            var speed = stack.getMiningSpeed(blockState)
+            val stack = mc.player?.inventory?.getStack(i)
+            if (stack != null) {
+                if (stack.isEmpty) continue
+            }
+            var speed = stack?.getMiningSpeedMultiplier(blockState)
             var eff: Int
-            if (speed > 1) {
-                speed += (if (EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack).also {
-                        eff = it
-                    } > 0) (eff.toDouble().pow(2.0) + 1) else 0.0).toFloat()
-                if (speed > max) {
-                    max = speed.toDouble()
-                    bestSlot = i
+            if (speed != null) {
+                if (speed > 1) {
+                    speed += (if (EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack).also {
+                            eff = it
+                        } > 0) (eff.toDouble().pow(2.0) + 1) else 0.0).toFloat()
+                    if (speed > max) {
+                        max = speed.toDouble()
+                        bestSlot = i
+                    }
                 }
             }
         }
@@ -66,17 +71,28 @@ object AutoTool : Module() {
         var bestSlot = -1
         var maxDamage = 0.0
         for (i in 0..8) {
-            val stack = mc.player.inventory.getInvStack(i)
-            if (stack.isEmpty) continue
-            if (stack.item is MiningToolItem || stack.item is SwordItem) {
-                val damage =
-                    (stack.item as IMiningToolItem).attackDamage + EnchantmentHelper.getAttackDamage(
-                        stack,
-                        EntityGroup.DEFAULT
-                    ).toDouble()
-                if (damage > maxDamage) {
-                    maxDamage = damage
-                    bestSlot = i
+            val stack = mc.player?.inventory?.getStack(i)
+            if (stack != null) {
+                if (stack.isEmpty) continue
+            }
+            if (stack != null) {
+                if (stack.item is MiningToolItem || stack.item is SwordItem) {
+                    // Not sure of the best way to cast stack.item as either SwordItem or MiningToolItem
+                    val damage = if (stack.item is SwordItem) {
+                            (stack.item as SwordItem).attackDamage + EnchantmentHelper.getAttackDamage(
+                                    stack,
+                                    EntityGroup.DEFAULT
+                            ).toDouble()
+                        } else {
+                            (stack.item as MiningToolItem).attackDamage + EnchantmentHelper.getAttackDamage(
+                                    stack,
+                                    EntityGroup.DEFAULT
+                            ).toDouble()
+                        }
+                    if (damage > maxDamage) {
+                        maxDamage = damage
+                        bestSlot = i
+                    }
                 }
             }
         }
@@ -84,7 +100,7 @@ object AutoTool : Module() {
     }
 
     private fun equip(slot: Int) {
-        mc.player.inventory.selectedSlot = slot
+        mc.player?.inventory?.selectedSlot = slot
         (mc.interactionManager as IClientPlayerInteractionManager).invokeSyncSelectedSlot()
     }
 }

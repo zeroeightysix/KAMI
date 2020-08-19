@@ -1,28 +1,25 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
 import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.setDragDropPayload
-import imgui.ImGui.setNextWindowPos
-import imgui.ImGui.text
+import imgui.ImGui.openPopupOnItemClick
+import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
-import imgui.api.demoDebugInformations
-import imgui.dsl.dragDropSource
 import imgui.dsl.dragDropTarget
-import imgui.dsl.menuItem
-import imgui.dsl.popupContextItem
+import imgui.dsl.popup
 import imgui.dsl.window
 import imgui.internal.ItemStatusFlag
 import imgui.internal.or
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.command.getInterface
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
@@ -30,12 +27,19 @@ import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.setting.visibilityType
+import me.zeroeightsix.kami.then
 
+@FindSettings
 object Modules {
 
+    var resize: Boolean = false
+    var preferCategoryWindows = true
+
+    @Setting(name = "Windows")
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
-    private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
+    private val baseFlags =
+        TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
 
     /**
      * Returns if this module has detached
@@ -49,10 +53,6 @@ object Modules {
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
-        // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-        val doubleClicked = ImGui.io.mouseDoubleClicked[0]
-        ImGui.io.mouseDoubleClicked[0] = false
-
         var clickedLeft = false
         var clickedRight = false
 
@@ -61,36 +61,35 @@ object Modules {
             clickedRight = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
         }
 
-        val open = treeNodeEx(label, nodeFlags, module.name)
-        dragDropTarget {
-            acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                val payload = it.data!! as ModulePayload
-                payload.moveTo(source, sourceGroup)
+        if (!Settings.openSettingsInPopup) {
+            // We don't want imgui to handle open/closing at all, so we hack out the behaviour
+            val doubleClicked = ImGui.io.mouseDoubleClicked[0]
+            ImGui.io.mouseDoubleClicked[0] = false
+
+            val open = treeNodeEx(label, nodeFlags, module.name)
+            dragDropTarget {
+                acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
+                    val payload = it.data!! as ModulePayload
+                    payload.moveTo(source, sourceGroup)
+                }
+            }
+            if (open) {
+                updateClicked()
+                showModuleSettings(module)
+            } else updateClicked()
+
+            // Restore state
+            ImGui.io.mouseDoubleClicked[0] = doubleClicked
+        } else {
+            selectable(module.name, module.enabled).then { module.enabled = !module.enabled }
+            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right)
+            popup("module-settings-${module.name}") {
+                showModuleSettings(module)
             }
         }
-        if (open) {
-            updateClicked()
-            showModuleSettings(module) {
-                dragDropSource(DragDropFlag.SourceAllowNullID.i) {
-                    setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), source))
-                    text("Merge")
-                }
-
-                popupContextItem("$label-popup") {
-                    menuItem("Detach") {
-                        moduleWindow = ModuleWindow(module.name, module = module)
-                    }
-                }
-            }
-
-//            treePop()
-        } else updateClicked()
-
-        // Restore state
-        ImGui.io.mouseDoubleClicked[0] = doubleClicked
 
         if (clickedLeft) {
-            module.toggle()
+            module.enabled = !module.enabled
         } else if (clickedRight) {
             val id = currentWindow.getID(label)
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
@@ -98,7 +97,7 @@ object Modules {
             window.dc.stateStorage[id] = !open
             window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
         }
-        
+
         return moduleWindow
     }
 
@@ -108,32 +107,59 @@ object Modules {
             if (windows.addAll(newWindows)) {
                 newWindows.clear()
             }
+            resize = false
 
             ModuleWindowsEditor()
         }
     }
 
-    private fun getDefaultWindows() = mutableListOf(
-        ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
-            it.category.getName()
-        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }))
-    )
-    
+    fun getDefaultWindows(): Windows {
+        return if (preferCategoryWindows) { // Generate windows per-category
+            var id = 0
+            Windows(
+                FeatureManager.modules.groupBy { it.category.getName() }.mapTo(mutableListOf()) {
+                    ModuleWindow(
+                        it.key,
+                        mapOf(it.key to it.value.toMutableList()),
+                        id++
+                    )
+                }
+            )
+        } else { // Generate one window with all modules in it
+            Windows(
+                mutableListOf(
+                    ModuleWindow("All modules", groups = FeatureManager.modules.groupBy {
+                        it.category.getName()
+                    }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }), id = 0)
+                )
+            )
+        }
+    }
+
+    private fun nextId(): Int {
+        var id = 0
+        while (windows.map { it.id }.contains(id)) id += 1
+        return id
+    }
+
     fun reset() {
         windows = getDefaultWindows()
     }
 
-    class ModuleWindow(internal var title: String, val pos: Vec2? = null, var groups: Map<String, MutableList<Module>> = mapOf()) {
+    class ModuleWindow(
+        internal var title: String,
+        var groups: Map<String, MutableList<Module>> = mapOf(),
+        val id: Int = nextId()
+    ) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(title, pos, mapOf(Pair("Group 1", mutableListOf(module))))
+        constructor(title: String, module: Module) : this(
+            title,
+            mapOf(Pair("Group 1", mutableListOf(module)))
+        )
 
         var closed = false
 
         fun draw(): Boolean {
-            pos?.let {
-                setNextWindowPos(pos, Cond.Appearing)
-            }
-            
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
@@ -145,7 +171,13 @@ object Modules {
                 }
             }
 
-            window("$title###${hashCode()}"){
+            val flags = if (resize) {
+                WindowFlag.AlwaysAutoResize.i
+            } else {
+                0
+            }
+
+            window("$title###ModuleWindow$id", flags = flags) {
                 when {
                     groups.isEmpty() -> {
                         return true // close this window
@@ -177,9 +209,20 @@ object Modules {
         }
 
     }
+
+    class Windows(val backing: MutableList<ModuleWindow>) : MutableList<ModuleWindow> by backing {
+        override fun equals(other: Any?): Boolean {
+            return false
+        }
+
+        override fun hashCode(): Int {
+            return backing.hashCode()
+        }
+    }
+
 }
 
-private fun showModuleSettings(module: Module, block: () -> Unit) {
+private fun showModuleSettings(module: Module) {
     // We introduce a generic <T> to allow displayImGui to be called even though we don't actually know the type of ConfigLeaf we have!
     // the flattenedStream() method returns a stream over ConfigLeaf<*>, where <*> is any type.
     // Because the interface (SettingInterface<T>) requires a ConfigLeaf<T> and we only have a ConfigLeaf<*> and SettingInterface<*> (and <*> != <*>), calling displayImGui is illegal.
@@ -189,18 +232,11 @@ private fun showModuleSettings(module: Module, block: () -> Unit) {
         this.getInterface().displayImGui(this)
     }
 
-    val editMarkerShown = Settings.oldModuleEditMode
     if (!Settings.hideModuleDescriptions) {
         ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        ImGui.textWrapped("%s", module.description)
+        ImGui.text("%s", module.description)
         ImGui.popStyleColor()
-        if (editMarkerShown)
-            ImGui.sameLine()
     }
-    if (editMarkerShown) {
-        demoDebugInformations.helpMarker("Start dragging from this question mark to merge this module into another module window. Right click this question mark and press 'Detach' to seperate it into a new window.")
-    }
-    block()
 
     module.config.flattenedStream().filter {
         it.getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { vis ->

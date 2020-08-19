@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.feature.module.misc;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
-import me.zeroeightsix.kami.event.events.ScreenEvent;
+import me.zeroeightsix.kami.event.ScreenEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.Texts;
 import me.zeroeightsix.kami.util.Wrapper;
@@ -40,17 +39,17 @@ public class AutoRespawn extends Module {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-                Wrapper.getPlayer().sendMessage(Texts.f(Formatting.GOLD, Texts.append(
+                Wrapper.getPlayer().sendSystemMessage(Texts.f(Formatting.GOLD, Texts.append(
                         Texts.lit("You died at "),
-                        Texts.flit(Formatting.YELLOW, "x " + Math.floor(mc.player.x)),
+                        Texts.flit(Formatting.YELLOW, "x " + Math.floor(mc.player.getX())),
                         Texts.lit(", "),
-                        Texts.flit(Formatting.YELLOW, "y " + Math.floor(mc.player.y)),
+                        Texts.flit(Formatting.YELLOW, "y " + Math.floor(mc.player.getY())),
                         Texts.lit(", "),
-                        Texts.flit(Formatting.YELLOW, "z " + Math.floor(mc.player.z)),
+                        Texts.flit(Formatting.YELLOW, "z " + Math.floor(mc.player.getZ())),
                         Texts.lit(" ("),
                         Texts.flit(Formatting.AQUA, sdf.format(cal.getTime())),
                         Texts.lit(").")
-                )));
+                )), null);
             }
             mc.player.requestRespawn();
             mc.openScreen(null);

@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
+import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IKeyBinding;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.item.ItemGroup;
@@ -35,7 +35,7 @@ public class AutoEat extends Module {
                 lastSlot = -1;
             }
             eating = false;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
             return;
         }
         if (eating) return;
@@ -44,15 +44,15 @@ public class AutoEat extends Module {
         if (isValid(mc.player.getOffHandStack(), stats.getFoodLevel())) {
             mc.player.setCurrentHand(Hand.OFF_HAND);
             eating = true;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
             ((IMinecraftClient) mc).callDoAttack();
         } else {
             for (int i = 0; i < 9; i++) {
-                if (isValid(mc.player.inventory.getInvStack(i), stats.getFoodLevel())) {
+                if (isValid(mc.player.inventory.getStack(i), stats.getFoodLevel())) {
                     lastSlot = mc.player.inventory.selectedSlot;
                     mc.player.inventory.selectedSlot = i;
                     eating = true;
-                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getKeyCode(), true);
+                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
                     ((IMinecraftClient) mc).callDoAttack();
                     return;
                 }

@@ -6,16 +6,17 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
-import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.setting.visibilityType
 import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import java.util.function.Consumer
 import java.util.function.Function
 import java.util.stream.Stream
 
@@ -29,38 +30,38 @@ object SettingsCommand : Command() {
         })
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
-        val moduleArgumentType = ModuleArgumentType.module()
-        val settingArgumentType = SettingArgumentType.setting(moduleArgumentType, "module", 1)
+        val featureArgumentType = FullFeatureArgumentType.feature()
+        val settingArgumentType = SettingArgumentType.setting(featureArgumentType, "feature", 1)
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("settings")
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("list").then(
-                        RequiredArgumentBuilder.argument<CommandSource, Module>(
-                            "module",
-                            ModuleArgumentType.module()
+                        RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
+                            "feature",
+                            FullFeatureArgumentType.feature()
                         )
                             .executes { context: CommandContext<CommandSource> ->
                                 val source = context.source as KamiCommandSource
-                                val m =
+                                val f =
                                     context.getArgument(
                                         "module",
-                                        Module::class.java
-                                    ) as Module
+                                        FullFeature::class.java
+                                    ) as FullFeature
                                 source.sendFeedback(
                                     Texts.i(
-                                        Texts.append(
-                                            Texts.flit(
-                                                Formatting.YELLOW,
-                                                m.name
-                                            ),
-                                            Texts.flit(
-                                                Formatting.GOLD,
-                                                " has the following properties:"
+                                            Texts.append(
+                                                    Texts.flit(
+                                                        Formatting.YELLOW,
+                                                        f.name
+                                                    ),
+                                                Texts.flit(
+                                                    Formatting.GOLD,
+                                                    " has the following properties:"
+                                                )
                                             )
-                                        )
                                     )
                                 )
-                                m.config.list().forEach {
+                                f.config.list().forEach {
                                     source.sendFeedback(it)
                                 }
                                 0
@@ -70,9 +71,9 @@ object SettingsCommand : Command() {
                 .then(
                     LiteralArgumentBuilder.literal<CommandSource>("set")
                         .then(
-                            RequiredArgumentBuilder.argument<CommandSource, Module>(
-                                "module",
-                                moduleArgumentType
+                            RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
+                                "feature",
+                                featureArgumentType
                             )
                                 .then(
                                     RequiredArgumentBuilder.argument<CommandSource, ConfigLeaf<Any>>(
@@ -82,14 +83,18 @@ object SettingsCommand : Command() {
                                         .then(
                                             RequiredArgumentBuilder.argument<CommandSource, String>(
                                                 "value",
-                                                SettingValueArgumentType.value(settingArgumentType as ArgumentType<ConfigLeaf<*>>, "setting", 1)
+                                                SettingValueArgumentType.value(
+                                                    settingArgumentType as ArgumentType<ConfigLeaf<*>>,
+                                                    "setting",
+                                                    1
+                                                )
                                             )
                                                 .executes { context: CommandContext<CommandSource> ->
-                                                    val module =
+                                                    val feature =
                                                         context.getArgument(
-                                                            "module",
-                                                            Module::class.java
-                                                        ) as Module
+                                                            "feature",
+                                                            FullFeature::class.java
+                                                        ) as FullFeature
                                                     val setting =
                                                         context.getArgument(
                                                             "setting",
@@ -105,24 +110,24 @@ object SettingsCommand : Command() {
                                                     (context.source as KamiCommandSource).sendFeedback(
                                                         Texts.f(
                                                             Formatting.GOLD,
-                                                            Texts.append(
-                                                                Texts.lit("Set property "),
-                                                                Texts.flit(
-                                                                    Formatting.YELLOW,
-                                                                    setting.name
-                                                                ),
-                                                                Texts.lit(" of module "),
-                                                                Texts.flit(
-                                                                    Formatting.YELLOW,
-                                                                    module.name
-                                                                ),
-                                                                Texts.lit(" to "),
-                                                                Texts.flit(
-                                                                    Formatting.LIGHT_PURPLE,
-                                                                    value
-                                                                ),
-                                                                Texts.lit("!")
-                                                            )
+                                                                Texts.append(
+                                                                        Texts.lit("Set property "),
+                                                                        Texts.flit(
+                                                                                Formatting.YELLOW,
+                                                                                setting.name
+                                                                        ),
+                                                                        Texts.lit(" of module "),
+                                                                        Texts.flit(
+                                                                                Formatting.YELLOW,
+                                                                            feature.name
+                                                                        ),
+                                                                        Texts.lit(" to "),
+                                                                        Texts.flit(
+                                                                                Formatting.LIGHT_PURPLE,
+                                                                                value
+                                                                        ),
+                                                                        Texts.lit("!")
+                                                                )
                                                         )
                                                     )
                                                     0
@@ -140,7 +145,12 @@ fun ConfigNode.list() : Stream<Text> = when (this) {
         this.items.stream().flatMap { it.list() }
     }
     is ConfigLeaf<*> -> {
-        Stream.of(this.list())
+        if (getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { it.isVisible() }
+                .orElse(true)) {
+            Stream.of(this.list())
+        } else {
+            Stream.empty()
+        }
     }
     else -> {
         Stream.of(Texts.lit("unknown node"))
@@ -151,7 +161,7 @@ fun<T> ConfigLeaf<T>.list(): Text {
     val interf = this.getInterface()
     val (type, value) = interf.displayTypeAndValue(this)
     return Texts.append(
-        Texts.flit(Formatting.YELLOW, this.name),
+            Texts.flit(Formatting.YELLOW, this.name),
         Texts.flit(Formatting.GRAY, " ("),
         Texts.flit(Formatting.GREEN, type),
         Texts.flit(Formatting.GRAY, ") "),

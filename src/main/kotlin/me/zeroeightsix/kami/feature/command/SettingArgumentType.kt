@@ -8,22 +8,21 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
-import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.setting.visibilityType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
-import java.util.stream.Stream
 
 class SettingArgumentType(
-    dependantType: ArgumentType<Module>,
+    dependantType: ArgumentType<FullFeature>,
     dependantArgument: String,
     shift: Int
-) : DependantArgumentType<ConfigNode, Module>(
+) : DependantArgumentType<ConfigNode, FullFeature>(
     dependantType,
     dependantArgument,
     shift
@@ -31,19 +30,22 @@ class SettingArgumentType(
 
     @Throws(CommandSyntaxException::class)
     override fun parse(reader: StringReader): ConfigNode {
-        val module = findDependencyValue(reader)
+        val feature = findDependencyValue(reader)
         val string = when (isQuotedStringStart(reader.peek())) {
             true -> reader.readQuotedString()
             false -> reader.readUnquotedString()
         }
-        val s = module.config.flattenedStream()
+        val s = feature.config.flattenedStream()
             .filter {
-                it.name.equals(string, ignoreCase = true)
+                it.name.equals(string, ignoreCase = true) && it.getAttributeValue(
+                    FiberId("kami", "setting_visibility"),
+                    visibilityType
+                ).map { sup -> sup.isVisible() }.orElse(true)
             }.findAny()
         return if (s.isPresent) {
             s.get()
         } else {
-            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, module.name))
+            throw INVALID_SETTING_EXCEPTION.create(arrayOf(string, feature.name))
         }
     }
 
@@ -51,12 +53,17 @@ class SettingArgumentType(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions>? {
-        val m = findDependencyValue(context, Module::class.java)
+        val f = findDependencyValue(context, FullFeature::class.java)
         fun String.quoteIfNecessary(): String {
             if (contains(' ')) return "\"$this\""
             return this
         }
-        return CommandSource.suggestMatching(m.config.items.stream().map { it.name.quoteIfNecessary() }, builder)
+        return CommandSource.suggestMatching(f.config.items.stream().filter {
+            it.getAttributeValue(
+                FiberId("kami", "setting_visibility"),
+                visibilityType
+            ).map { sup -> sup.isVisible() }.orElse(true)
+        }.map { it.name.quoteIfNecessary() }, builder)
     }
 
     override fun getExamples(): Collection<String> {
@@ -68,16 +75,16 @@ class SettingArgumentType(
         val INVALID_SETTING_EXCEPTION =
             DynamicCommandExceptionType(Function { `object`: Any ->
                 LiteralText(
-                    "Unknown setting '" + (`object` as Array<*>)[0] + "' for module " + `object`[1]
+                    "Unknown setting '" + (`object` as Array<*>)[0] + "' for feature " + `object`[1]
                 )
             })
 
         fun setting(
-            dependentType: ModuleArgumentType,
-            moduleArgName: String,
+            dependentType: FullFeatureArgumentType,
+            featureArgName: String,
             shift: Int
         ): SettingArgumentType {
-            return SettingArgumentType(dependentType, moduleArgName, shift)
+            return SettingArgumentType(dependentType, featureArgName, shift)
         }
     }
 }

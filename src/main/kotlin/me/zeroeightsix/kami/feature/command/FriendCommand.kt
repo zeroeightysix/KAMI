@@ -13,9 +13,10 @@ import me.zeroeightsix.kami.util.Texts
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.command.EntitySelector
-import net.minecraft.command.arguments.EntityArgumentType
+import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.io.BufferedInputStream
@@ -56,24 +57,24 @@ object FriendCommand : Command() {
                                             s
                                         )
                                     } else {
-                                        text = text!!.append(
+                                        //text = text!!.append(
                                             Texts.append(
                                                 Texts.lit(", "),
-                                                Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    s
-                                                )
+                                                    Texts.flit(
+                                                            Formatting.YELLOW,
+                                                            s
+                                                    )
                                             )
-                                        )
+                                        //)
                                     }
                                 }
-                            text = Texts.f(Formatting.GOLD, text)
+                            text = Texts.f(Formatting.GOLD, text as MutableText?)
                             source.sendFeedback(
                                 Texts.i(
-                                    Texts.flit(
-                                        Formatting.GOLD,
-                                        "You have the following friends:"
-                                    )
+                                        Texts.flit(
+                                                Formatting.GOLD,
+                                                "You have the following friends:"
+                                        )
                                 )
                             )
                             source.sendFeedback(text)
@@ -99,11 +100,11 @@ object FriendCommand : Command() {
                                             Formatting.GOLD, Texts.append(
                                                 Texts.lit("Added "),
                                                 Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    entry.profile.name
+                                                        Formatting.YELLOW,
+                                                        entry.profile.name
                                                 ),
                                                 Texts.lit(" to your friends list!")
-                                            )
+                                        )
                                         )
                                     )
                                     0
@@ -130,11 +131,11 @@ object FriendCommand : Command() {
                                             Formatting.GOLD, Texts.append(
                                                 Texts.lit("Removed "),
                                                 Texts.flit(
-                                                    Formatting.YELLOW,
-                                                    entry.profile.name
+                                                        Formatting.YELLOW,
+                                                        entry.profile.name
                                                 ),
                                                 Texts.lit(" from your friends list!")
-                                            )
+                                        )
                                         )
                                     )
                                     0

@@ -5,10 +5,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
-import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.SimpleRegistry
-import java.lang.RuntimeException
 import java.util.concurrent.CompletableFuture
 
 interface SettingInterface<T> {
@@ -52,10 +49,8 @@ interface SettingInterface<T> {
         }
     }
 
-    object Registry : SimpleRegistry<SettingInterface<*>>() {
-        init {
-            add(Default.id, Default)
-        }
+    companion object {
+        val interfaces = mutableMapOf<Identifier, SettingInterface<*>>()
     }
 
 }

@@ -3,7 +3,9 @@ package me.zeroeightsix.kami.util;
 import me.zeroeightsix.kami.gui.windows.Settings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Created by 086 on 9/10/2018.
@@ -38,7 +40,7 @@ public class Bind {
     }
 
     public static Bind none() {
-        return new Bind(false, false, false, new Code(true, -1, -1));
+        return new Bind(false, false, false, Code.none());
     }
 
     public boolean isDown() {
@@ -72,30 +74,41 @@ public class Bind {
                         capitalise(code.toString());
     }
 
+    public void update(int key, int scancode, boolean pressed) {
+        if ((code.keysym && code.key == key && key != -1) || (!code.keysym && code.scan == scancode && scancode != -1)) {
+            this.pressed = pressed;
+        }
+    }
+
     public static class Code {
         public final boolean keysym;
         public final int key;
         public final int scan;
+        public final String translationKey;
 
-        public Code(boolean keysym, int key, int scan) {
+        public Code(boolean keysym, int key, int scan, String translationKey) {
             this.keysym = keysym;
             this.key = key;
             this.scan = scan;
+            this.translationKey = translationKey;
         }
 
-        public Code(@NotNull InputUtil.KeyCode keyCode) {
+        public Code(@NotNull InputUtil.Key keyCode) {
             this.keysym = keyCode.getCategory() == InputUtil.Type.KEYSYM;
-            int code = keyCode.getKeyCode();
+            int code = keyCode.getCode();
             this.key = keysym ? code : -1;
             this.scan = keysym ? -1 : code;
+            this.translationKey = keyCode.getTranslationKey();
+        }
+
+        public static Code none() {
+            return new Code(true, -1, -1, "key.keyboard.unknown");
         }
 
         @Override
         public String toString() {
-            if (keysym)
-                return InputUtil.getKeycodeName(key);
-            else
-                return InputUtil.getScancodeName(scan);
+            String s = GLFW.glfwGetKeyName(key, scan);
+            return s == null ? new TranslatableText(translationKey).getString() : s;
         }
     }
 

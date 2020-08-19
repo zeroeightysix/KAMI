@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.module.player;
 
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 
@@ -14,10 +14,10 @@ public class AutoJump extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (mc.player.isInWater() || mc.player.isInLava()) {
+        if (mc.player.isSubmergedInWater() || mc.player.isInLava()) {
             EntityUtil.updateVelocityY(mc.player, 0.1);
         }
-        else if (mc.player.onGround) mc.player.jump();
+        else if (mc.player.isOnGround()) mc.player.jump();
     });
 
 }

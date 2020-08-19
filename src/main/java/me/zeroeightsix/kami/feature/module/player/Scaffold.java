@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.feature.module.player;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Freecam;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
@@ -13,7 +12,7 @@ import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -45,13 +44,13 @@ public class Scaffold extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (isDisabled() || Freecam.INSTANCE.isEnabled()) return;
+        if (Freecam.INSTANCE.getEnabled()) return;
         Vec3d vec3d = EntityUtil.getInterpolatedPos(mc.player, future);
         BlockPos blockPos = new BlockPos(vec3d).down();
         BlockPos belowBlockPos = blockPos.down();
 
         // check if block is already placed
-        if(!Wrapper.getWorld().getBlockState(blockPos).getMaterial().isReplaceable())
+        if (!mc.world.getBlockState(blockPos).getMaterial().isReplaceable())
             return;
 
         // search blocks in hotbar
@@ -59,8 +58,7 @@ public class Scaffold extends Module {
         for(int i = 0; i < 9; i++)
         {
             // filter out non-block items
-            ItemStack stack =
-                    Wrapper.getPlayer().inventory.getInvStack(i);
+            ItemStack stack = mc.player.inventory.getStack(i);
 
             if(stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;
@@ -113,9 +111,9 @@ public class Scaffold extends Module {
     });
 
     public static boolean placeBlockScaffold(BlockPos pos) {
-        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().getPose()),
-                Wrapper.getPlayer().z);
+        Vec3d eyesPos = new Vec3d(Wrapper.getPlayer().getX(),
+                Wrapper.getPlayer().getY() + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().getPose()),
+                Wrapper.getPlayer().getZ());
 
         for(Direction side : Direction.values())
         {
@@ -124,17 +122,17 @@ public class Scaffold extends Module {
 
             // check if side is visible (facing away from player)
             if(eyesPos.squaredDistanceTo(
-                    new Vec3d(pos).add(0.5, 0.5, 0.5)) >= eyesPos
+                    new Vec3d(pos.getX(),pos.getY(),pos.getZ()).add(0.5, 0.5, 0.5)) >= eyesPos
                     .squaredDistanceTo(
-                            new Vec3d(neighbor).add(0.5, 0.5, 0.5)))
+                            new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5)))
                 continue;
 
             // check if neighbor can be right clicked
             if(!canBeClicked(neighbor))
                 continue;
 
-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5)
-                    .add(new Vec3d(side2.getVector()).multiply(0.5));
+            Vec3d hitVec = new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5)
+                    .add(new Vec3d(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ()).multiply(0.5));
 
             // check if hitVec is within range (4.25 blocks)
             if(eyesPos.squaredDistanceTo(hitVec) > 18.0625)
@@ -180,7 +178,7 @@ public class Scaffold extends Module {
         float[] rotations = getNeededRotations2(vec);
 
         mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookOnly(rotations[0],
-                rotations[1], Wrapper.getPlayer().onGround));
+                rotations[1], Wrapper.getPlayer().isOnGround()));
     }
 
     private static float[] getNeededRotations2(Vec3d vec)
@@ -205,9 +203,9 @@ public class Scaffold extends Module {
 
     public static Vec3d getEyesPos()
     {
-        return new Vec3d(Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(mc.player.getPose()),
-                Wrapper.getPlayer().z);
+        return new Vec3d(Wrapper.getPlayer().getX(),
+                Wrapper.getPlayer().getY() + Wrapper.getPlayer().getEyeHeight(mc.player.getPose()),
+                Wrapper.getPlayer().getZ());
     }
 
 }

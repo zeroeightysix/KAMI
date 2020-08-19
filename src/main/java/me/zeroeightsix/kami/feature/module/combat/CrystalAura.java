@@ -3,9 +3,9 @@ package me.zeroeightsix.kami.feature.module.combat;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.PacketEvent;
-import me.zeroeightsix.kami.event.events.RenderEvent;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.event.RenderEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket;
 import me.zeroeightsix.kami.util.*;
@@ -16,7 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.decoration.EnderCrystalEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -24,8 +24,8 @@ import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolItem;
 import net.minecraft.network.Packet;
-import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -89,9 +89,9 @@ class CrystalAura extends Module {
 
     @EventHandler
     private Listener<TickEvent.Client> clientListener = new Listener<>(client -> {
-        EnderCrystalEntity crystal = Stream.of(mc.world.getEntities())
-                .filter(entity -> entity instanceof EnderCrystalEntity)
-                .map(entity -> (EnderCrystalEntity) entity)
+        EndCrystalEntity crystal = Stream.of(mc.world.getEntities())
+                .filter(entity -> entity instanceof EndCrystalEntity)
+                .map(entity -> (EndCrystalEntity) entity)
                 .min(Comparator.comparing(c -> mc.player.distanceTo(c)))
                 .orElse(null);
         if (explode && crystal != null && mc.player.distanceTo(crystal) <= range) {
@@ -106,7 +106,7 @@ class CrystalAura extends Module {
                     // search for sword and tools in hotbar
                     newSlot = -1;
                     for (int i = 0; i < 9; i++) {
-                        ItemStack stack = Wrapper.getPlayer().inventory.getInvStack(i);
+                        ItemStack stack = Wrapper.getPlayer().inventory.getStack(i);
                         if (stack == ItemStack.EMPTY) {
                             continue;
                         }
@@ -125,7 +125,7 @@ class CrystalAura extends Module {
                         switchCooldown = true;
                     }
                 }
-                lookAtPacket(crystal.x, crystal.y, crystal.z, mc.player);
+                lookAtPacket(crystal.getX(), crystal.getY(), crystal.getZ(), mc.player);
                 mc.interactionManager.attackEntity(mc.player, crystal);
                 mc.player.swingHand(Hand.MAIN_HAND);
                 systemTime = System.nanoTime() / 1000000;
@@ -143,7 +143,7 @@ class CrystalAura extends Module {
         int crystalSlot = mc.player.getMainHandStack().getItem() == Items.END_CRYSTAL ? mc.player.inventory.selectedSlot : -1;
         if (crystalSlot == -1) {
             for (int l = 0; l < 9; ++l) {
-                if (mc.player.inventory.getInvStack(l).getItem() == Items.END_CRYSTAL) {
+                if (mc.player.inventory.getStack(l).getItem() == Items.END_CRYSTAL) {
                     crystalSlot = l;
                     break;
                 }
@@ -207,7 +207,7 @@ class CrystalAura extends Module {
                 return;
             }
             lookAtPacket(q.getX() + .5, q.getY() - .5, q.getZ() + .5, mc.player);
-            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.x, mc.player.y + mc.player.getEyeHeight(mc.player.getPose()), mc.player.z), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
+            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.getX(), mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ()), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
             BlockHitResult result = mc.world.rayTrace(context);
             Direction f;
             if (result == null || result.getSide() == null) {
@@ -242,7 +242,7 @@ class CrystalAura extends Module {
             KamiTessellator.drawBox(render, 0x44ffffff, GeometryMasks.Quad.ALL);
             KamiTessellator.release();
             if (renderEnt != null) {
-                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getTickDelta());
+//                Vec3d p = EntityUtil.getInterpolatedRenderPos(renderEnt, mc.getTickDelta());
 //                Tracers.drawLineFromPosToPos(render.getX() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosX() + .5d, render.getY() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosY() + 1, render.getZ() - ((IEntityRenderDispatcher) mc.getEntityRenderManager()).getRenderPosZ() + .5d, p.x, p.y, p.z, renderEnt.getEyeHeight(renderEnt.getPose()), 1, 1, 1, 1);
             }
         }
@@ -260,14 +260,14 @@ class CrystalAura extends Module {
                 && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN)
                 || mc.world.getBlockState(boost).getBlock() != Blocks.AIR
                 || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR
-                || !mc.world.getEntities(Entity.class, new Box(boost)).isEmpty()) {
+                || !mc.world.getNonSpectatingEntities(Entity.class, new Box(boost)).isEmpty()) {
             return false;
         }
         return true;
     }
 
     public static BlockPos getPlayerPos() {
-        return new BlockPos(Math.floor(mc.player.x), Math.floor(mc.player.y), Math.floor(mc.player.z));
+        return new BlockPos(Math.floor(mc.player.getX()), Math.floor(mc.player.getY()), Math.floor(mc.player.getZ()));
     }
 
     private List<BlockPos> findCrystalBlocks() {
@@ -308,7 +308,7 @@ class CrystalAura extends Module {
     }
 
     public static float getBlastReduction(LivingEntity entity, float damage, Explosion explosion) {
-        damage = DamageUtil.getDamageLeft(damage, (float) entity.getArmor(), (float) entity.getAttributeInstance(EntityAttributes.ARMOR_TOUGHNESS).getValue());
+        damage = DamageUtil.getDamageLeft(damage, (float) entity.getArmor(), (float) entity.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).getValue());
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             DamageSource damageSource = DamageSource.explosion(explosion);
@@ -330,8 +330,8 @@ class CrystalAura extends Module {
         return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
     }
 
-    public static float calculateDamage(EnderCrystalEntity crystal, Entity entity) {
-        return calculateDamage(crystal.x, crystal.y, crystal.z, entity);
+    public static float calculateDamage(EndCrystalEntity crystal, Entity entity) {
+        return calculateDamage(crystal.getX(), crystal.getY(), crystal.getZ(), entity);
     }
 
     //Better Rotation Spoofing System:

@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui
 
+import glm_.c
 import glm_.vec2.Vec2
 import glm_.vec2.Vec2d
 import imgui.ImGui
@@ -11,8 +12,9 @@ import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Wrapper
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
 import java.util.*
 
@@ -22,10 +24,21 @@ object KamiHud {
     internal val context: Context
     private val implGlfw: ImplGlfw
     private val io: IO
-    private val postDrawStack: Stack<() -> Unit>
+    private val postDrawStack: Stack<(MatrixStack) -> Unit>
 
     init {
-        val window = GlfwWindow.from(MinecraftClient.getInstance().window.handle)
+        fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: FontConfig) {
+            val chars = javaClass.getResourceAsStream("/assets/kami/Minecraftia.ttf")?.let {
+                val bytes = it.readBytes()
+                CharArray(bytes.size) { bytes[it].c }
+            } ?: return
+            if (fontCfg.name.isEmpty())
+            // Store a short copy of filename into into the font name for convenience
+                fontCfg.name = "${filename.substringAfterLast('/')}, %.0fpx".format(ImGui.style.locale, sizePixels)
+            ImGui.io.fonts.addFontFromMemoryTTF(chars, sizePixels, fontCfg, arrayOf())
+        }
+
+        val window = GlfwWindow.from(mc.window.handle)
         window.makeContextCurrent()
         context = Context()
         implGlfw = ImplGlfw(window, false, null)
@@ -33,26 +46,38 @@ object KamiHud {
         io = ImGui.io
         io.iniFilename = "kami-imgui.ini"
 
-        val fontCfg = FontConfig()
-        fontCfg.oversample put 1
-        fontCfg.pixelSnapH = true
-        fontCfg.glyphOffset = Vec2(0, -2)
-        ImGui.io.fonts.addFontFromFileTTF("assets/kami/Minecraftia.ttf", 12f, fontCfg)
+        fun fontCfg(block: FontConfig.() -> Unit): FontConfig {
+            val fontCfg = FontConfig()
+            fontCfg.block()
+            return fontCfg
+        }
+
+        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 12f, fontCfg {
+            oversample put 1
+            pixelSnapH = true
+            glyphOffset = Vec2(0, -2)
+        })
+        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 24f, fontCfg {
+            oversample put 1
+            pixelSnapH = true
+            glyphOffset = Vec2(0, -2)
+        })
         ImGui.io.fonts.addFontDefault()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle()
-        ImGui.io.fontDefault = ImGui.io.fonts.fonts[Settings.font]
+        ImGui.io.fontDefault = ImGui.io.fonts.fonts.getOrElse(Settings.font) { ImGui.io.fonts.fonts.first() }
 
         postDrawStack = Stack()
     }
 
-    fun renderHud() {
-        frame {
+    fun renderHud(matrixStack: MatrixStack) {
+        frame(matrixStack) {
             if (!EnabledWidgets.hideAll) {
                 PinnableWidget.drawFadedBackground = false
-                for ((widget, open) in EnabledWidgets.widgets) {
-                    if (open.get() && widget.pinned) {
-                        widget.showWindow(open, false)
+                val iterator = EnabledWidgets.widgets.iterator()
+                for (widget in iterator) {
+                    if (widget.open && widget.pinned && widget.showWindow(false)) {
+                        iterator.remove()
                     }
                 }
                 PinnableWidget.drawFadedBackground = true
@@ -60,7 +85,7 @@ object KamiHud {
         }
     }
 
-    internal fun frame(block: () -> Unit) {
+    internal fun frame(matrices: MatrixStack, block: () -> Unit) {
         implGl3.newFrame()
         implGlfw.newFrame()
         ImGui.newFrame()
@@ -71,13 +96,13 @@ object KamiHud {
             while (!postDrawStack.isEmpty()) {
                 val cmd = postDrawStack.pop()
                 cmd?.let {
-                    it()
+                    it(matrices)
                 }
             }
         }
     }
 
-    fun postDraw(block: () -> Unit) {
+    fun postDraw(block: (MatrixStack) -> Unit) {
         postDrawStack.push(block)
     }
 

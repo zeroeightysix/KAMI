@@ -9,6 +9,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface IInputUtilType {
 
     @Accessor
-    Int2ObjectMap<InputUtil.KeyCode> getMap();
+    Int2ObjectMap<InputUtil.Key> getMap();
 
 }

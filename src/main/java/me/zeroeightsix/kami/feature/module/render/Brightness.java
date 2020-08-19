@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module.render;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.setting.SettingVisibility;
 
@@ -12,7 +12,6 @@ import java.util.function.Function;
 
 /**
  * Created by 086 on 12/12/2017.
- * @see me.zeroeightsix.kami.mixin.client.MixinEntityRenderer
  */
 @Module.Info(name = "Brightness", description = "Makes everything brighter!", category = Module.Category.RENDER)
 public class Brightness extends Module {
@@ -24,7 +23,7 @@ public class Brightness extends Module {
     private @Setting.Constrain.Range(min = 0, max = 10) float seconds = 1;
     @Setting(name = "Mode")
     private Transition mode = Transition.SINE;
-    
+
     public boolean ifTransition() {
         return transition;
     }
@@ -53,9 +52,10 @@ public class Brightness extends Module {
             for (float v : values) {
                 transitionStack.add(v);
             }
-
-            inTransition = true;
+        } else {
+            transitionStack.add(isUpwards ? 1f : 0f);
         }
+        inTransition = true;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class Brightness extends Module {
             if (transitionStack.isEmpty()) {
                 inTransition = false;
                 setAlwaysListening(false);
-                currentBrightness = isEnabled() ? 1 : 0;
+                currentBrightness = getEnabled() ? 1 : 0;
             } else {
                 currentBrightness = transitionStack.pop();
             }

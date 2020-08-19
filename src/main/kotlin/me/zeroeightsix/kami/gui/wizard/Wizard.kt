@@ -20,9 +20,11 @@ import imgui.ImGui.text
 import imgui.ImGui.textWrapped
 import imgui.dsl.button
 import imgui.dsl.popupModal
+import imgui.dsl.radioButton
 import imgui.internal.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
+import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.Themes
@@ -31,8 +33,9 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.to
 
+@FindSettings
 object Wizard {
-    
+
     @Setting
     var firstTime = true
 
@@ -54,23 +57,69 @@ object Wizard {
 
         KamiGuiScreen() // Show the full GUI
     }, {
-        text("Would you rather left-click or right-click a module to toggle it?")
-        text("The other button will toggle its settings.")
+        text("How do you want your module windows to be set up?")
+
+        radioButton("Per category", Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = true
+            Modules.windows = Modules.getDefaultWindows()
+        }
+        radioButton("Everything in one window", !Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = false
+            Modules.windows = Modules.getDefaultWindows()
+        }
+
+        pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        textWrapped(
+            "%s",
+            "The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor."
+        )
+        textWrapped("%s", "The module window editor may be accessed through the `View` menu in the top menu bar.")
+        popStyleColor()
+    }, {
+        text("Would you rather have settings appear in a popup, or embedded in the modules window?")
 
         separator()
 
-        checkbox("Left-click to toggle modules", Settings::swapModuleListButtons)
-        if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
-            Settings.swapModuleListButtons = false
+        checkbox("In a popup", Settings::openSettingsInPopup)
+        if (checkbox("Embedded in the modules window", BooleanArray(1) { !Settings.openSettingsInPopup })) {
+            Settings.openSettingsInPopup = false
+        }
+
+        if (!Settings.openSettingsInPopup) {
+            separator()
+
+            text("Would you rather left-click or right-click a module to toggle it?")
+            text("The other button will toggle its settings.")
+
+            separator()
+
+            checkbox("Left-click to toggle modules", Settings::swapModuleListButtons)
+            if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
+                Settings.swapModuleListButtons = false
+            }
         }
 
         separator()
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
+        text(
+            "%s-click to toggle, %s-click to open settings.",
+            if (leftToggle) {
+                "Left"
+            } else {
+                "Right"
+            },
+            if (!leftToggle) {
+                "left"
+            } else {
+                "right"
+            }
+        )
         text("%s", "Try it out:")
         popStyleColor()
 
-        Modules.collapsibleModule(Aura, Modules.ModuleWindow("", null, Aura), "")
+        Modules.collapsibleModule(Aura, Modules.ModuleWindow("", Aura), "")
 
         separator()
     }, {
@@ -78,7 +127,7 @@ object Wizard {
         text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
         textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
         checkbox("Enable modifier keys", Settings::modifiersEnabled)
-        
+
         separator()
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
@@ -96,7 +145,7 @@ object Wizard {
         separator()
     }, {
         text("How far from the edge should HUD elements be rendered?")
-        ImGui.dragFloat("Border offset", Settings::borderOffset, vMin = 0f, vMax = 50f, format = "%.0f")
+        ImGui.dragFloat("Border offset", Settings::borderOffset, vSpeed = 0.1f, vMin = 0f, vMax = 50f, format = "%.0f")
         separator()
         text("Which elements should be shown in the HUD?")
         EnabledWidgets.enabledButtons()
@@ -105,7 +154,7 @@ object Wizard {
     }, {
         firstTime = false
     })
-    
+
     var currentPage = 0
 
     /**
@@ -141,5 +190,5 @@ object Wizard {
 
         return firstTime
     }
-    
+
 }

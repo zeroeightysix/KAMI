@@ -4,13 +4,14 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.events.ScreenEvent
-import me.zeroeightsix.kami.event.events.ScreenEvent.Displayed
+import me.zeroeightsix.kami.event.ScreenEvent
+import me.zeroeightsix.kami.event.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.options.ServerEntry
+import net.minecraft.client.network.ServerInfo
+import net.minecraft.client.util.math.MatrixStack
 import kotlin.math.floor
 
 /**
@@ -24,7 +25,7 @@ import kotlin.math.floor
 )
 object AutoReconnect : Module() {
 
-    private var cServer: ServerEntry? = null
+    private var cServer: ServerInfo? = null
 
     @Setting
     private var seconds: @Setting.Constrain.Range(
@@ -45,14 +46,14 @@ object AutoReconnect : Module() {
     @EventHandler
     val displayedListener = Listener(
         EventHook { event: Displayed ->
-            if (isEnabled() && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
+            if (enabled && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
                 KamiDisconnectedScreen(event.screen as DisconnectedScreen)
         }
     )
 
     private class KamiDisconnectedScreen(disconnected: DisconnectedScreen) : DisconnectedScreen(
         (disconnected as IDisconnectedScreen).parent,
-        disconnected.title.asString(),
+        disconnected.title,
         (disconnected as IDisconnectedScreen).reason
     ) {
         private val parent: Screen
@@ -69,13 +70,13 @@ object AutoReconnect : Module() {
             )
         }
 
-        override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
-            super.render(mouseX, mouseY, partialTicks)
+        override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, partialTicks: Float) {
+            super.render(matrices, mouseX, mouseY, partialTicks)
             val a = System.currentTimeMillis()
             millis -= (a - cTime).toInt()
             cTime = a
             val s = "Reconnecting in " + 0.0.coerceAtLeast(floor(millis.toDouble() / 100) / 10) + "s"
-            font.drawWithShadow(s, width / 2 - font.getStringWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
+            textRenderer.drawWithShadow(matrices,s, width / 2 - textRenderer.getWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
         }
 
         init {

@@ -1,10 +1,9 @@
 package me.zeroeightsix.kami.feature.module.combat;
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
-import me.zeroeightsix.kami.event.events.TickEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.command.Command;
 import me.zeroeightsix.kami.feature.module.Aura;
 import me.zeroeightsix.kami.feature.module.Freecam;
@@ -16,16 +15,16 @@ import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
-import net.minecraft.container.Container;
-import net.minecraft.container.SlotActionType;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.packet.ClientCommandC2SPacket;
-import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -84,10 +83,49 @@ public class Auto32k extends Module {
     private int swordSlot;
     private static boolean isSneaking;
 
+    @EventHandler
+    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+        if (Freecam.INSTANCE.getEnabled()) {
+            return;
+        }
+
+        if (!(mc.currentScreen instanceof HandledScreen)) {
+            return;
+        }
+
+        if (!moveToHotbar) {
+            this.disable();
+            return;
+        }
+
+        if (swordSlot == -1) {
+            return;
+        }
+
+        boolean swapReady = true;
+
+        ScreenHandler container = ((HandledScreen) mc.currentScreen).getScreenHandler();
+
+        if (container.getSlot(0).getStack().isEmpty()) {
+            swapReady = false;
+        }
+
+        if (!(container.getSlot(swordSlot).getStack().isEmpty())) {
+            swapReady = false;
+        }
+
+        if (swapReady) {
+            mc.interactionManager.clickSlot(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
+            if (autoEnableHitAura) {
+                Aura.INSTANCE.enable();
+            }
+            this.disable();
+        }
+    });
+
     @Override
     public void onEnable() {
-
-        if (isDisabled() || mc.player == null || Freecam.INSTANCE.isEnabled()) {
+        if (mc.player == null || Freecam.INSTANCE.getEnabled()) {
             this.disable();
             return;
         }
@@ -105,7 +143,7 @@ public class Auto32k extends Module {
                 break;
             }
 
-            ItemStack stack = mc.player.inventory.getInvStack(i);
+            ItemStack stack = mc.player.inventory.getStack(i);
 
             if (stack == ItemStack.EMPTY || !(stack.getItem() instanceof BlockItem)) {
                 continue;
@@ -236,7 +274,7 @@ public class Auto32k extends Module {
         }
 
         if (debugMessages) {
-            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(placeTarget))));
+            Command.sendChatMessage("[Auto32k] Place Target: " + placeTarget.getX() + " " + placeTarget.getY() + " " + placeTarget.getZ() + " Distance: " + df.format(mc.player.getPos().distanceTo(new Vec3d(placeTarget.getX(),placeTarget.getY(),placeTarget.getZ()))));
         }
 
         mc.player.inventory.selectedSlot = hopperSlot;
@@ -251,7 +289,7 @@ public class Auto32k extends Module {
         }
 
         if (isSneaking) {
-            mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.STOP_SNEAKING));
+            mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
             isSneaking = false;
         }
 
@@ -262,49 +300,8 @@ public class Auto32k extends Module {
 
     }
 
-    @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (isDisabled() || Freecam.INSTANCE.isEnabled()) {
-            return;
-        }
-
-        if (!(mc.currentScreen instanceof AbstractContainerScreen)) {
-            return;
-        }
-
-        if (!moveToHotbar) {
-            this.disable();
-            return;
-        }
-
-        if (swordSlot == -1) {
-            return;
-        }
-
-        boolean swapReady = true;
-
-        Container container = ((AbstractContainerScreen) mc.currentScreen).getContainer();
-
-        if (container.getSlot(0).getStack().isEmpty()) {
-            swapReady = false;
-        }
-
-        if (!(container.getSlot(swordSlot).getStack().isEmpty())) {
-            swapReady = false;
-        }
-
-        if (swapReady) {
-            // method_2906: click window
-            mc.interactionManager.method_2906(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
-            if (autoEnableHitAura) {
-                Aura.INSTANCE.enable();
-            }
-            this.disable();
-        }
-    });
-
     private boolean isAreaPlaceable(BlockPos blockPos) {
-        for (Entity entity : mc.world.getEntities((Class<? extends Entity>) null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
+        for (Entity entity : mc.world.getOtherEntities(null, new Box(blockPos), EntityPredicates.VALID_ENTITY)) {
             return false; // entity on block
         }
 
@@ -324,7 +321,7 @@ public class Auto32k extends Module {
             return false; // liquid below hopper
         }
 
-        if (mc.player.getPos().distanceTo(new Vec3d(blockPos)) > placeRange) {
+        if (mc.player.getPos().distanceTo(new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ())) > placeRange) {
             return false; // out of range
         }
 
@@ -333,7 +330,7 @@ public class Auto32k extends Module {
             return false; // would need sneak
         }
 
-        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos).add(0, 1, 0)) > placeRange); // out of range
+        return !(mc.player.getPos().distanceTo(new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ()).add(0, 1, 0)) > placeRange); // out of range
 
     }
 
@@ -357,11 +354,12 @@ public class Auto32k extends Module {
 //                continue;
 //            }
 
-            Vec3d hitVec = new Vec3d(neighbor).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getVector()).multiply(0.5));
+            Vec3d hitVec = new Vec3d(neighbor.getX(),neighbor.getY(),neighbor.getZ()).add(0.5, 0.5, 0.5).add(new Vec3d(side2.getVector().getX(),side2.getVector().getY(),side2.getVector().getZ()).multiply(0.5));
 
             Block neighborPos = mc.world.getBlockState(neighbor).getBlock();
             if (blackList.contains(neighborPos) || ShulkerBoxCommon.isShulkerBox(neighborPos)) {
-                mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_SNEAKING));
+                assert mc.player != null;
+                mc.player.networkHandler.getConnection().send(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
                 isSneaking = true;
             }
 

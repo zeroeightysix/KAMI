@@ -1,13 +1,11 @@
 package me.zeroeightsix.kami.feature.module.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Settings;
-import me.zeroeightsix.kami.event.events.RenderHudEvent;
+import me.zeroeightsix.kami.event.RenderHudEvent;
 import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.util.ColourHolder;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -30,9 +28,9 @@ public class ArmourHUD extends Module {
 
         GlStateManager.enableTexture();
 
-        int i = MinecraftClient.getInstance().window.getScaledWidth() / 2;
+        int i = MinecraftClient.getInstance().getWindow().getScaledWidth() / 2;
         int iteration = 0;
-        int y = MinecraftClient.getInstance().window.getScaledHeight() - 55 - (mc.player.isInWater() ? 10 : 0);
+        int y = MinecraftClient.getInstance().getWindow().getScaledHeight() - 55 - (mc.player.isSubmergedInWater() ? 10 : 0);
         for (ItemStack is : mc.player.inventory.armor) {
             iteration++;
             if (is.isEmpty()) continue;
@@ -40,8 +38,8 @@ public class ArmourHUD extends Module {
             GlStateManager.enableDepthTest();
 
             itemRenderer.zOffset = 200F;
+            itemRenderer.renderInGuiWithOverrides(is, x, y);
             itemRenderer.renderGuiItemOverlay(mc.textRenderer, is, x, y);
-            itemRenderer.renderGuiItem(is, x, y);
             itemRenderer.zOffset = 0F;
 
             GlStateManager.enableTexture();
@@ -49,13 +47,14 @@ public class ArmourHUD extends Module {
             GlStateManager.disableDepthTest();
 
             String s = is.getCount() > 1 ? is.getCount() + "" : "";
-            mc.textRenderer.drawWithShadow(s, x + 19 - 2 - mc.textRenderer.getStringWidth(s), y + 9, 0xffffff);
+            mc.textRenderer.drawWithShadow(event.getMatrixStack(), s, x + 19 - 2 - mc.textRenderer.getWidth(s), y + 9, 0xffffff);
 
             if (damage) {
-                float green = ((float) is.getMaxDamage() - (float) is.getDamage()) / (float) is.getMaxDamage();
-                float red = 1 - green;
-                int dmg = 100 - (int) (red * 100);
-                mc.textRenderer.drawWithShadow(dmg + "", x + 8 - mc.textRenderer.getStringWidth(dmg + "") / 2, y - 11, ColourHolder.toHex((int) (red * 255), (int) (green * 255), 0));
+                int green = (int) ((((float) is.getMaxDamage() - (float) is.getDamage()) / (float) is.getMaxDamage()) * 255);
+                int red = 255 - green;
+                int dmg = 100 - (int) (red / 255f * 100);
+                int colour = (0xFF << 24) | (red << 16) | (green << 8);
+                mc.textRenderer.drawWithShadow(event.getMatrixStack(), dmg + "", x + 8 - mc.textRenderer.getWidth(dmg + "") / 2, y - 11, colour);
             }
         }
 
