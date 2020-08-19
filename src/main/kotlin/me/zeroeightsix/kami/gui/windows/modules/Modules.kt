@@ -32,6 +32,7 @@ import me.zeroeightsix.kami.then
 @FindSettings
 object Modules {
 
+    var resize: Boolean = false
     var preferCategoryWindows = true
 
     @Setting(name = "Windows")
@@ -106,6 +107,7 @@ object Modules {
             if (windows.addAll(newWindows)) {
                 newWindows.clear()
             }
+            resize = false
 
             ModuleWindowsEditor()
         }
@@ -169,7 +171,13 @@ object Modules {
                 }
             }
 
-            window("$title###ModuleWindow$id") {
+            val flags = if (resize) {
+                WindowFlag.AlwaysAutoResize.i
+            } else {
+                0
+            }
+
+            window("$title###ModuleWindow$id", flags = flags) {
                 when {
                     groups.isEmpty() -> {
                         return true // close this window
