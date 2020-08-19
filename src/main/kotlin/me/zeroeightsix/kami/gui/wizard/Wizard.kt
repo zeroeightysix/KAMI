@@ -20,6 +20,7 @@ import imgui.ImGui.text
 import imgui.ImGui.textWrapped
 import imgui.dsl.button
 import imgui.dsl.popupModal
+import imgui.dsl.radioButton
 import imgui.internal.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
@@ -55,6 +56,25 @@ object Wizard {
         popStyleColor()
 
         KamiGuiScreen() // Show the full GUI
+    }, {
+        text("How do you want your module windows to be set up?")
+
+        radioButton("Per category", Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = true
+            Modules.windows = Modules.getDefaultWindows()
+        }
+        radioButton("Everything in one window", !Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = false
+            Modules.windows = Modules.getDefaultWindows()
+        }
+
+        pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        textWrapped(
+            "%s",
+            "The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor."
+        )
+        textWrapped("%s", "The module window editor may be accessed through the `View` menu in the top menu bar.")
+        popStyleColor()
     }, {
         text("Would you rather have settings appear in a popup, or embedded in the modules window?")
 
@@ -99,7 +119,7 @@ object Wizard {
         text("%s", "Try it out:")
         popStyleColor()
 
-        Modules.collapsibleModule(Aura, Modules.ModuleWindow("", null, Aura), "")
+        Modules.collapsibleModule(Aura, Modules.ModuleWindow("", Aura), "")
 
         separator()
     }, {

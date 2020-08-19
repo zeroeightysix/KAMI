@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
 import imgui.ImGui.acceptDragDropPayload
@@ -9,7 +8,6 @@ import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
 import imgui.ImGui.openPopupOnItemClick
 import imgui.ImGui.selectable
-import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.dsl.dragDropTarget
@@ -34,10 +32,13 @@ import me.zeroeightsix.kami.then
 @FindSettings
 object Modules {
 
+    var preferCategoryWindows = true
+
     @Setting(name = "Windows")
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
-    private val baseFlags = TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
+    private val baseFlags =
+        TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
 
     /**
      * Returns if this module has detached
@@ -110,13 +111,28 @@ object Modules {
         }
     }
 
-    private fun getDefaultWindows() = Windows(
-        mutableListOf(
-            ModuleWindow("All modules", groups = FeatureManager.features.filterIsInstance<Module>().groupBy {
-                it.category.getName()
-            }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }), id = 0)
-        )
-    )
+    fun getDefaultWindows(): Windows {
+        return if (preferCategoryWindows) { // Generate windows per-category
+            var id = 0
+            Windows(
+                FeatureManager.modules.groupBy { it.category.getName() }.mapTo(mutableListOf()) {
+                    ModuleWindow(
+                        it.key,
+                        mapOf(it.key to it.value.toMutableList()),
+                        id++
+                    )
+                }
+            )
+        } else { // Generate one window with all modules in it
+            Windows(
+                mutableListOf(
+                    ModuleWindow("All modules", groups = FeatureManager.modules.groupBy {
+                        it.category.getName()
+                    }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }), id = 0)
+                )
+            )
+        }
+    }
 
     private fun nextId(): Int {
         var id = 0
@@ -130,24 +146,18 @@ object Modules {
 
     class ModuleWindow(
         internal var title: String,
-        val pos: Vec2? = null,
         var groups: Map<String, MutableList<Module>> = mapOf(),
         val id: Int = nextId()
     ) {
 
-        constructor(title: String, pos: Vec2? = null, module: Module) : this(
+        constructor(title: String, module: Module) : this(
             title,
-            pos,
             mapOf(Pair("Group 1", mutableListOf(module)))
         )
 
         var closed = false
 
         fun draw(): Boolean {
-            pos?.let {
-                setNextWindowPos(pos, Cond.Appearing)
-            }
-
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 return list.removeIf {
                     val moduleWindow = collapsibleModule(it, this, group)
