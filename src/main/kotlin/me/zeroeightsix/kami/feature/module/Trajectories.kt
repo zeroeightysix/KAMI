@@ -40,25 +40,6 @@ object Trajectories : Module() {
     @Setting
     private var lineColour = Colour(1f, 1f, 1f, 1f)
 
-    private var circleList = -1
-
-    private fun compileList() {
-        val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.buffer
-
-        with(buffer) {
-            begin(GL11.GL_TRIANGLE_FAN, VertexFormats.POSITION_COLOR)
-
-            vertex(0.0, 0.0, 0.0).color(1f, 1f, 1f, 0.4f).next()
-            for (angle in 0..50) {
-                val angle = (angle.toDouble() / 50.0) * 2 * PI
-                vertex(sin(angle), cos(angle), 0.0).color(1f, 1f, 1f, 0.4f).next()
-            }
-
-            tessellator.draw()
-        }
-    }
-
     private fun LivingEntity.getHeldItem(): ItemStack? {
         return if (isUsingItem) {
             activeItem
@@ -90,17 +71,16 @@ object Trajectories : Module() {
 
         val tessellator = Tessellator.getInstance()
         val buffer = tessellator.buffer
+        val matrices = it.matrixStack
 
         RenderSystem.shadeModel(GL11.GL_SMOOTH)
         RenderSystem.enableAlphaTest()
         RenderSystem.defaultAlphaFunc()
         RenderSystem.disableTexture()
+        RenderSystem.enableDepthTest()
         lineWidth(0.5F)
 
-        if (circleList == -1)
-            compileList()
-
-        noBobbingCamera(it.matrixStack) {
+        noBobbingCamera(matrices) {
             mc.world?.entities
                 ?.filterIsInstance<LivingEntity>()
                 ?.forEach {
@@ -200,6 +180,20 @@ object Trajectories : Module() {
 
                             RenderSystem.disableCull()
                             RenderSystem.disableDepthTest()
+
+                            // I'd love to use a VBO for this, but I'm not entirely sure how to use minecraft's `VertexBuffer`.
+                            with(buffer) {
+                                begin(GL11.GL_TRIANGLE_FAN, VertexFormats.POSITION_COLOR)
+
+                                vertex(0.0, 0.0, 0.0).color(1f, 1f, 1f, 0.4f).next()
+                                for (angle in 0..24) {
+                                    val angle = (angle.toDouble() / 24.0) * 2 * PI
+                                    vertex(sin(angle), cos(angle), 0.0).color(1f, 1f, 1f, 0.4f).next()
+                                }
+
+                                tessellator.draw()
+                            }
+
                             RenderSystem.enableDepthTest()
                             RenderSystem.enableCull()
                         }
