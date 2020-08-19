@@ -56,19 +56,46 @@ object Wizard {
 
         KamiGuiScreen() // Show the full GUI
     }, {
-        text("Would you rather left-click or right-click a module to toggle it?")
-        text("The other button will toggle its settings.")
+        text("Would you rather have settings appear in a popup, or embedded in the modules window?")
 
         separator()
 
-        checkbox("Left-click to toggle modules", Settings::swapModuleListButtons)
-        if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
-            Settings.swapModuleListButtons = false
+        checkbox("In a popup", Settings::openSettingsInPopup)
+        if (checkbox("Embedded in the modules window", BooleanArray(1) { !Settings.openSettingsInPopup })) {
+            Settings.openSettingsInPopup = false
+        }
+
+        if (!Settings.openSettingsInPopup) {
+            separator()
+
+            text("Would you rather left-click or right-click a module to toggle it?")
+            text("The other button will toggle its settings.")
+
+            separator()
+
+            checkbox("Left-click to toggle modules", Settings::swapModuleListButtons)
+            if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
+                Settings.swapModuleListButtons = false
+            }
         }
 
         separator()
 
         pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
+        val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
+        text(
+            "%s-click to toggle, %s-click to open settings.",
+            if (leftToggle) {
+                "Left"
+            } else {
+                "Right"
+            },
+            if (!leftToggle) {
+                "left"
+            } else {
+                "right"
+            }
+        )
         text("%s", "Try it out:")
         popStyleColor()
 
