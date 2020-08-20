@@ -22,10 +22,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket
 import net.minecraft.text.Text
 import net.minecraft.util.hit.EntityHitResult
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
@@ -121,7 +118,8 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
     class Screen : RenderEvent(Stage.SCREEN)
     class World(
         val tessellator: Tessellator,
-        val matrixStack: MatrixStack
+        val matrixStack: MatrixStack,
+        val projection: Matrix4f
     ) :
         RenderEvent(Stage.WORLD) {
 
