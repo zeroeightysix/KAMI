@@ -9,15 +9,11 @@ The Fabric 1.16.2 version is in active development.
 
 ## Preview
 
-Please note these images are of the 1.12.2 version, as 1.14.4's GUI has been been rewritten completely.
-
 <details>
  <summary>Click to view images</summary>
 
  ![GUI](.github/IMAGES/gui.png)
 
- ![ShulkerPreview](.github/IMAGES/shulkerChat.png)
- 
  ![CrystalAura](.github/IMAGES/crystalAura.png)
 
 </details>
