@@ -116,109 +116,107 @@ object Scaffold : Module() {
         Wrapper.getPlayer().inventory.selectedSlot = oldSlot
     })
 
-    companion object {
-        fun placeBlockScaffold(pos: BlockPos): Boolean {
-            val eyesPos = Vec3d(
-                Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().pose),
-                Wrapper.getPlayer().z
-            )
-            for (side in Direction.values()) {
-                val neighbor = pos.offset(side)
-                val side2 = side.opposite
+    fun placeBlockScaffold(pos: BlockPos): Boolean {
+        val eyesPos = Vec3d(
+            Wrapper.getPlayer().x,
+            Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().pose),
+            Wrapper.getPlayer().z
+        )
+        for (side in Direction.values()) {
+            val neighbor = pos.offset(side)
+            val side2 = side.opposite
 
-                // check if side is visible (facing away from player)
-                if (eyesPos.squaredDistanceTo(
-                        Vec3d(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble()).add(0.5, 0.5, 0.5)
-                    ) >= eyesPos
-                        .squaredDistanceTo(
-                            Vec3d(
-                                neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
-                            ).add(0.5, 0.5, 0.5)
-                        )
-                ) continue
-
-                // check if neighbor can be right clicked
-                if (!canBeClicked(neighbor)) continue
-                val hitVec = Vec3d(
-                    neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
-                ).add(0.5, 0.5, 0.5)
-                    .add(
+            // check if side is visible (facing away from player)
+            if (eyesPos.squaredDistanceTo(
+                    Vec3d(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble()).add(0.5, 0.5, 0.5)
+                ) >= eyesPos
+                    .squaredDistanceTo(
                         Vec3d(
-                            side2.vector.x.toDouble(), side2.vector.y.toDouble(), side2.vector.z.toDouble()
-                        ).multiply(0.5)
+                            neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
+                        ).add(0.5, 0.5, 0.5)
                     )
+            ) continue
 
-                // check if hitVec is within range (4.25 blocks)
-                if (eyesPos.squaredDistanceTo(hitVec) > 18.0625) continue
-
-                // place block
-                faceVectorPacketInstant(hitVec)
-                processRightClickBlock(neighbor, side2, hitVec)
-                Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
-                (mc as IMinecraftClient).setItemUseCooldown(4)
-                return true
-            }
-            return false
-        }
-
-        fun processRightClickBlock(
-            pos: BlockPos?, side: Direction?,
-            hitVec: Vec3d?
-        ) {
-            mc.interactionManager!!.interactBlock(
-                Wrapper.getPlayer(),
-                mc.world, Hand.MAIN_HAND, BlockHitResult(hitVec, side, pos, false)
-            )
-        }
-
-        fun getState(pos: BlockPos?): BlockState {
-            return Wrapper.getWorld().getBlockState(pos)
-        }
-
-        fun getBlock(pos: BlockPos?): Block {
-            return getState(pos).block
-        }
-
-        fun canBeClicked(pos: BlockPos?): Boolean {
-            //return getBlock(pos).canCollideCheck(getState(pos), false);
-            return true // TODO
-        }
-
-        @JvmStatic
-        fun faceVectorPacketInstant(vec: Vec3d) {
-            val rotations = getNeededRotations2(vec)
-            mc.networkHandler!!.sendPacket(
-                LookOnly(
-                    rotations[0],
-                    rotations[1], Wrapper.getPlayer().isOnGround
+            // check if neighbor can be right clicked
+            if (!canBeClicked(neighbor)) continue
+            val hitVec = Vec3d(
+                neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
+            ).add(0.5, 0.5, 0.5)
+                .add(
+                    Vec3d(
+                        side2.vector.x.toDouble(), side2.vector.y.toDouble(), side2.vector.z.toDouble()
+                    ).multiply(0.5)
                 )
-            )
-        }
 
-        private fun getNeededRotations2(vec: Vec3d): FloatArray {
-            val eyesPos = eyesPos
-            val diffX = vec.x - eyesPos.x
-            val diffY = vec.y - eyesPos.y
-            val diffZ = vec.z - eyesPos.z
-            val diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ)
-            val yaw = Math.toDegrees(Math.atan2(diffZ, diffX)).toFloat() - 90f
-            val pitch = (-Math.toDegrees(Math.atan2(diffY, diffXZ))).toFloat()
-            return floatArrayOf(
-                Wrapper.getPlayer().yaw
-                        + MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
-                Wrapper.getPlayer().pitch + MathHelper
-                    .wrapDegrees(pitch - Wrapper.getPlayer().pitch)
-            )
-        }
+            // check if hitVec is within range (4.25 blocks)
+            if (eyesPos.squaredDistanceTo(hitVec) > 18.0625) continue
 
-        val eyesPos: Vec3d
-            get() = Vec3d(
-                Wrapper.getPlayer().x,
-                Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(
-                    mc.player!!.pose
-                ),
-                Wrapper.getPlayer().z
-            )
+            // place block
+            faceVectorPacketInstant(hitVec)
+            processRightClickBlock(neighbor, side2, hitVec)
+            Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
+            (mc as IMinecraftClient).setItemUseCooldown(4)
+            return true
+        }
+        return false
     }
+
+    fun processRightClickBlock(
+        pos: BlockPos?, side: Direction?,
+        hitVec: Vec3d?
+    ) {
+        mc.interactionManager!!.interactBlock(
+            Wrapper.getPlayer(),
+            mc.world, Hand.MAIN_HAND, BlockHitResult(hitVec, side, pos, false)
+        )
+    }
+
+    fun getState(pos: BlockPos?): BlockState {
+        return Wrapper.getWorld().getBlockState(pos)
+    }
+
+    fun getBlock(pos: BlockPos?): Block {
+        return getState(pos).block
+    }
+
+    fun canBeClicked(pos: BlockPos?): Boolean {
+        //return getBlock(pos).canCollideCheck(getState(pos), false);
+        return true // TODO
+    }
+
+    @JvmStatic
+    fun faceVectorPacketInstant(vec: Vec3d) {
+        val rotations = getNeededRotations2(vec)
+        mc.networkHandler!!.sendPacket(
+            LookOnly(
+                rotations[0],
+                rotations[1], Wrapper.getPlayer().isOnGround
+            )
+        )
+    }
+
+    private fun getNeededRotations2(vec: Vec3d): FloatArray {
+        val eyesPos = eyesPos
+        val diffX = vec.x - eyesPos.x
+        val diffY = vec.y - eyesPos.y
+        val diffZ = vec.z - eyesPos.z
+        val diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ)
+        val yaw = Math.toDegrees(Math.atan2(diffZ, diffX)).toFloat() - 90f
+        val pitch = (-Math.toDegrees(Math.atan2(diffY, diffXZ))).toFloat()
+        return floatArrayOf(
+            Wrapper.getPlayer().yaw
+                    + MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
+            Wrapper.getPlayer().pitch + MathHelper
+                .wrapDegrees(pitch - Wrapper.getPlayer().pitch)
+        )
+    }
+
+    val eyesPos: Vec3d
+        get() = Vec3d(
+            Wrapper.getPlayer().x,
+            Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(
+                mc.player!!.pose
+            ),
+            Wrapper.getPlayer().z
+        )
 }
