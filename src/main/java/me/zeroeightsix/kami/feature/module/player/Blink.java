@@ -11,10 +11,6 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * Created by 086 on 24/01/2018.
- * Edited by Cuhnt on 30/7/2019
- */
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
 public class Blink extends Module {
 

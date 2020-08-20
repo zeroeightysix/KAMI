@@ -9,9 +9,6 @@ import net.minecraft.client.render.entity.PlayerModelPart;
 
 import java.util.Random;
 
-/**
- * Created by 086 on 30/01/2018.
- */
 @Module.Info(name = "SkinFlicker", description = "Toggle the jacket layer rapidly for a cool skin effect", category = Module.Category.MISC)
 public class SkinFlicker extends Module {
 

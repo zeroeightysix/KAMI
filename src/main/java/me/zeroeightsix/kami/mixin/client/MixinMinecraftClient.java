@@ -18,9 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
 
-/**
- * Created by 086 on 17/11/2017.
- */
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient {
 

@@ -10,9 +10,6 @@ import net.minecraft.util.Hand;
 
 import java.util.Random;
 
-/**
- * Created by 086 on 16/12/2017.
- */
 @Module.Info(name = "AntiAFK", category = Module.Category.MISC, description = "Moves in order not to get kicked. (May be invisible client-sided)")
 public class AntiAFK extends Module {
 

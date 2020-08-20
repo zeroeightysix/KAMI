@@ -12,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Created by 086 on 19/12/2017.
- */
 @Mixin(PlayerEntityRenderer.class)
 public class MixinRenderPlayer {
 

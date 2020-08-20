@@ -11,9 +11,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.text.LiteralText;
 
-/**
- * Created by 086 on 9/04/2018.
- */
 @Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
 public class AutoLog extends Module {
 

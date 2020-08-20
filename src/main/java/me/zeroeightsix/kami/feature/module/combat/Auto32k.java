@@ -38,10 +38,6 @@ import java.util.*;
 
 import static me.zeroeightsix.kami.feature.module.Scaffold.faceVectorPacketInstant;
 
-/**
- * Created by hub on 7 August 2019
- * Updated by hub on 31 October 2019
- */
 @Module.Info(name = "Auto32k", category = Module.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
 public class Auto32k extends Module {
 

@@ -4,9 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-/**
- * Created by 086 on 22/01/2018.
- */
 public class HueCycler {
 
     int index = 0;

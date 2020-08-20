@@ -7,9 +7,6 @@ import me.zeroeightsix.kami.setting.KamiConfig
 import net.fabricmc.api.ModInitializer
 import org.apache.logging.log4j.LogManager
 
-/**
- * Created by 086 on 7/11/2017.
- */
 // We use a class instead of an object so we don't need to use the kotlin language adapter just to initialise KAMI
 class KamiMod : ModInitializer {
     companion object {

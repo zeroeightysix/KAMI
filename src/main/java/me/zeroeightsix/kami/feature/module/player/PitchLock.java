@@ -7,9 +7,6 @@ import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.util.math.MathHelper;
 
-/**
- * Created by 086 on 16/12/2017.
- */
 @Module.Info(name = "PitchLock", category = Module.Category.PLAYER)
 public class PitchLock extends Module {
 

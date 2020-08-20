@@ -14,9 +14,6 @@ import net.minecraft.client.network.ServerInfo
 import net.minecraft.client.util.math.MatrixStack
 import kotlin.math.floor
 
-/**
- * Created by 086 on 9/04/2018.
- */
 @Module.Info(
     name = "AutoReconnect",
     description = "Automatically reconnects after being disconnected",

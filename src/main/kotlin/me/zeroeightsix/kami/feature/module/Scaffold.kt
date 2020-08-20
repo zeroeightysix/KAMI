@@ -21,7 +21,7 @@ import net.minecraft.util.math.Vec3d
 import java.util.*
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
-class Scaffold : Module() {
+object Scaffold : Module() {
     private val blackList = Arrays.asList(
         Blocks.ENDER_CHEST,
         Blocks.CHEST,

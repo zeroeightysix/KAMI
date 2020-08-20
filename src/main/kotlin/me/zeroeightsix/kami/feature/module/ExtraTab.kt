@@ -1,7 +1,6 @@
-package me.zeroeightsix.kami.feature
+package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.util.Friends.isFriend
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.scoreboard.Team
@@ -9,9 +8,6 @@ import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
-/**
- * Created by 086 on 8/04/2018.
- */
 @Module.Info(name = "ExtraTab", description = "Expands the player tab menu", category = Module.Category.RENDER)
 object ExtraTab : Module() {
     @JvmField

@@ -1,8 +1,5 @@
 package me.zeroeightsix.kami.mixin.client;
 
-/**
- * Created by 086 on 11/12/2017.
- */
 //@Mixin(BlockStateContainer.StateImplementation.class)
 public class MixinStateImplementation {
 

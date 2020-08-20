@@ -6,9 +6,6 @@ import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 
-/**
- * @author 086
- */
 @Module.Info(name = "Fastplace", category = Module.Category.PLAYER, description = "Nullifies block place delay")
 public class Fastplace extends Module {
 

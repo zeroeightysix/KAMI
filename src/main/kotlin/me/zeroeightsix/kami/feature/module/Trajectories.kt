@@ -27,9 +27,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-/**
- * Created by 086 on 28/12/2017.
- */
 @Module.Info(
     name = "Trajectories",
     category = Module.Category.RENDER

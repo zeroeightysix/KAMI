@@ -16,9 +16,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RayTraceContext;
 
-/**
- * Created by 086 on 19/11/2017.
- */
 @Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
 public class NoFall extends Module {
 

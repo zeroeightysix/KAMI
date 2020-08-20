@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.feature.ExtraTab;
+import me.zeroeightsix.kami.feature.module.ExtraTab;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
@@ -12,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-/**
- * Created by 086 on 8/04/2018.
- */
 @Mixin(PlayerListHud.class)
 public class MixinPlayerListHud {
 

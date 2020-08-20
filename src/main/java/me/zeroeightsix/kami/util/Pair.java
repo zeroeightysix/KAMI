@@ -1,8 +1,5 @@
 package me.zeroeightsix.kami.util;
 
-/**
- * Created by 086 on 14/03/2018.
- */
 public class Pair<T, S> {
     T key;
     S value;

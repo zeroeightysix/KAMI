@@ -14,9 +14,6 @@ import net.minecraft.item.MiningToolItem
 import net.minecraft.item.SwordItem
 import kotlin.math.pow
 
-/**
- * Created by 086 on 2/10/2018.
- */
 @Module.Info(
     name = "AutoTool",
     description = "Automatically switch to the best tools when mining or attacking",

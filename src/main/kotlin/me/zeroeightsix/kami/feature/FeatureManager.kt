@@ -7,9 +7,6 @@ import me.zeroeightsix.kami.feature.plugin.Plugin
 import org.reflections.Reflections
 import java.util.*
 
-/**
- * Created by 086 on 23/08/2017.
- */
 object FeatureManager {
 
     val features = mutableListOf<Feature>()

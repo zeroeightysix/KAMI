@@ -10,9 +10,6 @@ import me.zeroeightsix.kami.util.Texts
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Formatting
 
-/**
- * Created by 086 on 17/11/2017.
- */
 object ToggleCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher.register(

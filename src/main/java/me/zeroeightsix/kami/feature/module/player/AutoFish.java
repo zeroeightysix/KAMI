@@ -9,9 +9,6 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.sound.SoundEvents;
 
-/**
- * Created by 086 on 22/03/2018.
- */
 @Module.Info(name = "AutoFish", category = Module.Category.MISC, description = "Automatically catch fish")
 public class AutoFish extends Module {
 

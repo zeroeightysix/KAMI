@@ -6,9 +6,6 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.EntityVelocityMultiplierEvent
 import me.zeroeightsix.kami.event.InputUpdateEvent
 
-/**
- * Created by 086 on 15/12/2017.
- */
 @Module.Info(
     name = "NoSlowDown",
     category = Module.Category.MOVEMENT

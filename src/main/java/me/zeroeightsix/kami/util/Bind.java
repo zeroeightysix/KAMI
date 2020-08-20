@@ -7,9 +7,6 @@ import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-/**
- * Created by 086 on 9/10/2018.
- */
 public class Bind {
 
     final boolean ctrl;

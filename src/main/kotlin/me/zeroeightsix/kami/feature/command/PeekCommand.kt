@@ -22,9 +22,6 @@ import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.function.Function
 
-/**
- * @author 086
- */
 object PeekCommand : Command(), Listenable {
     var sb: ShulkerBoxBlockEntity? = null
 

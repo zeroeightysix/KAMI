@@ -2,9 +2,6 @@ package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 
-/**
- * Created by 086 on 11/12/2017.
- */
 @Module.Info(
     name = "Camera",
     category = Module.Category.RENDER,

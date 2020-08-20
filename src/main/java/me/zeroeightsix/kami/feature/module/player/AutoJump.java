@@ -6,9 +6,6 @@ import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 
-/**
- * Created by 086 on 24/12/2017.
- */
 @Module.Info(name = "AutoJump", category = Module.Category.PLAYER, description = "Automatically jumps if possible")
 public class AutoJump extends Module {
 

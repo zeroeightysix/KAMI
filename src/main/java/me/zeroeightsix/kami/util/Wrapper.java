@@ -4,9 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.world.World;
 
-/**
- * Created by 086 on 11/11/2017.
- */
 public class Wrapper {
 
     public static MinecraftClient getMinecraft() {

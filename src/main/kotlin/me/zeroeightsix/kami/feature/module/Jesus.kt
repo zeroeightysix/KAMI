@@ -18,10 +18,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
 
-/**
- * Created by 086 on 11/12/2017.
- * Converted to Kotlin by Humboldt123 on 8/14/2020
- */
 @Module.Info(
     name = "Jesus",
     description = "Allows you to walk on water",

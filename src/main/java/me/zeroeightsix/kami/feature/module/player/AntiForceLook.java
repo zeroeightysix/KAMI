@@ -7,9 +7,6 @@ import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IPlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 
-/**
- * Created by 086 on 12/12/2017.
- */
 @Module.Info(name = "AntiForceLook", category = Module.Category.PLAYER)
 public class AntiForceLook extends Module {
 

@@ -31,9 +31,6 @@ import java.util.Date;
 
 import static org.lwjgl.opengl.GL11.*;
 
-/**
- * @author 086 and IronException
- */
 @Module.Info(name = "ChunkFinder", description = "Highlights newly generated chunks", category = Module.Category.RENDER)
 public class ChunkFinder extends Module {
 

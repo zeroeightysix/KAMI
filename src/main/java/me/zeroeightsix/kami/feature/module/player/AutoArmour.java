@@ -10,9 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.SlotActionType;
 
-/**
- * Created by 086 on 24/01/2018.
- */
 @Module.Info(name = "AutoArmour", category = Module.Category.PLAYER)
 public class AutoArmour extends Module {
 

@@ -10,9 +10,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
-/**
- * Created by 086 on 25/08/2017.
- */
 @Module.Info(category = Module.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
 public class Flight extends Module {
 

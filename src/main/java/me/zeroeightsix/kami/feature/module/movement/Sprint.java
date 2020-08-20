@@ -5,9 +5,6 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
-/**
- * Created by 086 on 23/08/2017.
- */
 @Module.Info(name = "Sprint", description = "Automatically makes the player sprint", category = Module.Category.MOVEMENT)
 public class Sprint extends Module {
 

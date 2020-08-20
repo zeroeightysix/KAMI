@@ -7,10 +7,6 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PacketEvent
 import net.minecraft.network.packet.s2c.play.*
 
-/**
- * Created by 086 on 4/02/2018.
- * Rewrote and added features by dominikaaaa on 26/07/20
- */
 @Module.Info(
     name = "NoRender",
     category = Module.Category.RENDER,

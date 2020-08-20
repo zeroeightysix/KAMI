@@ -45,10 +45,6 @@ import java.util.stream.StreamSupport;
 
 import static me.zeroeightsix.kami.util.EntityUtil.calculateLookAt;
 
-/**
- * Created by 086 on 28/12/2017.
- * Last Updated 29 June 2019 by hub
- */
 @Module.Info(
         name = "CrystalAura",
         category = Module.Category.COMBAT

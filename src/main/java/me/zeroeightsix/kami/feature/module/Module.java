@@ -9,10 +9,6 @@ import net.minecraft.client.MinecraftClient;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Created by 086 on 23/08/2017.
- * Updated by hub on 3 November 2019
- */
 @FindFeature(findDescendants = true)
 public class Module extends FullFeature {
 

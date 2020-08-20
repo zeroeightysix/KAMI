@@ -19,9 +19,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Created by 086 on 16/11/2017.
- */
 @Mixin(Entity.class)
 public abstract class MixinEntity  {
 

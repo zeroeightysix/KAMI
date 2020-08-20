@@ -6,9 +6,6 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TargetEntityEvent
 
-/**
- * Created by 086 on 8/04/2018.
- */
 @Module.Info(
     name = "NoEntityTrace",
     category = Module.Category.MISC,

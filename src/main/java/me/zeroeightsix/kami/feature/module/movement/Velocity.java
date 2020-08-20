@@ -13,9 +13,6 @@ import me.zeroeightsix.kami.mixin.client.IExplosionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 
-/**
- * Created by 086 on 16/11/2017.
- */
 @Module.Info(name = "Velocity", description = "Modify knockback impact", category = Module.Category.MOVEMENT)
 public class Velocity extends Module {
 

@@ -21,9 +21,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
 
-/**
- * Created by 086 on 11/12/2017.
- */
 @Module.Info(
     name = "Tracers",
     description = "Draws lines to other living entities",

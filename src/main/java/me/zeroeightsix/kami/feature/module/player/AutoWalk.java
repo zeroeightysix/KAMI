@@ -6,9 +6,6 @@ import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.InputUpdateEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
-/**
- * Created by 086 on 16/12/2017.
- */
 @Module.Info(name = "AutoWalk", category = Module.Category.PLAYER)
 public class AutoWalk extends Module {
 

@@ -18,9 +18,6 @@ import net.minecraft.entity.vehicle.BoatEntity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.sin
 
-/**
- * Created by 086 on 16/12/2017.
- */
 @Module.Info(
     name = "EntitySpeed",
     category = Module.Category.MOVEMENT,

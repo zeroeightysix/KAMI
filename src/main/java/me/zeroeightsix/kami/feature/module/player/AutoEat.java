@@ -14,9 +14,6 @@ import net.minecraft.util.Hand;
 
 import java.util.Objects;
 
-/**
- * Created by 086 on 8/04/2018.
- */
 @Module.Info(name = "AutoEat", description = "Automatically eat when hungry", category = Module.Category.PLAYER)
 public class AutoEat extends Module {
 

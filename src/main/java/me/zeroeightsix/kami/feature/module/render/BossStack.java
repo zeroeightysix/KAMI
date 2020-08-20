@@ -11,9 +11,6 @@ import net.minecraft.client.gui.hud.ClientBossBar;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
-/**
- * Created by 086 on 25/01/2018.
- */
 @Module.Info(name = "BossStack", description = "Modify the boss health GUI to take up less space", category = Module.Category.MISC)
 public class BossStack extends Module {
 

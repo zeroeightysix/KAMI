@@ -6,7 +6,6 @@ import me.zeroeightsix.kami.event.CloseScreenInPortalEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 
 /**
- * Created by 086 on 12/12/2017.
  * @see me.zeroeightsix.kami.mixin.client.MixinClientPlayerEntity
  */
 @Module.Info(name = "PortalChat", category = Module.Category.MISC, description = "Allows you to open GUIs in portals")

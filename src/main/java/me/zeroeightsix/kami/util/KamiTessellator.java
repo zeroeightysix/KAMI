@@ -8,9 +8,6 @@ import net.minecraft.util.math.BlockPos;
 
 import static org.lwjgl.opengl.GL11.*;
 
-/**
- * Created by 086 on 9/07/2017.
- */
 public class KamiTessellator extends Tessellator {
 
     public static KamiTessellator INSTANCE = new KamiTessellator();

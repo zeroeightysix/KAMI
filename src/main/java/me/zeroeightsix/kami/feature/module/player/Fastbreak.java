@@ -6,9 +6,6 @@ import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager;
 
-/**
- * @author 086
- */
 @Module.Info(name = "Fastbreak", category = Module.Category.PLAYER, description = "Nullifies block hit delay")
 public class Fastbreak extends Module {
 

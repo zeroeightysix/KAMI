@@ -27,9 +27,6 @@ import java.util.*
 import java.util.function.BiFunction
 import java.util.function.Function
 
-/**
- * Created by 086 on 14/12/2017.
- */
 object FriendCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher.register(

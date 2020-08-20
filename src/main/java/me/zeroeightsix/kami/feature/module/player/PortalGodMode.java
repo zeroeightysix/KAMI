@@ -6,9 +6,6 @@ import me.zeroeightsix.kami.event.PacketEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 
-/**
- * Created by GlowskiBroski on 10/14/2018.
- */
 @Module.Info(name = "PortalGodMode", category = Module.Category.PLAYER)
 public class PortalGodMode extends Module {
 

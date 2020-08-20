@@ -12,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-/**
- * @author 086
- */
 @Mixin(ClientPlayNetworkHandler.class)
 public class MixinNetHandlerPlayClient {
 

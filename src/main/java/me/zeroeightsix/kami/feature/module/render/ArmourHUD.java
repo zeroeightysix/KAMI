@@ -11,9 +11,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.item.ItemStack;
 
-/**
- * Created by 086 on 24/01/2018.
- */
 @Module.Info(name = "ArmourHUD", category = Module.Category.RENDER)
 public class ArmourHUD extends Module {
 

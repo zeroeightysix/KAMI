@@ -9,9 +9,6 @@ import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.util.math.MathHelper;
 
-/**
- * Created by 086 on 11/04/2018.
- */
 @Module.Info(name = "ElytraFlight", description = "Allows infinite elytra flying", category = Module.Category.MOVEMENT)
 public class ElytraFlight extends Module {
 

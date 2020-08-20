@@ -5,9 +5,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
 import me.zeroeightsix.kami.feature.FindSettings
 
-/**
- * Created by 086 on 13/12/2017.
- */
 @FindSettings
 object Friends {
 

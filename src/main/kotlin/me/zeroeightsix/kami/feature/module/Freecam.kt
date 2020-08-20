@@ -18,9 +18,6 @@ import me.zeroeightsix.kami.plus
 import net.minecraft.client.input.Input
 import net.minecraft.util.math.Vec3d
 
-/**
- * Created by 086 on 22/12/2017.
- */
 @Module.Info(
     name = "Freecam",
     category = Module.Category.PLAYER,

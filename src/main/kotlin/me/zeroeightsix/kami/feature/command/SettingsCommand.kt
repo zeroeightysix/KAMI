@@ -20,9 +20,6 @@ import net.minecraft.util.Formatting
 import java.util.function.Function
 import java.util.stream.Stream
 
-/**
- * Created by 086 on 18/11/2017.
- */
 object SettingsCommand : Command() {
     private val FAILED_EXCEPTION =
         DynamicCommandExceptionType(Function { o: Any ->

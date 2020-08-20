@@ -8,9 +8,6 @@ import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 
-/**
- * Created by 086 on 8/04/2018.
- */
 @Module.Info(name = "CustomChat", category = Module.Category.MISC, description = "Modifies your chat messages")
 public class CustomChat extends Module {
 
