@@ -8,7 +8,6 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.RenderEvent
-import me.zeroeightsix.kami.util.EntityUtil
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.enchantment.EnchantmentHelper
@@ -236,7 +235,7 @@ class ProjectileMimic(
     private var divergence: Double = 0.0
 
     init {
-        val pos = EntityUtil.getInterpolatedPos(shooter, mc.tickDelta)
+        val pos = shooter.interpolatedPos
         setPosition(pos.x, pos.y + shooter.standingEyeHeight - 0.10000000149011612, pos.z)
     }
 
@@ -346,7 +345,7 @@ class ThrowableMimic(
     private var divergence: Double = 0.0
 
     init {
-        val pos = EntityUtil.getInterpolatedPos(shooter, mc.tickDelta)
+        val pos = shooter.interpolatedPos
         setPosition(pos.x, pos.y + shooter.standingEyeHeight.toDouble() - 0.10000000149011612, pos.z)
     }
 

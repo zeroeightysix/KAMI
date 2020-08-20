@@ -7,6 +7,7 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.interpolatedPos
 import me.zeroeightsix.kami.noBobbingCamera
 import me.zeroeightsix.kami.util.ColourUtils
 import me.zeroeightsix.kami.util.EntityUtil
@@ -68,29 +69,29 @@ object Tracers : Module() {
                     .rotateX(
                         (-mc.player?.pitch?.toDouble()?.let { it1 ->
                             Math
-                                    .toRadians(it1)
+                                .toRadians(it1)
                         }!!).toFloat()
                     )
                     .rotateY(
                         (-mc.player?.yaw?.toDouble()?.let { it1 ->
                             Math
-                                    .toRadians(it1)
+                                .toRadians(it1)
                         }!!).toFloat()
                     )
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
                 mc.world?.entities
-                        ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
-                        ?.filter {
-                            when {
-                                it is PlayerEntity -> players && mc.player !== it
-                                EntityUtil.isPassive(
-                                        it
-                                ) -> animals
-                                else -> mobs
-                            }
+                    ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
+                    ?.filter {
+                        when {
+                            it is PlayerEntity -> players && mc.player !== it
+                            EntityUtil.isPassive(
+                                it
+                            ) -> animals
+                            else -> mobs
                         }
+                    }
                     ?.filter { mc.player?.distanceTo(it)!! < range }
                     ?.forEach {
                         var colour = getColour(it)
@@ -103,7 +104,7 @@ object Tracers : Module() {
                         val b = colour and 0xFF
                         val a = (opacity * 255f).toInt()
 
-                        val pos = interpolate(it)
+                        val pos = it.interpolatedPos
 
                         bufferBuilder.vertex(eyes.x, eyes.y, eyes.z)
                             .color(r, g, b, a).next()
@@ -138,17 +139,5 @@ object Tracers : Module() {
         } else {
             if (EntityUtil.isPassive(entity)) ColourUtils.Colors.GREEN else ColourUtils.Colors.RED
         }
-    }
-
-    private fun interpolate(now: Double, then: Double): Double {
-        return then + (now - then) * mc.tickDelta
-    }
-
-    private fun interpolate(entity: Entity): Vec3d {
-        return Vec3d(
-            interpolate(entity.x, entity.lastRenderX),
-            interpolate(entity.y, entity.lastRenderY),
-            interpolate(entity.z, entity.lastRenderZ)
-        )
     }
 }

@@ -30,19 +30,6 @@ public class EntityUtil {
         return entity != null && entity.getEntityId() == -100 && Wrapper.getPlayer() != entity;
     }
 
-    /**
-     * Find the entities interpolated amount
-     */
-    public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
-        return entity.getPos().subtract(entity.prevX, entity.prevY, entity.prevZ).multiply(x, y, z);
-    }
-    public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
-        return getInterpolatedAmount(entity, vec.x, vec.y, vec.z);
-    }
-    public static Vec3d getInterpolatedAmount(Entity entity, double ticks) {
-        return getInterpolatedAmount(entity, ticks, ticks, ticks);
-    }
-
     public static boolean isMobAggressive(Entity entity) {
         if(entity instanceof ZombifiedPiglinEntity) {
             // angry = either game or we have set the anger cooldown
@@ -84,13 +71,6 @@ public class EntityUtil {
      */
     public static boolean isHostileMob(Entity entity) {
         return (entity.getType().getSpawnGroup() == SpawnGroup.MONSTER && !EntityUtil.isNeutralMob(entity));
-    }
-
-    /**
-     * Find the entities interpolated position
-     */
-    public static Vec3d getInterpolatedPos(Entity entity, float ticks) {
-        return new Vec3d(entity.prevX, entity.prevY, entity.prevZ).add(getInterpolatedAmount(entity, ticks));
     }
 
     public static boolean isInWater(Entity entity) {
