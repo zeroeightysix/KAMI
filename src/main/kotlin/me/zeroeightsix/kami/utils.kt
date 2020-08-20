@@ -6,12 +6,14 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
-import me.zeroeightsix.kami.mixin.extend.getStack
+import me.zeroeightsix.kami.mixin.extend.*
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.entity.Entity
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
+import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
 import java.util.stream.Stream
 
@@ -146,7 +148,35 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
     }
 }
 
+fun VertexConsumer.vertex(x: Double, y: Double) = this.vertex(x, y, 0.0)
+fun VertexConsumer.vertex(matrix: Matrix4f, x: Float, y: Float) = this.vertex(matrix, x, y, 0f)
 fun VertexConsumer.color(color: Colour) = this.color(color.r, color.g, color.b, color.a)
 
 operator fun Vec3d.plus(other: Vec3d) = add(other)
+operator fun Vec3d.minus(other: Vec3d) = add(other.negate())
 fun Vec3d.interpolated(tickDelta: Double, dV: Vec3d) = this + dV.multiply(tickDelta - 1)
+
+fun Matrix4f.multiplyMatrix(q: Quaternion) = Quaternion(
+    a00 * q.x + a01 * q.y + a02 * q.z + a03 * q.w,
+    a10 * q.x + a11 * q.y + a12 * q.z + a13 * q.w,
+    a20 * q.x + a21 * q.y + a22 * q.z + a23 * q.w,
+    a30 * q.x + a31 * q.y + a32 * q.z + a33 * q.w
+)
+
+fun Quaternion.toScreen(): Quaternion {
+    val newW = 1.0f / w * 0.5f
+    return Quaternion(
+        x * newW + 0.5f,
+        y * newW + 0.5f,
+        z * newW + 0.5f,
+        newW
+    )
+}
+
+val Entity.prevPos
+    get() = Vec3d(prevX, prevY, prevZ)
+val Entity.interpolatedPos: Vec3d
+    get() {
+        val prev = prevPos
+        return prev + (pos - prev) * mc.tickDelta.toDouble()
+    }
