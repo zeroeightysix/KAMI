@@ -20,10 +20,11 @@ The Fabric 1.16.2 version is in active development.
 
 ## Installing
 
-This branch currently has no releases, as it is in active development. 
+KAMI is a fabric mod. Download the [latest release](https://github.com/zeroeightysix/KAMI/releases), or preferrably, [**build it yourself**](#building).
 
-Please see [building](#building) to build it yourself. 
-Note that the latest commit may not always work. 
+Download and run the installer for Fabric from [here](https://fabricmc.net/use/) if you do not have it already. KAMI does not require Fabric API.
+
+Move the KAMI jar file to the `mods` folder in your `.minecraft` directory.
 
 ## How do I
 
@@ -46,72 +47,23 @@ To ask for help, join the [Discord](http://discord.gg/9hvwgeg)
 
 If you experience an issue and it's not listed there, please [open a new issue](../../issues/new/choose) and a contributor will help you further.
 
-## Contributing
+## Setting up
 
-You are free to clone, modify KAMI and make pull requests as you wish. To set up your development environment, make use of the following commands:
+### IntelliJ
+1. In Intellij, navigate to `File > New > Project from Version Control...`
+2. Paste `https://github.com/zeroeightysix/KAMI/` in the `URL` field, and hit **Clone**.
+3. Allow gradle to set up the project. This might take a while. *(~ 8 minutes)*
 
-```
-git clone -b fabric https://github.com/zeroeightysix/KAMI/
-cd KAMI
-```
+###### Optionally,
+* To generate the run configurations, run the `idea` gradle task.
+* To generate attachable sources, run the `genSources` task and attach the generated sources in your IDE.
 
-On GNU/Linux, run `chmod +x gradlew` beforehand.
+## Building
 
-On Windows, for the following commands use `gradlew.bat` instead of `./gradlew`
+1. Download or clone the KAMI repository.
+2. Run `gradle build`
+3. The built jar is in `build/libs/`. There are 4 jars, pick the one **without** a suffix.
 
-Of-course you can also use a Gradle installation if you for some reason want another version of gradle
-
-Import KAMI into your IDE of choice. 
-
-If you use IntelliJ, import from the `build.gradle` file and run `./gradlew genIntellijRuns`
-
-If you use Eclipse run `./gradlew eclipse`
-
-If you do not wish to run from an IDE, use `./gradlew runClient` to run KAMI.
-
-### Building
-#### Linux
-You can build by running these commands (without the <>) in a terminal.
-
-```
-git clone -b fabric https://github.com/zeroeightysix/KAMI/
-cd KAMI
-
-chmod +x gradlew
-./gradlew <args>
-```
-
-Possible arguments:
-
-```
-build
-mkdir
-rmOld
-copy
-```
-
-If you use more than one then it must be in that order. 
-
-Build is required, `mkdir` makes the `mods/` directory, `rmOld` removes old versions of KAMI<sup>\[1]</sup> in that directory, and `copy` copies the build release to the `mods/` directory. 
-
-<sup>\[1]</sup>`rmOld` removes any jars with the format `KAMI*-release.jar`, which is the format KAMI uses. If you use any other mod that uses that naming scheme please remove old versions manually.
-
-If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods/` folder of a Minecraft instance that has Fabric installed.
-
-Note: This assumes your Minecraft folder is in the default location under your home folder.
-
-#### Windows
-You can build by running these commands in a terminal with the current directory being KAMI. (EG. `cd C:\Users\Username\Downloads\KAMI`)
-
-```
-gradlew.bat build
-```
-
-To copy on windows run `autocopy.bat`
-
-If you prefer copying it manually, find a file in `build/libs` called `KAMI-<minecraftVersion>-<kamiVersion>-**release**.jar` which you can copy to the `mods\` folder of a Minecraft instance that has Fabric installed.
-
-Note: This assumes your Minecraft folder is in the default location under your %appdata% folder.
 
 ## Thank you
 [ZeroMemes](https://github.com/ZeroMemes) for [Alpine](https://github.com/ZeroMemes/Alpine)
