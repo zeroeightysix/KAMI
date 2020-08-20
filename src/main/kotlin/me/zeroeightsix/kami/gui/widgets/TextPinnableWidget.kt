@@ -4,8 +4,10 @@ import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
 import imgui.ImGui.acceptDragDropPayload
+import imgui.ImGui.calcTextSize
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
+import imgui.ImGui.cursorPosX
 import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
 import imgui.ImGui.getMouseDragDelta
@@ -35,6 +37,7 @@ import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.LagCompensator
+import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.util.math.MathHelper
 import kotlin.collections.map
 import kotlin.math.abs
@@ -51,6 +54,8 @@ open class TextPinnableWidget(
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
+
+    private var textAlignment = Alignment.LEFT
 
     private var immediateTextDelegate = ResettableLazy {
         val scale = KamiHud.getScale()
@@ -95,7 +100,6 @@ open class TextPinnableWidget(
     }
 
     override fun fillWindow() {
-
         val guiOpen = mc.currentScreen is KamiGuiScreen
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
         // Otherwise, because it is rendered after imgui, it would always be in the foreground.
@@ -109,12 +113,12 @@ open class TextPinnableWidget(
                     val x = cmd.clipRect.x / scale + 4
                     var y = cmd.clipRect.y / scale + 4
                     var xOffset = 0f
-                    for (compiled in text) {
-                        for (command in compiled.parts) {
+                    for (triplets in immediateText) {
+                        for ((command, str, _) in triplets) {
                             if (command.multiline) {
                                 val codes = command.codes
                                 var lastWidth = 0f
-                                command.toString().split("\n").forEach {
+                                str.split("\n").forEach {
                                     val width = if (command.shadow)
                                         mc.textRenderer.drawWithShadow(
                                             matrices,
@@ -138,11 +142,11 @@ open class TextPinnableWidget(
                                 y -= mc.textRenderer.fontHeight + 4
                                 command.resetMultilinePattern()
                             } else {
-                                val str = command.codes + command // toString is called here -> supplier.get()
+                                val strCodes = command.codes + str
                                 val width = if (command.shadow)
                                     mc.textRenderer.drawWithShadow(
                                         matrices,
-                                        str,
+                                        strCodes,
                                         x + xOffset,
                                         y,
                                         command.currentColourARGB()
@@ -150,7 +154,7 @@ open class TextPinnableWidget(
                                 else
                                     mc.textRenderer.draw(
                                         matrices,
-                                        str,
+                                        strCodes,
                                         x + xOffset,
                                         y,
                                         command.currentColourARGB()
@@ -165,18 +169,27 @@ open class TextPinnableWidget(
             })
         } else {
             var empty = guiOpen
-            for (compiled in text) {
+            for (triplets in immediateText) {
                 var same = false
-                for (part in compiled.parts) {
-                    // imgui wants agbr colours
+
+                fun calcFullWidth() = triplets.map { calcTextSize(it.second).x }.sum()
+
+                if (textAlignment === Alignment.CENTER) {
+                    cursorPosX = (currentWindow.innerRect.width - calcFullWidth()).coerceAtLeast(0f) * 0.5f
+                } else if (textAlignment === Alignment.RIGHT) {
+                    cursorPosX =
+                        (currentWindow.workRect.width - calcFullWidth()).coerceAtLeast(0f) + style.windowPadding.x
+                }
+
+                for ((part, str, _) in triplets) {
                     pushStyleColor(Col.Text, part.currentColour())
                     if (same) sameLine(spacing = 0f)
                     else same = true
-                    val str = part.toString()
                     val notBlank = str.isNotBlank()
                     if (empty && notBlank) empty = false
-                    if (notBlank)
+                    if (notBlank) {
                         text(str)
+                    }
                     popStyleColor()
 
                     if (part.multiline) part.resetMultilinePattern()
@@ -367,6 +380,12 @@ open class TextPinnableWidget(
         checkbox("Minecraft font", ::minecraftFont) {}
         sameLine()
         demoDebugInformations.helpMarker("Only visible when GUI is closed.")
+
+        menu("Alignment") {
+            menuItem("Left", "", textAlignment == Alignment.LEFT) { textAlignment = Alignment.LEFT }
+            menuItem("Center", "", textAlignment == Alignment.CENTER) { textAlignment = Alignment.CENTER }
+            menuItem("Right", "", textAlignment == Alignment.RIGHT) { textAlignment = Alignment.RIGHT }
+        }
     }
 
     override fun fillContextMenu() {
@@ -609,7 +628,10 @@ open class TextPinnableWidget(
                 return provider()
             }
         }
+    }
 
+    enum class Alignment {
+        LEFT, CENTER, RIGHT
     }
 
 }
