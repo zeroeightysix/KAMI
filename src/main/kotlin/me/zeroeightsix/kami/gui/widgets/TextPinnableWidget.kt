@@ -35,6 +35,7 @@ import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.util.LagCompensator
+import net.minecraft.util.math.MathHelper
 import kotlin.collections.map
 import kotlin.math.abs
 import kotlin.math.floor
@@ -63,7 +64,7 @@ open class TextPinnableWidget(
             "x" numeric { mc.player?.pos?.x ?: 0.0 },
             "y" numeric { mc.player?.pos?.y ?: 0.0 },
             "z" numeric { mc.player?.pos?.z ?: 0.0 },
-            "yaw" numeric { mc.player?.yaw?.toDouble() ?: 0.0 },
+            "yaw" numeric { MathHelper.wrapDegrees(mc.player?.yaw?.toDouble() ?: 0.0) },
             "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
             "tps" numeric { LagCompensator.tickRate.toDouble() },
             "username" const { mc.session.username },
