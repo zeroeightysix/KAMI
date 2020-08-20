@@ -52,6 +52,25 @@ open class TextPinnableWidget(
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
 
+    private var immediateTextDelegate = ResettableLazy {
+        val scale = KamiHud.getScale()
+        val fontHeight = (mc.textRenderer.fontHeight + 4) * scale
+
+        text.map {
+            it.parts.map {
+                val str = it.toString()
+                val (w, h) = if (it.multiline) {
+                    val lines = str.split("\n")
+                    (lines.map { slice -> mc.textRenderer.getWidth(slice) }.max() ?: 0) to lines.size * fontHeight
+                } else {
+                    mc.textRenderer.getWidth(str) to fontHeight
+                }
+                Triple(it, str, Vec2(w * scale, h))
+            }
+        }
+    }
+    private val immediateText by immediateTextDelegate
+
     companion object {
         private infix fun String.const(strProvider: () -> String) =
             this to { CompiledText.ConstantVariable(this, string = strProvider()) }
@@ -179,22 +198,18 @@ open class TextPinnableWidget(
         }
 
         if (minecraftFont && !guiOpen && text.isNotEmpty()) {
-            val scale = KamiHud.getScale()
-
-            val width = (text.map {
-                it.parts.sumBy { part ->
-                    if (part.multiline)
-                        part.toString().split("\n").map { slice -> mc.textRenderer.getWidth(slice) }.max() ?: 0
-                    else
-                        mc.textRenderer.getWidth(part.toString())
-                }
-            }.max()?.times(scale) ?: 0) + 24
-            val lines = (text.map {
-                it.parts.map { part -> if (part.multiline) part.toString().split("\n").size - 1 else 0 }.sum() + 1
-            }).sum()
-            val height = (mc.textRenderer.fontHeight + 4) * scale * lines + 8
+            val width = (immediateText.map {
+                it.sumByFloat { it.third.x }
+            }.max() ?: 0f) + 24f
+            val height = immediateText.mapNotNull {
+                it.map { it.third.y }.max()
+            }.sum() + 8f
             setNextWindowSize(Vec2(width, height))
         }
+    }
+
+    override fun postWindow() {
+        immediateTextDelegate.invalidate()
     }
 
     private fun editWindow() {

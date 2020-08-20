@@ -87,6 +87,7 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
         }
         this.open = openArray[0]
 
+        postWindow()
         return false
     }
 
@@ -96,6 +97,7 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
     protected open fun fillStyle() {}
     protected open fun fillContextMenu() {}
     protected open fun preWindow() {}
+    protected open fun postWindow() {}
 
     public enum class Position(val top: Boolean, val left: Boolean) {
         CUSTOM(false, false), TOP_LEFT(true, true), TOP_RIGHT(true, false), BOTTOM_LEFT(false, true), BOTTOM_RIGHT(false, false)
