@@ -36,7 +36,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static me.zeroeightsix.kami.feature.module.player.Scaffold.faceVectorPacketInstant;
+import static me.zeroeightsix.kami.feature.module.Scaffold.faceVectorPacketInstant;
 
 /**
  * Created by hub on 7 August 2019
