@@ -16,6 +16,7 @@
     "IGameRenderer",
     "IInputUtilType",
     "IKeyBinding",
+    "IMatrix4f",
     "IMatrixStack",
     "IMatrixStack$Entry",
     "IMinecraftClient",
