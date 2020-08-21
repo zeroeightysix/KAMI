@@ -36,6 +36,7 @@ import imgui.dsl.window
 import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.util.math.MathHelper
@@ -92,6 +93,7 @@ open class TextPinnableWidget(
             "yaw" numeric { MathHelper.wrapDegrees(mc.player?.yaw?.toDouble() ?: 0.0) },
             "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
             "tps" numeric { LagCompensator.tickRate.toDouble() },
+            "fps" numeric { IMinecraftClient.getCurrentFps().toDouble() },
             "username" const { mc.session.username },
             "version" const { KamiMod.MODVER },
             "client" const { KamiMod.MODNAME },

@@ -17,4 +17,9 @@ public interface IMinecraftClient {
     @Invoker
     void callDoItemUse();
 
+    @Accessor
+    static int getCurrentFps() {
+        throw new UnsupportedOperationException("Untransformed mixin!");
+    }
+
 }
