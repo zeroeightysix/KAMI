@@ -201,6 +201,8 @@ open class TextPinnableWidget(
                         (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
                 }
 
+                align()
+
                 for ((part, str, _) in triplets) {
                     // Sets the text colour to the current part's colour
                     pushStyleColor(Col.Text, part.currentColour())
@@ -226,7 +228,6 @@ open class TextPinnableWidget(
                                 }
                             }
                         } else {
-                            align()
                             text(str) // Render the string of this part
                         }
                     }
