@@ -16,6 +16,7 @@ import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
 import java.util.stream.Stream
+import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
@@ -184,7 +185,7 @@ val Entity.interpolatedPos: Vec3d
 /**
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
-public inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
+inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
     var sum: Float = 0f
     for (element in this) {
         sum += selector(element)
@@ -192,4 +193,9 @@ public inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
     return sum
 }
 
-//public inline fun <T> Iterable<T>.max()
+inline fun <T> KMutableProperty0<T>.tempSet(value: T, block: () -> Unit) {
+    val old = get()
+    set(value)
+    block()
+    set(old)
+}

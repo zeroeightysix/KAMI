@@ -66,7 +66,8 @@ open class TextPinnableWidget(
                 val str = it.toString()
                 val (w, h) = if (it.multiline) {
                     val lines = str.split("\n")
-                    (lines.map { slice -> mc.textRenderer.getWidth(slice) }.max() ?: 0) to lines.size * fontHeight
+                    (lines.map { slice -> mc.textRenderer.getWidth(slice) }.max()
+                        ?: 0) to lines.size * (fontHeight - 2) // multiline strings have less spacing between new lines
                 } else {
                     mc.textRenderer.getWidth(str) to fontHeight
                 }
@@ -131,10 +132,12 @@ open class TextPinnableWidget(
                                     val localXOffset = when (textAlignment) {
                                         Alignment.LEFT -> xOffset
                                         Alignment.CENTER -> {
-                                            (rect.width - mc.textRenderer.getWidth(it)) * 0.5f
+                                            ((rect.width - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPadding.x) / scale
                                         }
                                         Alignment.RIGHT -> {
-                                            rect.width - mc.textRenderer.getWidth(it)
+                                            (rect.width - style.windowPadding.x * 2) / scale - mc.textRenderer.getWidth(
+                                                it
+                                            )
                                         }
                                     }
                                     val width = if (command.shadow)
@@ -191,23 +194,43 @@ open class TextPinnableWidget(
 
                 fun calcFullWidth() = triplets.map { calcTextSize(it.second).x }.sum()
 
-                if (textAlignment === Alignment.CENTER) {
-                    cursorPosX = (currentWindow.innerRect.width - calcFullWidth()).coerceAtLeast(0f) * 0.5f
-                } else if (textAlignment === Alignment.RIGHT) {
-                    cursorPosX =
-                        (currentWindow.workRect.width - calcFullWidth()).coerceAtLeast(0f) + style.windowPadding.x
+                fun align(width: Float = calcFullWidth()) = when (textAlignment) {
+                    Alignment.LEFT -> Unit
+                    Alignment.CENTER -> cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
+                    Alignment.RIGHT -> cursorPosX =
+                        (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
                 }
 
                 for ((part, str, _) in triplets) {
+                    // Sets the text colour to the current part's colour
                     pushStyleColor(Col.Text, part.currentColour())
+                    // If this isn't the first part in the line, make sure it is rendered on the same line
                     if (same) sameLine(spacing = 0f)
-                    else same = true
+                    else same = true // Mark that the next part has to be on the same line
+
                     val notBlank = str.isNotBlank()
-                    if (empty && notBlank) empty = false
+                    if (empty && notBlank) empty =
+                        false // We've reached a part that had content: no need to display the 'empty' message
+
                     if (notBlank) {
-                        text(str)
+                        // We need a different rendering strategy for **aligned** multiline strings.
+                        // imgui doesn't support them, so we need to align each line ourselves
+                        // imgui CAN handle the 'left' alignment (as it is the only alignment)
+                        if (part.multiline && textAlignment !== Alignment.LEFT) {
+                            // As long as we're rendering the multiline string, we don't want any spacing between the lines.
+                            style.itemSpacing::y.tempSet(0f) {
+                                // manually align each line
+                                str.split("\n").forEach {
+                                    align(calcTextSize(it).x)
+                                    text(it)
+                                }
+                            }
+                        } else {
+                            align()
+                            text(str) // Render the string of this part
+                        }
                     }
-                    popStyleColor()
+                    popStyleColor() // Remove the text colour (styles are stacked, instead of state-based!)
 
                     if (part.multiline) part.resetMultilinePattern()
                 }
