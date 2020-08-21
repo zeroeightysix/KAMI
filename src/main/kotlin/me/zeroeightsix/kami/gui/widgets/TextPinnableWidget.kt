@@ -203,20 +203,24 @@ open class TextPinnableWidget(
                         (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
                 }
 
-                align()
-
                 for ((part, str, _) in triplets) {
-                    // Sets the text colour to the current part's colour
-                    pushStyleColor(Col.Text, part.currentColour())
-                    // If this isn't the first part in the line, make sure it is rendered on the same line
-                    if (same) sameLine(spacing = 0f)
-                    else same = true // Mark that the next part has to be on the same line
-
                     val notBlank = str.isNotBlank()
                     if (empty && notBlank) empty =
                         false // We've reached a part that had content: no need to display the 'empty' message
 
                     if (notBlank) {
+                        // Sets the text colour to the current part's colour
+                        pushStyleColor(Col.Text, part.currentColour())
+
+                        // If this isn't the first part in the line, make sure it is rendered on the same line
+                        if (same) sameLine(spacing = 0f)
+                        else {
+                            // Because we're beginning a new line, we need to also align that line.
+                            align()
+                            // Mark that the next part has to be on the same line
+                            same = true
+                        }
+
                         // We need a different rendering strategy for **aligned** multiline strings.
                         // imgui doesn't support them, so we need to align each line ourselves
                         // imgui CAN handle the 'left' alignment (as it is the only alignment)
@@ -232,8 +236,9 @@ open class TextPinnableWidget(
                         } else {
                             text(str) // Render the string of this part
                         }
+
+                        popStyleColor() // Remove the text colour (styles are stacked, instead of state-based!)
                     }
-                    popStyleColor() // Remove the text colour (styles are stacked, instead of state-based!)
 
                     if (part.multiline) part.resetMultilinePattern()
                 }
