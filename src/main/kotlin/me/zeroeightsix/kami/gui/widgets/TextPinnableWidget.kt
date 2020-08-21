@@ -104,42 +104,60 @@ open class TextPinnableWidget(
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
         // Otherwise, because it is rendered after imgui, it would always be in the foreground.
         if (minecraftFont && !guiOpen) {
+            val rect = currentWindow.rect()
             currentWindow.drawList.addCallback({ _, cmd ->
                 // For god knows what reason, rendering minecraft text in here results in fucked textures.
                 // Even if you revert the GL state to exactly what it was before rendering imgui.
                 // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
                 KamiHud.postDraw { matrices ->
                     val scale = KamiHud.getScale()
-                    val x = cmd.clipRect.x / scale + 4
-                    var y = cmd.clipRect.y / scale + 4
-                    var xOffset = 0f
+                    val x = (cmd.clipRect.x + style.windowPadding.x) / scale - 2
+                    var y = (cmd.clipRect.y + style.windowPadding.y) / scale + 2
+
                     for (triplets in immediateText) {
-                        for ((command, str, _) in triplets) {
+                        fun calcFullWidth() = triplets.map { it.third.x }.sum()
+
+                        var xOffset = when (textAlignment) {
+                            Alignment.LEFT -> 0f
+                            Alignment.CENTER -> ((rect.width - calcFullWidth()) * 0.5f - style.windowPadding.x) / scale
+                            Alignment.RIGHT -> ((rect.width - calcFullWidth()) - style.windowPadding.x * 2) / scale
+                        }
+
+                        for ((command, str, dim) in triplets) {
                             if (command.multiline) {
                                 val codes = command.codes
                                 var lastWidth = 0f
                                 str.split("\n").forEach {
+                                    val localXOffset = when (textAlignment) {
+                                        Alignment.LEFT -> xOffset
+                                        Alignment.CENTER -> {
+                                            (rect.width - mc.textRenderer.getWidth(it)) * 0.5f
+                                        }
+                                        Alignment.RIGHT -> {
+                                            rect.width - mc.textRenderer.getWidth(it)
+                                        }
+                                    }
                                     val width = if (command.shadow)
                                         mc.textRenderer.drawWithShadow(
                                             matrices,
                                             codes + it,
-                                            x + xOffset,
+                                            x + localXOffset,
                                             y,
                                             command.currentColourARGB()
-                                        ) - (x + xOffset)
+                                        ) - (x + localXOffset)
                                     else
                                         mc.textRenderer.draw(
                                             matrices,
                                             codes + it,
-                                            x + xOffset,
+                                            x + localXOffset,
                                             y,
                                             command.currentColourARGB()
-                                        ) - (x + xOffset)
+                                        ) - (x + localXOffset)
                                     lastWidth = width
-                                    y += mc.textRenderer.fontHeight + 4
+                                    y += mc.textRenderer.fontHeight + 3
                                 }
-                                xOffset += lastWidth
-                                y -= mc.textRenderer.fontHeight + 4
+                                xOffset += lastWidth - 1
+                                y -= mc.textRenderer.fontHeight + 3
                                 command.resetMultilinePattern()
                             } else {
                                 val strCodes = command.codes + str
@@ -159,11 +177,10 @@ open class TextPinnableWidget(
                                         y,
                                         command.currentColourARGB()
                                     ) - (x + xOffset)
-                                xOffset += width
+                                xOffset += width - 1
                             }
                         }
-                        xOffset = 0f
-                        y += mc.textRenderer.fontHeight + 4
+                        y += mc.textRenderer.fontHeight + 5
                     }
                 }
             })
@@ -213,10 +230,10 @@ open class TextPinnableWidget(
         if (minecraftFont && !guiOpen && text.isNotEmpty()) {
             val width = (immediateText.map {
                 it.sumByFloat { it.third.x }
-            }.max() ?: 0f) + 24f
+            }.max() ?: 0f) + style.windowPadding.x * 2
             val height = immediateText.mapNotNull {
                 it.map { it.third.y }.max()
-            }.sum() + 8f
+            }.sum() + style.windowPadding.y * 2
             setNextWindowSize(Vec2(width, height))
         }
     }
