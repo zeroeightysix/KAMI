@@ -132,7 +132,7 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
     }
 }
 
-class RenderHudEvent(
+class RenderGuiEvent(
     val window: Window,
     val matrixStack: MatrixStack
 ) : KamiEvent()

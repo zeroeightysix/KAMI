@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.CameraHurtEvent;
 import me.zeroeightsix.kami.event.RenderEvent;
-import me.zeroeightsix.kami.event.RenderHudEvent;
+import me.zeroeightsix.kami.event.RenderGuiEvent;
 import me.zeroeightsix.kami.event.TargetEntityEvent;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -65,7 +65,7 @@ public class MixinGameRenderer {
 
     @Inject(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/util/math/MatrixStack;F)V", shift = At.Shift.AFTER),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V"),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true)
     public void onRender(float tickDelta,
@@ -76,7 +76,7 @@ public class MixinGameRenderer {
                          int j,
                          Window window,
                          MatrixStack stack) {
-        RenderHudEvent event = new RenderHudEvent(window, stack);
+        RenderGuiEvent event = new RenderGuiEvent(window, stack);
         KamiMod.EVENT_BUS.post(event);
         if (event.isCancelled()) {
             ci.cancel();

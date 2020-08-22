@@ -4,7 +4,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.RenderEvent
-import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.RenderGuiEvent
 import me.zeroeightsix.kami.interpolatedPos
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
@@ -48,7 +48,7 @@ object Nametags : Module() {
     })
 
     @EventHandler
-    val hudRenderListener = Listener<RenderHudEvent>(EventHook {
+    val hudRenderListener = Listener<RenderGuiEvent>(EventHook {
         renderQueue?.forEach { (entity, pos) ->
             val text = entity.displayName.string
             val width = mc.textRenderer.getWidth(text)

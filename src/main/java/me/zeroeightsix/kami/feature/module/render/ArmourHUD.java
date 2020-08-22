@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.RenderHudEvent;
+import me.zeroeightsix.kami.event.RenderGuiEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
@@ -20,7 +20,7 @@ public class ArmourHUD extends Module {
     private boolean damage = false;
 
     @EventHandler
-    public Listener<RenderHudEvent> renderListener = new Listener<>(event -> {
+    public Listener<RenderGuiEvent> renderListener = new Listener<>(event -> {
         ItemRenderer itemRenderer = Wrapper.getMinecraft().getItemRenderer();
 
         GlStateManager.enableTexture();

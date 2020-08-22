@@ -5,7 +5,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.CanBeControlledEvent
-import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.RenderGuiEvent
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.util.EntityUtil
@@ -118,7 +118,7 @@ object EntitySpeed : Module() {
 
     @EventHandler
     var renderListener =
-        Listener(EventHook<RenderHudEvent> {
+        Listener(EventHook<RenderGuiEvent> {
             val boat = boat ?: return@EventHook
             boat.yaw = mc.player?.yaw!!
             boat.setInputs(

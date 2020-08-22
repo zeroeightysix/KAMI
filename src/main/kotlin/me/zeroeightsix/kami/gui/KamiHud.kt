@@ -71,6 +71,7 @@ object KamiHud {
     }
 
     fun renderHud(matrixStack: MatrixStack) {
+        if (mc.options.hudHidden) return
         frame(matrixStack) {
             if (!EnabledWidgets.hideAll) {
                 PinnableWidget.drawFadedBackground = false

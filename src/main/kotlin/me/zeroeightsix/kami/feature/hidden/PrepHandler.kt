@@ -9,7 +9,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.DisplaySizeChangedEvent
 import me.zeroeightsix.kami.event.RenderEvent
-import me.zeroeightsix.kami.event.RenderHudEvent
+import me.zeroeightsix.kami.event.RenderGuiEvent
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
@@ -63,7 +63,7 @@ object PrepHandler : Feature, Listenable {
     @EventHandler
     var hudEventListener =
         Listener(
-            EventHook<RenderHudEvent> {
+            EventHook<RenderGuiEvent> {
                 if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
                     renderHud(it.matrixStack)
                 }
