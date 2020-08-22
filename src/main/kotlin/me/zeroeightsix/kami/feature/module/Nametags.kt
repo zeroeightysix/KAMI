@@ -52,9 +52,11 @@ object Nametags : Module() {
             mc.textRenderer.draw(it.matrixStack, text, pos.x - width / 2, pos.y, 0xFFFFFF)
             renderQueue = null
         }
-    }, -10)  // Priority to make sure this happens AFTER the kami HUD renderer.
-    // Doing it before causes https://github.com/kotlin-graphics/imgui/issues/114
+    })
+    // If this listener is invoked before KamiHud's listener (shouldn't happen due to priority),
+    // it causes https://github.com/kotlin-graphics/imgui/issues/114
     // Looks like rendering text at specific times, just before imgui decides to initialise everything,
     // causes its textures to screw up.
+    // weird.
 
 }

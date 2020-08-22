@@ -67,7 +67,7 @@ object PrepHandler : Feature, Listenable {
                 if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
                     renderHud(it.matrixStack)
                 }
-            }, EventPriority.LOW
+            }, EventPriority.HIGHEST
         )
 
     @EventHandler
