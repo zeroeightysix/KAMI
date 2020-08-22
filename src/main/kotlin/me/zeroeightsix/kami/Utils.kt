@@ -7,10 +7,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
 import me.zeroeightsix.kami.mixin.extend.*
+import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
@@ -146,6 +148,8 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
         }
 
         fun fromVec4(colour: Vec4): Colour = Colour(colour.x, colour.y, colour.z, colour.w)
+
+        val WHITE = Colour(1f, 1f, 1f, 1f)
     }
 }
 
@@ -181,6 +185,8 @@ val Entity.interpolatedPos: Vec3d
         val prev = prevPos
         return prev + (pos - prev) * mc.tickDelta.toDouble()
     }
+
+fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
 
 /**
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.

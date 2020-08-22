@@ -5,19 +5,15 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
-import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.interpolatedPos
 import me.zeroeightsix.kami.noBobbingCamera
-import me.zeroeightsix.kami.util.ColourUtils
-import me.zeroeightsix.kami.util.EntityUtil
-import me.zeroeightsix.kami.util.Friends
-import me.zeroeightsix.kami.util.HueCycler
+import me.zeroeightsix.kami.util.Target
+import me.zeroeightsix.kami.util.Targets
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
 
@@ -29,27 +25,20 @@ import org.lwjgl.opengl.GL11
 object Tracers : Module() {
 
     @Setting
-    private var players = true
-
-    @Setting
-    private var friends = true
-
-    @Setting
-    private var animals = false
-
-    @Setting
-    private var mobs = false
+    private var targets = Targets(
+        mapOf(
+            Target.ALL_PLAYERS to Colour.WHITE
+        )
+    )
 
     @Setting
     private var range = 200.0
 
-    @Setting
-    private var opacity: @Setting.Constrain.Range(min = 0.0, max = 1.0, step = 0.1) Float = 0.5f
-    var cycler = HueCycler(3600)
-
     @EventHandler
     val worldListener = Listener(
         EventHook<RenderEvent.World> {
+            val player = mc.player ?: return@EventHook
+
             val camera: Camera = mc.gameRenderer.camera
             val tessellator = Tessellator.getInstance()
             val bufferBuilder = tessellator.buffer
@@ -78,39 +67,19 @@ object Tracers : Module() {
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                mc.world?.entities
-                    ?.filter { EntityUtil.isLiving(it) && !EntityUtil.isFakeLocalPlayer(it) }
-                    ?.filter {
-                        when {
-                            it is PlayerEntity -> players && mc.player !== it
-                            EntityUtil.isPassive(
-                                it
-                            ) -> animals
-                            else -> mobs
-                        }
-                    }
-                    ?.filter { mc.player?.distanceTo(it)!! < range }
-                    ?.forEach {
-                        var colour = getColour(it)
-                        if (colour == ColourUtils.Colors.RAINBOW) {
-                            if (!friends) return@forEach
-                            colour = cycler.current()
-                        }
-                        val r = colour ushr 16 and 0xFF
-                        val g = colour ushr 8 and 0xFF
-                        val b = colour and 0xFF
-                        val a = (opacity * 255f).toInt()
-
-                        val pos = it.interpolatedPos
+                targets.entities
+                    .filter { (entity, _) -> player.distanceTo(entity) < range }
+                    .forEach { (entity, c) ->
+                        val pos = entity.interpolatedPos
 
                         bufferBuilder.vertex(eyes.x, eyes.y, eyes.z)
-                            .color(r, g, b, a).next()
+                            .color(c.r, c.g, c.b, c.a).next()
                         bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
-                            .color(r, g, b, a).next()
+                            .color(c.r, c.g, c.b, c.a).next()
                         bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
-                            .color(r, g, b, a).next()
-                        bufferBuilder.vertex(pos.x - cX, pos.y - cY + it.getEyeHeight(it.pose), pos.z - cZ)
-                            .color(r, g, b, a).next()
+                            .color(c.r, c.g, c.b, c.a).next()
+                        bufferBuilder.vertex(pos.x - cX, pos.y - cY + entity.getEyeHeight(entity.pose), pos.z - cZ)
+                            .color(c.r, c.g, c.b, c.a).next()
                     }
 
                 tessellator.draw()
@@ -122,19 +91,4 @@ object Tracers : Module() {
             lineWidth(1.0f)
         }
     )
-
-    @EventHandler
-    val updateListener = Listener(
-        EventHook<TickEvent.Client.InGame> {
-            cycler.next()
-        }
-    )
-
-    private fun getColour(entity: Entity): Int {
-        return if (entity is PlayerEntity) {
-            if (Friends.isFriend(entity.gameProfile.name)) ColourUtils.Colors.RAINBOW else ColourUtils.Colors.WHITE
-        } else {
-            if (EntityUtil.isPassive(entity)) ColourUtils.Colors.GREEN else ColourUtils.Colors.RED
-        }
-    }
 }
