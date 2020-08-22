@@ -31,18 +31,15 @@ object Nametags : Module() {
         val viewport = VectorMath.getViewport()
         renderQueue = mc.world?.entities?.mapNotNull {
             val interpolated = it.interpolatedPos
-            val p = VectorMath.divideVec2f(
+            VectorMath.divideVec2f(
                 VectorMath.project3Dto2D(
                     camera.pos.negate().add(interpolated.add(0.0, it.getEyeHeight(it.pose).toDouble() + 1, 0.0)),
                     viewport,
                     event.matrixStack.peek().model,
                     event.projection
                 ), scale
-            )?.let {
-                Vec2f(it.x, mc.window.scaledHeight - it.y)
-            }
-            p?.let { p ->
-                it to p
+            )?.let { p ->
+                it to Vec2f(p.x, mc.window.scaledHeight - p.y)
             }
         }
     })
@@ -55,6 +52,9 @@ object Nametags : Module() {
             mc.textRenderer.draw(it.matrixStack, text, pos.x - width / 2, pos.y, 0xFFFFFF)
             renderQueue = null
         }
-    })
+    }, -10)  // Priority to make sure this happens AFTER the kami HUD renderer.
+    // Doing it before causes https://github.com/kotlin-graphics/imgui/issues/114
+    // Looks like rendering text at specific times, just before imgui decides to initialise everything,
+    // causes its textures to screw up.
 
 }
