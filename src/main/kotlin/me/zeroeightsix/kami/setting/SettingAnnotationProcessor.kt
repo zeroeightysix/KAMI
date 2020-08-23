@@ -8,10 +8,13 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigLeafBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
+import io.github.fablabsmc.fablabs.impl.fiber.annotation.magic.TypeMagic
 import me.zeroeightsix.kami.setting.KamiConfig.createInterface
 import me.zeroeightsix.kami.setting.KamiConfig.typeMap
+import me.zeroeightsix.kami.util.Targets
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
+import java.lang.reflect.AnnotatedParameterizedType
 import java.lang.reflect.Field
 
 object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
@@ -40,14 +43,16 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                         }, {
                             strings.find { e -> it.equals(e, ignoreCase = true) }
                                 ?: throw InvalidValueException(
-                                    "$it is not a valid value for this setting. Possible values are: ${strings.joinToString(
-                                        ", "
-                                    )}"
+                                    "$it is not a valid value for this setting. Possible values are: ${
+                                        strings.joinToString(
+                                            ", "
+                                        )
+                                    }"
                                 )
                         },
                         { leaf ->
                             with(ImGui) {
-                                val current = IntArray(1) { strings.indexOf(leaf.value as String) }
+                                val current = IntArray(1) { strings.indexOf(leaf.value) }
                                 combo(leaf.name, current, strings)
                                 leaf.value = strings.getOrElse(current[0]) { strings[0] }
                             }
@@ -57,6 +62,25 @@ object SettingAnnotationProcessor : LeafAnnotationProcessor<Setting> {
                         }, "enum-${field.type.simpleName.toLowerCase()}"
                     )
 
+                    SettingInterface.interfaces[interf.id] = interf
+                    interf
+                } else if (Targets::class.java.isAssignableFrom(field.type)) {
+                    val metaType = TypeMagic.classForType(
+                        (field.annotatedType as AnnotatedParameterizedType).annotatedActualTypeArguments[0].type
+                    )!!
+                    val interf = createInterface<Targets<*>>(
+                        {
+                            Pair("targets", "targets") // let's not try
+                        }, {
+                            throw InvalidValueException("Targets can not be set from commands.")
+                        }, {
+                            with(ImGui) {
+                                // TODO: targets settings UI
+                            }
+                        }, {
+                            it.buildFuture()
+                        }, "targets-${metaType.simpleName.toLowerCase()}"
+                    )
                     SettingInterface.interfaces[interf.id] = interf
                     interf
                 } else {

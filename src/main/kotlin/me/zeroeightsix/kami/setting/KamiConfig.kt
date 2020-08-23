@@ -10,13 +10,16 @@ import imgui.ColorEditFlag
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
@@ -40,6 +43,8 @@ import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
+import me.zeroeightsix.kami.util.Target
+import me.zeroeightsix.kami.util.Targets
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
@@ -59,6 +64,25 @@ import kotlin.collections.HashMap
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
+    // maybe should make an issue for this on the fiber repo
+    val targetType = ConfigTypes.STRING.derive(Target::class.java, {
+        Target.valueOf(it)
+    }, {
+        it.name
+    })
+
+    fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<Targets<M>, S> =
+        ConfigTypes.makeMap(targetType, metaType).derive(Targets::class.java, {
+            Targets(it)
+        }, {
+            it
+        })
+
+    val targetsTypeProcessor = ParameterizedTypeProcessor<Targets<*>> {
+        createTargetsType(it[0])
+    }
 
     val colourType =
         ConfigTypes.makeList(ConfigTypes.FLOAT)
@@ -460,6 +484,7 @@ object KamiConfig {
             .collectMembersRecursively()
             .collectOnlyAnnotatedMembers()
             .useNamingConvention(ProperCaseConvention)
+            .registerTypeMapping(Targets::class.java, targetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
@@ -550,7 +575,11 @@ object KamiConfig {
             try {
                 FiberSerialization.deserialize(
                     config,
-                    Files.newInputStream(Paths.get(CONFIG_FILENAME), StandardOpenOption.CREATE_NEW, StandardOpenOption.READ),
+                    Files.newInputStream(
+                        Paths.get(CONFIG_FILENAME),
+                        StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.READ
+                    ),
                     JanksonValueSerializer(false)
                 )
             } catch (e: java.nio.file.NoSuchFileException) {
