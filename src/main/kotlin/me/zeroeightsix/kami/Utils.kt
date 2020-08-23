@@ -24,13 +24,13 @@ val mc: MinecraftClient = MinecraftClient.getInstance()
 
 fun <T, A> T.map(mapper: (T) -> A) = mapper(this)
 fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
-fun <T> Boolean.then(block: () -> T): T? {
-    if (this) return block()
+fun <T> Boolean.then(block: (Boolean) -> T): T? {
+    if (this) return block(this)
     return null
 }
 
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
-fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
+fun Boolean.notThen(block: (Boolean) -> Unit) = (!this).then(block)
 fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () -> Unit) {
     if (this) before()
     during()
