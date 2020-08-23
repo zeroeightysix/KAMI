@@ -11,6 +11,8 @@ import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3d
 import java.util.*
 
+// TODO: These could be extension properties
+
 fun InputUtil.Type.getMap(): Int2ObjectMap<InputUtil.Key> = (this as IInputUtilType).map
 
 fun MatrixStack.getStack(): Deque<MatrixStack.Entry> = (this as IMatrixStack).stack

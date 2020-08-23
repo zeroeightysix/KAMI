@@ -10,16 +10,13 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.Parameteriz
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.*
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.*
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.ConfigSaveEvent
@@ -51,11 +48,12 @@ import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.collections.HashMap
 
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    /** Config types **/
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
@@ -252,7 +250,7 @@ object KamiConfig {
             map
         })
 
-    var bindType = ConfigTypes.STRING
+    val bindType = ConfigTypes.STRING
         .derive(Bind::class.java, {
             var s = it.toLowerCase()
 
@@ -316,10 +314,10 @@ object KamiConfig {
                     )
                 }
             ) { profile: GameProfile ->
-                val map = HashMap<String?, String?>()
-                map["uuid"] = profile.id.toString()
-                map["name"] = profile.name
-                map
+                mapOf(
+                    "uuid" to profile.id.toString(),
+                    "name" to profile.name
+                )
             }
     val friendsType =
         ConfigTypes.makeList(profileType)
@@ -331,6 +329,8 @@ object KamiConfig {
 
         Pair(name, Bind.Code(it.value!!))
     }.toMap()
+
+    /** Extending base types **/
 
     init {
         ConfigTypes.BOOLEAN.extend(
@@ -347,45 +347,52 @@ object KamiConfig {
         )
     }
 
-//    val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
-//        Pair(
-//            BigDecimal::class.java,
-//            createInterface({
-//                Pair("number", it.value.toString())
-//            }, {
-//                it.toBigDecimal()
-//            }, {
-//                with(ImGui) {
-//                    val configType = it.configType as DecimalSerializableType
-//                    val increment = configType.increment
-//                    dragFloat(
-//                        it.name,
-//                        object : MutableProperty<Float>(it.value.toFloat()) {
-//                            override fun set(value: Float?) {
-//                                it.value = BigDecimal.valueOf(value!!.toDouble())
-//                            }
-//                        },
-//                        vSpeed = increment?.toFloat() ?: 1.0f,
-//                        vMin = configType.minimum?.toFloat() ?: 0.0f,
-//                        vMax = configType.maximum?.toFloat() ?: 0.0f,
-//                        format = "%s"
-//                    )
-//                }
-//            }, { b -> b.buildFuture() })
-//        ),
-//        Pair(
-//            String::class.java,
-//            createInterface({
-//                Pair("text", it.value)
-//            }, {
-//                it
-//            }, {
-//                with(ImGui) {
-//                    inputText(it.name, it.value)
-//                }
-//            }, { b -> b.buildFuture() })
-//        )
-//    )
+    fun installBaseExtensions(node: ConfigNode) {
+        when (node) {
+            is ConfigBranch ->
+                node.items.forEach { installBaseExtensions(it) }
+            is ConfigLeaf<*> -> {
+                installBaseExtension(node)
+            }
+        }
+    }
+
+    fun <T : ConfigLeaf<*>> installBaseExtension(node: T) {
+        val type = node.getAnyRuntimeConfigType()
+
+        when (type) {
+            // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
+            is NumberConfigType<*> -> {
+                val type = (type as ConfigType<Any, BigDecimal, DecimalSerializableType>)
+                type.extend({
+                    it.toString()
+                }, {
+                    type.toRuntimeType(BigDecimal(it))
+                }, { name, value ->
+                    with(ImGui) {
+                        val sType = type.serializedType
+                        val float = type.toSerializedType(value).toFloat()
+                        val array = floatArrayOf(float)
+                        dragFloat(
+                            name, array, 0, vSpeed = sType.increment?.toFloat() ?: 1.0f,
+                            vMin = sType.minimum?.toFloat() ?: 0.0f,
+                            vMax = sType.maximum?.toFloat() ?: 0.0f,
+                            format = "%s"
+                        ).then {
+                            // If the value changed, return it
+                            // of course we also need to correct the type again
+                            type.toRuntimeType(BigDecimal.valueOf(array[0].toDouble()))
+                        } // If it didn't change, this will return null
+                    }
+                }, type = "number")
+            }
+            is EnumConfigType<*> -> {
+                // TODO
+            }
+        }
+    }
+
+    /** Contructing & (De)serialisation **/
 
     val config = initAndLoad()
 
@@ -440,10 +447,6 @@ object KamiConfig {
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
             .registerTypeMapping(EnabledWidgets.Widgets::class.java, widgetsType)
-//            .registerSettingProcessor(
-//                Setting::class.java,
-//                SettingAnnotationProcessor
-//            )
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor
@@ -471,7 +474,7 @@ object KamiConfig {
                     val instance = it.getDeclaredField("INSTANCE").get(null)
                     builder.applyFromPojo(instance, settings)
                 } catch (e: NoSuchFieldError) {
-                    println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!");
+                    println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!")
                     e.printStackTrace()
                 }
             }
@@ -499,6 +502,8 @@ object KamiConfig {
             )
         )
         Friends.mirror = mirror
+
+        installBaseExtensions(built)
 
         return built
     }
