@@ -7,10 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
-import me.zeroeightsix.kami.setting.SettingAnnotationProcessor
-import me.zeroeightsix.kami.setting.SettingInterface
+import me.zeroeightsix.kami.setting.getAnyInterface
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
@@ -28,7 +26,7 @@ class SettingValueArgumentType(
     override fun parse(reader: StringReader): String {
         val setting = findDependencyValue(reader)
         val string = reader.readUnquotedString()
-        return if (setting.getInterface().canFromString(string)) {
+        return if (setting.getAnyInterface()?.canFromString(string) == true) {
             string
         } else {
             throw INVALID_VALUE_EXCEPTION.create(
@@ -44,10 +42,10 @@ class SettingValueArgumentType(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        return findDependencyValue(context, ConfigLeaf::class.java).getInterface().listSuggestions(
+        return findDependencyValue(context, ConfigLeaf::class.java).getAnyInterface()?.listSuggestions(
             context,
             builder
-        )
+        ) ?: builder.buildFuture()
     }
 
     companion object {
@@ -67,6 +65,3 @@ class SettingValueArgumentType(
         }
     }
 }
-
-fun <T> ConfigLeaf<T>.getInterface(): SettingInterface<T> =
-    this.getAttributeValue(FiberId("kami", "setting_interface"), SettingAnnotationProcessor.INTERFACE_TYPE).get() as SettingInterface<T>

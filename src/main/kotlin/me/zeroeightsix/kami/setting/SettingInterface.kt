@@ -3,54 +3,90 @@ package me.zeroeightsix.kami.setting
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import imgui.ImGui
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.SerializableType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
-import net.minecraft.util.Identifier
+import io.github.fablabsmc.fablabs.impl.fiber.annotation.BackedConfigLeaf
+import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
+import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
+import me.zeroeightsix.kami.then
 import java.util.concurrent.CompletableFuture
 
-interface SettingInterface<T> {
+interface SettingInterface<R> {
 
-    val id: Identifier
+    val type: String
 
-    fun displayTypeAndValue(leaf: ConfigLeaf<T>) : Pair<String, String>
-    fun valueFromString(str: String): T
-    fun displayImGui(leaf: ConfigLeaf<T>)
-    fun listSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions>
+    fun valueToString(value: R): String?
+    fun valueFromString(str: String): R?
 
-    fun canFromString(str: String): Boolean {
-        return try {
+    /**
+     * @return the modified value, if any
+     */
+    fun displayImGui(name: String, value: R): R?
+    fun listSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> =
+        builder.buildFuture()
+
+    fun canFromString(str: String) =
+        try {
             valueFromString(str)
             true
         } catch (e: Exception) {
             false
         }
-    }
 
-    object Default : SettingInterface<Any> {
-        override val id = Identifier("kami:default_displayer")
+}
 
-        override fun displayTypeAndValue(leaf: ConfigLeaf<Any>): Pair<String, String> = Pair("unknown", "unknown")
+inline fun <reified R, S, T : SerializableType<S>> ConfigType<R, S, T>.extend(
+    crossinline valueToString: (R) -> String?,
+    crossinline valueFromString: (String) -> R?,
+    crossinline displayImGui: (String, R) -> R?,
+    crossinline listSuggestions: (CommandContext<*>, SuggestionsBuilder) -> CompletableFuture<Suggestions> =
+        { _, b -> b.buildFuture() },
+    type: String = R::class.java.simpleName.toLowerCase()
+): ConfigType<R, S, T> {
+    (this as HasSettingInterface<R>).settingInterface = object : SettingInterface<R> {
+        override val type: String = type
 
-        override fun displayImGui(leaf: ConfigLeaf<Any>) {
-            with (ImGui) {
-                text("This setting can't be edited yet. Oops.")
-            }
-        }
-
-        override fun valueFromString(str: String): Any {
-            throw RuntimeException("This setting can't be set from a command.")
-        }
-
+        override fun valueToString(value: R) = valueToString(value)
+        override fun valueFromString(str: String) = valueFromString(str)
+        override fun displayImGui(name: String, value: R) = displayImGui(name, value)
         override fun listSuggestions(
             context: CommandContext<*>,
             builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> {
-            return builder.buildFuture() // Suggest nothing
-        }
+        ) = listSuggestions(context, builder)
     }
-
-    companion object {
-        val interfaces = mutableMapOf<Identifier, SettingInterface<*>>()
-    }
-
+    return this
 }
+
+inline fun <reified R> ConfigType<R, String, StringSerializableType>.extend(
+    crossinline displayImGui: (String, R) -> R?,
+    crossinline listSuggestions: (CommandContext<*>, SuggestionsBuilder) -> CompletableFuture<Suggestions> =
+        { _, b -> b.buildFuture() },
+    type: String = R::class.java.simpleName.toLowerCase()
+): ConfigType<R, String, StringSerializableType> {
+    val toString = this::toPlatformType
+    val fromString = this::toRuntimeType
+    return this.extend(toString, fromString, displayImGui, listSuggestions, type)
+}
+
+fun <R, T> ConfigLeaf<T>.getRuntimeConfigType() =
+    (this is BackedConfigLeaf<*, *>).then {
+        (this as? BackedConfigLeaf<R, T>)?.runtimeConfigType
+    }
+
+fun <R, T> ConfigLeaf<T>.getInterface() =
+    (getRuntimeConfigType<R, T>() as? HasSettingInterface<R>)?.settingInterface
+
+/**
+ * Get the [interface](getInterface) without the type parameter `R` (relying on `Any` instead)
+ */
+fun <T> ConfigLeaf<T>.getAnyInterface() = this.getInterface<Any, T>()
+
+fun <T> ConfigLeaf<T>.getAnyRuntimeConfigType() = this.getRuntimeConfigType<Any, T>()
+
+val <R, S> ConfigType<R, S, *>.settingInterface: SettingInterface<R>?
+    get() = (this as? HasSettingInterface<R>)?.settingInterface
+
+val <R, S> BackedConfigLeaf<R, S>.runtimeConfigType
+    get() = (this as? IBackedConfigLeaf<R, S>)?.type

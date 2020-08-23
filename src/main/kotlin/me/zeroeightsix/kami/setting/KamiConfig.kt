@@ -1,20 +1,15 @@
 package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
-import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.Suggestions
-import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import glm_.asHexString
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
@@ -23,12 +18,10 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigTyp
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.MutableProperty
 import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
@@ -41,13 +34,13 @@ import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
+import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.Target
 import me.zeroeightsix.kami.util.Targets
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
-import net.minecraft.util.Identifier
 import org.reflections.Reflections
 import java.io.IOException
 import java.math.BigDecimal
@@ -55,7 +48,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -73,14 +65,14 @@ object KamiConfig {
         it.name
     })
 
-    fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<Targets<M>, S> =
-        ConfigTypes.makeMap(targetType, metaType).derive(Targets::class.java, {
-            Targets(it)
-        }, {
-            it
-        })
-
     val targetsTypeProcessor = ParameterizedTypeProcessor<Targets<*>> {
+        fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<Targets<M>, S> =
+            ConfigTypes.makeMap(targetType, metaType).derive(Targets::class.java, {
+                Targets(it)
+            }, {
+                it
+            })
+
         createTargetsType(it[0])
     }
 
@@ -90,6 +82,22 @@ object KamiConfig {
                 Colour(list[0], list[1], list[2], list[3])
             }, {
                 listOf(it.r, it.g, it.b, it.a)
+            })
+            .extend({
+                it.asRGBA().asHexString
+            }, {
+                Colour.fromRGBA(it.toInt(radix = 16))
+            }, { name, colour ->
+                with(ImGui) {
+                    val floats = colour.asFloats().toFloatArray()
+                    colorEdit4(
+                        name,
+                        floats,
+                        ColorEditFlag.AlphaBar.i
+                    ).then {
+                        Colour(floats[0], floats[1], floats[2], floats[3])
+                    }
+                }
             })
 
     val colourModeType = ConfigTypes.makeEnum(TextPinnableWidget.CompiledText.Part.ColourMode::class.java)
@@ -244,36 +252,58 @@ object KamiConfig {
             map
         })
 
-    var bindType = ConfigTypes.STRING.derive(Bind::class.java, {
-        var s = it.toLowerCase()
+    var bindType = ConfigTypes.STRING
+        .derive(Bind::class.java, {
+            var s = it.toLowerCase()
 
-        fun remove(part: String): Boolean {
-            val removed = s.replace(part, "")
-            val changed = s != removed
-            s = removed
-            return changed
-        }
+            fun remove(part: String): Boolean {
+                val removed = s.replace(part, "")
+                val changed = s != removed
+                s = removed
+                return changed
+            }
 
-        val ctrl = remove("ctrl+")
-        val alt = remove("alt+")
-        val shift = remove("shift+")
+            val ctrl = remove("ctrl+")
+            val alt = remove("alt+")
+            val shift = remove("shift+")
 
-        s = s.removePrefix("key.keyboard.")
+            s = s.removePrefix("key.keyboard.")
 
-        Bind(
-            ctrl,
-            alt,
-            shift,
-            bindMap[s] ?: Bind.Code.none()
-        )
-    }, {
-        var s = ""
-        if (it.isCtrl) s += "ctrl+"
-        if (it.isAlt) s += "alt+"
-        if (it.isShift) s += "shift+"
-        s += it.code.translationKey
-        s
-    })
+            Bind(
+                ctrl,
+                alt,
+                shift,
+                bindMap[s] ?: Bind.Code.none()
+            )
+        }, {
+            var s = ""
+            if (it.isCtrl) s += "ctrl+"
+            if (it.isAlt) s += "alt+"
+            if (it.isShift) s += "shift+"
+            s += it.code.translationKey
+            s
+        })
+        .extend({ _, bind ->
+            with(ImGui) {
+                text("Bound to $bind") // TODO: Highlight bind in another color?
+                sameLine(0, -1)
+                if (button("Bind", Vec2())) { // TODO: Bind popup?
+                    // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+                }
+            }
+            null
+        }, { _, b ->
+            val range = 0..b.remaining.lastIndexOf('+')
+            val left = b.remaining.substring(range)
+            val right = b.remaining.toLowerCase().removeRange(range)
+            Stream.concat(
+                listOf("ctrl+", "shift+", "alt+").stream(),
+                bindMap.keys.stream()
+            ).forEach {
+                if (it.startsWith(right)) b.suggest("$left$it")
+            }
+            b.buildFuture()
+        })
 
     val profileType =
         ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING)
@@ -302,144 +332,64 @@ object KamiConfig {
         Pair(name, Bind.Code(it.value!!))
     }.toMap()
 
-    val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
-        Pair(
-            Colour::class.java,
-            createInterface({
-                Pair("colour", colourType.toRuntimeType(it.value).asRGBA().asHexString)
-            }, {
-                colourType.toSerializedType(
-                    Colour.fromRGBA(it.toInt(radix = 16))
-                )
-            }, {
-                with(ImGui) {
-                    val floats = colourType.toRuntimeType(it.value).asFloats().toFloatArray()
-                    colorEdit4(
-                        it.name,
-                        floats,
-                        ColorEditFlag.AlphaBar.i
-                    )
-                    it.value = colourType.toSerializedType(
-                        Colour(floats[0], floats[1], floats[2], floats[3])
-                    )
-                }
-            }, { b -> b.buildFuture() })
-        ),
-        Pair(
-            Bind::class.java,
-            createInterface({
-                Pair("bind", bindType.toRuntimeType(it.value).toString())
-            }, {
-                it
-            }, {
-                with(ImGui) {
-                    val bind = bindType.toRuntimeType(it.value)
-                    text("Bound to $bind") // TODO: Highlight bind in another color?
-                    sameLine(0, -1)
-                    if (button("Bind", Vec2())) { // TODO: Bind popup?
-                        // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-                    }
-                }
-            }, { b ->
-                val range = 0..b.remaining.lastIndexOf('+')
-                val left = b.remaining.substring(range)
-                val right = b.remaining.toLowerCase().removeRange(range)
-
-                Stream.concat(
-                    listOf("ctrl+", "shift+", "alt+").stream(),
-                    bindMap.keys.stream()
-                ).forEach {
-                    if (it.startsWith(right)) b.suggest("$left$it")
-                }
-
-                b.buildFuture()
-            })
-        ),
-        Pair(
-            Boolean::class.java,
-            createInterface({
-                Pair("boolean", it.value.toString())
+    init {
+        ConfigTypes.BOOLEAN.extend(
+            {
+                it.toString()
             }, {
                 it.toBoolean()
-            }, {
-                with(ImGui) {
-                    checkbox(it.name, it.asMutableProperty())
-                }
-            }, { b -> CommandSource.suggestMatching(listOf("true", "false"), b) })
-        ),
-        Pair(
-            BigDecimal::class.java,
-            createInterface({
-                Pair("number", it.value.toString())
-            }, {
-                it.toBigDecimal()
-            }, {
-                with(ImGui) {
-                    val configType = it.configType as DecimalSerializableType
-                    val increment = configType.increment
-                    dragFloat(
-                        it.name,
-                        object : MutableProperty<Float>(it.value.toFloat()) {
-                            override fun set(value: Float?) {
-                                it.value = BigDecimal.valueOf(value!!.toDouble())
-                            }
-                        },
-                        vSpeed = increment?.toFloat() ?: 1.0f,
-                        vMin = configType.minimum?.toFloat() ?: 0.0f,
-                        vMax = configType.maximum?.toFloat() ?: 0.0f,
-                        format = "%s"
-                    )
-                }
-            }, { b -> b.buildFuture() })
-        ),
-        Pair(
-            String::class.java,
-            createInterface({
-                Pair("text", it.value)
-            }, {
-                it
-            }, {
-                with(ImGui) {
-                    inputText(it.name, it.value)
-                }
-            }, { b -> b.buildFuture() })
+            }, { name, bool ->
+                val bArray = booleanArrayOf(bool)
+                if (ImGui.checkbox(name, bArray)) {
+                    bArray[0]
+                } else null
+            }, { _, b -> CommandSource.suggestMatching(listOf("true", "false"), b) }
         )
-    )
+    }
+
+//    val typeMap = mutableMapOf<Class<*>, SettingInterface<*>>(
+//        Pair(
+//            BigDecimal::class.java,
+//            createInterface({
+//                Pair("number", it.value.toString())
+//            }, {
+//                it.toBigDecimal()
+//            }, {
+//                with(ImGui) {
+//                    val configType = it.configType as DecimalSerializableType
+//                    val increment = configType.increment
+//                    dragFloat(
+//                        it.name,
+//                        object : MutableProperty<Float>(it.value.toFloat()) {
+//                            override fun set(value: Float?) {
+//                                it.value = BigDecimal.valueOf(value!!.toDouble())
+//                            }
+//                        },
+//                        vSpeed = increment?.toFloat() ?: 1.0f,
+//                        vMin = configType.minimum?.toFloat() ?: 0.0f,
+//                        vMax = configType.maximum?.toFloat() ?: 0.0f,
+//                        format = "%s"
+//                    )
+//                }
+//            }, { b -> b.buildFuture() })
+//        ),
+//        Pair(
+//            String::class.java,
+//            createInterface({
+//                Pair("text", it.value)
+//            }, {
+//                it
+//            }, {
+//                with(ImGui) {
+//                    inputText(it.name, it.value)
+//                }
+//            }, { b -> b.buildFuture() })
+//        )
+//    )
 
     val config = initAndLoad()
 
-    /**
-     * Method to create an interface object by using lambda functions to reduce boilerplate
-     */
-    inline fun <reified T> createInterface(
-        crossinline typeAndValue: (ConfigLeaf<T>) -> Pair<String, String>,
-        crossinline fromString: (String) -> T,
-        crossinline imGui: (ConfigLeaf<T>) -> Unit,
-        crossinline suggestions: (SuggestionsBuilder) -> CompletableFuture<Suggestions>,
-        name: String = T::class.java.simpleName.toLowerCase()
-    ) = object : SettingInterface<T> {
-        override val id = Identifier("kami", "${name}_interface")
-
-        override fun displayTypeAndValue(leaf: ConfigLeaf<T>): Pair<String, String> = typeAndValue(leaf)
-        override fun valueFromString(str: String): T = fromString(str)
-        override fun displayImGui(leaf: ConfigLeaf<T>) = imGui(leaf)
-        override fun listSuggestions(
-            context: CommandContext<*>,
-            builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> = suggestions(builder)
-    }
-
-    fun <T> ConfigLeaf<T>.asMutableProperty() = object : MutableProperty<T>(this.value) {
-        override fun set(value: T) {
-            this@asMutableProperty.value = value
-        }
-    }
-
     fun initAndLoad(): ConfigTree? {
-        typeMap.values.forEach {
-            SettingInterface.interfaces[it.id] = it
-        }
-
         return try {
             val config = constructConfiguration()
             try {
@@ -490,10 +440,10 @@ object KamiConfig {
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
             .registerTypeMapping(EnabledWidgets.Widgets::class.java, widgetsType)
-            .registerSettingProcessor(
-                Setting::class.java,
-                SettingAnnotationProcessor
-            )
+//            .registerSettingProcessor(
+//                Setting::class.java,
+//                SettingAnnotationProcessor
+//            )
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor
