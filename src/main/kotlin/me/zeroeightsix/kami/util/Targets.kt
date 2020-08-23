@@ -41,7 +41,7 @@ enum class Target(private val provider: ResettableLazy<List<Entity>?>) {
     NOT_LIVING(allEntities { it !is LivingEntity }),
     PASSIVE(allEntities(::isPassive)),
     HOSTILE(allEntities(::isHostile)),
-    ALL_PLAYERS(ResettableLazy { mc.world?.players?.also { it.remove(mc.player) } }),
+    ALL_PLAYERS(ResettableLazy { mc.world?.players }),
     FRIENDLY_PLAYERS(ResettableLazy { ALL_PLAYERS.entities?.filter { (it as PlayerEntity).isFriend() } }),
     NONFRIENDLY_PLAYERS(ResettableLazy { ALL_PLAYERS.entities?.filter { !(it as PlayerEntity).isFriend() } });
 
@@ -58,6 +58,7 @@ class Targets<T>(private val inner: Map<Target, T>) : Map<Target, T> by inner {
         for ((target, t) in this) {
             target.entities?.forEach { map[it] = t }
         }
+        map.remove(mc.player) // We never want the player included in the entity list. Sorry bud.
         return map
     }
 }
