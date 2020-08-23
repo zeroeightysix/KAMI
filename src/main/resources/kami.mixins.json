@@ -3,6 +3,7 @@
   "compatibilityLevel": "JAVA_8",
   "package": "me.zeroeightsix.kami.mixin.client",
   "client": [
+    "IBackedConfigLeaf",
     "ICamera",
     "IChatMessageC2SPacket",
     "IChatMessageS2CPacket",
