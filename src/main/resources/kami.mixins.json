@@ -36,6 +36,7 @@
     "MixinClientPlayerInteractionManager",
     "MixinClientWorld",
     "MixinCommandSuggestor",
+    "MixinConfigType",
     "MixinDecoderHandler",
     "MixinEntity",
     "MixinGameRenderer",
