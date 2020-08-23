@@ -78,7 +78,8 @@ object KamiConfig {
                         throw InvalidValueException("Targets can not be set from the settings command.") // same here
                     }, { name, value ->
                         fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
-                        val possibleTargets = Target.values().map { it.name.humanReadable() to it }.toMap()
+                        val possibleTargets =
+                            Target.values().map { it.name.humanReadable() to it }.toMap().toMutableMap()
                         var index = 0
                         var dirty = false
                         val mutable = value.toMutableMap()
@@ -95,18 +96,45 @@ object KamiConfig {
                                 iterator.forEach { entry ->
                                     val (target, meta) = entry
                                     val strings = possibleTargets.keys.toList()
-                                    val array = intArrayOf(strings.indexOf(target.name.humanReadable()))
+                                    val targetReadable = target.name.humanReadable()
+                                    val array = intArrayOf(strings.indexOf(targetReadable))
                                     combo("##target-$index", array, strings.toList()).then {
                                         dirty = true
                                         mutable.remove(target)
                                         possibleTargets[strings[array[0]]]?.let { mutable[it] = meta }
                                     }
+
+                                    // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
+                                    if (mutable.size > 1) {
+                                        sameLine()
+                                        button("-##target-$index-rm").then {
+                                            dirty = true
+                                            iterator.remove()
+                                        }
+                                    }
                                     index++
 
+                                    // To avoid duplicate entries (which aren't possible, so the UI would act weird when you try to make one)
+                                    possibleTargets.remove(targetReadable)
+
                                     nextColumn()
-                                    interf.displayImGui(metaName, meta)?.let {
+                                    interf.displayImGui("$metaName##target-$metaName-$index", meta)?.let {
                                         dirty = true
                                         mutable[target] = it
+                                    }
+                                    nextColumn()
+                                }
+
+                                if (possibleTargets.isNotEmpty()) {
+                                    separator()
+                                    val strings = possibleTargets.keys.toList()
+                                    val array = intArrayOf(-1)
+                                    combo("New##target-new", array, strings).then {
+                                        dirty = true
+                                        // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
+                                        // This does require there to always be a target entry, though
+                                        // please don't make empty targets, will you?
+                                        possibleTargets[strings[array[0]]]?.let { mutable[it] = value.values.last() }
                                     }
                                 }
                             }
