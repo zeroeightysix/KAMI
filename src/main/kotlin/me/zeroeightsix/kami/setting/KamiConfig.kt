@@ -5,6 +5,7 @@ import glm_.asHexString
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
+import imgui.dsl.columns
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
@@ -63,12 +64,58 @@ object KamiConfig {
     })
 
     val targetsTypeProcessor = ParameterizedTypeProcessor<Targets<*>> {
-        fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<Targets<M>, S> =
+        fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>) =
             ConfigTypes.makeMap(targetType, metaType).derive(Targets::class.java, {
                 Targets(it)
             }, {
                 it
-            })
+            }).also {
+                metaType.settingInterface?.let { interf ->
+                    val metaName = interf.type.capitalize()
+                    it.extend({
+                        "targets" // We don't try to convert targets <-> string
+                    }, {
+                        throw InvalidValueException("Targets can not be set from the settings command.") // same here
+                    }, { name, value ->
+                        fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
+                        val possibleTargets = Target.values().map { it.name.humanReadable() to it }.toMap()
+                        var index = 0
+                        var dirty = false
+                        val mutable = value.toMutableMap()
+
+                        with(ImGui) {
+                            columns("targets-columns", 2) {
+                                text("%s", "Targets")
+                                nextColumn()
+                                text("%s", metaName)
+                                separator()
+                                nextColumn()
+
+                                val iterator = mutable.iterator()
+                                iterator.forEach { entry ->
+                                    val (target, meta) = entry
+                                    val strings = possibleTargets.keys.toList()
+                                    val array = intArrayOf(strings.indexOf(target.name.humanReadable()))
+                                    combo("##target-$index", array, strings.toList()).then {
+                                        dirty = true
+                                        mutable.remove(target)
+                                        possibleTargets[strings[array[0]]]?.let { mutable[it] = meta }
+                                    }
+                                    index++
+
+                                    nextColumn()
+                                    interf.displayImGui(metaName, meta)?.let {
+                                        dirty = true
+                                        mutable[target] = it
+                                    }
+                                }
+                            }
+                        }
+
+                        dirty.then { Targets(mutable) }
+                    })
+                }
+            }
 
         createTargetsType(it[0])
     }
@@ -90,7 +137,7 @@ object KamiConfig {
                     colorEdit4(
                         name,
                         floats,
-                        ColorEditFlag.AlphaBar.i
+                        ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
                     ).then {
                         Colour(floats[0], floats[1], floats[2], floats[3])
                     }
