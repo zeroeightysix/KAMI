@@ -10,7 +10,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.Parameteriz
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.DecimalSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.*
@@ -363,31 +362,43 @@ object KamiConfig {
         when (type) {
             // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
             is NumberConfigType<*> -> {
-                val type = (type as ConfigType<Any, BigDecimal, DecimalSerializableType>)
+                val type = (type as NumberConfigType<Any>)
                 type.extend({
                     it.toString()
                 }, {
                     type.toRuntimeType(BigDecimal(it))
                 }, { name, value ->
-                    with(ImGui) {
-                        val sType = type.serializedType
-                        val float = type.toSerializedType(value).toFloat()
-                        val array = floatArrayOf(float)
-                        dragFloat(
-                            name, array, 0, vSpeed = sType.increment?.toFloat() ?: 1.0f,
-                            vMin = sType.minimum?.toFloat() ?: 0.0f,
-                            vMax = sType.maximum?.toFloat() ?: 0.0f,
-                            format = "%s"
-                        ).then {
-                            // If the value changed, return it
-                            // of course we also need to correct the type again
-                            type.toRuntimeType(BigDecimal.valueOf(array[0].toDouble()))
-                        } // If it didn't change, this will return null
-                    }
+                    val sType = type.serializedType
+                    val float = type.toSerializedType(value).toFloat()
+                    val array = floatArrayOf(float)
+                    ImGui.dragFloat(
+                        name, array, 0, vSpeed = sType.increment?.toFloat() ?: 1.0f,
+                        vMin = sType.minimum?.toFloat() ?: 0.0f,
+                        vMax = sType.maximum?.toFloat() ?: 0.0f,
+                        format = "%s"
+                    ).then {
+                        // If the value changed, return it
+                        // of course we also need to correct the type again
+                        type.toRuntimeType(BigDecimal.valueOf(array[0].toDouble()))
+                    } // If it didn't change, this will return null
                 }, type = "number")
             }
             is EnumConfigType<*> -> {
-                // TODO
+                val type = (type as EnumConfigType<Any>)
+                val values = type.serializedType.validValues.toList()
+                type.extend({
+                    it.toString()
+                }, {
+                    type.toRuntimeType(it)
+                }, { name, value ->
+                    val index = values.indexOf(type.toSerializedType(value))
+                    val array = intArrayOf(index)
+                    ImGui.combo(name, array, values).then {
+                        type.toRuntimeType(values[array[0]])
+                    }
+                }, { _, b ->
+                    CommandSource.suggestMatching(values, b)
+                }, type = "enum")
             }
         }
     }
