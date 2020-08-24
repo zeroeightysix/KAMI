@@ -8,7 +8,6 @@ import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.BindEvent
-import me.zeroeightsix.kami.setting.HasConfig
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
@@ -18,7 +17,7 @@ open class FullFeature(
     var description: String = "No description",
     _alwaysListening: Boolean = false,
     override var hidden: Boolean = false
-) : Feature, Listenable, HasConfig {
+) : Feature, Listenable, HasConfig, HasBind {
 
     override lateinit var config: ConfigBranch
 
@@ -45,7 +44,7 @@ open class FullFeature(
 
     @Setting(name = "Bind")
     @SettingVisibility.Constant(false)
-    var bind = Bind.none()
+    override var bind = Bind.none()
 
     @Setting
     @SettingVisibility.Constant(false)

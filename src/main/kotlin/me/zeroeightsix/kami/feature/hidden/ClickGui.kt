@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.feature.FindSettings
+import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Bind
@@ -17,10 +18,10 @@ import net.minecraft.client.util.InputUtil
 
 @FindFeature
 @FindSettings(settingsRoot = "clickGui")
-object ClickGui : Feature, Listenable {
+object ClickGui : Feature, Listenable, HasBind {
 
     @Setting
-    var bind: Bind = Bind(false, false, false, Bind.Code(InputUtil.fromTranslationKey("key.keyboard.y")))
+    override var bind: Bind = Bind(false, false, false, Bind.Code(InputUtil.fromTranslationKey("key.keyboard.y")))
 
     @EventHandler
     val bindListener = Listener(
