@@ -24,6 +24,7 @@ import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
