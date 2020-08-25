@@ -30,7 +30,7 @@ object SettingsCommand : Command() {
         })
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
-        val featureArgumentType = FullFeatureArgumentType.feature()
+        val featureArgumentType = FeatureArgumentType.fullFeature()
         val settingArgumentType = SettingArgumentType.setting(featureArgumentType, "feature", 1)
         dispatcher.register(
             LiteralArgumentBuilder.literal<CommandSource>("settings")
@@ -38,7 +38,7 @@ object SettingsCommand : Command() {
                     LiteralArgumentBuilder.literal<CommandSource>("list").then(
                         RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
                             "feature",
-                            FullFeatureArgumentType.feature()
+                            FeatureArgumentType.fullFeature()
                         )
                             .executes { context: CommandContext<CommandSource> ->
                                 val source = context.source as KamiCommandSource

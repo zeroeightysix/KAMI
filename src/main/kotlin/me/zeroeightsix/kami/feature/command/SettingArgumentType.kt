@@ -80,7 +80,7 @@ class SettingArgumentType(
             })
 
         fun setting(
-            dependentType: FullFeatureArgumentType,
+            dependentType: FeatureArgumentType<FullFeature>,
             featureArgName: String,
             shift: Int
         ): SettingArgumentType {

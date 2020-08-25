@@ -9,18 +9,19 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.feature.FeatureManager.features
 import me.zeroeightsix.kami.feature.FullFeature
+import me.zeroeightsix.kami.feature.HasBind
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.function.Function
 
-class FullFeatureArgumentType : ArgumentType<FullFeature> {
+class FeatureArgumentType<T>(val clazz: Class<T>) : ArgumentType<T> {
     @Throws(CommandSyntaxException::class)
-    override fun parse(reader: StringReader): FullFeature {
+    override fun parse(reader: StringReader): T {
         val string = reader.readUnquotedString()
         try {
-            return features.filterIsInstance<FullFeature>().first { it.name.equals(string, ignoreCase = true) }
+            return clazz.cast(features.filter { clazz.isInstance(it) }
+                .first { it.name.equals(string, ignoreCase = true) })
         } catch (e: NoSuchElementException) {
             throw INVALID_MODULE_EXCEPTION.create(string)
         }
@@ -31,7 +32,8 @@ class FullFeatureArgumentType : ArgumentType<FullFeature> {
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         return CommandSource.suggestMatching(
-            features.filterIsInstance<FullFeature>().map { it.name }, builder
+            features.filter { clazz.isInstance(it) }.map { it.name },
+            builder
         )
     }
 
@@ -42,12 +44,11 @@ class FullFeatureArgumentType : ArgumentType<FullFeature> {
     companion object {
         private val EXAMPLES: Collection<String> = listOf("Aura", "CameraClip", "Flight")
         val INVALID_MODULE_EXCEPTION =
-            DynamicCommandExceptionType(Function { `object`: Any ->
-                LiteralText("Unknown feature '$`object`'")
-            })
+            DynamicCommandExceptionType { obj ->
+                LiteralText("Unknown feature '$obj'")
+            }
 
-        fun feature(): FullFeatureArgumentType {
-            return FullFeatureArgumentType()
-        }
+        fun fullFeature(): FeatureArgumentType<FullFeature> = FeatureArgumentType(FullFeature::class.java)
+        fun boundFeature() = FeatureArgumentType(HasBind::class.java)
     }
 }

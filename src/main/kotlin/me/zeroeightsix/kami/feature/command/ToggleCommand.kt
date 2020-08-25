@@ -17,7 +17,7 @@ object ToggleCommand : Command() {
                 .then(
                     RequiredArgumentBuilder.argument<CommandSource, FullFeature>(
                         "feature",
-                        FullFeatureArgumentType.feature()
+                        FeatureArgumentType.fullFeature()
                     )
                         .executes { context: CommandContext<CommandSource> ->
                             val f =
