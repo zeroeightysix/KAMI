@@ -9,6 +9,7 @@ import net.minecraft.client.render.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -28,6 +29,11 @@ public class MixinWorldRenderer {
     public boolean isThirdPerson(Camera camera) {
         if (Freecam.INSTANCE.getEnabled()) return true;
         return camera.isThirdPerson();
+    }
+
+    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZIZ)V"), index = 4)
+    public boolean isSpectator(boolean isSpectator) {
+        return Freecam.INSTANCE.getEnabled() || isSpectator;
     }
 
 }
