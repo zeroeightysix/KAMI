@@ -52,18 +52,8 @@ object Tracers : Module() {
 
             noBobbingCamera(it.matrixStack) {
                 val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
-                    .rotateX(
-                        (-mc.player?.pitch?.toDouble()?.let { it1 ->
-                            Math
-                                .toRadians(it1)
-                        }!!).toFloat()
-                    )
-                    .rotateY(
-                        (-mc.player?.yaw?.toDouble()?.let { it1 ->
-                            Math
-                                .toRadians(it1)
-                        }!!).toFloat()
-                    )
+                    .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
+                    .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
 
                 bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 

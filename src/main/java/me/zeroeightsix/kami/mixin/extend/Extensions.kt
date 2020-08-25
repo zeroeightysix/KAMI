@@ -19,6 +19,10 @@ fun MatrixStack.getStack(): Deque<MatrixStack.Entry> = (this as IMatrixStack).st
 
 fun Camera.setPos(pos: Vec3d) = (this as ICamera).callSetPos(pos)
 fun Camera.setRotation(yaw: Float, pitch: Float) = (this as ICamera).callSetRotation(yaw, pitch)
+val Camera.yaw: Float
+    get() = (this as ICamera).yaw
+val Camera.pitch: Float
+    get() = (this as ICamera).pitch
 
 fun Input.update(from: Input) = (this as ExtendedInput).update(from)
 
