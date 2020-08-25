@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
@@ -61,24 +60,24 @@ object Aura : Module() {
 
     @EventHandler
     private val updateListener =
-        Listener(EventHook<TickEvent.Client.InGame> {
+        Listener<TickEvent.Client.InGame>({
             if (!mc.player?.isAlive!!) {
-                return@EventHook
+                return@Listener
             }
             val shield =
                 mc.player!!.offHandStack.item == Items.SHIELD && mc.player!!.activeHand == Hand.OFF_HAND
             if (mc.player!!.isUsingItem && !shield) {
-                return@EventHook
+                return@Listener
             }
             if (waitMode == WaitMode.DYNAMIC) {
                 if (mc.player!!.getAttackCooldownProgress(0f) < 1) {
-                    return@EventHook
+                    return@Listener
                 }
             }
             if (waitMode == WaitMode.STATIC && waitTick > 0) {
                 waitCounter = if (waitCounter < waitTick) {
                     waitCounter++
-                    return@EventHook
+                    return@Listener
                 } else {
                     0
                 }
@@ -107,7 +106,7 @@ object Aura : Module() {
                 }
                 if (attackPlayers && target is PlayerEntity && !Friends.isFriend(target.getName().string)) {
                     attack(target)
-                    return@EventHook
+                    return@Listener
                 } else {
                     if (if (EntityUtil.isPassive(target)) attackAnimals else EntityUtil.isMobAggressive(
                             target
@@ -120,7 +119,7 @@ object Aura : Module() {
                             AutoTool.equipBestWeapon()
                         }
                         attack(target)
-                        return@EventHook
+                        return@Listener
                     }
                 }
             }

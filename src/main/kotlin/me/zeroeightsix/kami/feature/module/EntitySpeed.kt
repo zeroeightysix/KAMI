@@ -118,8 +118,8 @@ object EntitySpeed : Module() {
 
     @EventHandler
     var renderListener =
-        Listener(EventHook<RenderGuiEvent> {
-            val boat = boat ?: return@EventHook
+        Listener<RenderGuiEvent>({
+            val boat = boat ?: return@Listener
             boat.yaw = mc.player?.yaw!!
             boat.setInputs(
                 false,

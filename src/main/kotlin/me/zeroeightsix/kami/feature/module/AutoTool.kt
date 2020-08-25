@@ -23,7 +23,7 @@ object AutoTool : Module() {
     @EventHandler
     private val leftClickListener =
         Listener(
-            EventHook { event: PlayerAttackBlockEvent ->
+            { event: PlayerAttackBlockEvent ->
                 mc.world?.getBlockState(
                     event.position
                 )?.let {

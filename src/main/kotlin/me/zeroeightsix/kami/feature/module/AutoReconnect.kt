@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.ScreenEvent
 import me.zeroeightsix.kami.event.ScreenEvent.Displayed
@@ -34,7 +33,7 @@ object AutoReconnect : Module() {
     @EventHandler
     val closedListener =
         Listener(
-            EventHook { event: ScreenEvent.Closed ->
+            { event: ScreenEvent.Closed ->
                 if (event.screen is ConnectScreen) cServer =
                     mc.currentServerEntry
             }
@@ -42,7 +41,7 @@ object AutoReconnect : Module() {
 
     @EventHandler
     val displayedListener = Listener(
-        EventHook { event: Displayed ->
+        { event: Displayed ->
             if (enabled && event.screen is DisconnectedScreen && event.screen !is KamiDisconnectedScreen && (cServer != null || mc.currentServerEntry != null)) event.screen =
                 KamiDisconnectedScreen(event.screen as DisconnectedScreen)
         }

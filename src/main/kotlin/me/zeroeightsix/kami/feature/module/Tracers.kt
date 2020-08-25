@@ -3,7 +3,6 @@ package me.zeroeightsix.kami.feature.module
 import com.mojang.blaze3d.platform.GlStateManager.*
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
@@ -35,50 +34,48 @@ object Tracers : Module() {
     private var range = 200.0
 
     @EventHandler
-    val worldListener = Listener(
-        EventHook<RenderEvent.World> {
-            val player = mc.player ?: return@EventHook
+    val worldListener = Listener<RenderEvent.World>({
+        val player = mc.player ?: return@Listener
 
-            val camera: Camera = mc.gameRenderer.camera
-            val tessellator = Tessellator.getInstance()
-            val bufferBuilder = tessellator.buffer
-            val cX = camera.pos.x
-            val cY = camera.pos.y
-            val cZ = camera.pos.z
+        val camera: Camera = mc.gameRenderer.camera
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+        val cX = camera.pos.x
+        val cY = camera.pos.y
+        val cZ = camera.pos.z
 
-            lineWidth(0.5f)
-            disableTexture()
-            disableDepthTest()
+        lineWidth(0.5f)
+        disableTexture()
+        disableDepthTest()
 
-            noBobbingCamera(it.matrixStack) {
-                val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
-                    .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
-                    .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
+        noBobbingCamera(it.matrixStack) {
+            val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
+                .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
+                .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
 
-                bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
+            bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-                targets.entities
-                    .filter { (entity, _) -> player.distanceTo(entity) < range }
-                    .forEach { (entity, c) ->
-                        val pos = entity.interpolatedPos
+            targets.entities
+                .filter { (entity, _) -> player.distanceTo(entity) < range }
+                .forEach { (entity, c) ->
+                    val pos = entity.interpolatedPos
 
-                        bufferBuilder.vertex(eyes.x, eyes.y, eyes.z)
-                            .color(c.r, c.g, c.b, c.a).next()
-                        bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
-                            .color(c.r, c.g, c.b, c.a).next()
-                        bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
-                            .color(c.r, c.g, c.b, c.a).next()
-                        bufferBuilder.vertex(pos.x - cX, pos.y - cY + entity.getEyeHeight(entity.pose), pos.z - cZ)
-                            .color(c.r, c.g, c.b, c.a).next()
-                    }
+                    bufferBuilder.vertex(eyes.x, eyes.y, eyes.z)
+                        .color(c.r, c.g, c.b, c.a).next()
+                    bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
+                        .color(c.r, c.g, c.b, c.a).next()
+                    bufferBuilder.vertex(pos.x - cX, pos.y - cY, pos.z - cZ)
+                        .color(c.r, c.g, c.b, c.a).next()
+                    bufferBuilder.vertex(pos.x - cX, pos.y - cY + entity.getEyeHeight(entity.pose), pos.z - cZ)
+                        .color(c.r, c.g, c.b, c.a).next()
+                }
 
-                tessellator.draw()
+            tessellator.draw()
 
-            }
-
-            enableTexture()
-            enableDepthTest()
-            lineWidth(1.0f)
         }
-    )
+
+        enableTexture()
+        enableDepthTest()
+        lineWidth(1.0f)
+    })
 }

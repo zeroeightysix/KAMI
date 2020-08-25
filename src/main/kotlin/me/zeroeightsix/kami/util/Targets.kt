@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.util
 
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
@@ -17,7 +16,7 @@ import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
 
-val invalidationListener = Listener<TickEvent.Client.InGame>(EventHook {
+val invalidationListener = Listener<TickEvent.Client.InGame>({
     Target.values().forEach { it.invalidate() }
 }).also {
     KamiMod.EVENT_BUS.subscribe(it)

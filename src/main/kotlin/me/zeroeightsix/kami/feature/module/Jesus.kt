@@ -44,7 +44,7 @@ object Jesus : Module() {
     @EventHandler
     var addCollisionBoxToListEventListener =
         Listener(
-            EventHook { event: AddCollisionBoxToListEvent ->
+            { event: AddCollisionBoxToListEvent ->
                 if (mc.player != null && event.block is FluidBlock
                     && (EntityUtil.isDrivenByPlayer(event.entity) || event.entity === mc.player)
                     && event.entity !is BoatEntity
@@ -71,7 +71,7 @@ object Jesus : Module() {
 
     @EventHandler
     var packetEventSendListener = Listener(
-        EventHook { event: Send ->
+        { event: Send ->
             if (event.era === KamiEvent.Era.PRE) {
                 if (event.packet is PlayerMoveC2SPacket) {
                     if (EntityUtil.isAboveWater(

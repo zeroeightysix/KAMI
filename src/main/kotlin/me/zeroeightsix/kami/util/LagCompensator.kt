@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.util
 
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
@@ -17,7 +16,7 @@ object LagCompensator : Listenable {
 
     @EventHandler
     var packetEventListener = Listener(
-        EventHook { event: Receive ->
+        { event: Receive ->
             if (event.packet is WorldTimeUpdateS2CPacket) {
                 onTimeUpdate()
             }

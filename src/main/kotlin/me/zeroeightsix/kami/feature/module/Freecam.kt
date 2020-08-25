@@ -3,7 +3,6 @@ package me.zeroeightsix.kami.feature.module
 import glm_.func.common.clamp
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.CameraUpdateEvent
 import me.zeroeightsix.kami.event.InputUpdateEvent
@@ -52,7 +51,7 @@ object Freecam : Module() {
     }
 
     @EventHandler
-    val updateListener = Listener<CameraUpdateEvent>(EventHook {
+    val updateListener = Listener<CameraUpdateEvent>({
         with(it.camera) {
             setRotation(Freecam.yaw, Freecam.pitch)
             setPos(Freecam.pos.interpolated(mc.tickDelta.toDouble(), velocity))
@@ -60,7 +59,7 @@ object Freecam : Module() {
     })
 
     @EventHandler
-    val inputUpdateListener = Listener<InputUpdateEvent>(EventHook {
+    val inputUpdateListener = Listener<InputUpdateEvent>({
         val input = it.newState.movementInput
 
         val velocity = IEntity.movementInputToVelocity(
@@ -77,7 +76,7 @@ object Freecam : Module() {
     })
 
     @EventHandler
-    val updateLookListener = Listener<UpdateLookEvent>(EventHook {
+    val updateLookListener = Listener<UpdateLookEvent>({
         yaw += it.deltaX.toFloat() * 0.15f
         pitch += it.deltaY.toFloat() * 0.15f
         pitch = pitch.clamp(-90f, 90f)

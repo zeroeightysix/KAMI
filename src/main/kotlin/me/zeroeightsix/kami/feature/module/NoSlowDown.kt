@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.EntityVelocityMultiplierEvent
 import me.zeroeightsix.kami.event.InputUpdateEvent
@@ -14,7 +13,7 @@ object NoSlowDown : Module() {
     @EventHandler
     private val inputUpdateEventListener =
         Listener(
-            EventHook { event: InputUpdateEvent ->
+            { event: InputUpdateEvent ->
                 //
                 // InputUpdateEvent is called just before the player is slowed down @see EntityPlayerSP.onLivingUpdate)
                 // We'll abuse this fact, and multiply moveStrafe and moveForward by 5 to nullify the *0.2f hardcoded by mojang.
@@ -31,7 +30,7 @@ object NoSlowDown : Module() {
     @EventHandler
     private val entityVelocityMultiplierEventListener =
         Listener(
-            EventHook { event: EntityVelocityMultiplierEvent ->
+            { event: EntityVelocityMultiplierEvent ->
                 if (event.entity === mc.player) event.multiplier = 1f
             }
         )

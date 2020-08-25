@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PacketEvent
 import net.minecraft.network.packet.s2c.play.*
@@ -35,7 +34,7 @@ object NoRender : Module() {
     private var skyLightUpdates = true
 
     @EventHandler
-    private val receiveListener = Listener(EventHook { event: PacketEvent.Receive ->
+    private val receiveListener = Listener({ event: PacketEvent.Receive ->
         val packet = event.packet
         when {
             packet is MobSpawnS2CPacket && mobs -> event.cancel()

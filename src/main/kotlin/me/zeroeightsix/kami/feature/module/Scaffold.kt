@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.Client.InGame
 import me.zeroeightsix.kami.interpolatedPos
@@ -40,13 +39,13 @@ object Scaffold : Module() {
     }
 
     @EventHandler
-    private val updateListener = Listener(EventHook<InGame> {
-        val vec3d = mc.player?.interpolatedPos ?: return@EventHook
+    private val updateListener = Listener<InGame>({
+        val vec3d = mc.player?.interpolatedPos ?: return@Listener
         var blockPos: BlockPos = BlockPos(vec3d).down()
         val belowBlockPos = blockPos.down()
 
         // check if block is already placed
-        if (!mc.world!!.getBlockState(blockPos).material.isReplaceable) return@EventHook
+        if (!mc.world!!.getBlockState(blockPos).material.isReplaceable) return@Listener
 
         // search blocks in hotbar
         var newSlot = -1
@@ -86,7 +85,7 @@ object Scaffold : Module() {
         }
 
         // check if any blocks were found
-        if (newSlot == -1) return@EventHook
+        if (newSlot == -1) return@Listener
 
         // set slot
         val oldSlot = Wrapper.getPlayer().inventory.selectedSlot
@@ -105,7 +104,7 @@ object Scaffold : Module() {
                 }
             }
             if (!broke) {
-                return@EventHook
+                return@Listener
             }
         }
 

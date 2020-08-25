@@ -23,6 +23,7 @@ import imgui.dsl.tabBar
 import imgui.dsl.tabItem
 import imgui.dsl.window
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import kool.ByteBuffer
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
@@ -39,6 +40,7 @@ object Settings {
 
     @Setting
     var commandPrefix = '.'
+    val commandPrefixBuf = ByteBuffer(1)
 
     // Behaviour
     @Setting
@@ -82,7 +84,7 @@ object Settings {
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
     operator fun invoke() {
-        fun setting(label: String, checked: KMutableProperty0<Boolean>, description: String) {
+        fun boolSetting(label: String, checked: KMutableProperty0<Boolean>, description: String) {
             checkbox(label, checked) {}
             sameLine()
             demoDebugInformations.helpMarker(description)
@@ -92,25 +94,25 @@ object Settings {
             window("Settings", ::settingsWindowOpen, flags = WindowFlag.AlwaysAutoResize.i) {
                 tabBar("kami-settings-tabbar", TabBarFlag.None.i) {
                     tabItem("Behaviour") {
-                        setting(
+                        boolSetting(
                             "Keybind modifiers",
                             ::modifiersEnabled,
                             "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K."
                         )
-                        setting(
+                        boolSetting(
                             "Settings popup",
                             ::openSettingsInPopup,
                             "Show module settings in a popup instead of a collapsible"
                         )
                         // Swap list buttons only applies to the tree header list
                         if (!openSettingsInPopup) {
-                            setting(
+                            boolSetting(
                                 "Swap list buttons",
                                 ::swapModuleListButtons,
                                 "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
                             )
                         }
-                        setting(
+                        boolSetting(
                             "Hide descriptions",
                             ::hideModuleDescriptions,
                             "Hide module descriptions when its settings are opened."
@@ -164,12 +166,12 @@ object Settings {
                         EnabledWidgets.enabledButtons()
                     }
                     tabItem("Other") {
-                        setting(
+                        boolSetting(
                             "Show demo window in 'View'",
                             ::demoWindowVisible,
                             "Allows the demo window to be shown through the 'View' submenu of the main menu bar"
                         )
-                        setting(
+                        boolSetting(
                             "Show HUD with debug screen",
                             ::hudWithDebug,
                             "Shows the HUD even when the debug screen is open"

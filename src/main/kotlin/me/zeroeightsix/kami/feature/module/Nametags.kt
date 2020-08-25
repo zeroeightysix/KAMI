@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.event.RenderGuiEvent
@@ -21,7 +20,7 @@ object Nametags : Module() {
     var renderQueue: List<Pair<Entity, Vec2f>>? = null
 
     @EventHandler
-    val worldRenderListener = Listener<RenderEvent.World>(EventHook { event ->
+    val worldRenderListener = Listener<RenderEvent.World>({ event ->
         val scale = MinecraftClient.getInstance().window.calculateScaleFactor(
             MinecraftClient.getInstance().options.guiScale,
             MinecraftClient.getInstance().forcesUnicodeFont()
@@ -45,7 +44,7 @@ object Nametags : Module() {
     })
 
     @EventHandler
-    val hudRenderListener = Listener<RenderGuiEvent>(EventHook {
+    val hudRenderListener = Listener<RenderGuiEvent>({
         renderQueue?.forEach { (entity, pos) ->
             val text = entity.displayName.string
             val width = mc.textRenderer.getWidth(text)
