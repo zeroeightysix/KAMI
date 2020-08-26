@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami
 
-import com.mojang.blaze3d.platform.GlStateManager
 import glm_.vec4.Vec4
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
@@ -92,10 +91,10 @@ fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
     }
 }
 
-inline fun matrix(block: () -> Unit) {
-    GlStateManager.pushMatrix()
+inline fun MatrixStack.matrix(block: () -> Unit) {
+    push()
     block()
-    GlStateManager.popMatrix()
+    pop()
 }
 
 operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)

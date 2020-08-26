@@ -164,7 +164,7 @@ object Trajectories : Module() {
                     tessellator.draw()
 
                     mimic.hit?.let { hit ->
-                        matrix {
+                        matrices.matrix {
                             translated(hit.x - cX, hit.y - cY, hit.z - cZ)
                             scaled(mimic.diverged, mimic.diverged, mimic.diverged)
                             mimic.face?.let {
