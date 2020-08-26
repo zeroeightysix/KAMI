@@ -26,26 +26,16 @@ Download and run the installer for Fabric from [here](https://fabricmc.net/use/)
 
 Move the KAMI jar file to the `mods` folder in your `.minecraft` directory.
 
-## How do I
+## Usage
 
-##### Open the GUI
-Press Y.
+While ingame, press <kbd>Y</kbd> to open the GUI. The wizard will help you further. He doesn't bite.
 
-##### Use commands
-The default prefix is `.`. Commands are used through chat, use `.commands` for a list of commands.
-
-##### Bind modules
-Run `.bind <module> <key>`.
-
-##### Change command prefix
-By using the command `prefix <prefix>` or after having ran KAMI (make sure it's closed), editing your configuration file (find it using `config path` in-game) and changing the value of `commandPrefix` to change the prefix.
+The command prefix is `.` by default. The autocompletion will list what commands are available.
 
 ## Troubleshooting
-Please reference the main [troubleshooting page](docs/TROUBLESHOOTING.md)
+If you encounter bugs or crashes, please [open a new issue](../../issues/new/choose).
 
-To ask for help, join the [Discord](http://discord.gg/9hvwgeg)
-
-If you experience an issue and it's not listed there, please [open a new issue](../../issues/new/choose) and a contributor will help you further.
+To ask for help, join the [Discord](http://discord.gg/9hvwgeg).
 
 ## Setting up
 
