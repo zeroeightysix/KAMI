@@ -44,6 +44,7 @@ dependencies {
     implementation "com.github.kotlin-graphics:imgui:${project.kg_version}"
     implementation "com.github.kotlin-graphics:glm:${project.kg_version}"
     implementation "com.github.kotlin-graphics:uno-sdk:${project.kg_version}"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: project.kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
 
     shadow 'com.github.ZeroMemes:Alpine:1.9'
