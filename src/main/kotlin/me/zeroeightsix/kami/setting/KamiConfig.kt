@@ -157,7 +157,7 @@ object KamiConfig {
                 listOf(it.r, it.g, it.b, it.a)
             })
             .extend({
-                it.asRGBA().asHexString
+                it.asARGB().asHexString
             }, {
                 Colour.fromRGBA(it.toInt(radix = 16))
             }, { name, colour ->

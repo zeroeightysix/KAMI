@@ -126,11 +126,11 @@ fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
 }
 
 data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
-    fun asInts() = arrayOf((r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt(), (a * 255).toInt())
+    fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
 
     fun asFloats() = arrayOf(r, g, b, a)
 
-    fun asRGBA(): Int {
+    fun asARGB(): Int {
         val integers = asInts()
         return (integers[0] shl 24) or (integers[1] shl 16) or (integers[2] shl 8) or integers[3]
     }
