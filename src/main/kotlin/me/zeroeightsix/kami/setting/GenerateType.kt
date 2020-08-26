@@ -5,8 +5,10 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableTy
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
+import me.zeroeightsix.kami.to
 import java.lang.reflect.AnnotatedType
 import java.lang.reflect.Type
+import kotlin.reflect.KMutableProperty
 import kotlin.reflect.javaType
 
 /**
@@ -84,11 +86,17 @@ annotation class GenerateType(val name: String = "") {
                 }
 
                 override fun displayImGui(name: String, t: T): T? {
+                    var dirty = false
                     params.values.forEach { (member, type) ->
                         val value = member.call(t) ?: return@forEach // If null, don't display it.
-                        type.settingInterface?.displayImGui(member.name.capitalize(), value)
+                        type.settingInterface?.displayImGui(member.name.capitalize(), value)?.let {
+                            if (member is KMutableProperty<*>) {
+                                member.setter.call(t, it)
+                                dirty = true
+                            }
+                        }
                     }
-                    return null
+                    return dirty.to(t, null)
                 }
             }
 
