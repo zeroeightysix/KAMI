@@ -18,6 +18,7 @@ import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Matrix4f
@@ -82,9 +83,10 @@ object Nametags : Module() {
         renderQueue?.forEach { (entity, pos, properties) ->
             val text = entity.displayName.string
             val width = mc.textRenderer.getWidth(text)
-            mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, pos.y, 0xFFFFFF)
+            val colour = properties.colour.asARGB()
+            mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, pos.y, colour)
             if (properties.health && entity is LivingEntity) {
-                drawHealthBar(bufferBuilder, width, pos, matrix, fHWidth, entity, it)
+                drawHealthBar(bufferBuilder, width, pos, matrix, fHWidth, entity, it.matrixStack, properties.colour)
             }
             renderQueue = null
         }
@@ -97,7 +99,8 @@ object Nametags : Module() {
         matrix: Matrix4f?,
         fHWidth: Float,
         entity: LivingEntity,
-        it: RenderGuiEvent
+        matrices: MatrixStack,
+        colour: Colour
     ) {
         with(bufferBuilder) {
             val xOffset = -width / 2
@@ -118,8 +121,8 @@ object Nametags : Module() {
             val barWidth = (width.toFloat() - fHWidth).coerceAtLeast(fHWidth) - 1
 
             begin(7, VertexFormats.POSITION_COLOR)
-            fill(0f, 0f, 0f, 0.5f, barWidth, 2.5f)
-            fill(1f, 0f, 0f, 0.7f, barWidth * (entity.health / entity.maxHealth))
+            fill(0f, 0f, 0f, colour.a * 0.5f, barWidth, 2.5f)
+            fill(1f, 0f, 0f, colour.a * 0.7f, barWidth * (entity.health / entity.maxHealth))
             end()
 
             BufferRenderer.draw(this)
@@ -127,20 +130,24 @@ object Nametags : Module() {
             RenderSystem.disableBlend()
 
             // push & pop to preserve scale
-            it.matrixStack.matrix {
-                it.matrixStack.translate((x + barWidth).toDouble() + 1, y.toDouble(), 0.0)
-                it.matrixStack.scale(.5f, .5f, 1f)
+            matrices.matrix {
+                matrices.translate((x + barWidth).toDouble() + 1, y.toDouble(), 0.0)
+                matrices.scale(.5f, .5f, 1f)
 
                 // To align the center baseline with the health bar
                 // Divisions: center and scale
                 val textY = -mc.textRenderer.fontHeight / 2f / 2f
-                mc.textRenderer.drawWithShadow(it.matrixStack, "${entity.health.roundToInt()}", 0f, textY, 0xFFFFFF)
+                mc.textRenderer.drawWithShadow(matrices, "${entity.health.roundToInt()}", 0f, textY, colour.asARGB())
             }
         }
     }
 
     @GenerateType("Options")
-    class NametagsTarget(var health: Boolean = true, var items: Items = Items.JUST_ITEMS) {
+    class NametagsTarget(
+        var health: Boolean = true,
+        var items: Items = Items.JUST_ITEMS,
+        var colour: Colour = Colour.WHITE
+    ) {
         enum class Items {
             JUST_ITEMS, ITEMS_AND_ENCHANTS
         }
