@@ -89,12 +89,13 @@ annotation class GenerateType(val name: String = "") {
                     var dirty = false
                     params.values.forEach { (member, type) ->
                         val value = member.call(t) ?: return@forEach // If null, don't display it.
-                        type.settingInterface?.displayImGui(member.name.capitalize(), value)?.let {
-                            if (member is KMutableProperty<*>) {
-                                member.setter.call(t, it)
-                                dirty = true
+                        type.settingInterface?.displayImGui("${member.name.capitalize()}##$name-${member.name}", value)
+                            ?.let {
+                                if (member is KMutableProperty<*>) {
+                                    member.setter.call(t, it)
+                                    dirty = true
+                                }
                             }
-                        }
                     }
                     return dirty.to(t, null)
                 }
