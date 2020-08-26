@@ -57,8 +57,9 @@ annotation class GenerateType(val name: String = "") {
                     override fun getAnnotations(): Array<Annotation> = declaredAnnotations
                     override fun getDeclaredAnnotations(): Array<Annotation> = it.annotations.toTypedArray()
                     override fun getType(): Type = it.type.javaType
-                })
-                it to (member to type as ConfigType<Any, Any, *>)
+                }) as ConfigType<Any, Any, *>
+                KamiConfig.installBaseExtension(type)
+                it to (member to type)
             }.toMap()
 
             val serializableType = RecordSerializableType(

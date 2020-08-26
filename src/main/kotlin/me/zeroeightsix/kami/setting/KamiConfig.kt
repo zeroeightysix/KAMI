@@ -422,7 +422,7 @@ object KamiConfig {
         )
     }
 
-    fun installBaseExtensions(node: ConfigNode) {
+    private fun installBaseExtensions(node: ConfigNode) {
         when (node) {
             is ConfigBranch ->
                 node.items.forEach { installBaseExtensions(it) }
@@ -432,9 +432,16 @@ object KamiConfig {
         }
     }
 
-    fun <T : ConfigLeaf<*>> installBaseExtension(node: T) {
+    private fun <T : ConfigLeaf<*>> installBaseExtension(node: T) {
         val type = node.getAnyRuntimeConfigType()
 
+        installBaseExtension(type)
+    }
+
+    /**
+     * Sets `type`'s [SettingInterface] to an applicable generic setting interface, if available.
+     */
+    fun installBaseExtension(type: ConfigType<Any, out Any, *>?) {
         when (type) {
             // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
             is NumberConfigType<*> -> {
