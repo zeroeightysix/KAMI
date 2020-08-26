@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 
 @Mixin(targets = "io.github.fablabsmc.fablabs.impl.fiber.annotation.AnnotatedSettingsImpl$PojoMemberProcessorImpl", remap = false)
 public abstract class MixinPojoMemberProcessorImpl {
@@ -47,8 +48,9 @@ public abstract class MixinPojoMemberProcessorImpl {
     public void onToConfigType(AnnotatedType annotatedType, CallbackInfoReturnable<ConfigType<?, ?, ?>> cir, Class<?> clazz) {
         // Nothing else has worked, so let's see if the type is annotated with kami's dynamic configtype generation annotation.
         // If so, we try to compose the configtype ourselves using reflection.
-        if (annotatedType.isAnnotationPresent(GenerateType.class) || clazz.isAnnotationPresent(GenerateType.class)) {
-            cir.setReturnValue(GenerateType.Companion.generateType(clazz, t -> {
+        GenerateType generateType = Optional.ofNullable(annotatedType.getAnnotation(GenerateType.class)).orElseGet(() -> clazz.getAnnotation(GenerateType.class));
+        if (generateType != null) {
+            cir.setReturnValue(GenerateType.Companion.generateType(clazz, generateType, t -> {
                 try {
                     return this.toConfigType(t);
                 } catch (FiberTypeProcessingException e) {

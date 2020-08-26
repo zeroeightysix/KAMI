@@ -70,7 +70,7 @@ object Nametags : Module() {
         }
     })
 
-    @GenerateType
+    @GenerateType("Options")
     class NametagsTarget(var health: Boolean = true, var items: Items = Items.JUST_ITEMS) {
         enum class Items {
             JUST_ITEMS, ITEMS_AND_ENCHANTS

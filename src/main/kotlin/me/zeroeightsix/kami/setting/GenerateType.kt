@@ -11,10 +11,12 @@ import kotlin.reflect.javaType
 
 /**
  * Annotation used to mark that a class may have its ConfigType generated at runtime.
+ *
+ * @param name If not empty, the name that will be used when displaying this type to the user.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class GenerateType {
+annotation class GenerateType(val name: String = "") {
     // We use a separate class so exceptions can remain unhandled and trickle up the stack
     @FunctionalInterface
     interface TypeSupplier {
@@ -23,8 +25,14 @@ annotation class GenerateType {
 
     companion object {
         @ExperimentalStdlibApi
-        fun <T : Any> generateType(clazz: Class<T>, supplier: TypeSupplier): ConfigType<*, *, *>? {
+        fun <T : Any> generateType(
+            clazz: Class<T>,
+            annotation: GenerateType,
+            supplier: TypeSupplier
+        ): ConfigType<*, *, *>? {
             val kClass = clazz.kotlin
+
+            val name = annotation.name.ifEmpty { kClass.simpleName!!.toLowerCase() }
 
             // We pick the constructor with the most amount of parameters.
             // Hopefully this is a constructor that just specifies all the fields in the class - constructors with less parameters might assume defaults, etc.
@@ -68,7 +76,7 @@ annotation class GenerateType {
             })
 
             val interf = object : SettingInterface<T> {
-                override val type: String = kClass.simpleName!!.toLowerCase()
+                override val type: String = name
                 override fun valueToString(value: T): String? = value.toString()
                 override fun valueFromString(str: String): T? {
                     throw InvalidValueException("This type can not be set from a command.")
