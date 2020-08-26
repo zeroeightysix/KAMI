@@ -5,17 +5,20 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.exception.FiberTypeProcessingExc
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ProcessingMemberException;
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType;
 import me.zeroeightsix.kami.KotlinTypeMagic;
+import me.zeroeightsix.kami.setting.GenerateType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-@Mixin(targets = "io.github.fablabsmc.fablabs.impl.fiber.annotation.AnnotatedSettingsImpl$PojoMemberProcessorImpl")
+@Mixin(targets = "io.github.fablabsmc.fablabs.impl.fiber.annotation.AnnotatedSettingsImpl$PojoMemberProcessorImpl", remap = false)
 public abstract class MixinPojoMemberProcessorImpl {
 
     @Shadow
@@ -32,6 +35,27 @@ public abstract class MixinPojoMemberProcessorImpl {
             processSetting(pojo, setting, toConfigType(type));
         } catch (FiberException e) {
             throw new ProcessingMemberException("Failed to process setting '" + Modifier.toString(setting.getModifiers()) + " " + setting.getType().getSimpleName() + " " + setting.getName() + "' in " + setting.getDeclaringClass().getSimpleName(), e, setting);
+        }
+    }
+
+    @Inject(method = "toConfigType",
+            at = @At(value = "INVOKE",
+                    target = "Ljava/util/stream/Stream;concat(Ljava/util/stream/Stream;Ljava/util/stream/Stream;)Ljava/util/stream/Stream;",
+                    shift = At.Shift.BEFORE),
+            cancellable = true,
+            locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onToConfigType(AnnotatedType annotatedType, CallbackInfoReturnable<ConfigType<?, ?, ?>> cir, Class<?> clazz) {
+        // Nothing else has worked, so let's see if the type is annotated with kami's dynamic configtype generation annotation.
+        // If so, we try to compose the configtype ourselves using reflection.
+        if (annotatedType.isAnnotationPresent(GenerateType.class) || clazz.isAnnotationPresent(GenerateType.class)) {
+            cir.setReturnValue(GenerateType.Companion.generateType(clazz, t -> {
+                try {
+                    return this.toConfigType(t);
+                } catch (FiberTypeProcessingException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }));
         }
     }
 
