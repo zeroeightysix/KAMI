@@ -17,8 +17,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.*
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.*
-import me.zeroeightsix.kami.Colour
-import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
@@ -31,8 +30,6 @@ import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
-import me.zeroeightsix.kami.splitFirst
-import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.Target
@@ -49,6 +46,7 @@ import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.collections.map
 
 object KamiConfig {
 
@@ -150,25 +148,25 @@ object KamiConfig {
     }
 
     val colourType =
-        ConfigTypes.makeList(ConfigTypes.FLOAT)
-            .derive(Colour::class.java, { list ->
-                Colour(list[0], list[1], list[2], list[3])
+        ConfigTypes.STRING
+            .derive(Colour::class.java, {
+                Colour.fromARGB((it.toLongOrNull(radix = 16) ?: 0xFFFFFFFF).unsignedInt)
             }, {
-                listOf(it.r, it.g, it.b, it.a)
+                it.asARGB().asHexString
             })
             .extend({
                 it.asARGB().asHexString
             }, {
-                Colour.fromRGBA(it.toInt(radix = 16))
+                Colour.fromARGB(it.toInt(radix = 16))
             }, { name, colour ->
                 with(ImGui) {
-                    val floats = colour.asFloats().toFloatArray()
+                    val floats = colour.asFloatRGBA().toFloatArray()
                     colorEdit4(
                         name,
                         floats,
                         ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
                     ).then {
-                        Colour(floats[0], floats[1], floats[2], floats[3])
+                        Colour(floats[3], floats[0], floats[1], floats[2])
                     }
                 }
             })
@@ -200,7 +198,7 @@ object KamiConfig {
         val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
         val type = it["type"] as String
         val value = it["value"] as String
-        val colour = colourType.toRuntimeType(it["colour"] as List<BigDecimal>)
+        val colour = colourType.toRuntimeType(it["colour"] as String)
 
         val part = when (type) {
             "literal" -> TextPinnableWidget.CompiledText.LiteralPart(

@@ -16,6 +16,7 @@ import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
+import unsigned.toUint
 import java.util.stream.Stream
 import kotlin.reflect.KMutableProperty0
 
@@ -35,6 +36,9 @@ fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () ->
     during()
     if (this) after()
 }
+
+val Long.unsignedInt
+    get() = toUint().toInt()
 
 fun ByteArray.backToString(): String {
     var str = ""
@@ -125,10 +129,10 @@ fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
     }
 }
 
-data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
+data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
 
-    fun asFloats() = arrayOf(r, g, b, a)
+    fun asFloatRGBA() = arrayOf(r, g, b, a)
 
     fun asARGB(): Int {
         val integers = asInts()
@@ -138,15 +142,15 @@ data class Colour(val r: Float, val g: Float, val b: Float, val a: Float) {
     fun asVec4(): Vec4 = Vec4(r, g, b, a)
 
     companion object {
-        fun fromRGBA(rgba: Int): Colour {
-            val r = ((rgba shr 24) and 0xFF) / 255f
-            val g = ((rgba shr 16) and 0xFF) / 255f
-            val b = ((rgba shr 8) and 0xFF) / 255f
-            val a = (rgba and 0xFF) / 255f
-            return Colour(r, g, b, a)
+        fun fromARGB(argb: Int): Colour {
+            val a = ((argb shr 24) and 0xFF) / 255f
+            val r = ((argb shr 16) and 0xFF) / 255f
+            val g = ((argb shr 8) and 0xFF) / 255f
+            val b = (argb and 0xFF) / 255f
+            return Colour(a, r, g, b)
         }
 
-        fun fromVec4(colour: Vec4): Colour = Colour(colour.x, colour.y, colour.z, colour.w)
+        fun fromVec4(colour: Vec4): Colour = Colour(colour.w, colour.x, colour.y, colour.z)
 
         val WHITE = Colour(1f, 1f, 1f, 1f)
     }

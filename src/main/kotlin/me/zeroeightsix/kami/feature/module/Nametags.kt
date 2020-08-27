@@ -35,7 +35,8 @@ object Nametags : Module() {
     @Setting
     var targets = Targets(
         mapOf(
-            Target.LIVING to NametagsTarget()
+            Target.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
+            Target.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f))
         )
     )
 
