@@ -80,8 +80,7 @@ object KamiConfig {
                         val possibleTargets =
                             Target.values().map { it.name.humanReadable() to it }.toMap().toMutableMap()
                         var index = 0
-                        var dirty = false
-                        val mutable = value.toMutableMap()
+                        var modified: Targets<M>? = null
 
                         with(ImGui) {
                             columns("targets-columns", 2) {
@@ -91,24 +90,26 @@ object KamiConfig {
                                 separator()
                                 nextColumn()
 
-                                val iterator = mutable.iterator()
-                                iterator.forEach { entry ->
-                                    val (target, meta) = entry
+                                var dirty = false
+
+                                val map = value.mapNotNull { (target, meta) ->
+                                    // The target to return. If null, remove this entry.
+                                    var retT: Target? = target
+                                    // The meta to return
+                                    var retM: M = meta
+
                                     val strings = possibleTargets.keys.toList()
                                     val targetReadable = target.name.humanReadable()
                                     val array = intArrayOf(strings.indexOf(targetReadable))
                                     combo("##target-$index", array, strings.toList()).then {
-                                        dirty = true
-                                        mutable.remove(target)
-                                        possibleTargets[strings[array[0]]]?.let { mutable[it] = meta }
+                                        possibleTargets[strings[array[0]]]?.let { retT = it }
                                     }
 
                                     // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
-                                    if (mutable.size > 1) {
+                                    if (value.size > 1) {
                                         sameLine()
                                         button("-##target-$index-rm").then {
-                                            dirty = true
-                                            iterator.remove()
+                                            retT = null // Return nothing, which removes the entry from the map.
                                         }
                                     }
                                     index++
@@ -118,28 +119,38 @@ object KamiConfig {
 
                                     nextColumn()
                                     interf.displayImGui("$metaName##target-$metaName-$index", meta)?.let {
+                                        retM = it
+                                        // the meta object itself might actually be mutated instead of being a new object.
+                                        // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
+                                        // therefore we set this flag to make sure the 'new' map is processed.
                                         dirty = true
-                                        mutable[target] = it
                                     }
                                     nextColumn()
-                                }
+
+                                    retT?.let {
+                                        it to retM
+                                    }
+                                }.toMap().toMutableMap()
 
                                 if (possibleTargets.isNotEmpty()) {
                                     separator()
                                     val strings = possibleTargets.keys.toList()
                                     val array = intArrayOf(-1)
                                     combo("New##target-new", array, strings).then {
-                                        dirty = true
                                         // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
                                         // This does require there to always be a target entry, though
                                         // please don't make empty targets, will you?
-                                        possibleTargets[strings[array[0]]]?.let { mutable[it] = value.values.last() }
+                                        possibleTargets[strings[array[0]]]?.let { map[it] = value.values.last() }
                                     }
+                                }
+
+                                if (dirty || map != value) {
+                                    modified = Targets(map)
                                 }
                             }
                         }
 
-                        dirty.then { Targets(mutable) }
+                        modified
                     })
                 }
             }
