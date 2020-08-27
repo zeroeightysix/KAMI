@@ -4,7 +4,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.Client.InGame
-import me.zeroeightsix.kami.interpolatedPos
+import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.block.*
@@ -40,7 +40,7 @@ object Scaffold : Module() {
 
     @EventHandler
     private val updateListener = Listener<InGame>({
-        val vec3d = mc.player?.interpolatedPos ?: return@Listener
+        val vec3d = mc.player?.getInterpolatedPos() ?: return@Listener
         var blockPos: BlockPos = BlockPos(vec3d).down()
         val belowBlockPos = blockPos.down()
 

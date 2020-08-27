@@ -8,7 +8,6 @@ import me.zeroeightsix.kami.event.RenderGuiEvent;
 import me.zeroeightsix.kami.event.TargetEntityEvent;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -36,7 +35,7 @@ public class MixinGameRenderer {
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILHARD)
     public void renderWorld(float tickDelta, long limitTime, MatrixStack matrixStack1, CallbackInfo ci, boolean bl, Camera camera, MatrixStack matrixStack2, Matrix4f matrix4f) {
-        RenderEvent.World worldRenderEvent = new RenderEvent.World(Tessellator.getInstance(), matrixStack1, matrix4f);
+        RenderEvent.World worldRenderEvent = new RenderEvent.World(tickDelta, matrixStack1, matrix4f);
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(matrixStack1.peek().getModel());
         KamiMod.EVENT_BUS.post(worldRenderEvent);

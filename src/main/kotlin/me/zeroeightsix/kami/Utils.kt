@@ -183,11 +183,10 @@ fun Quaternion.toScreen(): Quaternion {
 
 val Entity.prevPos
     get() = Vec3d(prevX, prevY, prevZ)
-val Entity.interpolatedPos: Vec3d
-    get() {
-        val prev = prevPos
-        return prev + (pos - prev) * mc.tickDelta.toDouble()
-    }
+fun Entity.getInterpolatedPos(tickDelta: Float = mc.tickDelta): Vec3d {
+    val prev = prevPos
+    return prev + (pos - prev) * tickDelta.toDouble()
+}
 
 fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
 

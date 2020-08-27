@@ -232,7 +232,7 @@ class ProjectileMimic(
     private var divergence: Double = 0.0
 
     init {
-        val pos = shooter.interpolatedPos
+        val pos = shooter.getInterpolatedPos()
         setPosition(pos.x, pos.y + shooter.standingEyeHeight - 0.10000000149011612, pos.z)
     }
 
@@ -342,7 +342,7 @@ class ThrowableMimic(
     private var divergence: Double = 0.0
 
     init {
-        val pos = shooter.interpolatedPos
+        val pos = shooter.getInterpolatedPos()
         setPosition(pos.x, pos.y + shooter.standingEyeHeight.toDouble() - 0.10000000149011612, pos.z)
     }
 

@@ -7,7 +7,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.event.RenderGuiEvent
-import me.zeroeightsix.kami.interpolatedPos
+import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.util.Target
@@ -52,7 +52,7 @@ object Nametags : Module() {
         val camera = mc.gameRenderer?.camera!!
         val viewport = VectorMath.getViewport()
         renderQueue = targets.entities.mapNotNull { (entity, properties) ->
-            val interpolated = entity.interpolatedPos
+            val interpolated = entity.getInterpolatedPos(event.tickDelta)
             VectorMath.divideVec2f(
                 VectorMath.project3Dto2D(
                     camera.pos.negate()
