@@ -19,10 +19,10 @@ import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.util.math.Vector4f
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Vec2f
 import kotlin.math.roundToInt
 
 @Module.Info(
@@ -40,7 +40,7 @@ object Nametags : Module() {
         )
     )
 
-    var renderQueue: List<Triple<Entity, Vec2f, NametagsTarget>>? = null
+    var renderQueue: List<Triple<Entity, Vector4f, NametagsTarget>>? = null
 
     @EventHandler
     val worldRenderListener = Listener<RenderEvent.World>({ event ->
@@ -54,14 +54,12 @@ object Nametags : Module() {
         val cameraNegated = camera.pos.negate()
         renderQueue = targets.entities.mapNotNull { (entity, properties) ->
             val interpolated = entity.getInterpolatedPos(event.tickDelta)
-            VectorMath.divideVec2f(
-                VectorMath.project3Dto2D(
-                    cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 1, 0.0)),
-                    model,
-                    event.projection
-                ), scale
+            VectorMath.project3Dto2D(
+                cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 1, 0.0)),
+                model,
+                event.projection
             )?.let { p ->
-                Triple(entity, Vec2f(p.x, mc.window.scaledHeight - p.y), properties)
+                Triple(entity, Vector4f(p.x / scale, (mc.window.scaledHeight - p.y / scale), p.z, p.w), properties)
             }
         }
     })
@@ -95,7 +93,7 @@ object Nametags : Module() {
     private fun drawHealthBar(
         bufferBuilder: BufferBuilder,
         width: Int,
-        pos: Vec2f,
+        pos: Vector4f,
         matrix: Matrix4f?,
         fHWidth: Float,
         entity: LivingEntity,
@@ -106,11 +104,12 @@ object Nametags : Module() {
             val xOffset = -width / 2
             val x = pos.x + xOffset
             val y = pos.y + mc.textRenderer.fontHeight
+            val z = pos.w
             fun fill(r: Float, g: Float, b: Float, a: Float, width: Float, height: Float = 2f) {
-                vertex(matrix, x, y + height, 0f).color(r, g, b, a).next()
-                vertex(matrix, x + width, y + height, 0f).color(r, g, b, a).next()
-                vertex(matrix, x + width, y, 0f).color(r, g, b, a).next()
-                vertex(matrix, x, y, 0f).color(r, g, b, a).next()
+                vertex(matrix, x, y + height, z).color(r, g, b, a).next()
+                vertex(matrix, x + width, y + height, z).color(r, g, b, a).next()
+                vertex(matrix, x + width, y, z).color(r, g, b, a).next()
+                vertex(matrix, x, y, z).color(r, g, b, a).next()
             }
 
             RenderSystem.enableBlend()
