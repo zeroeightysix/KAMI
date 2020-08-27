@@ -50,15 +50,14 @@ object Nametags : Module() {
         ).toFloat()
 
         val camera = mc.gameRenderer?.camera!!
-        val viewport = VectorMath.getViewport()
+        val model = event.matrixStack.peek().model
+        val cameraNegated = camera.pos.negate()
         renderQueue = targets.entities.mapNotNull { (entity, properties) ->
             val interpolated = entity.getInterpolatedPos(event.tickDelta)
             VectorMath.divideVec2f(
                 VectorMath.project3Dto2D(
-                    camera.pos.negate()
-                        .add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 1, 0.0)),
-                    viewport,
-                    event.matrixStack.peek().model,
+                    cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 1, 0.0)),
+                    model,
                     event.projection
                 ), scale
             )?.let { p ->
