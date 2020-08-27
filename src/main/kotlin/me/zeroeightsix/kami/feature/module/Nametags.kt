@@ -36,7 +36,12 @@ object Nametags : Module() {
     var targets = Targets(
         mapOf(
             Target.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
-            Target.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f))
+            Target.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f)),
+            Target.ALL_PLAYERS to NametagsTarget(
+                distance = true,
+                items = NametagsTarget.Items.JUST_ITEMS,
+                colour = Colour(1f, 1f, 1f, 1f)
+            )
         )
     )
 
@@ -85,6 +90,20 @@ object Nametags : Module() {
             mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, pos.y, colour)
             if (properties.health && entity is LivingEntity) {
                 drawHealthBar(bufferBuilder, width, pos, matrix, fHWidth, entity, it.matrixStack, properties.colour)
+            }
+            if (properties.distance) {
+                it.matrixStack.matrix {
+                    val distText = "${pos.w.roundToInt()}m"
+                    val distW = mc.textRenderer.getWidth(distText) / 4f
+                    it.matrixStack.translate(
+                        pos.x.toDouble() - distW,
+                        pos.y.toDouble() + mc.textRenderer.fontHeight,
+                        0.0
+                    )
+                    if (properties.health) it.matrixStack.translate(0.0, 3.0, 0.0) // 3 ~= health bar height
+                    it.matrixStack.scale(0.5f, 0.5f, 0f)
+                    mc.textRenderer.drawWithShadow(it.matrixStack, distText, 0f, 0f, properties.colour.asARGB())
+                }
             }
             renderQueue = null
         }
@@ -144,11 +163,12 @@ object Nametags : Module() {
     @GenerateType("Options")
     class NametagsTarget(
         var health: Boolean = true,
-        var items: Items = Items.JUST_ITEMS,
+        var distance: Boolean = false,
+        var items: Items = Items.NONE,
         var colour: Colour = Colour.WHITE
     ) {
         enum class Items {
-            JUST_ITEMS, ITEMS_AND_ENCHANTS
+            NONE, JUST_ITEMS, ITEMS_AND_ENCHANTS
         }
     }
 

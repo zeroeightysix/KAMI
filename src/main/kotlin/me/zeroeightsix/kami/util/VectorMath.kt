@@ -44,7 +44,7 @@ object VectorMath {
 
         return if (x.isInfinite() || y.isInfinite()) {
             null
-        } else Vector4f(x, y, screen.z, 1f / screen.w)
+        } else Vector4f(x, y, screen.z, 1f / (screen.w * 2f))
     }
 
     @JvmStatic
