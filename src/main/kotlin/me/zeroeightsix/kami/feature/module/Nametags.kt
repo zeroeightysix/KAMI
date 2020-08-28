@@ -28,9 +28,16 @@ import net.minecraft.client.util.math.Vector4f
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
+import net.minecraft.text.LiteralText
+import net.minecraft.text.StringVisitable
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.Formatting
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Matrix4f
+import net.minecraft.util.registry.Registry
 import org.lwjgl.opengl.GL11
+import java.util.*
 import kotlin.math.roundToInt
 
 @Info(
@@ -142,7 +149,7 @@ object Nametags : Module() {
             mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, y, colour)
             y -= mc.textRenderer.fontHeight
 
-            properties.items.renderer(it, pos, y, properties.colour.a, entity)
+            properties.items.renderer(it, pos, y, properties.colour.a, colour, entity)
         }
         renderQueue = null
     })
@@ -216,9 +223,9 @@ object Nametags : Module() {
         var items: Items = Items.NONE,
         var colour: Colour = Colour.WHITE
     ) {
-        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Float, Float, Entity) -> Unit) {
-            NONE({ _, _, _, _, _ -> Unit }),
-            JUST_ITEMS({ event, pos, y, alpha, entity ->
+        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Float, Float, Int, Entity) -> Unit) {
+            NONE({ _, _, _, _, _, _ -> Unit }),
+            JUST_ITEMS({ event, pos, y, alpha, colour, entity ->
                 val item = mc.itemRenderer
                 val equipped = entity.itemsEquipped.filter { !it.isEmpty }
 
@@ -284,9 +291,67 @@ object Nametags : Module() {
                 RenderSystem.disableAlphaTest()
                 RenderSystem.disableRescaleNormal()
             }),
-            ITEMS_AND_ENCHANTS({ event, pos, y, alpha, entity ->
-                JUST_ITEMS.renderer(event, pos, y, alpha, entity)
-            })
+            ITEMS_AND_ENCHANTS({ event, pos, y, alpha, colour, entity ->
+                JUST_ITEMS.renderer(event, pos, y, alpha, colour, entity)
+                val y = y - 16 // Items are 16 pixels in size, we're going to draw enchantments above them.
+                val equipped = entity.itemsEquipped.filter { !it.isEmpty }
+
+                event.matrixStack.matrix {
+                    event.matrixStack.translate(
+                        pos.x - equipped.size * 16.0 * 0.5/*centering*/,
+                        y.toDouble(),
+                        0.0
+                    )
+                    event.matrixStack.scale(0.5f, 0.5f, 1f)
+
+                    equipped.forEach {
+                        val enchantments = it.enchantments
+                        var y = 0f
+                        (0..enchantments.size)
+                            .map { enchantments.getCompound(it) }
+                            .forEach {
+                                val id = it.getString("id")
+                                val lvl = it.getInt("lvl")
+                                Registry.ENCHANTMENT.get(Identifier.tryParse(id))?.let {
+                                    enchantmentMap[it]?.let { name ->
+                                        val lvl = TranslatableText("enchantment.level.$lvl")
+                                        val text = name.shallowCopy().append(" ").append(lvl)
+                                        mc.textRenderer.drawWithShadow(event.matrixStack, text, 0f, y, colour)
+                                        y -= mc.textRenderer.fontHeight
+                                    }
+                                }
+                            }
+                        event.matrixStack.translate(16.0 * 2.0 /*scale*/, 0.0, 0.0)
+                    }
+                }
+            });
+
+            companion object {
+                val syllables = Regex("[aeiou]")
+                val enchantmentMap by lazy {
+                    Registry.ENCHANTMENT.entries.map {
+                        val builder = StringBuilder()
+                        TranslatableText(it.value.translationKey).visit {
+                            val str = it.replace(syllables, "")
+                            val v = 3 - builder.length
+                            if (v <= 0)
+                                StringVisitable.TERMINATE_VISIT
+                            else
+                                Optional.empty<net.minecraft.util.Unit>().also {
+                                    builder.append(str.take(v))
+                                }
+                        }
+                        val short = builder.toString()
+
+                        it.value to LiteralText(short).let { text ->
+                            if (it.value.isCursed)
+                                text.formatted(Formatting.RED)
+                            else
+                                text
+                        }
+                    }.toMap()
+                }
+            }
         }
     }
 
