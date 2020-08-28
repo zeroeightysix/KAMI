@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
+import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
@@ -7,6 +8,8 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.event.RenderGuiEvent
+import me.zeroeightsix.kami.feature.module.Module.Category
+import me.zeroeightsix.kami.feature.module.Module.Info
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.setting.GenerateType
@@ -14,10 +17,10 @@ import me.zeroeightsix.kami.util.Target
 import me.zeroeightsix.kami.util.Targets
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.BufferRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.*
+import net.minecraft.client.render.OverlayTexture.DEFAULT_UV
+import net.minecraft.client.render.model.json.ModelTransformation
+import net.minecraft.client.texture.SpriteAtlasTexture
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.client.util.math.Vector4f
 import net.minecraft.entity.Entity
@@ -25,10 +28,10 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Matrix4f
 import kotlin.math.roundToInt
 
-@Module.Info(
+@Info(
     name = "Nametags",
     description = "Draws detailed nametags above entities",
-    category = Module.Category.RENDER
+    category = Category.RENDER
 )
 object Nametags : Module() {
 
@@ -105,6 +108,7 @@ object Nametags : Module() {
                     mc.textRenderer.drawWithShadow(it.matrixStack, distText, 0f, 0f, properties.colour.asARGB())
                 }
             }
+            properties.items.renderer(it, pos, entity)
             renderQueue = null
         }
     })
@@ -167,8 +171,64 @@ object Nametags : Module() {
         var items: Items = Items.NONE,
         var colour: Colour = Colour.WHITE
     ) {
-        enum class Items {
-            NONE, JUST_ITEMS, ITEMS_AND_ENCHANTS
+        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Entity) -> Unit) {
+            NONE({ _, _, _ -> Unit }),
+            JUST_ITEMS({ event, pos, entity ->
+                val item = mc.itemRenderer
+                val equipped = entity.itemsEquipped.filter { !it.isEmpty }
+
+                val immediate = mc.bufferBuilders.entityVertexConsumers
+
+                mc.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX)
+                mc.textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX)!!.setFilter(false, false)
+
+                RenderSystem.enableRescaleNormal()
+                RenderSystem.enableAlphaTest()
+                RenderSystem.defaultAlphaFunc()
+                RenderSystem.enableBlend()
+                RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+                RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f)
+
+                event.matrixStack.matrix {
+                    event.matrixStack.translate(pos.x + 8.0, (pos.y - mc.textRenderer.fontHeight).toDouble(), 150.0)
+                    event.matrixStack.scale(1.0F, -1.0F, 1.0F)
+                    event.matrixStack.scale(16.0F, 16.0F, 16.0F)
+                    event.matrixStack.translate(-(equipped.size) / 2.0, 0.0, 0.0)
+
+                    equipped.forEach {
+                        val model = item.getHeldItemModel(it, null, null)
+
+                        val bl: Boolean = !model.isSideLit
+                        if (bl) {
+                            DiffuseLighting.disableGuiDepthLighting()
+                        }
+
+                        item.renderItem(
+                            it,
+                            ModelTransformation.Mode.GUI,
+                            false,
+                            event.matrixStack,
+                            immediate,
+                            0xF000F0,
+                            DEFAULT_UV,
+                            model
+                        )
+                        immediate.draw()
+
+                        if (bl) {
+                            DiffuseLighting.enableGuiDepthLighting()
+                        }
+
+                        event.matrixStack.translate(1.0, 0.0, 0.0)
+                    }
+                }
+
+                RenderSystem.disableAlphaTest()
+                RenderSystem.disableRescaleNormal()
+            }),
+            ITEMS_AND_ENCHANTS({ event, pos, entity ->
+                JUST_ITEMS.renderer(event, pos, entity)
+            })
         }
     }
 
