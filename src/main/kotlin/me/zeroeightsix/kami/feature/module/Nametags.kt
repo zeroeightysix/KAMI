@@ -26,6 +26,7 @@ import net.minecraft.client.util.math.Vector4f
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Matrix4f
+import org.lwjgl.opengl.GL11
 import kotlin.math.roundToInt
 
 @Info(
@@ -90,33 +91,63 @@ object Nametags : Module() {
             val text = entity.displayName.string
             val width = mc.textRenderer.getWidth(text)
             val colour = properties.colour.asARGB()
-            mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, pos.y, colour)
-            if (properties.health && entity is LivingEntity) {
-                drawHealthBar(bufferBuilder, width, pos, matrix, fHWidth, entity, it.matrixStack, properties.colour)
-            }
-            if (properties.distance) {
+
+            // When rendering text, the coordinate passed is the top-left of where the text will be rendered.
+            // We want everything to be rendered 'above' the 2D position (consistent scaling), so we subtract the font height.
+            var y = pos.y - mc.textRenderer.fontHeight
+
+            // We draw bottom-to-top to easily shift the y coordinate based on what does get rendered and what not.
+            // If we drew top-to-bottom, we'd first have to calculate the height of all elements before being able to render them,
+            // As the y coordinate would have to be shifted all the way up first.
+            // This explains the weird ordering of rendered elements.
+            if (properties.distance && !pos.w.isNaN()) {
                 it.matrixStack.matrix {
+                    y -= (mc.textRenderer.fontHeight) / 2f
+                    // `pos.w` is the distance of the world coordinate to the near plane (projection distance).
+                    // It's not the same distance as that of the entity to the player, but it's close enough and saves us some calculations.
+                    // It has the side effect of the distance changing as the player rotates their camera.
                     val distText = "${pos.w.roundToInt()}m"
                     val distW = mc.textRenderer.getWidth(distText) / 4f
                     it.matrixStack.translate(
                         pos.x.toDouble() - distW,
-                        pos.y.toDouble() + mc.textRenderer.fontHeight,
+                        (y + mc.textRenderer.fontHeight).toDouble(),
                         0.0
                     )
-                    if (properties.health) it.matrixStack.translate(0.0, 3.0, 0.0) // 3 ~= health bar height
                     it.matrixStack.scale(0.5f, 0.5f, 0f)
                     mc.textRenderer.drawWithShadow(it.matrixStack, distText, 0f, 0f, properties.colour.asARGB())
                 }
             }
-            properties.items.renderer(it, pos, entity)
-            renderQueue = null
+
+            if (properties.health && entity is LivingEntity) {
+                // Shift everything else up by 2.5 pixels, which is the height of the health bar.
+                y -= 2.5f
+                drawHealthBar(
+                    bufferBuilder,
+                    width,
+                    pos,
+                    y + mc.textRenderer.fontHeight,
+                    matrix,
+                    fHWidth,
+                    entity,
+                    it.matrixStack,
+                    properties.colour
+                )
+            }
+
+            // Draw the nametag itself
+            mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, y, colour)
+            y -= mc.textRenderer.fontHeight
+
+            properties.items.renderer(it, pos, y, entity)
         }
+        renderQueue = null
     })
 
     private fun drawHealthBar(
         bufferBuilder: BufferBuilder,
         width: Int,
         pos: Vector4f,
+        y: Float,
         matrix: Matrix4f?,
         fHWidth: Float,
         entity: LivingEntity,
@@ -126,7 +157,6 @@ object Nametags : Module() {
         with(bufferBuilder) {
             val xOffset = -width / 2
             val x = pos.x + xOffset
-            val y = pos.y + mc.textRenderer.fontHeight
             val z = pos.w
             fun fill(r: Float, g: Float, b: Float, a: Float, width: Float, height: Float = 2f) {
                 vertex(matrix, x, y + height, z).color(r, g, b, a).next()
@@ -142,7 +172,7 @@ object Nametags : Module() {
             // We never want the bar width to be extremely small, so we limit it to being as big as the health text.
             val barWidth = (width.toFloat() - fHWidth).coerceAtLeast(fHWidth) - 1
 
-            begin(7, VertexFormats.POSITION_COLOR)
+            begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
             fill(0f, 0f, 0f, colour.a * 0.5f, barWidth, 2.5f)
             fill(1f, 0f, 0f, colour.a * 0.7f, barWidth * (entity.health / entity.maxHealth))
             end()
@@ -171,9 +201,9 @@ object Nametags : Module() {
         var items: Items = Items.NONE,
         var colour: Colour = Colour.WHITE
     ) {
-        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Entity) -> Unit) {
-            NONE({ _, _, _ -> Unit }),
-            JUST_ITEMS({ event, pos, entity ->
+        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Float, Entity) -> Unit) {
+            NONE({ _, _, _, _ -> Unit }),
+            JUST_ITEMS({ event, pos, y, entity ->
                 val item = mc.itemRenderer
                 val equipped = entity.itemsEquipped.filter { !it.isEmpty }
 
@@ -190,7 +220,7 @@ object Nametags : Module() {
                 RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f)
 
                 event.matrixStack.matrix {
-                    event.matrixStack.translate(pos.x + 8.0, (pos.y - mc.textRenderer.fontHeight).toDouble(), 150.0)
+                    event.matrixStack.translate(pos.x + 8.0, y.toDouble(), 150.0)
                     event.matrixStack.scale(1.0F, -1.0F, 1.0F)
                     event.matrixStack.scale(16.0F, 16.0F, 16.0F)
                     event.matrixStack.translate(-(equipped.size) / 2.0, 0.0, 0.0)
@@ -226,8 +256,8 @@ object Nametags : Module() {
                 RenderSystem.disableAlphaTest()
                 RenderSystem.disableRescaleNormal()
             }),
-            ITEMS_AND_ENCHANTS({ event, pos, entity ->
-                JUST_ITEMS.renderer(event, pos, entity)
+            ITEMS_AND_ENCHANTS({ event, pos, y, entity ->
+                JUST_ITEMS.renderer(event, pos, y, entity)
             })
         }
     }
