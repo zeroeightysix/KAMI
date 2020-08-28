@@ -17,14 +17,18 @@ import me.zeroeightsix.kami.util.Target
 import me.zeroeightsix.kami.util.Targets
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.*
 import net.minecraft.client.render.OverlayTexture.DEFAULT_UV
+import net.minecraft.client.render.item.ItemRenderer
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.SpriteAtlasTexture
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.client.util.math.Vector4f
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.item.ItemStack
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Matrix4f
 import org.lwjgl.opengl.GL11
 import kotlin.math.roundToInt
@@ -138,7 +142,7 @@ object Nametags : Module() {
             mc.textRenderer.drawWithShadow(it.matrixStack, text, pos.x - width / 2, y, colour)
             y -= mc.textRenderer.fontHeight
 
-            properties.items.renderer(it, pos, y, entity)
+            properties.items.renderer(it, pos, y, properties.colour.a, entity)
         }
         renderQueue = null
     })
@@ -212,9 +216,9 @@ object Nametags : Module() {
         var items: Items = Items.NONE,
         var colour: Colour = Colour.WHITE
     ) {
-        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Float, Entity) -> Unit) {
-            NONE({ _, _, _, _ -> Unit }),
-            JUST_ITEMS({ event, pos, y, entity ->
+        enum class Items(val renderer: (RenderGuiEvent, Vector4f, Float, Float, Entity) -> Unit) {
+            NONE({ _, _, _, _, _ -> Unit }),
+            JUST_ITEMS({ event, pos, y, alpha, entity ->
                 val item = mc.itemRenderer
                 val equipped = entity.itemsEquipped.filter { !it.isEmpty }
 
@@ -232,8 +236,7 @@ object Nametags : Module() {
 
                 event.matrixStack.matrix {
                     event.matrixStack.translate(pos.x + 8.0, y.toDouble(), 150.0)
-                    event.matrixStack.scale(1.0F, -1.0F, 1.0F)
-                    event.matrixStack.scale(16.0F, 16.0F, 16.0F)
+                    event.matrixStack.scale(16.0F, -16.0F, 16.0F)
                     event.matrixStack.translate(-(equipped.size) / 2.0, 0.0, 0.0)
 
                     equipped.forEach {
@@ -264,12 +267,126 @@ object Nametags : Module() {
                     }
                 }
 
+                event.matrixStack.matrix {
+                    event.matrixStack.translate(
+                        pos.x - equipped.size * 16.0 * 0.5/*centering*/,
+                        y.toDouble() - 8.0,
+                        0.0
+                    )
+
+                    equipped.forEach {
+                        item.renderGuiItemOverlay(stack = it, matrices = event.matrixStack)
+                        event.matrixStack.translate(16.0, 0.0, 0.0)
+                    }
+
+                }
+
                 RenderSystem.disableAlphaTest()
                 RenderSystem.disableRescaleNormal()
             }),
-            ITEMS_AND_ENCHANTS({ event, pos, y, entity ->
-                JUST_ITEMS.renderer(event, pos, y, entity)
+            ITEMS_AND_ENCHANTS({ event, pos, y, alpha, entity ->
+                JUST_ITEMS.renderer(event, pos, y, alpha, entity)
             })
+        }
+    }
+
+    /**
+     * Simplified copy of [ItemRenderer.renderGuiItemOverlay] but taking a [MatrixStack] instead of creating an empty one
+     *
+     * Renders the overlay for items in GUIs, including the damage bar and the item count.
+     *
+     * @param countLabel a label for the stack; if null, the stack count is drawn instead
+     */
+    fun ItemRenderer.renderGuiItemOverlay(
+        renderer: TextRenderer = mc.textRenderer,
+        stack: ItemStack,
+        matrices: MatrixStack
+    ) {
+        if (!stack.isEmpty) {
+            val matrix = matrices.peek().model
+
+            fun BufferBuilder.drawQuad(x: Float, y: Float, width: Int, height: Int, r: Int, g: Int, b: Int, a: Int) {
+                vertex(matrix, x, y + height, 0f).color(r, g, b, a).next()
+                vertex(matrix, x + width, y + height, 0f).color(r, g, b, a).next()
+                vertex(matrix, x + width, y, 0f).color(r, g, b, a).next()
+                vertex(matrix, x, y, 0f).color(r, g, b, a).next()
+            }
+
+            if (stack.count != 1) {
+                val string = stack.count.toString()
+                val z = (zOffset + 200.0f).toDouble()
+                matrices.translate(0.0, 0.0, z)
+                renderer.drawWithShadow(
+                    matrices,
+                    string,
+                    (19 - 2 - renderer.getWidth(string)).toFloat(),
+                    (6 + 3).toFloat(),
+                    16777215,
+                )
+                matrices.translate(0.0, 0.0, -z)
+            }
+            if (stack.isDamaged) {
+                RenderSystem.disableDepthTest()
+                RenderSystem.disableTexture()
+                RenderSystem.disableAlphaTest()
+                RenderSystem.disableBlend()
+                val tessellator = Tessellator.getInstance()
+                val bufferBuilder = tessellator.buffer
+                val f = stack.damage.toFloat()
+                val g = stack.maxDamage.toFloat()
+                val h = Math.max(0.0f, (g - f) / g)
+                val i = Math.round(13.0f - f * 13.0f / g)
+                val j = MathHelper.hsvToRgb(h / 3.0f, 1.0f, 1.0f)
+
+                bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
+                bufferBuilder.drawQuad(
+                    2f, 13f,
+                    13, 2,
+                    0, 0, 0, 255
+                )
+                bufferBuilder.drawQuad(
+                    2f, 13f,
+                    i, 1,
+                    j shr 16 and 255,
+                    j shr 8 and 255,
+                    j and 255,
+                    255
+                )
+                bufferBuilder.end()
+                BufferRenderer.draw(bufferBuilder)
+
+                RenderSystem.enableBlend()
+                RenderSystem.enableAlphaTest()
+                RenderSystem.enableTexture()
+                RenderSystem.enableDepthTest()
+            }
+            val clientPlayerEntity = MinecraftClient.getInstance().player
+            val k = clientPlayerEntity?.itemCooldownManager?.getCooldownProgress(
+                stack.item,
+                MinecraftClient.getInstance().tickDelta
+            ) ?: 0.0f
+            if (k > 0.0f) {
+                RenderSystem.disableDepthTest()
+                RenderSystem.disableTexture()
+                RenderSystem.enableBlend()
+                RenderSystem.defaultBlendFunc()
+                val tessellator2 = Tessellator.getInstance()
+                val bufferBuilder = tessellator2.buffer
+                bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
+                bufferBuilder.drawQuad(
+                    0f, MathHelper.floor(16.0f * (1.0f - k)).toFloat(),
+                    16, MathHelper.ceil(16.0f * k),
+                    255,
+                    255,
+                    255,
+                    127
+                )
+                bufferBuilder.end()
+                BufferRenderer.draw(bufferBuilder)
+
+                RenderSystem.enableTexture()
+                RenderSystem.enableDepthTest()
+            }
         }
     }
 
