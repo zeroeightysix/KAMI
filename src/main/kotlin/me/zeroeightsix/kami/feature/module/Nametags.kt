@@ -314,8 +314,8 @@ object Nametags : Module() {
                                 val lvl = it.getInt("lvl")
                                 Registry.ENCHANTMENT.get(Identifier.tryParse(id))?.let {
                                     enchantmentMap[it]?.let { name ->
-                                        val lvl = TranslatableText("enchantment.level.$lvl")
-                                        val text = name.shallowCopy().append(" ").append(lvl)
+                                        val lvl = TranslatableText("enchantment.level.$lvl").formatted(Formatting.GRAY)
+                                        val text = name.shallowCopy().append(lvl)
                                         mc.textRenderer.drawWithShadow(event.matrixStack, text, 0f, y, colour)
                                         y -= mc.textRenderer.fontHeight
                                     }
