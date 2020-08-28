@@ -64,7 +64,7 @@ object Nametags : Module() {
         renderQueue = targets.entities.mapNotNull { (entity, properties) ->
             val interpolated = entity.getInterpolatedPos(event.tickDelta)
             VectorMath.project3Dto2D(
-                cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 1, 0.0)),
+                cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 0.5, 0.0)),
                 model,
                 event.projection
             )?.let { p ->
