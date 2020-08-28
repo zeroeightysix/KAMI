@@ -332,6 +332,12 @@ object Nametags : Module() {
                     Registry.ENCHANTMENT.entries.map {
                         val builder = StringBuilder()
                         TranslatableText(it.value.translationKey).visit {
+                            it.split(" ").let {
+                                if (it.size == 3) { // The enchantment is three words - we abbreviate instead of first 3 letters
+                                    builder.append("${it[0][0]}${it[1][0]}${it[2][0]}")
+                                    return@visit StringVisitable.TERMINATE_VISIT
+                                }
+                            }
                             val str = it.replace(syllables, "")
                             val v = 3 - builder.length
                             if (v <= 0)
