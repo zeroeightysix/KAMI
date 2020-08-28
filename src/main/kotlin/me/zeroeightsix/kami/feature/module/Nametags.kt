@@ -165,6 +165,8 @@ object Nametags : Module() {
                 vertex(matrix, x, y, z).color(r, g, b, a).next()
             }
 
+            val absorption = entity.absorptionAmount
+
             RenderSystem.enableBlend()
             RenderSystem.disableTexture()
             RenderSystem.defaultBlendFunc()
@@ -175,6 +177,9 @@ object Nametags : Module() {
             begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
             fill(0f, 0f, 0f, colour.a * 0.5f, barWidth, 2.5f)
             fill(1f, 0f, 0f, colour.a * 0.7f, barWidth * (entity.health / entity.maxHealth))
+            if (absorption > 0) {
+                fill(1f, .85f, 0f, colour.a * 0.7f, barWidth * (absorption / entity.maxHealth).coerceAtMost(1f))
+            }
             end()
 
             BufferRenderer.draw(this)
@@ -189,7 +194,13 @@ object Nametags : Module() {
                 // To align the center baseline with the health bar
                 // Divisions: center and scale
                 val textY = -mc.textRenderer.fontHeight / 2f / 2f
-                mc.textRenderer.drawWithShadow(matrices, "${entity.health.roundToInt()}", 0f, textY, colour.asARGB())
+                mc.textRenderer.drawWithShadow(
+                    matrices,
+                    "${(entity.health + absorption).roundToInt()}",
+                    0f,
+                    textY,
+                    colour.asARGB()
+                )
             }
         }
     }
