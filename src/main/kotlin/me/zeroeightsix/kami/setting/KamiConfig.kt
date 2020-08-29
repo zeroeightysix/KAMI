@@ -566,7 +566,7 @@ object KamiConfig {
         // Then we can just add @FindSettings to the module class and remove this method
         constructFeaturesConfiguration(builder, settings)
 
-        findAnnotatedSettings().also { println(it) }.entries.forEach { (root, list) ->
+        findAnnotatedSettings().entries.forEach { (root, list) ->
             val builder = when {
                 root.isEmpty() -> builder
                 else -> builder.fork(root)
