@@ -31,21 +31,32 @@ fun isHostile(e: Entity) = e is HostileEntity || (e is Angerable && e.angryAt ==
 
 operator fun <T> ((T) -> Boolean).not() = { t: T -> !this(t) }
 
-private fun allEntities(belongsFunc: (Entity) -> Boolean) = ResettableLazy {
-    mc.world?.entities?.filter(belongsFunc)
-}
+private fun allEntities() = mc.world?.entities
+private fun allPlayers() = mc.world?.players
 
-enum class Target(private val provider: ResettableLazy<List<Entity>?>) {
-    LIVING(allEntities { it is LivingEntity }),
-    NOT_LIVING(allEntities { it !is LivingEntity }),
-    PASSIVE(allEntities(::isPassive)),
-    HOSTILE(allEntities(::isHostile)),
-    ALL_PLAYERS(ResettableLazy { mc.world?.players }),
-    FRIENDLY_PLAYERS(ResettableLazy { ALL_PLAYERS.entities?.filter { (it as PlayerEntity).isFriend() } }),
-    NONFRIENDLY_PLAYERS(ResettableLazy { ALL_PLAYERS.entities?.filter { !(it as PlayerEntity).isFriend() } });
+enum class Target(
+    val belongsFunc: (Entity) -> Boolean,
+    internal val baseCollection: () -> Iterable<Entity>?,
+    internal val genericBaseBelongsFunc: (Entity) -> Boolean = { true }
+) {
+    LIVING({ it is LivingEntity }, ::allEntities),
+    NOT_LIVING({ it !is LivingEntity }, ::allEntities),
+    PASSIVE(::isPassive, LIVING::entities),
+    HOSTILE(::isHostile, LIVING::entities),
+    ALL_PLAYERS({ true }, ::allPlayers, { it is PlayerEntity }),
+    FRIENDLY_PLAYERS({ (it as PlayerEntity).isFriend() }, ALL_PLAYERS::entities, ALL_PLAYERS.genericBaseBelongsFunc),
+    NONFRIENDLY_PLAYERS(
+        { !(it as PlayerEntity).isFriend() },
+        ALL_PLAYERS::entities,
+        ALL_PLAYERS.genericBaseBelongsFunc
+    );
+
+    val provider = ResettableLazy {
+        this.baseCollection()?.filter { this.belongsFunc(it) }
+    }
+    val entities by provider
 
     fun invalidate() = provider.invalidate()
-    val entities by provider
 }
 
 class Targets<T>(private val inner: Map<Target, T>) : Map<Target, T> by inner {
@@ -60,4 +71,7 @@ class Targets<T>(private val inner: Map<Target, T>) : Map<Target, T> by inner {
         map.remove(mc.player) // We never want the player included in the entity list. Sorry bud.
         return map
     }
+
+    fun belongs(entity: Entity) =
+        this.entries.find { it.key.genericBaseBelongsFunc(entity) && it.key.belongsFunc(entity) }?.value
 }
