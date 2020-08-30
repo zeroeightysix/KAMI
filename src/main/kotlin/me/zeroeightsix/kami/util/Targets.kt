@@ -55,6 +55,7 @@ enum class EntityTarget(
      */
     internal val genericBaseBelongsFunc: (Entity) -> Boolean = { true }
 ) {
+    NONE({ false }, ::emptyList, { false }),
     LIVING({ it is LivingEntity }, ::allEntities),
     NOT_LIVING({ it !is LivingEntity }, ::allEntities),
     PASSIVE(::isPassive, LIVING::entities),
@@ -88,6 +89,7 @@ enum class BlockTarget(
     val belongsFunc: (BlockEntity) -> Boolean,
     internal val baseCollection: () -> Iterable<BlockEntity>?
 ) {
+    NONE({ false }, ::emptyList),
     ALL_BLOCK_ENTITIES({ true }, ::allBlockEntities),
     CONTAINERS({ it is Inventory }, ::allBlockEntities),
     CHESTS({ it is ChestBlockEntity }, ::allBlockEntities),
