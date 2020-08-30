@@ -33,6 +33,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}"
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e"
 
 //    compile "me.zeroeightsix:fiber:${project.fiber_version}-SNAPSHOT"
     implementation "com.github.fablabsmc:fiber:${project.fiber_version}"
@@ -67,6 +68,7 @@ dependencies {
     include group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: project.kotlin_version
     include 'org.javassist:javassist:3.21.0-GA'
     include 'org.jetbrains:annotations:13.0'
+    include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e"
 }
 
 processResources {
