@@ -85,6 +85,8 @@ open class TextPinnableWidget(
         private infix fun String.numeric(valProvider: () -> Double) =
             this to { CompiledText.NumericalVariable(this, valProvider, 0) }
 
+        private fun toMb(bytes: Long) = (bytes / 1e+6).toDouble()
+
         val varMap: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
             "none" const { "No variable selected " },
             "x" numeric { mc.player?.pos?.x ?: 0.0 },
@@ -98,7 +100,11 @@ open class TextPinnableWidget(
             "version" const { KamiMod.MODVER },
             "client" const { KamiMod.MODNAME },
             "kanji" const { KamiMod.KAMI_KANJI },
-            "modules" to { modulesVariable }
+            "modules" to { modulesVariable },
+            // maybe i should implement a 'calculation' part that runs an equation on some user-defined variables.. jk.. unless? :flushed:
+            "memory_used_mb" numeric { toMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) },
+            "memory_free_mb" numeric { toMb(Runtime.getRuntime().freeMemory()) },
+            "memory_total_mb" numeric { toMb(Runtime.getRuntime().totalMemory()) }
         )
     }
 
