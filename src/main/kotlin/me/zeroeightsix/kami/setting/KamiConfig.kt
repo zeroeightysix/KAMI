@@ -118,17 +118,17 @@ object KamiConfig {
     val colourModeType = ConfigTypes.makeEnum(TextPinnableWidget.CompiledText.Part.ColourMode::class.java)
     val partSerializableType = RecordSerializableType(
         mapOf(
-            Pair("obfuscated", BOOLEAN),
-            Pair("bold", BOOLEAN),
-            Pair("strike", BOOLEAN),
-            Pair("underline", BOOLEAN),
-            Pair("italic", BOOLEAN),
-            Pair("shadow", BOOLEAN),
-            Pair("extraspace", BOOLEAN),
-            Pair("colourMode", colourModeType.serializedType),
-            Pair("type", DEFAULT_STRING),
-            Pair("value", DEFAULT_STRING),
-            Pair("colour", colourType.serializedType)
+            "obfuscated" to BOOLEAN,
+            "bold" to BOOLEAN,
+            "strike" to BOOLEAN,
+            "underline" to BOOLEAN,
+            "italic" to BOOLEAN,
+            "shadow" to BOOLEAN,
+            "extraspace" to BOOLEAN,
+            "colourMode" to colourModeType.serializedType,
+            "type" to DEFAULT_STRING,
+            "value" to DEFAULT_STRING,
+            "colour" to colourType.serializedType
         )
     )
     val partType = RecordConfigType(partSerializableType, TextPinnableWidget.CompiledText.Part::class.java, {
@@ -212,23 +212,29 @@ object KamiConfig {
     )
     val listOfCompiledTextType = ConfigTypes.makeList(compiledTextType)
     val positionType = ConfigTypes.makeEnum(PinnableWidget.Position::class.java)
+    val alignmentType = ConfigTypes.makeEnum(TextPinnableWidget.Alignment::class.java)
     val textPinnableSerializableType = RecordSerializableType(
         mapOf(
             "texts" to listOfCompiledTextType.serializedType,
             "title" to DEFAULT_STRING,
-            "position" to positionType.serializedType
+            "position" to positionType.serializedType,
+            "alignment" to alignmentType.serializedType
         )
     )
     val textPinnableWidgetType = RecordConfigType(textPinnableSerializableType, TextPinnableWidget::class.java, {
         val title = it["title"] as String
         val position = positionType.toRuntimeType(it["position"] as String?)
         val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
-        TextPinnableWidget(title, texts.toMutableList(), position)
+        val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
+        TextPinnableWidget(title, texts.toMutableList(), position).also {
+            it.textAlignment = alignment
+        }
     }, {
         mapOf(
             "texts" to listOfCompiledTextType.toSerializedType(it.text),
             "title" to it.title,
-            "position" to positionType.toSerializedType(it.position)
+            "position" to positionType.toSerializedType(it.position),
+            "alignment" to alignmentType.toSerializedType(it.textAlignment)
         )
     })
     val widgetsType = ConfigTypes.makeList(textPinnableWidgetType).derive(EnabledWidgets.Widgets::class.java, {

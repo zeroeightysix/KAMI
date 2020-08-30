@@ -56,7 +56,7 @@ open class TextPinnableWidget(
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
 
-    private var textAlignment = Alignment.LEFT
+    var textAlignment = Alignment.LEFT
 
     private var immediateTextDelegate = ResettableLazy {
         val scale = KamiHud.getScale()
