@@ -5,6 +5,7 @@ import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.RenderWeatherEvent;
 import me.zeroeightsix.kami.feature.module.ESP;
 import me.zeroeightsix.kami.feature.module.Freecam;
+import me.zeroeightsix.kami.mixin.duck.HotSwappable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.ShaderEffect;
@@ -23,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldRenderer.class)
-public abstract class MixinWorldRenderer {
+public abstract class MixinWorldRenderer implements HotSwappable {
 
     @Shadow
     @Final
@@ -72,18 +73,23 @@ public abstract class MixinWorldRenderer {
         if (ESP.INSTANCE.getEnabled()) {
             Colour colour = ESP.INSTANCE.getTargets().belongs(entity);
             if (colour != null) {
-                Framebuffer entityOutlinesFramebuffer = this.entityOutlinesFramebuffer;
-                this.entityOutlinesFramebuffer = ESP.INSTANCE.getEntityOutlinesFramebuffer();
-
-                OutlineVertexConsumerProvider provider = ESP.INSTANCE.getOutlineConsumerProvider();
-                provider.setColor((int) (colour.getR() * 255), (int) (colour.getG() * 255), (int) (colour.getB() * 255), (int) (colour.getA() * 255));
-                this.renderEntity(entity, cameraX, cameraY, cameraZ, tickDelta, matrices, provider);
-
-                this.entityOutlinesFramebuffer = entityOutlinesFramebuffer;
+                swapWhile(() -> {
+                    OutlineVertexConsumerProvider provider = ESP.INSTANCE.getOutlineConsumerProvider();
+                    provider.setColor((int) (colour.getR() * 255), (int) (colour.getG() * 255), (int) (colour.getB() * 255), (int) (colour.getA() * 255));
+                    this.renderEntity(entity, cameraX, cameraY, cameraZ, tickDelta, matrices, provider);
+                });
                 return;
             }
         }
         this.renderEntity(entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
+    }
+
+    @Override
+    public void swapWhile(Runnable runnable) {
+        Framebuffer entityOutlinesFramebuffer = this.entityOutlinesFramebuffer;
+        this.entityOutlinesFramebuffer = ESP.INSTANCE.getEntityOutlinesFramebuffer();
+        runnable.run();
+        this.entityOutlinesFramebuffer = entityOutlinesFramebuffer;
     }
 
     @Shadow
