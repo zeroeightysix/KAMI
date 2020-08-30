@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.feature.module
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.Client.InGame
@@ -27,15 +26,12 @@ object Scaffold : Module() {
         Blocks.TRAPPED_CHEST
     )
 
-    @Setting(name = "Ticks")
-    private var future = 2
-
-    private fun hasNeighbour(blockPos: BlockPos): Boolean {
+    private fun getIrreplaceableNeighbour(blockPos: BlockPos): Pair<BlockPos, Direction>? {
         for (side in Direction.values()) {
             val neighbour = blockPos.offset(side)
-            if (!Wrapper.getWorld().getBlockState(neighbour).material.isReplaceable) return true
+            if (mc.world?.getBlockState(neighbour)?.material?.isReplaceable == false) return neighbour to side.opposite
         }
-        return false
+        return null
     }
 
     @EventHandler
@@ -92,82 +88,32 @@ object Scaffold : Module() {
         Wrapper.getPlayer().inventory.selectedSlot = newSlot
 
         // check if we don't have a block adjacent to blockpos
-        if (!hasNeighbour(blockPos)) {
-            // find air adjacent to blockpos that does have a block adjacent to it, let's fill this first as to form a bridge between the player and the original blockpos. necessary if the player is going diagonal.
-            var broke = false
-            for (side in Direction.values()) {
-                val neighbour = blockPos.offset(side)
-                if (hasNeighbour(neighbour)) {
-                    blockPos = neighbour
-                    broke = true
-                    break
+        getIrreplaceableNeighbour(blockPos).let {
+            if (it == null) {
+                for (side in Direction.values()) {
+                    return@let getIrreplaceableNeighbour(blockPos.offset(side)) ?: continue
                 }
             }
-            if (!broke) {
-                return@Listener
-            }
+            it
+        }?.let { (solid, side) ->
+            // place block
+            placeBlockScaffold(solid, side)
         }
-
-        // place block
-        placeBlockScaffold(blockPos)
 
         // reset slot
         Wrapper.getPlayer().inventory.selectedSlot = oldSlot
     })
 
-    fun placeBlockScaffold(pos: BlockPos): Boolean {
-        val eyesPos = Vec3d(
-            Wrapper.getPlayer().x,
-            Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(Wrapper.getPlayer().pose),
-            Wrapper.getPlayer().z
+    fun placeBlockScaffold(solid: BlockPos, side: Direction) {
+//        faceVectorPacketInstant(hitVec) // TODO: some util that manages look packets. Now the player will rapidly look up and down which is silly
+        mc.interactionManager?.interactBlock(
+            mc.player,
+            mc.world,
+            Hand.MAIN_HAND,
+            BlockHitResult(null, side, solid, false)
         )
-        for (side in Direction.values()) {
-            val neighbor = pos.offset(side)
-            val side2 = side.opposite
-
-            // check if side is visible (facing away from player)
-            if (eyesPos.squaredDistanceTo(
-                    Vec3d(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble()).add(0.5, 0.5, 0.5)
-                ) >= eyesPos
-                    .squaredDistanceTo(
-                        Vec3d(
-                            neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
-                        ).add(0.5, 0.5, 0.5)
-                    )
-            ) continue
-
-            // check if neighbor can be right clicked
-            if (!canBeClicked(neighbor)) continue
-            val hitVec = Vec3d(
-                neighbor.x.toDouble(), neighbor.y.toDouble(), neighbor.z.toDouble()
-            ).add(0.5, 0.5, 0.5)
-                .add(
-                    Vec3d(
-                        side2.vector.x.toDouble(), side2.vector.y.toDouble(), side2.vector.z.toDouble()
-                    ).multiply(0.5)
-                )
-
-            // check if hitVec is within range (4.25 blocks)
-            if (eyesPos.squaredDistanceTo(hitVec) > 18.0625) continue
-
-            // place block
-            faceVectorPacketInstant(hitVec)
-            processRightClickBlock(neighbor, side2, hitVec)
-            Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
-            (mc as IMinecraftClient).setItemUseCooldown(4)
-            return true
-        }
-        return false
-    }
-
-    fun processRightClickBlock(
-        pos: BlockPos?, side: Direction?,
-        hitVec: Vec3d?
-    ) {
-        mc.interactionManager!!.interactBlock(
-            Wrapper.getPlayer(),
-            mc.world, Hand.MAIN_HAND, BlockHitResult(hitVec, side, pos, false)
-        )
+        Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
+        (mc as IMinecraftClient).setItemUseCooldown(4)
     }
 
     fun getState(pos: BlockPos?): BlockState {
@@ -179,8 +125,7 @@ object Scaffold : Module() {
     }
 
     fun canBeClicked(pos: BlockPos?): Boolean {
-        //return getBlock(pos).canCollideCheck(getState(pos), false);
-        return true // TODO
+        return mc.world?.canPlace(getState(pos), pos, ShapeContext.absent()) ?: false
     }
 
     @JvmStatic
