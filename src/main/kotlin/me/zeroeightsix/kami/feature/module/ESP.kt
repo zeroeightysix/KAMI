@@ -4,12 +4,13 @@ import com.google.gson.JsonSyntaxException
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.util.BlockTarget
+import me.zeroeightsix.kami.util.BlockTargets
 import me.zeroeightsix.kami.util.EntityTarget
 import me.zeroeightsix.kami.util.EntityTargets
 import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.gl.ShaderEffect
 import net.minecraft.client.render.OutlineVertexConsumerProvider
-import net.minecraft.client.render.RenderPhase
 import net.minecraft.util.Identifier
 import java.io.IOException
 
@@ -22,21 +23,22 @@ object ESP : Module() {
     var outlineShader: ShaderEffect? = null
     var entityOutlinesFramebuffer: Framebuffer? = null
 
-    private val SHARP_OUTLINE_TARGET = RenderPhase.Target("sharp_outline_target", {
-        entityOutlinesFramebuffer?.beginWrite(false)
-    }, {
-        mc.framebuffer.beginWrite(true)
-    })
-
     // Lazy so the init happens when everything is set up; otherwise entityVertexConsumers will be null
     val outlineConsumerProvider by lazy {
         OutlineVertexConsumerProvider(mc.bufferBuilders.entityVertexConsumers)
     }
 
-    @Setting
+    @Setting(name = "Entities")
     var targets = EntityTargets(
         mapOf(
             EntityTarget.ALL_PLAYERS to Colour.WHITE
+        )
+    )
+
+    @Setting(name = "Block entities")
+    var blockTargets = BlockTargets(
+        mapOf(
+            BlockTarget.CHESTS to Colour(1f, 0.92f, 0.81f, 0.28f) // Gold brownish
         )
     )
 

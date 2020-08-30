@@ -27,6 +27,7 @@
     "IShulkerBoxBlockEntity",
     "MixinBackgroundRenderer",
     "MixinBeaconBlockEntity",
+    "MixinBlockEntityRenderDispatcher",
     "MixinBossBarHud",
     "MixinCamera",
     "MixinChatScreen",
