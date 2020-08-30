@@ -13,7 +13,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableT
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.*
-import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.*
 import me.zeroeightsix.kami.*
@@ -571,7 +570,7 @@ object KamiConfig {
     private fun loadConfiguration(config: ConfigTree?) {
         config?.let {
             try {
-                FiberSerialization.deserialize(
+                KamiFiberSerialization.deserialize(
                     config,
                     Files.newInputStream(
                         Paths.get(CONFIG_FILENAME),
@@ -599,7 +598,7 @@ object KamiConfig {
         KamiMod.EVENT_BUS.post(event)
         if (event.isCancelled) return
         config?.let {
-            FiberSerialization.serialize(
+            KamiFiberSerialization.serialize(
                 it,
                 Files.newOutputStream(Paths.get(CONFIG_FILENAME)),
                 JanksonValueSerializer(false)
