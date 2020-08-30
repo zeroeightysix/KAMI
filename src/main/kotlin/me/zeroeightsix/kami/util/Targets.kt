@@ -1,10 +1,16 @@
 package me.zeroeightsix.kami.util
 
+import imgui.ImGui
+import imgui.dsl
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.event.TickEvent
-import me.zeroeightsix.kami.isFriend
-import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.setting.InvalidValueException
+import me.zeroeightsix.kami.setting.extend
+import me.zeroeightsix.kami.setting.settingInterface
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
@@ -19,6 +25,7 @@ import net.minecraft.entity.passive.PassiveEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.Inventory
+import kotlin.collections.map
 
 val invalidationListener = Listener<TickEvent.Client.InGame>({
     EntityTarget.values().forEach { it.invalidate() }
@@ -68,16 +75,39 @@ enum class EntityTarget(
     fun invalidate() = provider.invalidate()
 }
 
-class EntityTargets<T>(private val inner: Map<EntityTarget, T>) : Map<EntityTarget, T> by inner {
-    val entities: MutableMap<Entity, T>
+abstract class Targets<T : Enum<T>, M, E>(private val inner: Map<T, M>) : Map<T, M> by inner {
+    val entities: MutableMap<E, M>
         get() = flat()
 
+    abstract fun flat(): MutableMap<E, M>
+}
+
+private fun allBlockEntities() = mc.world?.blockEntities
+
+enum class BlockTarget(
+    val belongsFunc: (BlockEntity) -> Boolean,
+    internal val baseCollection: () -> Iterable<BlockEntity>?
+) {
+    ALL_BLOCK_ENTITIES({ true }, ::allBlockEntities),
+    CONTAINERS({ it is Inventory }, ::allBlockEntities),
+    CHESTS({ it is ChestBlockEntity }, ::allBlockEntities),
+    SHULKERS({ it is ShulkerBoxBlockEntity }, ::allBlockEntities);
+
+    val provider = ResettableLazy {
+        this.baseCollection()?.filter { this.belongsFunc(it) }
+    }
+    val entities by provider
+
+    fun invalidate() = provider.invalidate()
+}
+
+class EntityTargets<T>(inner: Map<EntityTarget, T>) : Targets<EntityTarget, T, Entity>(inner) {
     /**
      * Produces a flatmap of this [EntityTargets] underlying targeted entities.
      *
      * It is ensured to have no duplicates, where the meta of the last target in the map takes priority if a duplicate occurs.
      */
-    private fun flat(): MutableMap<Entity, T> {
+    override fun flat(): MutableMap<Entity, T> {
         val map = mutableMapOf<Entity, T>()
         for ((target, t) in this) {
             target.entities?.forEach { map[it] = t }
@@ -92,3 +122,118 @@ class EntityTargets<T>(private val inner: Map<EntityTarget, T>) : Map<EntityTarg
     fun belongs(entity: Entity) =
         this.entries.find { it.key.genericBaseBelongsFunc(entity) && it.key.belongsFunc(entity) }?.value
 }
+
+class BlockTargets<T>(inner: Map<BlockTarget, T>) : Targets<BlockTarget, T, BlockEntity>(inner) {
+    /**
+     * Produces a flatmap of this [EntityTargets] underlying targeted entities.
+     *
+     * It is ensured to have no duplicates, where the meta of the last target in the map takes priority if a duplicate occurs.
+     */
+    override fun flat(): MutableMap<BlockEntity, T> {
+        val map = mutableMapOf<BlockEntity, T>()
+        for ((target, t) in this) {
+            target.entities?.forEach { map[it] = t }
+        }
+        return map
+    }
+
+    /**
+     * @return `true` if `entity` belongs to this [EntityTargets]
+     */
+    fun belongs(blockEntity: BlockEntity) = this.entries.find { it.key.belongsFunc(blockEntity) }?.value
+}
+
+inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTargetsType(
+    metaType: ConfigType<M, S, *>,
+    targetConfigType: StringConfigType<T>,
+    crossinline factory: (Map<T, M>) -> C
+) =
+    ConfigTypes.makeMap(targetConfigType, metaType).derive(C::class.java, {
+        factory(it)
+    }, {
+        it
+    }).also {
+        metaType.settingInterface?.let { interf ->
+            val metaName = interf.type.capitalize()
+            it.extend({
+                "targets" // We don't try to convert targets <-> string
+            }, {
+                throw InvalidValueException("Targets can not be set from the settings command.") // same here
+            }, { name, value ->
+                val possibleTargets =
+                    T::class.java.enumConstants.map { it.name.humanReadable() to it }.toMap().toMutableMap()
+                var index = 0
+                var modified: C? = null
+
+                with(ImGui) {
+                    dsl.columns("targets-columns", 2) {
+                        text("%s", "Targets")
+                        nextColumn()
+                        text("%s", metaName)
+                        separator()
+                        nextColumn()
+
+                        var dirty = false
+
+                        val map = value.mapNotNull { (target, meta) ->
+                            // The target to return. If null, remove this entry.
+                            var retT: T? = target
+                            // The meta to return
+                            var retM: M = meta
+
+                            val strings = possibleTargets.keys.toList()
+                            val targetReadable = target.name.humanReadable()
+                            val array = intArrayOf(strings.indexOf(targetReadable))
+                            combo("##target-$index", array, strings.toList()).then {
+                                possibleTargets[strings[array[0]]]?.let { retT = it }
+                            }
+
+                            // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
+                            if (value.size > 1) {
+                                sameLine()
+                                button("-##target-$index-rm").then {
+                                    retT = null // Return nothing, which removes the entry from the map.
+                                }
+                            }
+                            index++
+
+                            // To avoid duplicate entries (which aren't possible, so the UI would act weird when you try to make one)
+                            possibleTargets.remove(targetReadable)
+
+                            nextColumn()
+                            interf.displayImGui("$metaName##target-$metaName-$index", meta)?.let {
+                                retM = it
+                                // the meta object itself might actually be mutated instead of being a new object.
+                                // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
+                                // therefore we set this flag to make sure the 'new' map is processed.
+                                dirty = true
+                            }
+                            nextColumn()
+
+                            retT?.let {
+                                it to retM
+                            }
+                        }.toMap().toMutableMap()
+
+                        if (possibleTargets.isNotEmpty()) {
+                            separator()
+                            val strings = possibleTargets.keys.toList()
+                            val array = intArrayOf(-1)
+                            combo("New##target-new", array, strings).then {
+                                // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
+                                // This does require there to always be a target entry, though
+                                // please don't make empty targets, will you?
+                                possibleTargets[strings[array[0]]]?.let { map[it] = value.values.last() }
+                            }
+                        }
+
+                        if (dirty || map != value) {
+                            modified = factory(map)
+                        }
+                    }
+                }
+
+                modified
+            })
+        }
+    }

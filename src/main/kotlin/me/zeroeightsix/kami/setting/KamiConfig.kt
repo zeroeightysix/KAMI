@@ -5,7 +5,6 @@ import glm_.asHexString
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
-import imgui.dsl.columns
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
@@ -30,10 +29,7 @@ import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
-import me.zeroeightsix.kami.util.Bind
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
-import me.zeroeightsix.kami.util.Friends
+import me.zeroeightsix.kami.util.*
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import org.reflections.Reflections
@@ -46,6 +42,7 @@ import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.Pair
 import kotlin.collections.map
 
 object KamiConfig {
@@ -56,106 +53,42 @@ object KamiConfig {
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val targetType = ConfigTypes.STRING.derive(EntityTarget::class.java, {
+    val entityTargetType = ConfigTypes.STRING.derive(EntityTarget::class.java, {
         EntityTarget.valueOf(it)
     }, {
         it.name
     })
 
-    val targetsTypeProcessor = ParameterizedTypeProcessor<EntityTargets<*>> {
-        fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>) =
-            ConfigTypes.makeMap(targetType, metaType).derive(EntityTargets::class.java, {
-                EntityTargets(it)
-            }, {
-                it
-            }).also {
-                metaType.settingInterface?.let { interf ->
-                    val metaName = interf.type.capitalize()
-                    it.extend({
-                        "targets" // We don't try to convert targets <-> string
-                    }, {
-                        throw InvalidValueException("Targets can not be set from the settings command.") // same here
-                    }, { name, value ->
-                        fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
-                        val possibleTargets =
-                            EntityTarget.values().map { it.name.humanReadable() to it }.toMap().toMutableMap()
-                        var index = 0
-                        var modified: EntityTargets<M>? = null
+    val blockTargetType = ConfigTypes.STRING.derive(BlockTarget::class.java, {
+        BlockTarget.valueOf(it)
+    }, {
+        it.name
+    })
 
-                        with(ImGui) {
-                            columns("targets-columns", 2) {
-                                text("%s", "Targets")
-                                nextColumn()
-                                text("%s", metaName)
-                                separator()
-                                nextColumn()
+    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<EntityTargets<M>, S>? {
+        return createTargetsType(
+            metaType,
+            entityTargetType
+        ) {
+            EntityTargets(it)
+        }
+    }
 
-                                var dirty = false
+    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<BlockTargets<M>, S>? {
+        return createTargetsType(
+            metaType,
+            blockTargetType
+        ) {
+            BlockTargets(it)
+        }
+    }
 
-                                val map = value.mapNotNull { (target, meta) ->
-                                    // The target to return. If null, remove this entry.
-                                    var retT: EntityTarget? = target
-                                    // The meta to return
-                                    var retM: M = meta
+    val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntityTargets<*>> {
+        createEntityTargetsType(it[0])
+    }
 
-                                    val strings = possibleTargets.keys.toList()
-                                    val targetReadable = target.name.humanReadable()
-                                    val array = intArrayOf(strings.indexOf(targetReadable))
-                                    combo("##target-$index", array, strings.toList()).then {
-                                        possibleTargets[strings[array[0]]]?.let { retT = it }
-                                    }
-
-                                    // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
-                                    if (value.size > 1) {
-                                        sameLine()
-                                        button("-##target-$index-rm").then {
-                                            retT = null // Return nothing, which removes the entry from the map.
-                                        }
-                                    }
-                                    index++
-
-                                    // To avoid duplicate entries (which aren't possible, so the UI would act weird when you try to make one)
-                                    possibleTargets.remove(targetReadable)
-
-                                    nextColumn()
-                                    interf.displayImGui("$metaName##target-$metaName-$index", meta)?.let {
-                                        retM = it
-                                        // the meta object itself might actually be mutated instead of being a new object.
-                                        // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
-                                        // therefore we set this flag to make sure the 'new' map is processed.
-                                        dirty = true
-                                    }
-                                    nextColumn()
-
-                                    retT?.let {
-                                        it to retM
-                                    }
-                                }.toMap().toMutableMap()
-
-                                if (possibleTargets.isNotEmpty()) {
-                                    separator()
-                                    val strings = possibleTargets.keys.toList()
-                                    val array = intArrayOf(-1)
-                                    combo("New##target-new", array, strings).then {
-                                        // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
-                                        // This does require there to always be a target entry, though
-                                        // please don't make empty targets, will you?
-                                        possibleTargets[strings[array[0]]]?.let { map[it] = value.values.last() }
-                                    }
-                                }
-
-                                if (dirty || map != value) {
-                                    modified = EntityTargets(map)
-                                }
-                            }
-                        }
-
-                        modified
-                    })
-                }
-            }
-
-        createTargetsType(it[0])
+    val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockTargets<*>> {
+        createBlockTargetsType(it[0])
     }
 
     val colourType =
@@ -544,7 +477,8 @@ object KamiConfig {
             .collectMembersRecursively()
             .collectOnlyAnnotatedMembers()
             .useNamingConvention(ProperCaseConvention)
-            .registerTypeMapping(EntityTargets::class.java, targetsTypeProcessor)
+            .registerTypeMapping(EntityTargets::class.java, entityTargetsTypeProcessor)
+            .registerTypeMapping(BlockTargets::class.java, blockTargetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)

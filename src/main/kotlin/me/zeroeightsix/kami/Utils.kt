@@ -40,6 +40,8 @@ fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () ->
 val Long.unsignedInt
     get() = toUint().toInt()
 
+fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
+
 fun ByteArray.backToString(): String {
     var str = ""
     for (c in this) {
