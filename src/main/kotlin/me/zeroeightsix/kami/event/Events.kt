@@ -39,7 +39,7 @@ class AddCollisionBoxToListEvent(
 
 class ApplyFogEvent : KamiEvent()
 
-class BindEvent(val key: Int, val scancode: Int, i: Int) : KamiEvent() {
+class BindEvent(val key: Int, val scancode: Int, val i: Int) : KamiEvent() {
     val pressed = i != 0
     val ingame = mc.currentScreen == null
 }

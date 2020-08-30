@@ -31,8 +31,9 @@ open class FullFeature(
     @EventHandler
     val bindListener = me.zero.alpine.listener.Listener(
         EventHook<BindEvent> {
-            bind.update(it.key, it.scancode, it.pressed)
-            if (bind.isDown && it.ingame) {
+            // If this is a repeat event (they key was held down long enough for it to start repeating), ignore it.
+            if (it.i == 2) return@EventHook;
+            if (bind.update(it.key, it.scancode, it.pressed) && it.pressed && it.ingame) {
                 this.enabled = !this.enabled
             }
         }

@@ -71,10 +71,18 @@ public class Bind {
                         capitalise(code.toString());
     }
 
-    public void update(int key, int scancode, boolean pressed) {
+    /**
+     * @param key      the key keycode
+     * @param scancode the key scancode
+     * @param pressed  whether or not the key is pressed
+     * @return `true` if this bind matches up with the provided parameters
+     */
+    public boolean update(int key, int scancode, boolean pressed) {
         if ((code.keysym && code.key == key && key != -1) || (!code.keysym && code.scan == scancode && scancode != -1)) {
             this.pressed = pressed;
+            return true;
         }
+        return false;
     }
 
     public static class Code {
