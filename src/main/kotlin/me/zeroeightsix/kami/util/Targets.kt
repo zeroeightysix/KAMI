@@ -166,8 +166,8 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                 var modified: C? = null
 
                 with(ImGui) {
-                    dsl.columns("targets-columns", 2) {
-                        text("%s", "Targets")
+                    dsl.columns("$name-targets-columns", 2) {
+                        text("%s", name)
                         nextColumn()
                         text("%s", metaName)
                         separator()
@@ -184,14 +184,14 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                             val strings = possibleTargets.keys.toList()
                             val targetReadable = target.name.humanReadable()
                             val array = intArrayOf(strings.indexOf(targetReadable))
-                            combo("##target-$index", array, strings.toList()).then {
+                            combo("##$name-target-$index", array, strings.toList()).then {
                                 possibleTargets[strings[array[0]]]?.let { retT = it }
                             }
 
                             // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
                             if (value.size > 1) {
                                 sameLine()
-                                button("-##target-$index-rm").then {
+                                button("-##$name-target-$index-rm").then {
                                     retT = null // Return nothing, which removes the entry from the map.
                                 }
                             }
@@ -201,7 +201,7 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                             possibleTargets.remove(targetReadable)
 
                             nextColumn()
-                            interf.displayImGui("$metaName##target-$metaName-$index", meta)?.let {
+                            interf.displayImGui("$metaName##$name-target-$metaName-$index", meta)?.let {
                                 retM = it
                                 // the meta object itself might actually be mutated instead of being a new object.
                                 // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
@@ -219,7 +219,7 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                             separator()
                             val strings = possibleTargets.keys.toList()
                             val array = intArrayOf(-1)
-                            combo("New##target-new", array, strings).then {
+                            combo("New##$name-target-new", array, strings).then {
                                 // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
                                 // This does require there to always be a target entry, though
                                 // please don't make empty targets, will you?
