@@ -5,6 +5,9 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.isFriend
 import me.zeroeightsix.kami.mc
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.AmbientEntity
@@ -15,9 +18,10 @@ import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.passive.PassiveEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.Inventory
 
 val invalidationListener = Listener<TickEvent.Client.InGame>({
-    Target.values().forEach { it.invalidate() }
+    EntityTarget.values().forEach { it.invalidate() }
 }).also {
     KamiMod.EVENT_BUS.subscribe(it)
 }
@@ -34,9 +38,14 @@ operator fun <T> ((T) -> Boolean).not() = { t: T -> !this(t) }
 private fun allEntities() = mc.world?.entities
 private fun allPlayers() = mc.world?.players
 
-enum class Target(
+enum class EntityTarget(
     val belongsFunc: (Entity) -> Boolean,
     internal val baseCollection: () -> Iterable<Entity>?,
+    /**
+     * Player targets work on the pre-filtered set of players minecraft provides.
+     * That means their `belongsFunc` will produce false positives when tested against non-player entities.
+     * This method is used to identify whether or not an entity belongs to the base collection the target uses.
+     */
     internal val genericBaseBelongsFunc: (Entity) -> Boolean = { true }
 ) {
     LIVING({ it is LivingEntity }, ::allEntities),
@@ -59,10 +68,15 @@ enum class Target(
     fun invalidate() = provider.invalidate()
 }
 
-class Targets<T>(private val inner: Map<Target, T>) : Map<Target, T> by inner {
+class EntityTargets<T>(private val inner: Map<EntityTarget, T>) : Map<EntityTarget, T> by inner {
     val entities: MutableMap<Entity, T>
         get() = flat()
 
+    /**
+     * Produces a flatmap of this [EntityTargets] underlying targeted entities.
+     *
+     * It is ensured to have no duplicates, where the meta of the last target in the map takes priority if a duplicate occurs.
+     */
     private fun flat(): MutableMap<Entity, T> {
         val map = mutableMapOf<Entity, T>()
         for ((target, t) in this) {
@@ -72,6 +86,9 @@ class Targets<T>(private val inner: Map<Target, T>) : Map<Target, T> by inner {
         return map
     }
 
+    /**
+     * @return `true` if `entity` belongs to this [EntityTargets]
+     */
     fun belongs(entity: Entity) =
         this.entries.find { it.key.genericBaseBelongsFunc(entity) && it.key.belongsFunc(entity) }?.value
 }

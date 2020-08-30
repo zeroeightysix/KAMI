@@ -8,8 +8,8 @@ import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.noBobbingCamera
-import me.zeroeightsix.kami.util.Target
-import me.zeroeightsix.kami.util.Targets
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
@@ -24,9 +24,9 @@ import org.lwjgl.opengl.GL11
 object Tracers : Module() {
 
     @Setting
-    private var targets = Targets(
+    private var targets = EntityTargets(
         mapOf(
-            Target.ALL_PLAYERS to Colour.WHITE
+            EntityTarget.ALL_PLAYERS to Colour.WHITE
         )
     )
 

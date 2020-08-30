@@ -4,8 +4,8 @@ import com.google.gson.JsonSyntaxException
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.util.Target
-import me.zeroeightsix.kami.util.Targets
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
 import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.gl.ShaderEffect
 import net.minecraft.client.render.OutlineVertexConsumerProvider
@@ -13,6 +13,9 @@ import net.minecraft.client.render.RenderPhase
 import net.minecraft.util.Identifier
 import java.io.IOException
 
+/**
+ * @see me.zeroeightsix.kami.mixin.client.MixinWorldRenderer
+ */
 @Module.Info(name = "ESP", description = "Draws outlines around targetted entities", category = Module.Category.RENDER)
 object ESP : Module() {
 
@@ -31,9 +34,9 @@ object ESP : Module() {
     }
 
     @Setting
-    var targets = Targets(
+    var targets = EntityTargets(
         mapOf(
-            Target.ALL_PLAYERS to Colour.WHITE
+            EntityTarget.ALL_PLAYERS to Colour.WHITE
         )
     )
 

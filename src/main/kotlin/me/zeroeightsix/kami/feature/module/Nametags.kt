@@ -13,8 +13,8 @@ import me.zeroeightsix.kami.feature.module.Module.Info
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.setting.GenerateType
-import me.zeroeightsix.kami.util.Target
-import me.zeroeightsix.kami.util.Targets
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -48,11 +48,11 @@ import kotlin.math.roundToInt
 object Nametags : Module() {
 
     @Setting
-    var targets = Targets(
+    var targets = EntityTargets(
         mapOf(
-            Target.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
-            Target.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f)),
-            Target.ALL_PLAYERS to NametagsTarget(
+            EntityTarget.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
+            EntityTarget.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f)),
+            EntityTarget.ALL_PLAYERS to NametagsTarget(
                 distance = true,
                 items = NametagsTarget.Items.JUST_ITEMS,
                 colour = Colour(1f, 1f, 1f, 1f)

@@ -31,9 +31,9 @@ import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.util.Bind
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
 import me.zeroeightsix.kami.util.Friends
-import me.zeroeightsix.kami.util.Target
-import me.zeroeightsix.kami.util.Targets
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import org.reflections.Reflections
@@ -56,16 +56,16 @@ object KamiConfig {
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val targetType = ConfigTypes.STRING.derive(Target::class.java, {
-        Target.valueOf(it)
+    val targetType = ConfigTypes.STRING.derive(EntityTarget::class.java, {
+        EntityTarget.valueOf(it)
     }, {
         it.name
     })
 
-    val targetsTypeProcessor = ParameterizedTypeProcessor<Targets<*>> {
+    val targetsTypeProcessor = ParameterizedTypeProcessor<EntityTargets<*>> {
         fun <M, S> createTargetsType(metaType: ConfigType<M, S, *>) =
-            ConfigTypes.makeMap(targetType, metaType).derive(Targets::class.java, {
-                Targets(it)
+            ConfigTypes.makeMap(targetType, metaType).derive(EntityTargets::class.java, {
+                EntityTargets(it)
             }, {
                 it
             }).also {
@@ -78,9 +78,9 @@ object KamiConfig {
                     }, { name, value ->
                         fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
                         val possibleTargets =
-                            Target.values().map { it.name.humanReadable() to it }.toMap().toMutableMap()
+                            EntityTarget.values().map { it.name.humanReadable() to it }.toMap().toMutableMap()
                         var index = 0
-                        var modified: Targets<M>? = null
+                        var modified: EntityTargets<M>? = null
 
                         with(ImGui) {
                             columns("targets-columns", 2) {
@@ -94,7 +94,7 @@ object KamiConfig {
 
                                 val map = value.mapNotNull { (target, meta) ->
                                     // The target to return. If null, remove this entry.
-                                    var retT: Target? = target
+                                    var retT: EntityTarget? = target
                                     // The meta to return
                                     var retM: M = meta
 
@@ -145,7 +145,7 @@ object KamiConfig {
                                 }
 
                                 if (dirty || map != value) {
-                                    modified = Targets(map)
+                                    modified = EntityTargets(map)
                                 }
                             }
                         }
@@ -544,7 +544,7 @@ object KamiConfig {
             .collectMembersRecursively()
             .collectOnlyAnnotatedMembers()
             .useNamingConvention(ProperCaseConvention)
-            .registerTypeMapping(Targets::class.java, targetsTypeProcessor)
+            .registerTypeMapping(EntityTargets::class.java, targetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
