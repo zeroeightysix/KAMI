@@ -4,12 +4,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.SettingVisibility
-import me.zeroeightsix.kami.util.EntityUtil
-import me.zeroeightsix.kami.util.Friends
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
@@ -23,14 +23,12 @@ import net.minecraft.world.RayTraceContext
 )
 object Aura : Module() {
 
-    @Setting(name = "Players")
-    private var attackPlayers = true
-
-    @Setting(name = "Mobs")
-    private var attackMobs = false
-
-    @Setting(name = "Animals")
-    private var attackAnimals = false
+    @Setting
+    var targets = EntityTargets(
+        mapOf(
+            EntityTarget.NONFRIENDLY_PLAYERS to AuraTarget(false)
+        )
+    )
 
     @Setting(name = "Hit Range")
     private var hitRange: Double = 5.5
@@ -52,8 +50,6 @@ object Aura : Module() {
     @Setting(name = "32k Switch")
     private var switchTo32k = true
 
-    @Setting(name = "32k Only")
-    private var onlyUse32k = false
     private var waitCounter = 0
 
     fun ifModeStatic() = waitMode == WaitMode.STATIC
@@ -82,51 +78,29 @@ object Aura : Module() {
                     0
                 }
             }
-            for (target in mc.world?.entities!!) {
-                if (!EntityUtil.isLiving(target)) {
-                    continue
-                }
-                if (target === mc.player) {
-                    continue
-                }
-                if (mc.player!!.distanceTo(target) > hitRange) {
-                    continue
-                }
-                if ((target as LivingEntity).health <= 0) {
-                    continue
-                }
-                if (waitMode == WaitMode.DYNAMIC && target.hurtTime != 0) {
-                    continue
-                }
-                if (!ignoreWalls && !mc.player!!.canSee(target) && !canEntityFeetBeSeen(
-                        target
-                    )
+            targets.entities.forEach { (entity, target) ->
+                val living = entity as? LivingEntity ?: return@forEach
+                if (living.health <= 0
+                    || (waitMode == WaitMode.DYNAMIC && entity.hurtTime != 0)
+                    || (mc.player!!.distanceTo(entity) > hitRange)
+                    || (!ignoreWalls && !mc.player!!.canSee(entity) && !canEntityFeetBeSeen(entity))
                 ) {
-                    continue  // If walls is on & you can't see the feet or head of the target, skip. 2 raytraces needed
+                    return@forEach
                 }
-                if (attackPlayers && target is PlayerEntity && !Friends.isFriend(target.getName().string)) {
-                    attack(target)
-                    return@Listener
-                } else {
-                    if (if (EntityUtil.isPassive(target)) attackAnimals else EntityUtil.isMobAggressive(
-                            target
-                        ) && attackMobs
-                    ) {
-                        // We want to skip this if switchTo32k is true,
-                        // because it only accounts for tools and weapons.
-                        // Maybe someone could refactor this later? :3
-                        if (!switchTo32k && AutoTool.enabled) {
-                            AutoTool.equipBestWeapon()
-                        }
-                        attack(target)
-                        return@Listener
-                    }
+
+                // We want to skip this if switchTo32k is true,
+                // because it only accounts for tools and weapons.
+                // Maybe someone could refactor this later? :3
+                if (!switchTo32k && AutoTool.enabled) {
+                    AutoTool.equipBestWeapon()
                 }
+
+                attack(living, target.onlyUse32k)
+                return@Listener // We've attacked, so let's wait until the next tick to attack again.
             }
         })
 
     private fun checkSharpness(stack: ItemStack): Boolean {
-        val tag = stack.tag ?: return false
         val enchantments = stack.enchantments
         for (i in enchantments.indices) {
             val enchantment = enchantments.getCompound(i)
@@ -139,7 +113,7 @@ object Aura : Module() {
         return false
     }
 
-    private fun attack(e: Entity) {
+    private fun attack(e: Entity, onlyUse32k: Boolean) {
         var holding32k = false
         if (mc.player?.activeItem?.let { checkSharpness(it) }!!) {
             holding32k = true
@@ -187,6 +161,9 @@ object Aura : Module() {
         )
         return mc.world?.rayTrace(context)?.type == HitResult.Type.MISS
     }
+
+    @GenerateType("Only use 32k")
+    class AuraTarget(var onlyUse32k: Boolean)
 
     private enum class WaitMode {
         DYNAMIC, STATIC
