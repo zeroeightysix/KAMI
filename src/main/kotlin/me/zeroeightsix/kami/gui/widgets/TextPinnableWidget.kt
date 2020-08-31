@@ -48,7 +48,8 @@ import kotlin.math.floor
 open class TextPinnableWidget(
     val title: String,
     var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
-    position: Position = Position.TOP_LEFT
+    position: Position = Position.TOP_LEFT,
+    var textAlignment: Alignment = Alignment.LEFT
 ) : PinnableWidget(title, position) {
 
     private var minecraftFont = true
@@ -57,7 +58,6 @@ open class TextPinnableWidget(
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
 
-    var textAlignment = Alignment.LEFT
 
     private var immediateTextDelegate = ResettableLazy {
         val scale = KamiHud.getScale()

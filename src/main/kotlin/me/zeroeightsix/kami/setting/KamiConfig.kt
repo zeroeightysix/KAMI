@@ -225,9 +225,7 @@ object KamiConfig {
         val position = positionType.toRuntimeType(it["position"] as String?)
         val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
         val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
-        TextPinnableWidget(title, texts.toMutableList(), position).also {
-            it.textAlignment = alignment
-        }
+        TextPinnableWidget(title, texts.toMutableList(), position, alignment)
     }, {
         mapOf(
             "texts" to listOfCompiledTextType.toSerializedType(it.text),
