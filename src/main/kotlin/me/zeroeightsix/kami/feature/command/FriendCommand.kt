@@ -2,9 +2,7 @@ package me.zeroeightsix.kami.feature.command
 
 import com.mojang.authlib.GameProfile
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
-import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.mixin.client.IEntitySelector
@@ -29,124 +27,118 @@ import java.util.function.Function
 
 object FriendCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
-        dispatcher.register(
-            LiteralArgumentBuilder.literal<CommandSource>("friend")
-                .then(
-                    LiteralArgumentBuilder.literal<CommandSource>("list")
-                        .executes { context: CommandContext<CommandSource> ->
-                            val source = context.source as KamiCommandSource
-                            if (Friends.friends.isEmpty()) {
-                                source.sendFeedback(
+        dispatcher register rootLiteral("friend") {
+            literal("list") {
+                does {
+                    val source = it.source as KamiCommandSource
+                    if (Friends.friends.isEmpty()) {
+                        source.sendFeedback(
+                            Texts.flit(
+                                Formatting.GOLD,
+                                "You don't have any friends."
+                            )
+                        )
+                        return@does 0
+                    }
+                    var text: Text? = null
+                    Friends.friends.stream()
+                        .map { obj: GameProfile -> obj.name }
+                        .forEach { s: String? ->
+                            if (text == null) {
+                                text = Texts.flit(
+                                    Formatting.YELLOW,
+                                    s
+                                )
+                            } else {
+                                //text = text!!.append(
+                                Texts.append(
+                                    Texts.lit(", "),
                                     Texts.flit(
-                                        Formatting.GOLD,
-                                        "You don't have any friends."
+                                        Formatting.YELLOW,
+                                        s
                                     )
                                 )
-                                return@executes 0
+                                //)
                             }
-                            var text: Text? = null
-                            Friends.friends.stream()
-                                .map { obj: GameProfile -> obj.name }
-                                .forEach { s: String? ->
-                                    if (text == null) {
-                                        text = Texts.flit(
-                                            Formatting.YELLOW,
-                                            s
-                                        )
-                                    } else {
-                                        //text = text!!.append(
-                                            Texts.append(
-                                                Texts.lit(", "),
-                                                    Texts.flit(
-                                                            Formatting.YELLOW,
-                                                            s
-                                                    )
-                                            )
-                                        //)
-                                    }
-                                }
-                            text = Texts.f(Formatting.GOLD, text as MutableText?)
-                            source.sendFeedback(
-                                Texts.i(
-                                        Texts.flit(
-                                                Formatting.GOLD,
-                                                "You have the following friends:"
-                                        )
+                        }
+                    text = Texts.f(Formatting.GOLD, text as MutableText?)
+                    source.sendFeedback(
+                        Texts.i(
+                            Texts.flit(
+                                Formatting.GOLD,
+                                "You have the following friends:"
+                            )
+                        )
+                    )
+                    source.sendFeedback(text)
+                    0
+                }
+            }
+            literal("add") {
+                then(createFriendArgument(
+                    Function { entry: PlayerListEntry ->
+                        if (Friends.isFriend(entry.profile.name)) {
+                            return@Function FAILED_EXCEPTION.create(
+                                "That player is already your friend!"
+                            )
+                        }
+                        null
+                    },
+                    { entry: PlayerListEntry, source: KamiCommandSource ->
+                        Friends.addFriend(entry.profile)
+                        source.sendFeedback(
+                            Texts.f(
+                                Formatting.GOLD, Texts.append(
+                                    Texts.lit("Added "),
+                                    Texts.flit(
+                                        Formatting.YELLOW,
+                                        entry.profile.name
+                                    ),
+                                    Texts.lit(" to your friends list!")
                                 )
                             )
-                            source.sendFeedback(text)
+                        )
+                        0
+                    }
+                ))
+            }
+            literal("remove") {
+                then(
+                    createFriendArgument(
+                        Function { entry: PlayerListEntry ->
+                            if (!Friends.isFriend(entry.profile.name)) {
+                                return@Function FAILED_EXCEPTION.create(
+                                    "That player isn't your friend!"
+                                )
+                            }
+                            null
+                        },
+                        { entry: PlayerListEntry, source: KamiCommandSource ->
+                            Friends.removeFriend(entry.profile)
+                            source.sendFeedback(
+                                Texts.f(
+                                    Formatting.GOLD, Texts.append(
+                                        Texts.lit("Removed "),
+                                        Texts.flit(
+                                            Formatting.YELLOW,
+                                            entry.profile.name
+                                        ),
+                                        Texts.lit(" from your friends list!")
+                                    )
+                                )
+                            )
                             0
                         }
+                    )
                 )
-                .then(
-                    LiteralArgumentBuilder.literal<CommandSource>("add")
-                        .then(
-                            createFriendArgument(
-                                Function { entry: PlayerListEntry ->
-                                    if (Friends.isFriend(entry.profile.name)) {
-                                        return@Function FAILED_EXCEPTION.create(
-                                            "That player is already your friend!"
-                                        )
-                                    }
-                                    null
-                                },
-                                BiFunction { entry: PlayerListEntry, source: KamiCommandSource ->
-                                    Friends.addFriend(entry.profile)
-                                    source.sendFeedback(
-                                        Texts.f(
-                                            Formatting.GOLD, Texts.append(
-                                                Texts.lit("Added "),
-                                                Texts.flit(
-                                                        Formatting.YELLOW,
-                                                        entry.profile.name
-                                                ),
-                                                Texts.lit(" to your friends list!")
-                                        )
-                                        )
-                                    )
-                                    0
-                                }
-                            )
-                        )
-                )
-                .then(
-                    LiteralArgumentBuilder.literal<CommandSource>("remove")
-                        .then(
-                            createFriendArgument(
-                                Function { entry: PlayerListEntry ->
-                                    if (!Friends.isFriend(entry.profile.name)) {
-                                        return@Function FAILED_EXCEPTION.create(
-                                            "That player isn't your friend!"
-                                        )
-                                    }
-                                    null
-                                },
-                                BiFunction { entry: PlayerListEntry, source: KamiCommandSource ->
-                                    Friends.removeFriend(entry.profile)
-                                    source.sendFeedback(
-                                        Texts.f(
-                                            Formatting.GOLD, Texts.append(
-                                                Texts.lit("Removed "),
-                                                Texts.flit(
-                                                        Formatting.YELLOW,
-                                                        entry.profile.name
-                                                ),
-                                                Texts.lit(" from your friends list!")
-                                        )
-                                        )
-                                    )
-                                    0
-                                }
-                            )
-                        )
-                ) as LiteralArgumentBuilder<CommandSource>
-        )
+            }
+        }
     }
 
     private val FAILED_EXCEPTION =
-        DynamicCommandExceptionType(Function { o: Any ->
+        DynamicCommandExceptionType { o: Any ->
             LiteralText(o.toString())
-        })
+        }
 
     private fun createFriendArgument(
         fail: Function<PlayerListEntry, CommandSyntaxException?>,
@@ -156,9 +148,8 @@ object FriendCommand : Command() {
             "friend",
             EntityArgumentType.player()
         )
-            .executes { context: CommandContext<CommandSource> ->
-                val selector =
-                    context.getArgument("friend", EntitySelector::class.java)
+            .executes { ctx ->
+                val selector: EntitySelector = "friend" from ctx
                 val optionalPlayer =
                     Wrapper.getMinecraft().networkHandler!!.playerList.stream()
                         .filter { playerListEntry: PlayerListEntry ->
@@ -176,7 +167,7 @@ object FriendCommand : Command() {
                     if (e != null) {
                         throw e
                     }
-                    return@executes function.apply(entry, context.source as KamiCommandSource)
+                    return@executes function.apply(entry, ctx.source as KamiCommandSource)
                 } else { // TODO: Process offline players
                     throw FAILED_EXCEPTION.create("Couldn't find that player.")
                 }
