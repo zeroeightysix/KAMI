@@ -18,7 +18,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.AmbientEntity
 import net.minecraft.entity.mob.Angerable
-import net.minecraft.entity.mob.HostileEntity
+import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.mob.WaterCreatureEntity
 import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.passive.PassiveEntity
@@ -38,7 +38,7 @@ fun isPassive(e: Entity): Boolean {
     return if (e is PassiveEntity || e is AmbientEntity || e is WaterCreatureEntity) true else e is IronGolemEntity && e.target === null
 }
 
-fun isHostile(e: Entity) = e is HostileEntity || (e is Angerable && e.angryAt == mc.player?.uuid)
+fun isHostile(e: Entity) = e is Monster || (e is Angerable && e.angryAt == mc.player?.uuid)
 
 operator fun <T> ((T) -> Boolean).not() = { t: T -> !this(t) }
 
