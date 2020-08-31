@@ -1,23 +1,21 @@
 package me.zeroeightsix.kami.gui.widgets
 
+import glm_.vec4.Vec4
+
 object Coordinates : TextPinnableWidget(
     "Coordinates", text = mutableListOf(
         CompiledText(
             mutableListOf(
-                CompiledText.LiteralPart("x"),
-                CompiledText.VariablePart(varMap["x"]!!(), extraspace = false)
-            )
-        ),
-        CompiledText(
-            mutableListOf(
-                CompiledText.LiteralPart("y"),
-                CompiledText.VariablePart(varMap["y"]!!(), extraspace = false)
-            )
-        ),
-        CompiledText(
-            mutableListOf(
-                CompiledText.LiteralPart("z"),
-                CompiledText.VariablePart(varMap["z"]!!(), extraspace = false)
+                CompiledText.VariablePart(varMap["facing_axis"]!!()),
+                CompiledText.VariablePart(varMap["x"]!!()).also {
+                    it.colour = Vec4(1f, 1f, 1f, 0.64f)
+                },
+                CompiledText.VariablePart(varMap["y"]!!()).also {
+                    it.colour = Vec4(1f, 1f, 1f, 0.64f)
+                },
+                CompiledText.VariablePart(varMap["z"]!!()).also {
+                    it.colour = Vec4(1f, 1f, 1f, 0.64f)
+                }
             )
         )
     ), position = Position.BOTTOM_LEFT
