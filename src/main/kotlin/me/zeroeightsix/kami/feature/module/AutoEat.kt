@@ -1,60 +1,52 @@
-package me.zeroeightsix.kami.feature.module.player;
+package me.zeroeightsix.kami.feature.module
 
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.TickEvent;
-import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.mixin.client.IKeyBinding;
-import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
-import net.minecraft.client.options.KeyBinding;
-import net.minecraft.entity.player.HungerManager;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-
-import java.util.Objects;
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.mixin.client.IKeyBinding
+import net.minecraft.client.options.KeyBinding
+import net.minecraft.item.ItemGroup
+import net.minecraft.item.ItemStack
+import net.minecraft.util.Hand
 
 @Module.Info(name = "AutoEat", description = "Automatically eat when hungry", category = Module.Category.PLAYER)
-public class AutoEat extends Module {
+object AutoEat : Module() {
+    var eating: Hand? = null
 
-    private int lastSlot = -1;
-    private boolean eating = false;
-
-    private boolean isValid(ItemStack stack, int food) {
-        return stack.getItem().getGroup() == ItemGroup.FOOD && (20 - food) >= Objects.requireNonNull(stack.getItem().getFoodComponent()).getHunger();
+    private fun isValid(stack: ItemStack, food: Int): Boolean {
+        return stack.item.group === ItemGroup.FOOD && 20 - food >= stack.item?.foodComponent?.hunger ?: 0
     }
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
-        if (eating && !mc.player.isUsingItem()) {
-            if (lastSlot != -1) {
-                mc.player.inventory.selectedSlot = lastSlot;
-                lastSlot = -1;
-            }
-            eating = false;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
-            return;
-        }
-        if (eating) return;
+    private val updateListener = Listener<InGame>({
+        val player =
+            mc.player ?: return@Listener // InGame gets fired if player != null so this return shouldn't ever happen
 
-        HungerManager stats = mc.player.getHungerManager();
-        if (isValid(mc.player.getOffHandStack(), stats.getFoodLevel())) {
-            mc.player.setCurrentHand(Hand.OFF_HAND);
-            eating = true;
-            KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
-            ((IMinecraftClient) mc).callDoAttack();
-        } else {
-            for (int i = 0; i < 9; i++) {
-                if (isValid(mc.player.inventory.getStack(i), stats.getFoodLevel())) {
-                    lastSlot = mc.player.inventory.selectedSlot;
-                    mc.player.inventory.selectedSlot = i;
-                    eating = true;
-                    KeyBinding.setKeyPressed(((IKeyBinding) mc.options.keyUse).getBoundKey(), true);
-                    ((IMinecraftClient) mc).callDoAttack();
-                    return;
+        val foodLevel = player.hungerManager.foodLevel
+
+        eating?.let {
+            // If the current item isn't a valid food item, quit.
+            // If it is, try to eat it. If it is consumed, quit.
+            KeyBinding.setKeyPressed((mc.options.keyUse as IKeyBinding).boundKey, true)
+            mc.interactionManager?.interactItem(player, mc.world, it)
+            if (!isValid(player.inventory.getStack(player.inventory.selectedSlot), foodLevel)) {
+                eating = null // Reset the eating hand
+                KeyBinding.setKeyPressed((mc.options.keyUse as IKeyBinding).boundKey, false)
+            }
+            return@Listener
+        }
+        if (player.isUsingItem) return@Listener
+
+        if (isValid(player.offHandStack, foodLevel)) eating = Hand.OFF_HAND
+        else {
+            // No food in offhand, let's search the hotbar
+            (0..9).forEach { slot ->
+                if (isValid(player.inventory.getStack(slot), foodLevel)) {
+                    eating = Hand.MAIN_HAND
+                    player.inventory.selectedSlot = slot
+                    return@Listener
                 }
             }
         }
-    });
-
+    })
 }
