@@ -19,56 +19,7 @@ import org.lwjgl.glfw.GLFW
 
 object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
 
-    val rainbowForeground = listOf(
-        Col.Text.i,
-        Col.TextDisabled.i,
-        Col.WindowBg.i,
-        Col.ChildBg.i,
-        Col.PopupBg.i,
-        Col.Border.i,
-        Col.BorderShadow.i,
-        Col.FrameBg.i,
-        Col.FrameBgHovered.i,
-        Col.FrameBgActive.i,
-        Col.TitleBg.i,
-        Col.TitleBgActive.i,
-        Col.TitleBgCollapsed.i,
-        Col.MenuBarBg.i,
-        Col.ScrollbarBg.i,
-        Col.ScrollbarGrab.i,
-        Col.ScrollbarGrabHovered.i,
-        Col.ScrollbarGrabActive.i,
-        Col.CheckMark.i,
-        Col.SliderGrab.i,
-        Col.SliderGrabActive.i,
-        Col.Button.i,
-        Col.ButtonHovered.i,
-        Col.ButtonActive.i,
-        Col.Header.i,
-        Col.HeaderHovered.i,
-        Col.HeaderActive.i,
-        Col.Separator.i,
-        Col.SeparatorHovered.i,
-        Col.SeparatorActive.i,
-        Col.ResizeGrip.i,
-        Col.ResizeGripHovered.i,
-        Col.ResizeGripActive.i,
-        Col.Tab.i,
-        Col.TabHovered.i,
-        Col.TabActive.i,
-        Col.TabUnfocused.i,
-        Col.TabUnfocusedActive.i,
-        Col.PlotLines.i,
-        Col.PlotLinesHovered.i,
-        Col.PlotHistogram.i,
-        Col.PlotHistogramHovered.i,
-        Col.TextSelectedBg.i,
-        Col.DragDropTarget.i,
-        Col.NavHighlight.i,
-        Col.NavWindowingHighlight.i,
-        Col.NavWindowingDimBg.i,
-        Col.ModalWindowDimBg.i
-    )
+    val colourIndices = Col.values().map { it.i }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
@@ -108,7 +59,7 @@ object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
         if (Settings.rainbowMode) {
             Themes.Variants.values()[Settings.styleIdx].applyStyle()
             val colors = ImGui.style.colors
-            rainbowForeground.forEach { idx ->
+            colourIndices.forEach { idx ->
                 val col = colors[idx]
                 val buf = FloatArray(3)
                 ImGui.colorConvertRGBtoHSV(col.toVec3().toFloatArray(), buf)
