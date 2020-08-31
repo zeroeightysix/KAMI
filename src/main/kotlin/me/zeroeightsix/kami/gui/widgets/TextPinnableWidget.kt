@@ -39,6 +39,7 @@ import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.ResettableLazy
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import kotlin.collections.map
 import kotlin.math.abs
@@ -85,7 +86,10 @@ open class TextPinnableWidget(
         private infix fun String.numeric(valProvider: () -> Double) =
             this to { CompiledText.NumericalVariable(this, valProvider, 0) }
 
-        private fun toMb(bytes: Long) = (bytes / 1e+6).toDouble()
+        private infix fun String.string(strProvider: () -> String) =
+            this to { CompiledText.StringVariable(this, provider = strProvider) }
+
+        private fun toMb(bytes: Long) = (bytes / 1e+6)
 
         val varMap: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
             "none" const { "No variable selected " },
@@ -104,7 +108,17 @@ open class TextPinnableWidget(
             // maybe i should implement a 'calculation' part that runs an equation on some user-defined variables.. jk.. unless? :flushed:
             "memory_used_mb" numeric { toMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) },
             "memory_free_mb" numeric { toMb(Runtime.getRuntime().freeMemory()) },
-            "memory_total_mb" numeric { toMb(Runtime.getRuntime().totalMemory()) }
+            "memory_total_mb" numeric { toMb(Runtime.getRuntime().totalMemory()) },
+            "facing_cardinal" string { mc.player?.horizontalFacing?.toString() ?: "" },
+            "facing_axis" string {
+                when (mc.player?.horizontalFacing) {
+                    Direction.NORTH -> "-Z"
+                    Direction.SOUTH -> "+Z"
+                    Direction.WEST -> "-X"
+                    Direction.EAST -> "+X"
+                    else -> ""
+                }
+            }
         )
     }
 
@@ -132,7 +146,7 @@ open class TextPinnableWidget(
                             Alignment.RIGHT -> ((rect.width - calcFullWidth()) - style.windowPadding.x * 2) / scale
                         }
 
-                        for ((command, str, dim) in triplets) {
+                        for ((command, str, _) in triplets) {
                             if (command.multiline) {
                                 val codes = command.codes
                                 var lastWidth = 0f
