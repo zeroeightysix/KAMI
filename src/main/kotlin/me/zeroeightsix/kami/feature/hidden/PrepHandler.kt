@@ -44,7 +44,7 @@ object PrepHandler : Feature, Listenable {
     @EventHandler
     private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() })
 
-    fun getRainbowHue() = (System.currentTimeMillis() * rainbowSpeed * 0.0005) % 360
+    fun getRainbowHue(offset: Double = 0.0) = ((System.currentTimeMillis() * rainbowSpeed * 0.0005) + offset) % 360
 
     private fun update() {
         if (mc.window.width != displayWidth || mc.window.height != displayHeight) {

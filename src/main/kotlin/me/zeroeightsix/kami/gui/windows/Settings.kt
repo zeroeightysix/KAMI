@@ -60,6 +60,9 @@ object Settings {
     var font: Int = 0
 
     @Setting
+    var rainbowMode = false
+
+    @Setting
     var styleIdx = 0
 
     @Setting
@@ -84,8 +87,13 @@ object Settings {
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
     operator fun invoke() {
-        fun boolSetting(label: String, checked: KMutableProperty0<Boolean>, description: String) {
-            checkbox(label, checked) {}
+        fun boolSetting(
+            label: String,
+            checked: KMutableProperty0<Boolean>,
+            description: String,
+            block: () -> Unit = {}
+        ) {
+            checkbox(label, checked, block)
             sameLine()
             demoDebugInformations.helpMarker(description)
         }
@@ -132,6 +140,14 @@ object Settings {
                         showFontSelector("Font###kami-settings-font-selector")
 
                         if (ImGui.combo("Theme", ::styleIdx, themes)) {
+                            Themes.Variants.values()[styleIdx].applyStyle()
+                        }
+
+                        boolSetting(
+                            "Rainbow mode",
+                            ::rainbowMode,
+                            "If enabled, turns the GUI into a rainbow-coloured mess"
+                        ) {
                             Themes.Variants.values()[styleIdx].applyStyle()
                         }
 
