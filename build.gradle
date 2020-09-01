@@ -104,6 +104,9 @@ shadowJar {
     classifier = "shadow"
 
     exclude '/fonts/*'
+
+    // Remove unused classes
+    minimize()
 }
 
 remapJar {
