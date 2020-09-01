@@ -23,7 +23,6 @@ import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
@@ -234,12 +233,6 @@ object KamiConfig {
             "alignment" to alignmentType.toSerializedType(it.textAlignment)
         )
     })
-    val widgetsType = ConfigTypes.makeList(textPinnableWidgetType).derive(EnabledWidgets.Widgets::class.java, {
-        EnabledWidgets.Widgets(it.toMutableList())
-    }, {
-        it
-    })
-
     val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
         FeatureManager.modules.find { it.name == name }
     }, { m ->
@@ -486,7 +479,7 @@ object KamiConfig {
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
-            .registerTypeMapping(EnabledWidgets.Widgets::class.java, widgetsType)
+            .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor

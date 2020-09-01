@@ -24,14 +24,15 @@ object EnabledWidgets : Feature, Listenable {
     override var name: String = "EnabledWidgets"
     override var hidden: Boolean = true
 
-    @Setting
-    internal var widgets = Widgets(
-        mutableListOf(
-            Information,
-            Coordinates,
-            ActiveModules
-        )
+    @Setting(name = "Widgets")
+    private var textWidgets = mutableListOf(
+        Information,
+        Coordinates,
+        ActiveModules
     )
+
+    val widgets
+        get() = textWidgets
 
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", EnabledWidgets::hideAll) {}
@@ -58,17 +59,10 @@ object EnabledWidgets : Feature, Listenable {
         }
     }
 
-    class Widgets(val widgets: MutableList<TextPinnableWidget>) : MutableList<TextPinnableWidget> by widgets {
-        override fun equals(other: Any?): Boolean = false
-        override fun hashCode(): Int {
-            return widgets.hashCode()
-        }
-    }
-
     @EventHandler
     val saveListener = Listener<ConfigSaveEvent>({
         // Changes the instance of widgets, invalidating the fiber serialisation cache, forcing fiber to re-serialise widgets.
-        widgets = Widgets(widgets.toMutableList())
+        textWidgets = textWidgets.toMutableList()
     })
 
     override fun initListening() {
