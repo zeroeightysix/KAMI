@@ -4,11 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.CameraHurtEvent;
 import me.zeroeightsix.kami.event.RenderEvent;
-import me.zeroeightsix.kami.event.RenderGuiEvent;
 import me.zeroeightsix.kami.event.TargetEntityEvent;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -60,26 +58,6 @@ public class MixinGameRenderer {
         TargetEntityEvent event = new TargetEntityEvent(entity, vec3d, vec3d2, box, predicate, d, result);
         KamiMod.EVENT_BUS.post(event);
         return event.getTrace();
-    }
-
-    @Inject(
-            method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V"),
-            locals = LocalCapture.CAPTURE_FAILHARD,
-            cancellable = true)
-    public void onRender(float tickDelta,
-                         long startTime,
-                         boolean tick,
-                         CallbackInfo ci,
-                         int i,
-                         int j,
-                         Window window,
-                         MatrixStack stack) {
-        RenderGuiEvent event = new RenderGuiEvent(window, stack);
-        KamiMod.EVENT_BUS.post(event);
-        if (event.isCancelled()) {
-            ci.cancel();
-        }
     }
 
 }

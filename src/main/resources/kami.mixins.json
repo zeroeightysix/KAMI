@@ -42,6 +42,7 @@
     "MixinEntity",
     "MixinGameRenderer",
     "MixinHorseBaseEntity",
+    "MixinInGameHud",
     "MixinInGameOverlayRenderer",
     "MixinInput",
     "MixinKeyboard",
