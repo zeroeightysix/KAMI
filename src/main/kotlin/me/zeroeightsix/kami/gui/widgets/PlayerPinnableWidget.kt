@@ -18,8 +18,11 @@ class PlayerPinnableWidget(
     position: Position = Position.TOP_LEFT,
     open: Boolean = true,
     var size: Float = 30f,
-) : PinnableWidget(name, position, open) {
+    pinned: Boolean = true,
+    background: Boolean = false
+) : PinnableWidget(name, position, open, pinned, background) {
     var tempSize = size
+
     @Transient
     private var height = 0f
 
@@ -80,7 +83,6 @@ class PlayerPinnableWidget(
                 format = "%.0f"
             )
             if (!ImGui.isItemActive && tempSize != size) {
-                println("fuk shit")
                 size = tempSize
             }
         }
