@@ -16,10 +16,13 @@ import imgui.dsl.popupContextWindow
 import imgui.or
 import me.zeroeightsix.kami.gui.windows.Settings
 
-abstract class PinnableWidget(val name: String, var position: Position = Position.TOP_LEFT, var open: Boolean = true) {
-
-    var pinned = true
-    var background = false
+abstract class PinnableWidget(
+    val name: String,
+    var position: Position = Position.TOP_LEFT,
+    var open: Boolean = true,
+    var pinned: Boolean = true,
+    var background: Boolean = false
+) {
 
     companion object {
         var drawFadedBackground = true
@@ -78,14 +81,12 @@ abstract class PinnableWidget(val name: String, var position: Position = Positio
             } else flags = flags or WindowFlag.NoBackground
         }
 
-        val openArray = booleanArrayOf(this.open)
-        if (begin(name, openArray, flags)) {
+        if (begin(name, ::open, flags)) {
             fillWindow()
             if (showWidgetContextMenu()) return true
 
             end()
         }
-        this.open = openArray[0]
 
         postWindow()
         return false
