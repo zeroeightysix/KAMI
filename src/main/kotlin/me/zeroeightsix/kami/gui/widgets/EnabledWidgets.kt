@@ -26,14 +26,14 @@ object EnabledWidgets : Feature, Listenable {
     override var hidden: Boolean = true
 
     @Setting(name = "Widgets")
-    internal var textWidgets = mutableListOf(
+    internal var textWidgets = arrayListOf(
         Information,
         Coordinates,
         ActiveModules
     )
 
     @Setting(name = "PlayerOverlays")
-    private var playerWidgets = mutableListOf<PlayerPinnableWidget>(
+    private var playerWidgets = arrayListOf(
         PlayerPinnableWidget("Player Overlay")
     )
 
@@ -68,7 +68,7 @@ object EnabledWidgets : Feature, Listenable {
     @EventHandler
     val saveListener = Listener<ConfigSaveEvent>({
         // Changes the instance of widgets, invalidating the fiber serialisation cache, forcing fiber to re-serialise widgets.
-        textWidgets = textWidgets.toMutableList()
+        textWidgets = ArrayList(textWidgets)
     })
 
     override fun initListening() {

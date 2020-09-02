@@ -41,6 +41,7 @@ import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.Pair
+import kotlin.collections.ArrayList
 import kotlin.collections.map
 
 object KamiConfig {
@@ -48,6 +49,16 @@ object KamiConfig {
     const val CONFIG_FILENAME = "KAMI_config.json5"
 
     /** Config types **/
+
+    val mutableListTypeProcessor = ParameterizedTypeProcessor {
+        fun <T> makeMutableListType(type: ConfigType<T, *, *>) =
+            ConfigTypes.makeList(type).derive(ArrayList::class.java, {
+                ArrayList(it)
+            }, {
+                it
+            })
+        makeMutableListType(it[0])
+    }
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
@@ -473,6 +484,7 @@ object KamiConfig {
             .collectMembersRecursively()
             .collectOnlyAnnotatedMembers()
             .useNamingConvention(ProperCaseConvention)
+            .registerTypeMapping(ArrayList::class.java, mutableListTypeProcessor)
             .registerTypeMapping(EntityTargets::class.java, entityTargetsTypeProcessor)
             .registerTypeMapping(BlockTargets::class.java, blockTargetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
