@@ -85,7 +85,7 @@ object MenuBar {
             button("Create", Vec2(100, 0)) {
                 val title = buffer.backToString()
                 buffer = ByteArray(128)
-                EnabledWidgets.widgets.add(
+                EnabledWidgets.textWidgets.add(
                     TextPinnableWidget(
                         title,
                         // Find an unused position, or, if none, pick CUSTOM.

@@ -13,6 +13,7 @@ import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.tempSet
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
@@ -74,14 +75,11 @@ object KamiHud {
         if (mc.options.hudHidden) return
         frame(matrixStack) {
             if (!EnabledWidgets.hideAll) {
-                PinnableWidget.drawFadedBackground = false
-                val iterator = EnabledWidgets.widgets.iterator()
-                for (widget in iterator) {
-                    if (widget.open && widget.pinned && widget.showWindow(false)) {
-                        iterator.remove()
+                PinnableWidget.Companion::drawFadedBackground.tempSet(false) {
+                    EnabledWidgets.widgets.removeAll { widget ->
+                        widget.open && widget.pinned && widget.showWindow(false)
                     }
                 }
-                PinnableWidget.drawFadedBackground = true
             }
         }
     }

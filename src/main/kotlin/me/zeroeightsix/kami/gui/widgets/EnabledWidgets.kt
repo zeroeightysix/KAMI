@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui.widgets
 
+import com.google.common.collect.Iterables
 import imgui.ImGui.separator
 import imgui.dsl.checkbox
 import imgui.dsl.menu
@@ -25,14 +26,19 @@ object EnabledWidgets : Feature, Listenable {
     override var hidden: Boolean = true
 
     @Setting(name = "Widgets")
-    private var textWidgets = mutableListOf(
+    internal var textWidgets = mutableListOf(
         Information,
         Coordinates,
         ActiveModules
     )
 
+    @Setting(name = "PlayerOverlays")
+    private var playerWidgets = mutableListOf<PlayerPinnableWidget>(
+        PlayerPinnableWidget("Player Overlay")
+    )
+
     val widgets
-        get() = textWidgets
+        get() = Iterables.concat(textWidgets, playerWidgets) as MutableIterable
 
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", EnabledWidgets::hideAll) {}
@@ -52,7 +58,7 @@ object EnabledWidgets : Feature, Listenable {
     }
 
     fun enabledButtons() {
-        for (widget in widgets) {
+        widgets.forEach { widget ->
             menuItem(widget.name, "", widget.open, !hideAll) {
                 widget.open = !widget.open
             }

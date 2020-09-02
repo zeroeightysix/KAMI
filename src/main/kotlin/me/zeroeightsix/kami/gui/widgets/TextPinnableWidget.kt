@@ -58,7 +58,6 @@ open class TextPinnableWidget(
     private var editPart: CompiledText.Part? = null
     private var editColourComboIndex = 0
 
-
     private var immediateTextDelegate = ResettableLazy {
         val scale = KamiHud.getScale()
         val fontHeight = (mc.textRenderer.fontHeight + 4) * scale
