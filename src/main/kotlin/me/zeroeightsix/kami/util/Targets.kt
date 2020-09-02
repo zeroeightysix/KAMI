@@ -34,7 +34,7 @@ val invalidationListener = Listener<TickEvent.Client.InGame>({
 }
 
 fun isPassive(e: Entity): Boolean {
-    if (e is WolfEntity && e.angryAt != mc.player?.uuid) return false
+    if (e is Monster || (e is WolfEntity && e.angryAt != mc.player?.uuid)) return false
     return if (e is PassiveEntity || e is AmbientEntity || e is WaterCreatureEntity) true else e is IronGolemEntity && e.target === null
 }
 
