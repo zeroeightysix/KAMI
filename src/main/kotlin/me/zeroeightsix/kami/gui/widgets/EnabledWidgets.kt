@@ -33,7 +33,7 @@ object EnabledWidgets : Feature, Listenable {
     )
 
     @Setting(name = "PlayerOverlays")
-    private var playerWidgets = arrayListOf(
+    internal var playerWidgets = arrayListOf(
         PlayerPinnableWidget("Player Overlay")
     )
 
