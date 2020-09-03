@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.screen.slot.SlotActionType
 
 @Module.Info(name = "AutoArmour", category = Module.Category.PLAYER)
-class AutoArmour : Module() {
+object AutoArmour : Module() {
 
     @Setting
     var preferElytra = false
