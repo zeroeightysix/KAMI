@@ -60,7 +60,7 @@ abstract class PinnableWidget(
         preWindow()
 
         var flags =
-            WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoSavedSettings or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
+            WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = Settings.borderOffset
