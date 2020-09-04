@@ -10,8 +10,10 @@ import imgui.ImGui.setNextWindowSize
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.setting.GenerateType
 import net.minecraft.client.texture.SpriteAtlasTexture
 
+@GenerateType
 class InventoryPinnableWidget(
     name: String,
     position: Position = Position.TOP_LEFT,
