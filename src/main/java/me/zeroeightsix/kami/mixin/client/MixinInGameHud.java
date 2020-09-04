@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.RenderGuiEvent;
 import net.minecraft.client.MinecraftClient;
@@ -20,6 +21,12 @@ public class MixinInGameHud {
         KamiMod.EVENT_BUS.post(event);
         if (event.isCancelled()) {
             ci.cancel();
+        } else {
+            // Listeners for RenderGuiEvent draw text.
+            // It looks like drawing text disables blend sometimes,
+            // making the hotbar (first thing rendered after this), look opaque.
+            // We make sure it's enabled back here.
+            RenderSystem.enableBlend();
         }
     }
 
