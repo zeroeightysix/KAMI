@@ -37,8 +37,13 @@ object EnabledWidgets : Feature, Listenable {
         PlayerPinnableWidget("Player Overlay")
     )
 
+    @Setting(name = "InventoryOverlays")
+    internal var inventoryWidgets = arrayListOf(
+        InventoryPinnableWidget("Inventory Overlay")
+    )
+
     val widgets
-        get() = Iterables.concat(textWidgets, playerWidgets) as MutableIterable
+        get() = Iterables.concat(textWidgets, playerWidgets, inventoryWidgets) as MutableIterable
 
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", EnabledWidgets::hideAll) {}

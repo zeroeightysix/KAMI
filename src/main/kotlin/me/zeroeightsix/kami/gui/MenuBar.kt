@@ -15,10 +15,7 @@ import imgui.dsl.popupModal
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.feature.FindSettings
-import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
-import me.zeroeightsix.kami.gui.widgets.PinnableWidget
-import me.zeroeightsix.kami.gui.widgets.PlayerPinnableWidget
-import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
+import me.zeroeightsix.kami.gui.widgets.*
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
@@ -78,6 +75,16 @@ object MenuBar {
                     widgetProducer = "Create player overlay" to { title ->
                         EnabledWidgets.playerWidgets.add(
                             PlayerPinnableWidget(
+                                title,
+                                position = findUnusedPosition()
+                            )
+                        )
+                    }
+                }
+                menuItem("Inventory overlay") {
+                    widgetProducer = "Create inventory overlay" to { title ->
+                        EnabledWidgets.inventoryWidgets.add(
+                            InventoryPinnableWidget(
                                 title,
                                 position = findUnusedPosition()
                             )
