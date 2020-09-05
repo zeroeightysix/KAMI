@@ -7,7 +7,8 @@ import imgui.ImGui
 import imgui.classes.Context
 import imgui.classes.IO
 import imgui.font.FontConfig
-import imgui.impl.gl.ImplGL3
+import imgui.impl.gl.GLInterface
+import imgui.impl.gl.ImplBestGL
 import imgui.impl.glfw.ImplGlfw
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
@@ -21,7 +22,7 @@ import java.util.*
 
 object KamiHud {
 
-    internal var implGl3: ImplGL3
+    internal var implGl: GLInterface
     internal val context: Context
     private val implGlfw: ImplGlfw
     private val io: IO
@@ -43,7 +44,7 @@ object KamiHud {
         window.makeContextCurrent()
         context = Context()
         implGlfw = ImplGlfw(window, false, null)
-        implGl3 = ImplGL3()
+        implGl = ImplBestGL()
         io = ImGui.io
         io.iniFilename = "kami-imgui.ini"
 
@@ -85,13 +86,13 @@ object KamiHud {
     }
 
     internal fun frame(matrices: MatrixStack, block: () -> Unit) {
-        implGl3.newFrame()
+        implGl.newFrame()
         implGlfw.newFrame()
         ImGui.newFrame()
 
         try { block() } finally {
             ImGui.render()
-            implGl3.renderDrawData(ImGui.drawData!!)
+            implGl.renderDrawData(ImGui.drawData!!)
             while (!postDrawStack.isEmpty()) {
                 val cmd = postDrawStack.pop()
                 cmd?.let {
