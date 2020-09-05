@@ -43,24 +43,24 @@ dependencies {
         exclude group: 'com.google.guava', module: 'guava'
     }
     implementation "com.github.kotlin-graphics:imgui:${project.kg_version}"
-    implementation "com.github.kotlin-graphics:glm:${project.kg_version}"
-    implementation "com.github.kotlin-graphics:uno-sdk:${project.kg_version}"
+    implementation "com.github.kotlin-graphics:glm:${project.glm_version}"
+    implementation "com.github.kotlin-graphics:uno-sdk:${project.uno_version}"
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: project.kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
 
     shadow 'com.github.ZeroMemes:Alpine:1.9'
     shadow 'net.jodah:typetools:0.5.0'
     shadow(group: 'org.reflections', name: 'reflections', version: '0.9.11')
-    shadow "com.github.kotlin-graphics.imgui:imgui-core:${project.kg_version}"
-    shadow "com.github.kotlin-graphics.imgui:imgui-gl:${project.kg_version}"
-    shadow "com.github.kotlin-graphics.imgui:imgui-glfw:${project.kg_version}"
-    shadow "com.github.kotlin-graphics:glm:${project.kg_version}"
-    shadow "com.github.kotlin-graphics.uno-sdk:uno:${project.kg_version}"
-    shadow "com.github.kotlin-graphics.uno-sdk:uno-core:${project.kg_version}"
-    shadow "com.github.kotlin-graphics:kool:${project.kg_version}"
-    shadow "com.github.kotlin-graphics:kotlin-unsigned:${project.kg_version}"
+    shadow "com.github.zeroeightysix.imgui:imgui-core:${project.kg_version}"
+    shadow "com.github.zeroeightysix.imgui:imgui-gl:${project.kg_version}"
+    shadow "com.github.zeroeightysix.imgui:imgui-glfw:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:glm:${project.glm_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno:${project.uno_version}"
+    shadow "com.github.kotlin-graphics.uno-sdk:uno-core:${project.uno_version}"
+    shadow "com.github.kotlin-graphics:kool:${project.kool_version}"
+    shadow "com.github.kotlin-graphics:kotlin-unsigned:${project.unsigned_version}"
     shadow "com.github.kotlin-graphics:gln:${project.kg_version}"
-    shadow "com.github.kotlin-graphics:gli:${project.kg_version}"
+    shadow "com.github.kotlin-graphics:gli:${project.gli_version}"
 
     include "com.github.fablabsmc:fiber:${project.fiber_version}"
     include group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: project.kotlin_version
@@ -104,9 +104,6 @@ shadowJar {
     classifier = "shadow"
 
     exclude '/fonts/*'
-
-    // Remove unused classes
-    minimize()
 }
 
 remapJar {
