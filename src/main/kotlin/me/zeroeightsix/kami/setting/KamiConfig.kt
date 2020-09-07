@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
 import glm_.asHexString
+import glm_.func.common.floor
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
@@ -40,9 +41,9 @@ import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.Pair
 import kotlin.collections.ArrayList
 import kotlin.collections.map
+import kotlin.math.log10
 
 object KamiConfig {
 
@@ -387,6 +388,7 @@ object KamiConfig {
         installBaseExtension(type)
     }
 
+    var float: Float = 0f
     /**
      * Sets `type`'s [SettingInterface] to an applicable generic setting interface, if available.
      */
@@ -401,17 +403,21 @@ object KamiConfig {
                     type.toRuntimeType(BigDecimal(it))
                 }, { name, value ->
                     val sType = type.serializedType
-                    val float = type.toSerializedType(value).toFloat()
-                    val array = floatArrayOf(float)
+                    this.float = type.toSerializedType(value).toFloat()
+                    val increment = sType.increment?.toFloat() ?: 1.0f
+                    val precision = log10(1f / increment).floor.toInt()
+                    val format = "%.${precision}f"
                     ImGui.dragFloat(
-                        name, array, 0, vSpeed = sType.increment?.toFloat() ?: 1.0f,
-                        vMin = sType.minimum?.toFloat() ?: 0.0f,
-                        vMax = sType.maximum?.toFloat() ?: 0.0f,
-                        format = "%s"
+                        name,
+                        ::float,
+                        vSpeed = increment,
+                        vMin = sType.minimum?.toFloat() ?: 0f,
+                        vMax = sType.maximum?.toFloat() ?: 0f,
+                        format = format
                     ).then {
                         // If the value changed, return it
                         // of course we also need to correct the type again
-                        type.toRuntimeType(BigDecimal.valueOf(array[0].toDouble()))
+                        type.toRuntimeType(BigDecimal.valueOf(float.toDouble()))
                     } // If it didn't change, this will return null
                 }, type = "number")
             }
