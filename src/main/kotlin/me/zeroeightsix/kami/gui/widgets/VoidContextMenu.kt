@@ -51,6 +51,16 @@ object VoidContextMenu {
                         )
                     }
                 }
+                dsl.menuItem("Graph") {
+                    widgetProducer = "Create graph" to { title ->
+                        EnabledWidgets.graphs.add(
+                            GraphPinnableWidget(
+                                title,
+                                position = findUnusedPosition()
+                            )
+                        )
+                    }
+                }
             }
             View()
         }

@@ -23,6 +23,7 @@ abstract class PinnableWidget(
     var pinned: Boolean = true,
     var background: Boolean = false
 ) {
+    protected var autoResize = true
 
     companion object {
         var drawFadedBackground = true
@@ -60,7 +61,10 @@ abstract class PinnableWidget(
         preWindow()
 
         var flags =
-            WindowFlag.NoDecoration or WindowFlag.AlwaysAutoResize or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
+            WindowFlag.NoDecoration or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
+        if (autoResize) flags = flags or WindowFlag.AlwaysAutoResize
+        else if (drawFadedBackground) flags = flags xor WindowFlag.NoResize.i
+
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = Settings.borderOffset
