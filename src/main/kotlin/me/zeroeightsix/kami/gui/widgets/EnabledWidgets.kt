@@ -33,14 +33,10 @@ object EnabledWidgets : Feature, Listenable {
     )
 
     @Setting(name = "PlayerOverlays")
-    internal var playerWidgets = arrayListOf(
-        PlayerPinnableWidget("Player Overlay")
-    )
+    internal var playerWidgets = arrayListOf<PlayerPinnableWidget>()
 
     @Setting(name = "InventoryOverlays")
-    internal var inventoryWidgets = arrayListOf(
-        InventoryPinnableWidget("Inventory Overlay")
-    )
+    internal var inventoryWidgets = arrayListOf<InventoryPinnableWidget>()
 
     val widgets
         get() = Iterables.concat(textWidgets, playerWidgets, inventoryWidgets) as MutableIterable
