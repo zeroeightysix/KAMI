@@ -4,10 +4,22 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.multiplyMatrix
 import me.zeroeightsix.kami.toScreen
 import net.minecraft.client.util.math.Vector4f
-import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Quaternion
-import net.minecraft.util.math.Vec2f
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
+
+operator fun Vec3d.not(): Vec3d = this.negate()
+operator fun Vec3d.plus(other: Position) = Vec3d(this.x + other.x, this.y + other.y, this.z + other.z)
+operator fun Vec3d.plus(other: Double) = Vec3d(this.x + other, this.y + other, this.z + other)
+operator fun Vec3d.minus(other: Vec3d) = this + !other
+operator fun Vec3d.div(other: Position) = Vec3d(this.x / other.x, this.y / other.y, this.z / other.z)
+operator fun Vec3d.div(other: Double) = Vec3d(this.x / other, this.y / other, this.z / other)
+
+fun Vec3d.interpolated(tickDelta: Double, dV: Vec3d) = this + dV.multiply(tickDelta - 1)
+
+val Vec3i.asVec3d
+    get() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
+
+val BlockPos.asVec
+    get() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 
 object VectorMath {
 

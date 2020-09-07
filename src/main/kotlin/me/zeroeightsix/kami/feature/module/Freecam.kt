@@ -7,13 +7,13 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.CameraUpdateEvent
 import me.zeroeightsix.kami.event.InputUpdateEvent
 import me.zeroeightsix.kami.event.UpdateLookEvent
-import me.zeroeightsix.kami.interpolated
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.mixin.extend.setPos
 import me.zeroeightsix.kami.mixin.extend.setRenderHand
 import me.zeroeightsix.kami.mixin.extend.setRotation
 import me.zeroeightsix.kami.mixin.extend.update
-import me.zeroeightsix.kami.plus
+import me.zeroeightsix.kami.util.interpolated
+import me.zeroeightsix.kami.util.plus
 import net.minecraft.client.input.Input
 import net.minecraft.util.math.Vec3d
 

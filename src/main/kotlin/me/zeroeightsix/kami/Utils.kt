@@ -7,6 +7,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
 import me.zeroeightsix.kami.mixin.extend.*
 import me.zeroeightsix.kami.util.Friends
+import me.zeroeightsix.kami.util.minus
+import me.zeroeightsix.kami.util.plus
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
@@ -161,10 +163,6 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
 fun VertexConsumer.vertex(x: Double, y: Double) = this.vertex(x, y, 0.0)
 fun VertexConsumer.vertex(matrix: Matrix4f, x: Float, y: Float) = this.vertex(matrix, x, y, 0f)
 fun VertexConsumer.color(color: Colour) = this.color(color.r, color.g, color.b, color.a)
-
-operator fun Vec3d.plus(other: Vec3d) = add(other)
-operator fun Vec3d.minus(other: Vec3d) = add(other.negate())
-fun Vec3d.interpolated(tickDelta: Double, dV: Vec3d) = this + dV.multiply(tickDelta - 1)
 
 fun Matrix4f.multiplyMatrix(q: Quaternion) = Quaternion(
     a00 * q.x + a01 * q.y + a02 * q.z + a03 * q.w,
