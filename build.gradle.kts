@@ -1,3 +1,4 @@
+import Build_gradle.IncludeMethod.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val minecraft_version: String by project
@@ -31,9 +32,13 @@ repositories {
         url = uri("https://impactdevelopment.github.io/maven/")
     }
     maven {
-        name = "modmuss50's repo"
-        url = uri("https://maven.modmuss50.me/")
+        name = "Fabric"
+        url = uri("http://maven.fabricmc.net/")
     }
+}
+
+enum class IncludeMethod {
+    NOT, SHADOW, INCLUDE
 }
 
 dependencies {
@@ -49,9 +54,14 @@ dependencies {
     val unsigned_version: String by project
     val gli_version: String by project
 
-    fun implAndShadow(notation: String) {
-        implementation(notation)
-        shadow(notation)
+    fun depend(method: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
+        implementation(dependencyNotation = notation, dependencyConfiguration = action)
+        when (method) {
+            SHADOW -> shadow(dependencyNotation = notation, dependencyConfiguration = action)
+            INCLUDE -> include(dependencyNotation = notation, dependencyConfiguration = action)
+            else -> {
+            }
+        }
     }
 
     // Fabric setup
@@ -61,41 +71,35 @@ dependencies {
     modCompile("net.fabricmc:fabric-loader:$loader_version")
     modImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
 
-    implementation("com.github.fablabsmc:fiber:$fiber_version")
-    implementation("com.github.ZeroMemes:Alpine:1.9")
-    shadow("com.github.ZeroMemes:Alpine:1.9")
 
-    implementation("org.reflections:reflections:0.9.11") {
-        exclude("com.google.guava:guava")
+    depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
+    depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+
+    depend(SHADOW, "com.github.kotlin-graphics:kotlin-unsigned:$unsigned_version")
+    depend(SHADOW, "com.github.kotlin-graphics:kool:$kool_version")
+    depend(SHADOW, "org.reflections:reflections:0.9.11")
+    depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
+    depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version")
+    depend(SHADOW, "com.github.kotlin-graphics:glm:$glm_version")
+    depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version")
+
+    // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
+    // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.
+    listOf(
+        "org.javassist:javassist:3.21.0-GA",
+        "net.jodah:typetools:0.5.0",
+        "org.jetbrains:annotations:13.0",
+        "com.github.kotlin-graphics:gln:$kg_version",
+        "com.github.kotlin-graphics:gli:$gli_version",
+        "com.github.kotlin-graphics.imgui:imgui-core:$kg_version",
+        "com.github.kotlin-graphics.imgui:imgui-glfw:$kg_version",
+        "com.github.kotlin-graphics.imgui:imgui-gl:$kg_version",
+        "com.github.kotlin-graphics.uno-sdk:uno-core:$uno_version"
+    ).forEach {
+        shadow(it)
     }
-    shadow("org.reflections:reflections:0.9.11")
 
-    implementation("com.github.kotlin-graphics:imgui:$kg_version")
-    implementation("com.github.kotlin-graphics:glm:$glm_version")
-    implementation("com.github.kotlin-graphics:uno-sdk:$uno_version")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-
-    shadow("net.jodah:typetools:0.5.0")
-
-    shadow("com.github.zeroeightysix.imgui:imgui-core:$kg_version")
-    shadow("com.github.zeroeightysix.imgui:imgui-gl:$kg_version")
-    shadow("com.github.zeroeightysix.imgui:imgui-glfw:$kg_version")
-    shadow("com.github.kotlin-graphics:glm:$glm_version")
-    shadow("com.github.kotlin-graphics.uno-sdk:uno:$uno_version")
-    shadow("com.github.kotlin-graphics.uno-sdk:uno-core:$uno_version")
-    shadow("com.github.kotlin-graphics:kool:$kool_version")
-    shadow("com.github.kotlin-graphics:kotlin-unsigned:$unsigned_version")
-    shadow("com.github.kotlin-graphics:gln:$kg_version")
-    shadow("com.github.kotlin-graphics:gli:$gli_version")
-
-    include("com.github.fablabsmc:fiber:$fiber_version")
-    include("org.jetbrains.kotlin:kotlin-stdlib:")
-    include("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    include("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version")
-    include("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-    include("org.javassist:javassist:3.21.0-GA")
-    include("org.jetbrains:annotations:13.0")
     include("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
 }
 
@@ -129,11 +133,11 @@ tasks {
         archiveClassifier.set("shadow")
 
         exclude("/fonts/*")
+
+        minimize()
     }
 }
 
-configurations {
-    "shadow" {
-        isTransitive = false
-    }
+configurations.shadow {
+    isTransitive = false
 }
