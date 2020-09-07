@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.event.CameraUpdateEvent
 import me.zeroeightsix.kami.event.InputUpdateEvent
 import me.zeroeightsix.kami.event.UpdateLookEvent
 import me.zeroeightsix.kami.mixin.client.IEntity
-import me.zeroeightsix.kami.mixin.extend.setPos
+import me.zeroeightsix.kami.mixin.extend.ipos
 import me.zeroeightsix.kami.mixin.extend.setRenderHand
 import me.zeroeightsix.kami.mixin.extend.setRotation
 import me.zeroeightsix.kami.mixin.extend.update
@@ -20,7 +20,7 @@ import net.minecraft.util.math.Vec3d
 @Module.Info(
     name = "Freecam",
     category = Module.Category.PLAYER,
-    description = "Leave your body and trascend into the realm of the gods"
+    description = "Leave your body and transcend into the realm of the gods"
 )
 object Freecam : Module() {
     @Setting
@@ -29,12 +29,12 @@ object Freecam : Module() {
     @Setting(comment = "Whether or not the real player should still respond to inputs")
     private var blockInputs = true
 
-    val EMPTY_INPUT = Input()
+    private val EMPTY_INPUT = Input()
 
     var pos: Vec3d = Vec3d.ZERO
     var yaw: Float = 0f
     var pitch: Float = 0f
-    var velocity: Vec3d = Vec3d.ZERO
+    private var velocity: Vec3d = Vec3d.ZERO
 
     override fun onEnable() {
         with(mc.player!!) {
@@ -54,7 +54,7 @@ object Freecam : Module() {
     val updateListener = Listener<CameraUpdateEvent>({
         with(it.camera) {
             setRotation(Freecam.yaw, Freecam.pitch)
-            setPos(Freecam.pos.interpolated(mc.tickDelta.toDouble(), velocity))
+            ipos = Freecam.pos.interpolated(mc.tickDelta.toDouble(), velocity)
         }
     })
 

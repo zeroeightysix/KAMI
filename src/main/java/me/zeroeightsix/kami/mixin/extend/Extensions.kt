@@ -17,11 +17,15 @@ fun InputUtil.Type.getMap(): Int2ObjectMap<InputUtil.Key> = (this as IInputUtilT
 
 fun MatrixStack.getStack(): Deque<MatrixStack.Entry> = (this as IMatrixStack).stack
 
-fun Camera.setPos(pos: Vec3d) = (this as ICamera).callSetPos(pos)
+// `i` prefix as in 'interface'. This is because the signatures otherwise clashes with those from minecraft.
+// The compiler accepts this, but complains, so we make it happy by prepending 'i'.
+var Camera.ipos: Vec3d
+    get() = pos
+    set(value) = (this as ICamera).callSetPos(value)
 fun Camera.setRotation(yaw: Float, pitch: Float) = (this as ICamera).callSetRotation(yaw, pitch)
-val Camera.yaw: Float
+val Camera.iyaw: Float
     get() = (this as ICamera).yaw
-val Camera.pitch: Float
+val Camera.ipitch: Float
     get() = (this as ICamera).pitch
 
 fun Input.update(from: Input) = (this as ExtendedInput).update(from)
