@@ -71,7 +71,7 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     public void renderEntity(WorldRenderer worldRenderer, Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
         if (ESP.INSTANCE.getEnabled()) {
-            Colour colour = ESP.INSTANCE.getTargets().belongs(entity);
+            Colour colour = ESP.INSTANCE.getTargets().get(entity);
             if (colour != null) {
                 swapWhile(() -> {
                     OutlineVertexConsumerProvider provider = ESP.INSTANCE.getOutlineConsumerProvider();

@@ -40,6 +40,7 @@
     "MixinConfigType",
     "MixinDecoderHandler",
     "MixinEntity",
+    "MixinEntityRenderer",
     "MixinGameRenderer",
     "MixinHorseBaseEntity",
     "MixinInGameHud",

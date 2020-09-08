@@ -119,9 +119,9 @@ class EntityTargets<T>(inner: Map<EntityTarget, T>) : Targets<EntityTarget, T, E
     }
 
     /**
-     * @return `true` if `entity` belongs to this [EntityTargets]
+     * @return nonnull instance of [T] if `entity` belongs to this [EntityTargets]
      */
-    fun belongs(entity: Entity) =
+    fun get(entity: Entity) =
         this.entries.find { it.key.genericBaseBelongsFunc(entity) && it.key.belongsFunc(entity) }?.value
 }
 
