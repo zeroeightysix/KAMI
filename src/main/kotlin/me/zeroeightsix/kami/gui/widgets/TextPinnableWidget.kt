@@ -99,6 +99,9 @@ open class TextPinnableWidget(
             "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
             "tps" numeric { LagCompensator.tickRate.toDouble() },
             "fps" numeric { IMinecraftClient.getCurrentFps().toDouble() },
+            // Minecraft's fps is 'frames in last second', while imgui calculates an average over the last 120 frames.
+            // This varies more, but it provides a new value every frame, thus perfect for graphs.
+            "fps_fast" numeric { ImGui.io.framerate.toDouble() },
             "username" const { mc.session.username },
             "version" const { KamiMod.MODVER },
             "client" const { KamiMod.MODNAME },
