@@ -141,6 +141,16 @@ object KamiConfig {
             "colour" to colourType.serializedType
         )
     )
+    val variableType = ConfigTypes.STRING.derive(TextPinnableWidget.CompiledText.Variable::class.java, {
+        (TextPinnableWidget.varMap[it] ?: TextPinnableWidget.varMap["none"]!!)()
+    }, {
+        it.name
+    })
+    val numericalVariableType = variableType.derive(TextPinnableWidget.CompiledText.NumericalVariable::class.java, {
+        it as TextPinnableWidget.CompiledText.NumericalVariable
+    }, {
+        it
+    })
     val partType = RecordConfigType(partSerializableType, TextPinnableWidget.CompiledText.Part::class.java, {
         val obfuscated = it["obfuscated"] as Boolean
         val bold = it["bold"] as Boolean
@@ -166,8 +176,8 @@ object KamiConfig {
                 colourMode,
                 extraspace
             )
-            "variable" -> TextPinnableWidget.CompiledText.VariablePart(TextPinnableWidget.varMap[value]?.let { it() }
-                ?: TextPinnableWidget.varMap["none"]!!(),
+            "variable" -> TextPinnableWidget.CompiledText.VariablePart(
+                variableType.toRuntimeType(value),
                 obfuscated,
                 bold,
                 strike,
@@ -194,7 +204,7 @@ object KamiConfig {
     }, {
         val (type, value) = when (it) {
             is TextPinnableWidget.CompiledText.LiteralPart -> "literal" to it.string
-            is TextPinnableWidget.CompiledText.VariablePart -> "variable" to it.variable.name
+            is TextPinnableWidget.CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
             else -> throw IllegalStateException("Unknown part type")
         }
         mapOf(
@@ -498,6 +508,7 @@ object KamiConfig {
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
             .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
+            .registerTypeMapping(TextPinnableWidget.CompiledText.NumericalVariable::class.java, numericalVariableType)
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor

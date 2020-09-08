@@ -22,10 +22,10 @@ class GraphPinnableWidget(
     // The sampling rate in Hertz
     var sampleRate: Float = 1f,
     // The amount of samples to keep in the queue
-    _capacity: Int = (sampleRate * 10).roundToInt(),
+    var capacity: Int = (sampleRate * 10).roundToInt(),
     var variable: TextPinnableWidget.CompiledText.NumericalVariable = TextPinnableWidget.varMap["fps"]!!() as TextPinnableWidget.CompiledText.NumericalVariable,
     var linesColour: Colour = Colour.WHITE,
-    var backgroundColour: Colour = Colour.TRANSPARENT,
+    var backgroundColour: Colour = Colour(0.35f, 0f, 0f, 0f),
     // Whether or not the bottom of the graph should be at zero, or at the minimum sample.
     var baseLineZero: Boolean = true
 ) : PinnableWidget(name, position, open, pinned, background) {
@@ -47,14 +47,6 @@ class GraphPinnableWidget(
 
     var edit = false
     private var editVarComboIndex = -1
-
-    var capacity = _capacity
-        set(value) {
-            field = value
-            // In case the capacity shrunk, remove those elements
-            while (samples.size > value)
-                samples.removeLast()
-        }
 
     // Only used in UI. Represents how many seconds of data the capacity represents.
     var seconds = capacity / sampleRate
@@ -130,6 +122,9 @@ class GraphPinnableWidget(
                 )
                 if (sampleChanged || secondsChanged) {
                     this.capacity = (seconds * sampleRate).roundToInt()
+                    // In case the capacity shrunk, remove those elements
+                    while (samples.size > capacity)
+                        samples.removeLast()
                 }
                 ImGui.sameLine()
                 ImGui.textDisabled("= $capacity samples")
