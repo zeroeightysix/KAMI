@@ -682,9 +682,11 @@ open class TextPinnableWidget(
             override val multiline = false
 
             override fun provide(): String {
-                val number = provider()
+                val number = provideNumber()
                 return String.format("%.${digits}f", number)
             }
+
+            fun provideNumber() = provider()
         }
 
         open class StringVariable(name: String, _multiline: Boolean = false, private val provider: () -> String) :
