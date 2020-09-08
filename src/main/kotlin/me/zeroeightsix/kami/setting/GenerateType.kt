@@ -4,6 +4,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.exception.FiberTypeProcessingExc
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
 import me.zeroeightsix.kami.to
 import java.lang.reflect.AnnotatedType
@@ -42,10 +43,14 @@ annotation class GenerateType(val name: String = "") {
 
             // We try to match up constructor parameters to fields in the class.
             // They must have matching names and matching types. If they don't, we throw a tantrum.
-            val params = constructor.parameters.map {
+            val params = constructor.parameters.mapNotNull {
                 val name = it.name!!
                 // Find the first class member with the same name as the constructor argument
-                val member = kClass.members.find { it.name == name }!!
+                val member = kClass.members.find { member -> member.name == name }
+                if (member == null) {
+                    println("Skipping $name in $kClass: please declare it as a `var`, even if intellij complains")
+                    return@mapNotNull null
+                }
 
                 // If they don't have matching types, throw our tantrum
                 if (member.returnType != it.type) throw FiberTypeProcessingException("Constructor $constructor parameter ${it.name} and field ${it.name} must have matching types.")
@@ -53,13 +58,17 @@ annotation class GenerateType(val name: String = "") {
                 // Create the config type from the type of the parameter.
                 // I couldn't find a standard way to convert KCallable to an Annotated type, so we use an anonymous object instead
                 val type = supplier.toConfigType(object : AnnotatedType {
-                    override fun <T : Annotation?> getAnnotation(p0: Class<T>): T =
-                        declaredAnnotations.filterIsInstance(p0).first()
+                    override fun <T : Annotation?> getAnnotation(p0: Class<T>): T? =
+                        declaredAnnotations.filterIsInstance(p0).firstOrNull()
 
                     override fun getAnnotations(): Array<Annotation> = declaredAnnotations
                     override fun getDeclaredAnnotations(): Array<Annotation> = it.annotations.toTypedArray()
                     override fun getType(): Type = it.type.javaType
-                }) as ConfigType<Any, Any, *>
+                }) as ConfigType<Any, Any, *>?
+                if (type == null) {
+                    KamiMod.log.error("$it.type (of $name) does not have an already installed config type, it will be skipped for the generation of $kClass's type.")
+                    return@mapNotNull null
+                }
                 KamiConfig.installBaseExtension(type)
                 it to (member to type)
             }.toMap()

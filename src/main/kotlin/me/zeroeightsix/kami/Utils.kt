@@ -157,6 +157,7 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
         fun fromVec4(colour: Vec4): Colour = Colour(colour.w, colour.x, colour.y, colour.z)
 
         val WHITE = Colour(1f, 1f, 1f, 1f)
+        val TRANSPARENT = Colour(0f, 1f, 1f, 1f)
     }
 }
 
