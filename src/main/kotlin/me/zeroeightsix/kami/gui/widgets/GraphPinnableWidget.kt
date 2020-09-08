@@ -7,6 +7,8 @@ import imgui.WindowFlag
 import imgui.dsl
 import imgui.impl.time
 import me.zeroeightsix.kami.Colour
+import me.zeroeightsix.kami.gui.KamiGuiScreen
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
@@ -81,7 +83,7 @@ class GraphPinnableWidget(
 
     override fun postWindow() {
         // You'd think that `dsl.window` doesn't display the window if edit is false, but it still does. So we just check the value ourselves.
-        if (edit) {
+        if (edit && mc.currentScreen is KamiGuiScreen) {
             dsl.window("Edit $name", ::edit, WindowFlag.AlwaysAutoResize.i) {
                 KamiConfig.colourType.settingInterface?.let { interf ->
                     interf.displayImGui("Line colour", linesColour)?.let { linesColour = it }
