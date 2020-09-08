@@ -9,6 +9,7 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
+import me.zeroeightsix.kami.to
 import kotlin.math.roundToInt
 
 @GenerateType
@@ -24,7 +25,9 @@ class GraphPinnableWidget(
     _capacity: Int = (sampleRate * 10).roundToInt(),
     var variable: TextPinnableWidget.CompiledText.NumericalVariable = TextPinnableWidget.varMap["fps"]!!() as TextPinnableWidget.CompiledText.NumericalVariable,
     var linesColour: Colour = Colour.WHITE,
-    var backgroundColour: Colour = Colour.TRANSPARENT
+    var backgroundColour: Colour = Colour.TRANSPARENT,
+    // Whether or not the bottom of the graph should be at zero, or at the minimum sample.
+    var baseLineZero: Boolean = true
 ) : PinnableWidget(name, position, open, pinned, background) {
 
     val numVarMap by lazy {
@@ -82,7 +85,7 @@ class GraphPinnableWidget(
                         variable.name,
                         { idx -> samples[idx] },
                         samples.size,
-                        scaleMin = 0f,
+                        scaleMin = baseLineZero.to(0f, Float.MAX_VALUE),
                         graphSize = Vec2(0, ImGui.windowHeight - ImGui.style.windowPadding.y * 2)
                     )
                 }
@@ -130,6 +133,8 @@ class GraphPinnableWidget(
                 }
                 ImGui.sameLine()
                 ImGui.textDisabled("= $capacity samples")
+
+                ImGui.checkbox("Base at zero", ::baseLineZero)
 
                 KamiConfig.colourType.settingInterface?.let { interf ->
                     interf.displayImGui("Line colour", linesColour)?.let { linesColour = it }
