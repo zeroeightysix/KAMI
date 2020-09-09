@@ -23,7 +23,6 @@ import imgui.dsl.tabBar
 import imgui.dsl.tabItem
 import imgui.dsl.window
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import kool.ByteBuffer
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
@@ -40,7 +39,6 @@ object Settings {
 
     @Setting
     var commandPrefix = '.'
-    val commandPrefixBuf = ByteBuffer(1)
 
     // Behaviour
     @Setting
