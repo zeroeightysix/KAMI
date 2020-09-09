@@ -89,12 +89,16 @@ open class TextPinnableWidget(
             this to { CompiledText.StringVariable(this, provider = strProvider) }
 
         private fun toMb(bytes: Long) = (bytes / 1e+6)
+        private fun scaleDimensional(value: Double) = value / (mc.world?.dimension?.coordinateScale ?: 1.0)
 
         val varMap: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
             "none" const { "No variable selected " },
             "x" numeric { mc.player?.pos?.x ?: 0.0 },
             "y" numeric { mc.player?.pos?.y ?: 0.0 },
             "z" numeric { mc.player?.pos?.z ?: 0.0 },
+            "dimensional_x" numeric { scaleDimensional(mc.player?.pos?.x ?: 0.0) },
+            "dimensional_y" numeric { scaleDimensional(mc.player?.pos?.y ?: 0.0) },
+            "dimensional_z" numeric { scaleDimensional(mc.player?.pos?.z ?: 0.0) },
             "yaw" numeric { MathHelper.wrapDegrees(mc.player?.yaw?.toDouble() ?: 0.0) },
             "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
             "tps" numeric { LagCompensator.tickRate.toDouble() },
