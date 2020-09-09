@@ -53,6 +53,7 @@ dependencies {
     val kool_version: String by project
     val unsigned_version: String by project
     val gli_version: String by project
+    val gln_version: String by project
 
     fun depend(method: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
         implementation(dependencyNotation = notation, dependencyConfiguration = action)
@@ -90,7 +91,7 @@ dependencies {
         "org.javassist:javassist:3.21.0-GA",
         "net.jodah:typetools:0.5.0",
         "org.jetbrains:annotations:13.0",
-        "com.github.kotlin-graphics:gln:$kg_version",
+        "com.github.kotlin-graphics:gln:$gln_version",
         "com.github.kotlin-graphics:gli:$gli_version",
         "com.github.kotlin-graphics.imgui:imgui-core:$kg_version",
         "com.github.kotlin-graphics.imgui:imgui-glfw:$kg_version",
