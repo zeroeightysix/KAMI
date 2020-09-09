@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,11 +22,16 @@ import java.io.IOException;
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient {
 
-    @Shadow public ClientWorld world;
+    @Shadow
+    public ClientWorld world;
 
-    @Shadow public ClientPlayerEntity player;
+    @Shadow
+    public ClientPlayerEntity player;
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 0), cancellable = true)
+    @Shadow
+    private Profiler profiler;
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
     public void tick(CallbackInfo info) {
         TickEvent.Client event;
         if (player != null && world != null) {
@@ -33,7 +39,9 @@ public class MixinMinecraftClient {
         } else {
             event = new TickEvent.Client.OutOfGame();
         }
+        profiler.push("kamiTick");
         KamiMod.EVENT_BUS.post(event);
+        profiler.pop();
         if (event.isCancelled()) info.cancel();
     }
 

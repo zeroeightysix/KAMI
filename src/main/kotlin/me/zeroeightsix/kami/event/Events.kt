@@ -113,7 +113,6 @@ open class RenderEvent private constructor(private val stage: Stage) : KamiEvent
         WORLD, SCREEN
     }
 
-    class Screen : RenderEvent(Stage.SCREEN)
     class World(
         val tickDelta: Float,
         val matrixStack: MatrixStack,
