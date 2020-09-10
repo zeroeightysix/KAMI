@@ -2,12 +2,9 @@ package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.CloseScreenInPortalEvent;
-import me.zeroeightsix.kami.event.InputUpdateEvent;
 import me.zeroeightsix.kami.event.PlayerMoveEvent;
-import me.zeroeightsix.kami.mixin.extend.ExtendedInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.Vec3d;
@@ -19,16 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerEntity.class)
 public class MixinClientPlayerEntity {
-
-    @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(Z)V"))
-    public void tick(Input input, boolean bl) {
-        Input prev = ((ExtendedInput) input).copy(); // Create a copy of the previous input state
-        input.tick(bl); // Update the current one
-        InputUpdateEvent ev = new InputUpdateEvent(prev, input); // fire an event to notify the (potential) change in input
-        KamiMod.EVENT_BUS.post(ev);
-        if (ev.isCancelled()) ((ExtendedInput) input).update(prev); // revert to old when event is cancelled
-        // we don't need to mutate input again as any listener that did mutate it, mutated the one minecraft uses
-    }
 
     @Redirect(method = "updateNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;openScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
     public void openScreen(MinecraftClient client, Screen screen) {
