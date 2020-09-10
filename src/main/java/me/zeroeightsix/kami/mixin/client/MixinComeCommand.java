@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ComeCommand.class)
+// If baritone is not present at runtime, this will just produce a harmless error in console.
+@Mixin(value = ComeCommand.class, remap = false)
 public abstract class MixinComeCommand extends Command {
 
     protected MixinComeCommand(IBaritone baritone, String... names) {
