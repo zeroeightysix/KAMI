@@ -71,7 +71,7 @@ dependencies {
     mappings("net.fabricmc:yarn:$yarn_mappings")
     modCompile("net.fabricmc:fabric-loader:$loader_version")
     modImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
-
+    modImplementation("com.gitlab.CDAGaming:fabritone:fabritone~1.16.x-Fabric-SNAPSHOT")
 
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
