@@ -26,6 +26,7 @@ import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
+import me.zeroeightsix.kami.gui.widgets.VarMap
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.util.*
@@ -142,7 +143,7 @@ object KamiConfig {
         )
     )
     val variableType = ConfigTypes.STRING.derive(TextPinnableWidget.CompiledText.Variable::class.java, {
-        (TextPinnableWidget.varMap[it] ?: TextPinnableWidget.varMap["none"]!!)()
+        (VarMap[it] ?: VarMap["none"]!!)()
     }, {
         it.name
     })

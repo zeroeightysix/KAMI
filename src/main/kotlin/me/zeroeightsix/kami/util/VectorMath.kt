@@ -13,6 +13,9 @@ operator fun Vec3d.minus(other: Vec3d) = this + !other
 operator fun Vec3d.div(other: Position) = Vec3d(this.x / other.x, this.y / other.y, this.z / other.z)
 operator fun Vec3d.div(other: Double) = Vec3d(this.x / other, this.y / other, this.z / other)
 
+fun Vec3d.modified(x: Double? = null, y: Double? = null, z: Double? = null) =
+    Vec3d(x ?: this.x, y ?: this.y, z ?: this.z)
+
 fun Vec3d.interpolated(tickDelta: Double, dV: Vec3d) = this + dV.multiply(tickDelta - 1)
 
 val Vec3i.asVec3d

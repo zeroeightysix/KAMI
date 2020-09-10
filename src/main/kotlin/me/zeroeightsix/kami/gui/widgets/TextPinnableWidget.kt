@@ -36,11 +36,7 @@ import imgui.dsl.window
 import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
-import me.zeroeightsix.kami.mixin.client.IMinecraftClient
-import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.ResettableLazy
-import net.minecraft.util.math.Direction
-import net.minecraft.util.math.MathHelper
 import kotlin.collections.map
 import kotlin.math.abs
 import kotlin.math.floor
@@ -79,53 +75,7 @@ open class TextPinnableWidget(
     private val immediateText by immediateTextDelegate
 
     companion object {
-        private infix fun String.const(strProvider: () -> String) =
-            this to { CompiledText.ConstantVariable(this, string = strProvider()) }
 
-        private infix fun String.numeric(valProvider: () -> Double) =
-            this to { CompiledText.NumericalVariable(this, valProvider, 0) }
-
-        private infix fun String.string(strProvider: () -> String) =
-            this to { CompiledText.StringVariable(this, provider = strProvider) }
-
-        private fun toMb(bytes: Long) = (bytes / 1e+6)
-        private fun scaleDimensional(value: Double) = value / (mc.world?.dimension?.coordinateScale ?: 1.0)
-
-        val varMap: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
-            "none" const { "No variable selected " },
-            "x" numeric { mc.player?.pos?.x ?: 0.0 },
-            "y" numeric { mc.player?.pos?.y ?: 0.0 },
-            "z" numeric { mc.player?.pos?.z ?: 0.0 },
-            "dimensional_x" numeric { scaleDimensional(mc.player?.pos?.x ?: 0.0) },
-            "dimensional_y" numeric { scaleDimensional(mc.player?.pos?.y ?: 0.0) },
-            "dimensional_z" numeric { scaleDimensional(mc.player?.pos?.z ?: 0.0) },
-            "yaw" numeric { MathHelper.wrapDegrees(mc.player?.yaw?.toDouble() ?: 0.0) },
-            "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
-            "tps" numeric { LagCompensator.tickRate.toDouble() },
-            "fps" numeric { IMinecraftClient.getCurrentFps().toDouble() },
-            // Minecraft's fps is 'frames in last second', while imgui calculates an average over the last 120 frames.
-            // This varies more, but it provides a new value every frame, thus perfect for graphs.
-            "fps_fast" numeric { ImGui.io.framerate.toDouble() },
-            "username" const { mc.session.username },
-            "version" const { KamiMod.MODVER },
-            "client" const { KamiMod.MODNAME },
-            "kanji" const { KamiMod.KAMI_KANJI },
-            "modules" to { modulesVariable },
-            // maybe i should implement a 'calculation' part that runs an equation on some user-defined variables.. jk.. unless? :flushed:
-            "memory_used_mb" numeric { toMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) },
-            "memory_free_mb" numeric { toMb(Runtime.getRuntime().freeMemory()) },
-            "memory_total_mb" numeric { toMb(Runtime.getRuntime().totalMemory()) },
-            "facing_cardinal" string { mc.player?.horizontalFacing?.toString() ?: "" },
-            "facing_axis" string {
-                when (mc.player?.horizontalFacing) {
-                    Direction.NORTH -> "-Z"
-                    Direction.SOUTH -> "+Z"
-                    Direction.WEST -> "-X"
-                    Direction.EAST -> "+X"
-                    else -> ""
-                }
-            }
-        )
     }
 
     override fun fillWindow() {
@@ -316,7 +266,7 @@ open class TextPinnableWidget(
             var index = 0
             for (compiled in iterator) {
                 val parts = compiled.parts
-                with (parts.listIterator()) {
+                with(parts.listIterator()) {
                     forEachRemainingIndexed { n, part ->
                         val highlight = editPart == part
                         if (highlight) {
@@ -364,7 +314,7 @@ open class TextPinnableWidget(
                         setEditPart(part)
                     }
                     menuItem("Text") { addPart(CompiledText.LiteralPart("Text")) }
-                    menuItem("Variable") { addPart(CompiledText.VariablePart(varMap["none"]!!())) }
+                    menuItem("Variable") { addPart(CompiledText.VariablePart(VarMap["none"]!!())) }
                     menu("Line") {
                         menuItem("Before") {
                             iterator.previous()
@@ -391,7 +341,12 @@ open class TextPinnableWidget(
             editPart?.let {
                 separator()
                 val col = it.colour
-                combo("Colour mode", ::editColourComboIndex, it.multiline.to(CompiledText.Part.ColourMode.listMultiline, CompiledText.Part.ColourMode.listNormal) ) {
+                combo(
+                    "Colour mode", ::editColourComboIndex, it.multiline.to(
+                        CompiledText.Part.ColourMode.listMultiline,
+                        CompiledText.Part.ColourMode.listNormal
+                    )
+                ) {
                     it.colourMode = CompiledText.Part.ColourMode.values()[editColourComboIndex]
                 }
 
@@ -411,7 +366,7 @@ open class TextPinnableWidget(
                     else -> {}
                 }
 
-                it.edit(varMap)
+                it.edit(VarMap.inner)
 
                 if (minecraftFont) {
                     val shadow = booleanArrayOf(it.shadow)

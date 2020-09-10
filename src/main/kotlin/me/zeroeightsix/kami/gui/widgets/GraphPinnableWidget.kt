@@ -23,7 +23,7 @@ class GraphPinnableWidget(
     var sampleRate: Float = 1f,
     // The amount of samples to keep in the queue
     var capacity: Int = (sampleRate * 10).roundToInt(),
-    var variable: TextPinnableWidget.CompiledText.NumericalVariable = TextPinnableWidget.varMap["fps"]!!() as TextPinnableWidget.CompiledText.NumericalVariable,
+    var variable: TextPinnableWidget.CompiledText.NumericalVariable = VarMap["fps"]!!() as TextPinnableWidget.CompiledText.NumericalVariable,
     var linesColour: Colour = Colour.WHITE,
     var backgroundColour: Colour = Colour(0.35f, 0f, 0f, 0f),
     // Whether or not the bottom of the graph should be at zero, or at the minimum sample.
@@ -31,8 +31,8 @@ class GraphPinnableWidget(
 ) : PinnableWidget(name, position, open, pinned, background) {
 
     val numVarMap by lazy {
-        TextPinnableWidget.varMap.mapNotNull {
-            // This is an unfortunate way to check if this varMap entry is one for a numerical variable, but I cba to refactor varmap for this small thing
+        VarMap.inner.mapNotNull {
+            // This is an unfortunate way to check if this VarMap entry is one for a numerical variable, but I cba to refactor varmap for this small thing
             if (it.value() is TextPinnableWidget.CompiledText.NumericalVariable) {
                 it.key to it.value // Turning Map.Entry into a Pair, so we can call `toMap`
             } else {

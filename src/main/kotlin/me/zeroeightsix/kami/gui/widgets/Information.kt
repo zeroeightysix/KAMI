@@ -7,17 +7,17 @@ object Information : TextPinnableWidget(
     mutableListOf(
         CompiledText(
             mutableListOf(
-                CompiledText.VariablePart(varMap["client"]!!()),
-                CompiledText.VariablePart(varMap["version"]!!(), extraspace = false)
+                CompiledText.VariablePart(VarMap["client"]!!()),
+                CompiledText.VariablePart(VarMap["version"]!!(), extraspace = false)
             )
         ),
         CompiledText(
             mutableListOf(
-                CompiledText.VariablePart(varMap["fps"]!!()),
+                CompiledText.VariablePart(VarMap["fps"]!!()),
                 CompiledText.LiteralPart("fps").also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 },
-                CompiledText.VariablePart(varMap["tps"]!!()),
+                CompiledText.VariablePart(VarMap["tps"]!!()),
                 CompiledText.LiteralPart("tps", extraspace = false).also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 }
