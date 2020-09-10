@@ -90,8 +90,12 @@ object Freecam : Module() {
         this.pos += velocity
         this.velocity = velocity
 
-        if (blockInputs) {
-            it.newState.update(EMPTY_INPUT)
+        BaritoneIntegration {
+            // After baritone completes a task, it reverts the input to a standard minecraft one.
+            // We want to set this to the freecam one again.
+            if (mc.player?.input?.javaClass == KeyboardInput::class.java) {
+                disablePlayerInput()
+            }
         }
     })
 
