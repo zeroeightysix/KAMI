@@ -6,14 +6,14 @@ object Coordinates : TextPinnableWidget(
     "Coordinates", text = mutableListOf(
         CompiledText(
             mutableListOf(
-                CompiledText.VariablePart(varMap["facing_axis"]!!()),
-                CompiledText.VariablePart(varMap["x"]!!()).also {
+                CompiledText.VariablePart(VarMap["facing_axis"]!!()),
+                CompiledText.VariablePart(VarMap["x"]!!()).also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 },
-                CompiledText.VariablePart(varMap["y"]!!()).also {
+                CompiledText.VariablePart(VarMap["y"]!!()).also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 },
-                CompiledText.VariablePart(varMap["z"]!!()).also {
+                CompiledText.VariablePart(VarMap["z"]!!()).also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 }
             )
