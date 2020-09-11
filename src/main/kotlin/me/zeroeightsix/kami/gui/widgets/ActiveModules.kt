@@ -17,7 +17,7 @@ val modulesVariable = object : TextPinnableWidget.CompiledText.StringVariable("m
     override fun edit(variableMap: Map<String, () -> TextPinnableWidget.CompiledText.Variable>) {
         ImGui.separator()
         ImGui.text("Show the following modules in the list:")
-        ImGui.inputText("Filter", filter)
+        ImGui.inputText("Filter##active-modules-filter", filter)
         child("active-modules-show-list", Vec2(ImGui.windowContentRegionWidth, 60)) {
             FeatureManager.modules.filter {
                 !it.hidden && it.name.toLowerCase().contains(filter.backToString().toLowerCase())

@@ -84,6 +84,7 @@ dependencies {
     depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version")
     depend(SHADOW, "com.github.kotlin-graphics:glm:$glm_version")
     depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version")
+    depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
 
     // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
     // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.
