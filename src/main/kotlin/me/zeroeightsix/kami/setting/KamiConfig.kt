@@ -6,6 +6,7 @@ import glm_.func.common.floor
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
+import imgui.NUL
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
@@ -43,12 +44,15 @@ import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.collections.ArrayList
-import kotlin.collections.map
 import kotlin.math.log10
 
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
+
+    /** Statically referencable **/
+
+    val strBuffer = ByteArray(512)
 
     /** Config types **/
 
@@ -448,6 +452,19 @@ object KamiConfig {
                 }, { _, b ->
                     CommandSource.suggestMatching(values, b)
                 }, type = "enum")
+            }
+            is StringConfigType<*> -> {
+                val type = (type as StringConfigType<Any>)
+                type.extend({
+                    it.toString()
+                }, {
+                    it
+                }, { name, value ->
+                    val array = type.toSerializedType(value).encodeToByteArray()
+                    array.copyInto(this.strBuffer)
+                    strBuffer[array.size] = NUL.toByte()
+                    ImGui.inputText(name, strBuffer).to(strBuffer.backToString(), null)
+                })
             }
         }
     }
