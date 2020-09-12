@@ -406,8 +406,11 @@ object KamiConfig {
     var float: Float = 0f
     /**
      * Sets `type`'s [SettingInterface] to an applicable generic setting interface, if available.
+     *
+     * Ignores types that already have a setting interface attached.
      */
     fun installBaseExtension(type: ConfigType<Any, out Any, *>?) {
+        if (type == null || type.settingInterface != null) return
         when (type) {
             // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
             is NumberConfigType<*> -> {
