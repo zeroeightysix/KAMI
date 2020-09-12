@@ -28,6 +28,7 @@ object DiscordStatus : Module() {
 
     private const val updateLimit: Long = 15000L // 15 seconds, should be good. (prevents api rate limiting)
     private const val applicationId = "753664640789118999"
+    var lastUpdate: Long = 0L
 
     val messages = arrayOf(
             "kami red how???",
@@ -46,8 +47,6 @@ object DiscordStatus : Module() {
             ":) (smiley face)",
             "Read rat ode by elizabeth acevedo"
     )
-
-    var lastUpdate: Long = 0L
 
     override fun onEnable() {
         initDiscord()
@@ -74,9 +73,9 @@ object DiscordStatus : Module() {
                             // Small image key and text when hovered over
                             .setSmallImage("bigrat", "he is massive :)")
 
-                    //Build it
+                    //Update the RPC
                     DiscordRPC.discordUpdatePresence(presence.build())
-                    lastUpdate += updateLimit
+                    lastUpdate = System.currentTimeMillis()
                 }
             })
 
@@ -88,6 +87,7 @@ object DiscordStatus : Module() {
         }.build()
         DiscordRPC.discordInitialize(applicationId, handlers, false)
         DiscordRPC.discordRegister(applicationId, "")
+        lastUpdate = System.currentTimeMillis() - updateLimit // Make it update instantly
     }
 
     private fun getOperatingSystemMessage() = when (getOperatingSystem()) {
