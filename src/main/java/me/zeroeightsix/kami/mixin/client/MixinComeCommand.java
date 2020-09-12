@@ -25,7 +25,7 @@ public abstract class MixinComeCommand extends Command {
         if (Freecam.INSTANCE.getEnabled()) {
             ci.cancel();
             Vec3d pos = Freecam.INSTANCE.getPos();
-            baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock((int) pos.x, (int) pos.y, (int) pos.z));
+            baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock((int) pos.x, (int) pos.y - 1, (int) pos.z));
             logDirect("Coming (to KAMI freecam)");
         }
     }
