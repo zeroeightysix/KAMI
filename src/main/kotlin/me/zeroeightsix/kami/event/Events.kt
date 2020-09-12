@@ -6,14 +6,12 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.client.gui.hud.ClientBossBar
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.input.Input
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.util.Window
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.Packet
@@ -75,17 +73,6 @@ open class EntityEvent(val entity: Entity) : KamiEvent() {
 class EntityJoinWorldEvent(val id: Int, val entity: Entity) : KamiEvent()
 
 class EntityVelocityMultiplierEvent(val entity: Entity?, var multiplier: Float) : KamiEvent()
-
-class InputUpdateEvent(
-    val previousState: Input,
-    var newState: Input
-) : KamiEvent()
-
-class LivingEntityTickEvent(private val entity: LivingEntity) : KamiEvent() {
-    fun getEntity(): Entity {
-        return entity
-    }
-}
 
 class MoveEntityFluidEvent(val entity: Entity, var movement: Vec3d) : KamiEvent()
 

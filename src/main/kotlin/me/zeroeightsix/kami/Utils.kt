@@ -24,7 +24,6 @@ import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
-fun <T, A> T.map(mapper: (T) -> A) = mapper(this)
 fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
 fun <T> Boolean.then(block: (Boolean) -> T): T? {
     if (this) return block(this)

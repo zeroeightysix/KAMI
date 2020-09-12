@@ -4,17 +4,18 @@ import glm_.func.common.clamp
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.event.CameraUpdateEvent
-import me.zeroeightsix.kami.event.InputUpdateEvent
+import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.event.UpdateLookEvent
 import me.zeroeightsix.kami.mixin.client.IEntity
 import me.zeroeightsix.kami.mixin.extend.ipos
 import me.zeroeightsix.kami.mixin.extend.setRenderHand
 import me.zeroeightsix.kami.mixin.extend.setRotation
-import me.zeroeightsix.kami.mixin.extend.update
 import me.zeroeightsix.kami.util.interpolated
 import me.zeroeightsix.kami.util.plus
 import net.minecraft.client.input.Input
+import net.minecraft.client.input.KeyboardInput
 import net.minecraft.util.math.Vec3d
 
 @Module.Info(
@@ -29,12 +30,24 @@ object Freecam : Module() {
     @Setting(comment = "Whether or not the real player should still respond to inputs")
     private var blockInputs = true
 
-    private val EMPTY_INPUT = Input()
-
     var pos: Vec3d = Vec3d.ZERO
     var yaw: Float = 0f
     var pitch: Float = 0f
     private var velocity: Vec3d = Vec3d.ZERO
+
+    val input by lazy { KeyboardInput(mc.options) }
+    var inputCache: Input? = null
+    private val noInput = object : Input() {
+        override fun tick(slowDown: Boolean) {
+            this.movementSideways = 0f
+            this.movementForward = 0f
+        }
+    }
+
+    private fun disablePlayerInput() {
+        inputCache = mc.player?.input
+        mc.player?.input = noInput
+    }
 
     override fun onEnable() {
         with(mc.player!!) {
@@ -44,10 +57,16 @@ object Freecam : Module() {
         }
 
         mc.gameRenderer.setRenderHand(false)
+
+        disablePlayerInput()
     }
 
     override fun onDisable() {
         mc.gameRenderer.setRenderHand(true)
+
+        inputCache?.let {
+            mc.player?.input = it
+        }
     }
 
     @EventHandler
@@ -59,19 +78,24 @@ object Freecam : Module() {
     })
 
     @EventHandler
-    val inputUpdateListener = Listener<InputUpdateEvent>({
-        val input = it.newState.movementInput
+    val tickListener = Listener<TickEvent.Client.InGame>({
+        this.input.tick(false)
+        val movement = this.input.movementInput
 
         val velocity = IEntity.movementInputToVelocity(
-            Vec3d(input.x.toDouble(), 0.0, input.y.toDouble()),
+            Vec3d(movement.x.toDouble(), 0.0, movement.y.toDouble()),
             speed,
             yaw
         ).add(0.0, ((mc.options.keyJump.isPressed * speed) - (mc.options.keySneak.isPressed * speed)).toDouble(), 0.0)
         this.pos += velocity
         this.velocity = velocity
 
-        if (blockInputs) {
-            it.newState.update(EMPTY_INPUT)
+        BaritoneIntegration {
+            // After baritone completes a task, it reverts the input to a standard minecraft one.
+            // We want to set this to the freecam one again.
+            if (mc.player?.input?.javaClass == KeyboardInput::class.java) {
+                disablePlayerInput()
+            }
         }
     })
 
