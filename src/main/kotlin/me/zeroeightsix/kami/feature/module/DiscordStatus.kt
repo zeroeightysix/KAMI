@@ -28,7 +28,7 @@ object DiscordStatus : Module() {
 
     private const val updateLimit: Long = 15000L // 15 seconds, should be good. (prevents api rate limiting)
     private const val applicationId = "753664640789118999"
-    var lastUpdate: Long = 0L
+    private var lastUpdate: Long = 0L
 
     val messages = arrayOf(
             "kami red how???",
@@ -59,7 +59,6 @@ object DiscordStatus : Module() {
     @EventHandler
     private val updateListener =
             Listener<TickEvent.Client.InGame>({
-                if (lastUpdate == 0L) lastUpdate = System.currentTimeMillis()
                 if ((lastUpdate + updateLimit <= System.currentTimeMillis())) {
                     // If boolean is true return value else return ""
                     infix fun Boolean.to(string: String) = if (this) string else ""
@@ -80,11 +79,7 @@ object DiscordStatus : Module() {
             })
 
     fun initDiscord() {
-        val handlers = DiscordEventHandlers.Builder().setReadyEventHandler { user: DiscordUser ->
-            println("${user.username} is using the RPC.")
-            val presence = DiscordRichPresence.Builder("Loading...")
-            DiscordRPC.discordUpdatePresence(presence.build())
-        }.build()
+        val handlers = DiscordEventHandlers.Builder().build()
         DiscordRPC.discordInitialize(applicationId, handlers, false)
         DiscordRPC.discordRegister(applicationId, "")
         lastUpdate = System.currentTimeMillis() - updateLimit // Make it update instantly
