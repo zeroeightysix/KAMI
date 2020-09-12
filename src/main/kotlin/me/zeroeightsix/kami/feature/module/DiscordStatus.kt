@@ -12,9 +12,8 @@ import net.arikia.dev.drpc.DiscordUser
 import net.minecraft.util.Util.OperatingSystem
 import net.minecraft.util.Util.getOperatingSystem
 
-
 @Module.Info(name = "DiscordRPC", category = Module.Category.MISC, description = "Discord Rich presence")
-class DiscordStatus : Module() {
+object DiscordStatus : Module() {
     @Setting(name = "Version")
     private var version = true
 
@@ -27,8 +26,8 @@ class DiscordStatus : Module() {
     @Setting(name = "Flair")
     private var message = true
 
-    var lastUpdate: Long = 0L
-    var rpcEnabled = false
+    private const val updateLimit: Long = 15000L // 15 seconds, should be good. (prevents api rate limiting)
+    private const val applicationId = "753664640789118999"
 
     val messages = arrayOf(
             "kami red how???",
@@ -39,77 +38,59 @@ class DiscordStatus : Module() {
             "Scythe goddard mass gleaning",
             "i have a scoop!",
             "Not unfounded.",
-            "Rockin' version " + KamiMod.MODVER,
             getOperatingSystemMessage(),
             "YES!!!!!!",
             "086 is NOT A PRIME NUMBER!",
             "3 is a PRIME NUMBER",
-            "Also try our sister mod KAMI BLUE!"
+            "Also try our sister mod KAMI BLUE!",
+            ":) (smiley face)",
+            "Read rat ode by elizabeth acevedo"
     )
 
+    var lastUpdate: Long = 0L
+
     override fun onEnable() {
-        rpcEnabled = true
         initDiscord()
     }
 
     override fun onDisable() {
         DiscordRPC.discordShutdown()
-        rpcEnabled = false
-        println("downdoot")
     }
 
     @EventHandler
     private val updateListener =
             Listener<TickEvent.Client.InGame>({
                 if (lastUpdate == 0L) lastUpdate = System.currentTimeMillis()
-                if ((lastUpdate + 15000L <= System.currentTimeMillis()) && rpcEnabled) { // 15 seconds, should be good.
-                    DiscordRPC.discordRunCallbacks()
-                    var bottomString = ""
-                    var topString = ""
-                    if (message && server) bottomString = ("127.0.0.1 (ez doxx)") + " | " + messages.random()
-                    else if (message) bottomString = messages.random()
-                    else if (server) bottomString = ("127.0.0.1 (ez doxx)")
+                if ((lastUpdate + updateLimit <= System.currentTimeMillis())) {
+                    // If boolean is true return value else return ""
+                    infix fun Boolean.to(string: String) = if (this) string else ""
 
-                    if (version && username) topString = (KamiMod.MODVER) + " | Notch"
-                    else if (version) topString = messages.random()
-                    else if (username) topString = ("Notch")
+                    // This is the bottom half of the RPC with server ip and funny message
+                    val presence = DiscordRichPresence.Builder("${server to "127.0.0.1 (ez doxx)"}${(server && message) to " | "}${message to messages.random()}")
+                            // This is the top half with modver and username
+                            .setDetails("${username to "Notch"}${(username && version) to " | "}${version to KamiMod.MODVER}")
+                            // Image key (kami) and text when you scroll over it (kamiclient.com)
+                            .setBigImage("kami", "kamiclient.com")
+                            // Small image key and text when hovered over
+                            .setSmallImage("bigrat", "he is massive :)")
 
-
-                    val presence = DiscordRichPresence.Builder(bottomString) // This is the bottom half of the RPC with server ip and funny message
-                    presence.setDetails(topString) // This is the top half with modver and username
-                    presence.setBigImage("kami", "kamiclient.com") // Image key (kami) and text when you scroll over it (kamiclient.com)
+                    //Build it
                     DiscordRPC.discordUpdatePresence(presence.build())
-                    lastUpdate += 15000L
+                    lastUpdate += updateLimit
                 }
-
-
             })
 
-    // Yes, its the same code but again. Yes, I know its bad practice but at the moment I don't care.
     fun initDiscord() {
-        var bottomString = ""
-        var topString = ""
-        if (message && server)  bottomString = ("127.0.0.1 (ez doxx)") + " | " + messages.random()
-        else if (message) bottomString = messages.random()
-        else if (server) bottomString = ("127.0.0.1 (ez doxx)")
-
-        if (version && username) topString =  (KamiMod.MODVER) + " | Notch"
-        else if (version) topString = messages.random()
-        else if (username) topString = ("Notch")
-
         val handlers = DiscordEventHandlers.Builder().setReadyEventHandler { user: DiscordUser ->
-            val presence = DiscordRichPresence.Builder(bottomString)
-            presence.setDetails(topString)
+            println("${user.username} is using the RPC.")
+            val presence = DiscordRichPresence.Builder("Loading...")
             DiscordRPC.discordUpdatePresence(presence.build())
         }.build()
-
-        DiscordRPC.discordInitialize("753664640789118999", handlers, false);
-        DiscordRPC.discordRegister("753664640789118999", "");
-        DiscordRPC.discordRunCallbacks()
-        println("lol")
+        DiscordRPC.discordInitialize(applicationId, handlers, false)
+        DiscordRPC.discordRegister(applicationId, "")
     }
 
-    fun getOperatingSystemMessage() = when (getOperatingSystem()) {
+    private fun getOperatingSystemMessage() = when (getOperatingSystem()) {
         OperatingSystem.WINDOWS -> "win dow"
         OperatingSystem.OSX -> "appl e"
         OperatingSystem.LINUX -> "i use arch btw B)"
