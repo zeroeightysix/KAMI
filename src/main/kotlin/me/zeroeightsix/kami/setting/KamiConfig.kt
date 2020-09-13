@@ -24,9 +24,10 @@ import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.gui.text.CompiledText
+import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
-import me.zeroeightsix.kami.gui.widgets.VarMap
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.util.*
@@ -126,7 +127,7 @@ object KamiConfig {
                 }
             })
 
-    val colourModeType = ConfigTypes.makeEnum(TextPinnableWidget.CompiledText.Part.ColourMode::class.java)
+    val colourModeType = ConfigTypes.makeEnum(CompiledText.Part.ColourMode::class.java)
     val partSerializableType = RecordSerializableType(
         mapOf(
             "obfuscated" to BOOLEAN,
@@ -142,17 +143,17 @@ object KamiConfig {
             "colour" to colourType.serializedType
         )
     )
-    val variableType = ConfigTypes.STRING.derive(TextPinnableWidget.CompiledText.Variable::class.java, {
+    val variableType = ConfigTypes.STRING.derive(CompiledText.Variable::class.java, {
         (VarMap[it] ?: VarMap["none"]!!)()
     }, {
         it.name
     })
-    val numericalVariableType = variableType.derive(TextPinnableWidget.CompiledText.NumericalVariable::class.java, {
-        it as TextPinnableWidget.CompiledText.NumericalVariable
+    val numericalVariableType = variableType.derive(CompiledText.NumericalVariable::class.java, {
+        it as CompiledText.NumericalVariable
     }, {
         it
     })
-    val partType = RecordConfigType(partSerializableType, TextPinnableWidget.CompiledText.Part::class.java, {
+    val partType = RecordConfigType(partSerializableType, CompiledText.Part::class.java, {
         val obfuscated = it["obfuscated"] as Boolean
         val bold = it["bold"] as Boolean
         val strike = it["strike"] as Boolean
@@ -166,7 +167,7 @@ object KamiConfig {
         val colour = colourType.toRuntimeType(it["colour"] as String)
 
         val part = when (type) {
-            "literal" -> TextPinnableWidget.CompiledText.LiteralPart(
+            "literal" -> CompiledText.LiteralPart(
                 value,
                 obfuscated,
                 bold,
@@ -177,7 +178,7 @@ object KamiConfig {
                 colourMode,
                 extraspace
             )
-            "variable" -> TextPinnableWidget.CompiledText.VariablePart(
+            "variable" -> CompiledText.VariablePart(
                 variableType.toRuntimeType(value),
                 obfuscated,
                 bold,
@@ -188,7 +189,7 @@ object KamiConfig {
                 colourMode,
                 extraspace
             )
-            else -> TextPinnableWidget.CompiledText.LiteralPart(
+            else -> CompiledText.LiteralPart(
                 "Invalid part",
                 obfuscated,
                 bold,
@@ -204,8 +205,8 @@ object KamiConfig {
         part
     }, {
         val (type, value) = when (it) {
-            is TextPinnableWidget.CompiledText.LiteralPart -> "literal" to it.string
-            is TextPinnableWidget.CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
+            is CompiledText.LiteralPart -> "literal" to it.string
+            is CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
             else -> throw IllegalStateException("Unknown part type")
         }
         mapOf(
@@ -223,14 +224,22 @@ object KamiConfig {
         )
     })
     val compiledTextType = ConfigTypes.makeList(partType).derive(
-        TextPinnableWidget.CompiledText::class.java,
+        CompiledText::class.java,
         {
-            TextPinnableWidget.CompiledText(it.toMutableList())
+            CompiledText(it.toMutableList())
         },
         {
             it.parts
         }
-    )
+    ).extend({
+        it.toString()
+    }, {
+        throw InvalidValueException("CompiledTexts can not be made from text")
+    }, { name, text ->
+        text.edit(name, false, selectedAction = { part ->
+            part.editValue(VarMap.inner)
+        }) then { text }
+    })
     val listOfCompiledTextType = ConfigTypes.makeList(compiledTextType)
     val positionType = ConfigTypes.makeEnum(PinnableWidget.Position::class.java)
     val alignmentType = ConfigTypes.makeEnum(TextPinnableWidget.Alignment::class.java)
@@ -509,7 +518,8 @@ object KamiConfig {
             .registerTypeMapping(Colour::class.java, colourType)
             .registerTypeMapping(Modules.Windows::class.java, windowsType)
             .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
-            .registerTypeMapping(TextPinnableWidget.CompiledText.NumericalVariable::class.java, numericalVariableType)
+            .registerTypeMapping(CompiledText::class.java, compiledTextType)
+            .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor
