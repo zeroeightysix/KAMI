@@ -2,16 +2,61 @@ package me.zeroeightsix.kami.gui.text
 
 import glm_.vec4.Vec4
 import imgui.*
-import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.backToString
-import me.zeroeightsix.kami.cyclingIterator
-import me.zeroeightsix.kami.then
+import me.zeroeightsix.kami.*
 import kotlin.math.abs
 import kotlin.math.floor
 
 class CompiledText(
     var parts: MutableList<Part> = mutableListOf()
 ) {
+
+    var selectedPart: Part? = null
+
+    fun edit(highlightSelected: Boolean = false) {
+        parts.listIterator().let { iterator ->
+            iterator.forEachRemainingIndexed { n, part ->
+                val highlight = highlightSelected && part == selectedPart
+
+                highlight.conditionalWrap(
+                    {
+                        ImGui.pushStyleColor(Col.Text, (ImGui.style.colors[Col.Text.i] / 1.2f))
+                    }, {
+                        dsl.button("${part.editLabel}###part-button-${part.hashCode()}") {
+                            this.selectedPart = part
+                        }
+
+                        // Set colour if colour dropped on this button
+                        dsl.dragDropTarget {
+                            ImGui.acceptDragDropPayload(PAYLOAD_TYPE_COLOR_4F)?.let {
+                                part.colour = it.data!! as Vec4
+                            }
+                        }
+
+                        // Drag to move item
+                        if (ImGui.isItemActive && !ImGui.isItemHovered()) {
+                            val nNext = n + if (ImGui.getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
+                            if (nNext in parts.indices) {
+                                parts[n] = parts[nNext]
+                                parts[nNext] = part
+                                ImGui.resetMouseDragDelta()
+                            }
+                        }
+
+                        dsl.popupContextItem {
+                            dsl.menuItem("Remove") {
+                                // Remove this part from the list
+                                iterator.remove()
+                            }
+                        }
+
+                        ImGui.sameLine() // The next button should be on the same line
+                    }, {
+                        ImGui.popStyleColor()
+                    }
+                )
+            }
+        }
+    }
 
     override fun toString(): String {
         var buf = ""

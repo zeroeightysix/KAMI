@@ -1,21 +1,15 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
-import glm_.vec4.Vec4
 import imgui.*
-import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.calcTextSize
 import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.cursorPosX
 import imgui.ImGui.dummy
-import imgui.ImGui.getMouseDragDelta
-import imgui.ImGui.isItemActive
-import imgui.ImGui.isItemHovered
 import imgui.ImGui.openPopup
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.pushStyleColor
-import imgui.ImGui.resetMouseDragDelta
 import imgui.ImGui.sameLine
 import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowSize
@@ -26,18 +20,19 @@ import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
 import imgui.dsl.combo
-import imgui.dsl.dragDropTarget
 import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
 import imgui.dsl.window
-import me.zeroeightsix.kami.*
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
+import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.sumByFloat
+import me.zeroeightsix.kami.tempSet
+import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.ResettableLazy
-import kotlin.collections.map
 
 open class TextPinnableWidget(
     val title: String,
@@ -259,43 +254,9 @@ open class TextPinnableWidget(
             val iterator = text.listIterator()
             var index = 0
             for (compiled in iterator) {
-                val parts = compiled.parts
-                with(parts.listIterator()) {
-                    forEachRemainingIndexed { n, part ->
-                        val highlight = editPart == part
-                        if (highlight) {
-                            pushStyleColor(Col.Text, (style.colors[Col.Text.i] / 1.2f))
-                        }
-                        button("${part.editLabel}###part-button-${part.hashCode()}") {
-                            setEditPart(part)
-                        }
-                        popupContextItem {
-                            menuItem("Remove") {
-                                remove()
-                            }
+                compiled.edit(highlightSelected = true)
+                this.editPart = compiled.selectedPart
 
-                        }
-
-                        if (isItemActive && !isItemHovered()) {
-                            val nNext = n + if (getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
-                            if (nNext in parts.indices) {
-                                parts[n] = parts[nNext]
-                                parts[nNext] = part
-                                resetMouseDragDelta()
-                            }
-                        }
-
-                        dragDropTarget {
-                            acceptDragDropPayload(PAYLOAD_TYPE_COLOR_4F)?.let {
-                                part.colour = it.data!! as Vec4
-                            }
-                        }
-                        sameLine() // The next button should be on the same line
-                        if (highlight) {
-                            popStyleColor()
-                        }
-                    }
-                }
                 pushStyleColor(Col.Button, style.colors[Col.Button.i] * 0.7f)
                 button("+###plus-button-$index") {
                     openPopup("plus-popup-$index")
