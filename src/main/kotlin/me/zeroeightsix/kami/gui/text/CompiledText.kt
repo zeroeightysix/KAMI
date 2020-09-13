@@ -13,11 +13,16 @@ class CompiledText(
 
     var selectedPart: Part? = null
 
+    /**
+     * @return `true` if mutated
+     */
     fun edit(
         id: String,
         highlightSelected: Boolean = false,
+        selectedAction: (Part) -> Unit = { },
         plusButtonExtra: () -> Unit = {}
-    ) {
+    ): Boolean {
+        var dirty = false
         parts.listIterator().let { iterator ->
             iterator.forEachRemainingIndexed { n, part ->
                 val highlight = highlightSelected && part == selectedPart
@@ -26,7 +31,7 @@ class CompiledText(
                     {
                         ImGui.pushStyleColor(Col.Text, (ImGui.style.colors[Col.Text.i] / 1.2f))
                     }, {
-                        dsl.button("${part.editLabel}###part-button-${part.hashCode()}") {
+                        dsl.button("${part.editLabel}###part-button-$id-$n") {
                             this.selectedPart = part
                         }
 
@@ -51,7 +56,9 @@ class CompiledText(
                             dsl.menuItem("Remove") {
                                 // Remove this part from the list
                                 iterator.remove()
+                                dirty = true
                             }
+                            selectedAction(part)
                         }
 
                         ImGui.sameLine() // The next button should be on the same line
@@ -70,6 +77,7 @@ class CompiledText(
                         this.parts = parts.toMutableList().also {
                             it.add(part)
                             this.selectedPart = part
+                            dirty = true
                         }
                     }
                     dsl.menuItem("Text") { addPart(LiteralPart("Text")) }
@@ -78,6 +86,7 @@ class CompiledText(
                 }
             }
         }
+        return dirty
     }
 
     override fun toString(): String {
@@ -97,6 +106,82 @@ class CompiledText(
         var colourMode: ColourMode = ColourMode.STATIC,
         var extraspace: Boolean = true
     ) {
+        private var editColourComboIndex = ColourMode.values().indexOf(this.colourMode)
+
+        enum class FormattingEditMode {
+            ABSENT, DISABLED, ENABLED
+        }
+
+        fun edit(
+            colour: Boolean = false,
+            formatting: FormattingEditMode = FormattingEditMode.ABSENT
+        ) {
+            colour then {
+                val col = this.colour
+                dsl.combo(
+                    "Colour mode", ::editColourComboIndex, this.multiline.to(
+                        ColourMode.listMultiline,
+                        ColourMode.listNormal
+                    )
+                ) {
+                    this.colourMode = ColourMode.values()[editColourComboIndex]
+                }
+
+                when (this.colourMode) {
+                    ColourMode.STATIC -> {
+                        if (ImGui.colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar.i)) {
+                            this.colour = col
+                        }
+                    }
+                    ColourMode.ALTERNATING -> {
+                        this.colours.forEachIndexed { i, vec ->
+                            ImGui.colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar.i)
+                        }
+
+                        // TODO: Allow colours to be added / removed
+                    }
+                    else -> {
+                    }
+                }
+            }
+
+            this.editValue(VarMap.inner)
+
+            when (formatting) {
+                FormattingEditMode.ABSENT -> {
+                }
+                FormattingEditMode.DISABLED -> {
+                    ImGui.textDisabled("Styles disabled")
+                    if (ImGui.isItemHovered()) {
+                        ImGui.beginTooltip()
+                        ImGui.pushTextWrapPos(ImGui.fontSize * 35f)
+                        ImGui.textEx("Enable minecraft font rendering to enable styles")
+                        ImGui.popTextWrapPos()
+                        ImGui.endTooltip()
+                    }
+                }
+                FormattingEditMode.ENABLED -> {
+                    val shadow = booleanArrayOf(this.shadow)
+                    val bold = booleanArrayOf(this.bold)
+                    val italic = booleanArrayOf(this.italic)
+                    val underline = booleanArrayOf(this.underline)
+                    val strikethrough = booleanArrayOf(this.strike)
+                    val obfuscated = booleanArrayOf(this.obfuscated)
+                    if (ImGui.checkbox("Shadow", shadow)) this.shadow = !this.shadow
+                    ImGui.sameLine()
+                    if (ImGui.checkbox("Bold", bold)) this.bold = !this.bold
+                    ImGui.sameLine()
+                    if (ImGui.checkbox("Italic", italic)) this.italic = !this.italic
+                    // newline
+                    if (ImGui.checkbox("Underline", underline)) this.underline = !this.underline
+                    ImGui.sameLine()
+                    if (ImGui.checkbox("Cross out", strikethrough)) this.strike = !this.strike
+                    ImGui.sameLine()
+                    if (ImGui.checkbox("Obfuscated", obfuscated)) this.obfuscated = !this.obfuscated
+                }
+            }
+        }
+
         private fun toCodes(): String {
             return (if (obfuscated) "§k" else "") +
                     (if (bold) "§l" else "") +
@@ -187,7 +272,7 @@ class CompiledText(
             }
         }
 
-        abstract fun edit(variableMap: Map<String, () -> Variable>)
+        abstract fun editValue(variableMap: Map<String, () -> Variable>)
     }
 
     class LiteralPart(
@@ -207,7 +292,7 @@ class CompiledText(
             return string + super.toString()
         }
 
-        override fun edit(variableMap: Map<String, () -> Variable>) {
+        override fun editValue(variableMap: Map<String, () -> Variable>) {
             val buf =
                 string.toByteArray(ByteArray((((floor((abs((string.length - 4) / 256) + 1).toDouble()))) * 256).toInt()))
             if (ImGui.inputText("Text", buf)) {
@@ -249,7 +334,7 @@ class CompiledText(
             return variable.provide() + super.toString()
         }
 
-        override fun edit(variableMap: Map<String, () -> Variable>) {
+        override fun editValue(variableMap: Map<String, () -> Variable>) {
             if (editVarComboIndex == -1) editVarComboIndex = variableMap.keys.indexOf(this.variable.name)
             dsl.combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
                 val selected: String = variableMap.keys.toList()[editVarComboIndex]

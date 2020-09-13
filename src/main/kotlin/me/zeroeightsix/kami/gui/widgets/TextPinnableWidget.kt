@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
-import imgui.*
+import imgui.Col
+import imgui.ImGui
 import imgui.ImGui.calcTextSize
-import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.cursorPosX
 import imgui.ImGui.dummy
@@ -14,19 +14,18 @@ import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.style
 import imgui.ImGui.text
-import imgui.ImGui.textDisabled
+import imgui.WindowFlag
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
-import imgui.dsl.combo
 import imgui.dsl.menu
 import imgui.dsl.menuItem
 import imgui.dsl.window
 import imgui.dsl.withStyleColor
+import imgui.get
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.text.CompiledText
-import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.sumByFloat
 import me.zeroeightsix.kami.tempSet
@@ -44,7 +43,6 @@ open class TextPinnableWidget(
 
     private var editWindow = false
     private var editPart: CompiledText.Part? = null
-    private var editColourComboIndex = 0
 
     private var immediateTextDelegate = ResettableLazy {
         val scale = KamiHud.getScale()
@@ -239,11 +237,6 @@ open class TextPinnableWidget(
 
     private fun editWindow() {
         window("Edit $title", ::editWindow, WindowFlag.AlwaysAutoResize.i) {
-            fun setEditPart(part: CompiledText.Part) {
-                editPart = part
-                editColourComboIndex = CompiledText.Part.ColourMode.values().indexOf(part.colourMode)
-            }
-
             if (text.isEmpty()) {
                 button("New line") {
                     text.add(CompiledText())
@@ -295,66 +288,14 @@ open class TextPinnableWidget(
             dummy(Vec2(0, 0)) // Put a dummy widget here so the next widget isn't on the same line
             editPart?.let {
                 separator()
-                val col = it.colour
-                combo(
-                    "Colour mode", ::editColourComboIndex, it.multiline.to(
-                        CompiledText.Part.ColourMode.listMultiline,
-                        CompiledText.Part.ColourMode.listNormal
+
+                it.edit(
+                    true,
+                    minecraftFont.to(
+                        CompiledText.Part.FormattingEditMode.ENABLED,
+                        CompiledText.Part.FormattingEditMode.DISABLED
                     )
-                ) {
-                    it.colourMode = CompiledText.Part.ColourMode.values()[editColourComboIndex]
-                }
-
-                when (it.colourMode) {
-                    CompiledText.Part.ColourMode.STATIC -> {
-                        if (colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar.i)) {
-                            it.colour = col
-                        }
-                    }
-                    CompiledText.Part.ColourMode.ALTERNATING -> {
-                        it.colours.forEachIndexed { i, vec ->
-                            colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar.i)
-                        }
-
-                        // TODO: Allow colours to be added / removed
-                    }
-                    else -> {}
-                }
-
-                it.edit(VarMap.inner)
-
-                if (minecraftFont) {
-                    val shadow = booleanArrayOf(it.shadow)
-                    val bold = booleanArrayOf(it.bold)
-                    val italic = booleanArrayOf(it.italic)
-                    val underline = booleanArrayOf(it.underline)
-                    val strikethrough = booleanArrayOf(it.strike)
-                    val obfuscated = booleanArrayOf(it.obfuscated)
-                    if (ImGui.checkbox("Shadow", shadow)) it.shadow = !it.shadow
-                    sameLine()
-                    if (ImGui.checkbox("Bold", bold)) it.bold = !it.bold
-                    sameLine()
-                    if (ImGui.checkbox("Italic", italic)) it.italic = !it.italic
-                    // newline
-                    if (ImGui.checkbox("Underline", underline)) it.underline = !it.underline
-                    sameLine()
-                    if (ImGui.checkbox("Cross out", strikethrough)) it.strike = !it.strike
-                    sameLine()
-                    if (ImGui.checkbox("Obfuscated", obfuscated)) it.obfuscated = !it.obfuscated
-                } else {
-                    textDisabled("Styles disabled")
-                    if (ImGui.isItemHovered()) {
-                        ImGui.beginTooltip()
-                        ImGui.pushTextWrapPos(ImGui.fontSize * 35f)
-                        ImGui.textEx("Enable minecraft font rendering to enable styles")
-                        ImGui.popTextWrapPos()
-                        ImGui.endTooltip()
-                    }
-                    sameLine()
-                    button("Enable") {
-                        minecraftFont = true
-                    }
-                }
+                )
             }
         }
     }
