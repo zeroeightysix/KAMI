@@ -1,6 +1,8 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec4.Vec4
+import me.zeroeightsix.kami.gui.text.CompiledText
+import me.zeroeightsix.kami.gui.text.VarMap
 
 object Information : TextPinnableWidget(
     "Information",
