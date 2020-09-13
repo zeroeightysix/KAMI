@@ -25,13 +25,13 @@ import kotlin.reflect.KMutableProperty0
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
 fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
-fun <T> Boolean.then(block: (Boolean) -> T): T? {
-    if (this) return block(this)
+infix fun <T> Boolean.then(block: () -> T): T? {
+    if (this) return block()
     return null
 }
 
+infix fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
 fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
-fun Boolean.notThen(block: (Boolean) -> Unit) = (!this).then(block)
 fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () -> Unit) {
     if (this) before()
     during()

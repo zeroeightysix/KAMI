@@ -7,14 +7,15 @@ import imgui.dsl.child
 import imgui.dsl.menuItem
 import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.gui.text.CompiledText
 
-val modulesVariable = object : TextPinnableWidget.CompiledText.StringVariable("modules", true, {
+val modulesVariable = object : CompiledText.StringVariable("modules", true, {
     FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
 }) {
     var filter = ByteArray(128)
     override var editLabel: String = "(active modules)"
 
-    override fun edit(variableMap: Map<String, () -> TextPinnableWidget.CompiledText.Variable>) {
+    override fun edit(variableMap: Map<String, () -> CompiledText.Variable>) {
         ImGui.separator()
         ImGui.text("Show the following modules in the list:")
         ImGui.inputText("Filter##active-modules-filter", filter)

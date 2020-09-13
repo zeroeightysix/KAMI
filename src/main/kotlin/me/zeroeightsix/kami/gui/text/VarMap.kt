@@ -1,7 +1,8 @@
-package me.zeroeightsix.kami.gui.widgets
+package me.zeroeightsix.kami.gui.text
 
 import imgui.ImGui
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.gui.widgets.modulesVariable
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.LagCompensator
@@ -27,13 +28,13 @@ object VarMap {
     private val militaryFormat = SimpleDateFormat("HH:mm:ss")
 
     private infix fun String.const(strProvider: () -> String) =
-        this to { TextPinnableWidget.CompiledText.ConstantVariable(this, string = strProvider()) }
+        this to { CompiledText.ConstantVariable(this, string = strProvider()) }
 
     private infix fun String.numeric(valProvider: () -> Double) =
-        this to { TextPinnableWidget.CompiledText.NumericalVariable(this, valProvider, 0) }
+        this to { CompiledText.NumericalVariable(this, valProvider, 0) }
 
     private infix fun String.string(strProvider: () -> String) =
-        this to { TextPinnableWidget.CompiledText.StringVariable(this, provider = strProvider) }
+        this to { CompiledText.StringVariable(this, provider = strProvider) }
 
     private fun toMb(bytes: Long) = (bytes / 1e+6)
     private fun scaleDimensional(value: Double) = value * (mc.world?.let {
@@ -58,7 +59,7 @@ object VarMap {
         get() = (mc.player?.velocity ?: Vec3d.ZERO).modified(y = 0.0)
             .length() * 20.0 / 0.546 // *20 because 20 ticks in 1 sec, and velocity is tick-based. I don't know where the 0.546 error factor comes from. I got it by comparing what I got without it with the values from the wiki, and they match up nicely.
 
-    internal val inner: MutableMap<String, () -> TextPinnableWidget.CompiledText.Variable> = mutableMapOf(
+    internal val inner: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
         "none" const { "No variable selected " },
         "x" numeric { mc.player?.pos?.x ?: 0.0 },
         "y" numeric { mc.player?.pos?.y ?: 0.0 },

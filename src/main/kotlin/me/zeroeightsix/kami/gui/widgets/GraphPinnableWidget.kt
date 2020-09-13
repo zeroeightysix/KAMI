@@ -5,6 +5,8 @@ import imgui.*
 import imgui.impl.time
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.gui.KamiGuiScreen
+import me.zeroeightsix.kami.gui.text.CompiledText
+import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
@@ -23,7 +25,7 @@ class GraphPinnableWidget(
     var sampleRate: Float = 1f,
     // The amount of samples to keep in the queue
     var capacity: Int = (sampleRate * 10).roundToInt(),
-    var variable: TextPinnableWidget.CompiledText.NumericalVariable = VarMap["fps"]!!() as TextPinnableWidget.CompiledText.NumericalVariable,
+    var variable: CompiledText.NumericalVariable = VarMap["fps"]!!() as CompiledText.NumericalVariable,
     var linesColour: Colour = Colour.WHITE,
     var backgroundColour: Colour = Colour(0.35f, 0f, 0f, 0f),
     // Whether or not the bottom of the graph should be at zero, or at the minimum sample.
@@ -33,7 +35,7 @@ class GraphPinnableWidget(
     val numVarMap by lazy {
         VarMap.inner.mapNotNull {
             // This is an unfortunate way to check if this VarMap entry is one for a numerical variable, but I cba to refactor varmap for this small thing
-            if (it.value() is TextPinnableWidget.CompiledText.NumericalVariable) {
+            if (it.value() is CompiledText.NumericalVariable) {
                 it.key to it.value // Turning Map.Entry into a Pair, so we can call `toMap`
             } else {
                 null
@@ -98,7 +100,7 @@ class GraphPinnableWidget(
                 editVarComboIndex = numVarMap.keys.indexOf(this.variable.name)
                 dsl.combo("Variable##${name}-graph-var", ::editVarComboIndex, numVarMapComboItems) {
                     numVarMap[numVarMap.keys.toList()[editVarComboIndex]]?.let { it() }?.let {
-                        this.variable = it as TextPinnableWidget.CompiledText.NumericalVariable
+                        this.variable = it as CompiledText.NumericalVariable
                         this.samples.clear()
                     }
                 }

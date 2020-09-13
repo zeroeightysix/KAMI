@@ -18,6 +18,7 @@ import imgui.internal.or
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import io.github.fablabsmc.fablabs.impl.fiber.annotation.BackedConfigLeaf
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Module
@@ -25,6 +26,7 @@ import me.zeroeightsix.kami.flattenedStream
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
+import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
@@ -231,7 +233,12 @@ private fun showModuleSettings(module: Module) {
     // Can't really do this inline (or I don't know how to), so I made a method to do it instead.
     fun <T> ConfigLeaf<T>.displayImGui() {
         val type = getAnyRuntimeConfigType() ?: return
-        val value = type.toRuntimeType(this.value)
+        val value = if (this is BackedConfigLeaf<*, *>) {
+            val access = this as IBackedConfigLeaf<*, *>
+            access.backingField.get(access.pojo)
+        } else {
+            type.toRuntimeType(this.value)
+        }
         type.settingInterface?.displayImGui(this.name, value)?.let {
             this.value = type.toSerializedType(it)
         }
