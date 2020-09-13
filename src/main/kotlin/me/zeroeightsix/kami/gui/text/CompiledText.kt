@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.gui.text
 
 import glm_.vec4.Vec4
 import imgui.*
+import imgui.dsl.withStyleColor
 import me.zeroeightsix.kami.*
 import kotlin.math.abs
 import kotlin.math.floor
@@ -12,7 +13,11 @@ class CompiledText(
 
     var selectedPart: Part? = null
 
-    fun edit(highlightSelected: Boolean = false) {
+    fun edit(
+        id: String,
+        highlightSelected: Boolean = false,
+        plusButtonExtra: () -> Unit = {}
+    ) {
         parts.listIterator().let { iterator ->
             iterator.forEachRemainingIndexed { n, part ->
                 val highlight = highlightSelected && part == selectedPart
@@ -54,6 +59,23 @@ class CompiledText(
                         ImGui.popStyleColor()
                     }
                 )
+            }
+
+            withStyleColor(Col.Button, ImGui.style.colors[Col.Button.i] * 0.7f) {
+                dsl.button("+###plus-button-$id") {
+                    ImGui.openPopup("plus-popup-$id")
+                }
+                dsl.popupContextItem("plus-popup-$id") {
+                    fun addPart(part: Part) {
+                        this.parts = parts.toMutableList().also {
+                            it.add(part)
+                            this.selectedPart = part
+                        }
+                    }
+                    dsl.menuItem("Text") { addPart(LiteralPart("Text")) }
+                    dsl.menuItem("Variable") { addPart(VariablePart(VarMap["none"]!!())) }
+                    plusButtonExtra()
+                }
             }
         }
     }

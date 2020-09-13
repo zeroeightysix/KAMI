@@ -7,7 +7,6 @@ import imgui.ImGui.colorEditVec4
 import imgui.ImGui.currentWindow
 import imgui.ImGui.cursorPosX
 import imgui.ImGui.dummy
-import imgui.ImGui.openPopup
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.pushStyleColor
 import imgui.ImGui.sameLine
@@ -22,8 +21,8 @@ import imgui.dsl.checkbox
 import imgui.dsl.combo
 import imgui.dsl.menu
 import imgui.dsl.menuItem
-import imgui.dsl.popupContextItem
 import imgui.dsl.window
+import imgui.dsl.withStyleColor
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.text.CompiledText
@@ -254,41 +253,42 @@ open class TextPinnableWidget(
             val iterator = text.listIterator()
             var index = 0
             for (compiled in iterator) {
-                compiled.edit(highlightSelected = true)
-                this.editPart = compiled.selectedPart
+                compiled.edit(
+                    "$index",
+                    highlightSelected = true,
+                    plusButtonExtra = {
+                        menu("Line") {
+                            menuItem("Before") {
+                                iterator.previous()
+                                iterator.add(CompiledText())
+                                iterator.next()
+                            }
 
-                pushStyleColor(Col.Button, style.colors[Col.Button.i] * 0.7f)
-                button("+###plus-button-$index") {
-                    openPopup("plus-popup-$index")
-                }
-                popupContextItem("plus-popup-$index") {
-                    fun addPart(part: CompiledText.Part) {
-                        val mutable = compiled.parts.toMutableList()
-                        mutable.add(part)
-                        compiled.parts = mutable
-                        setEditPart(part)
-                    }
-                    menuItem("Text") { addPart(CompiledText.LiteralPart("Text")) }
-                    menuItem("Variable") { addPart(CompiledText.VariablePart(VarMap["none"]!!())) }
-                    menu("Line") {
-                        menuItem("Before") {
-                            iterator.previous()
-                            iterator.add(CompiledText())
-                            iterator.next()
-                        }
-
-                        menuItem("After") {
-                            iterator.add(CompiledText())
+                            menuItem("After") {
+                                iterator.add(CompiledText())
+                            }
                         }
                     }
+                )
+                // If the selected part for this CompiledText is nonnull
+                compiled.selectedPart?.let {
+                    // and not the current editPart,
+                    if (it == editPart) return@let
+
+                    // Reset all other selected parts, and set the editPart to this selected part.
+                    text.forEach { if (it != compiled) it.selectedPart = null }
+                    this.editPart = it
+
+                    // This is to maintain only one selected part across all lines.
                 }
 
-                sameLine(spacing = 4f)
-                button("-###minus-button-$index") {
-                    iterator.remove()
-                    editPart = null // In case the editPart was in this line. If it wasn't, we don't really care.
+                withStyleColor(Col.Button, ImGui.style.colors[Col.Button.i] * 0.7f) {
+                    sameLine(spacing = 4f)
+                    button("-###minus-button-$index") {
+                        iterator.remove()
+                        editPart = null // In case the editPart was in this line. If it wasn't, we don't really care.
+                    }
                 }
-                popStyleColor()
 
                 index++
             }
