@@ -20,7 +20,7 @@ import net.minecraft.tag.FluidTags
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
-import net.minecraft.world.RayTraceContext
+import net.minecraft.world.RaycastContext
 import net.minecraft.world.World
 import org.lwjgl.opengl.GL11
 import kotlin.math.PI
@@ -506,14 +506,14 @@ interface TrajectoryMimic {
     fun checkCollision(velocity: Vec3d, shooter: Entity, world: World): Boolean {
         val here = Vec3d(this.x, this.y, this.z)
         val next = here.add(velocity)
-        val traceContext = RayTraceContext(
+        val traceContext = RaycastContext(
             here,
             next,
-            RayTraceContext.ShapeType.COLLIDER,
-            RayTraceContext.FluidHandling.NONE,
+            RaycastContext.ShapeType.COLLIDER,
+            RaycastContext.FluidHandling.NONE,
             shooter
         )
-        val trace = world.rayTrace(traceContext)
+        val trace = world.raycast(traceContext)
 
         if (trace.type != HitResult.Type.MISS) {
             face = trace.side

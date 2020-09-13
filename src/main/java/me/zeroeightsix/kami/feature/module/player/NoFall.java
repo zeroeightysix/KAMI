@@ -14,7 +14,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 
 @Module.Info(category = Module.Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
 public class NoFall extends Module {
@@ -39,8 +39,8 @@ public class NoFall extends Module {
     public Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
         if (bucket && mc.player.fallDistance >= distance && !EntityUtil.isAboveWater(mc.player) && System.currentTimeMillis() - last > 10) {
             Vec3d posVec = mc.player.getPos();
-            RayTraceContext context = new RayTraceContext(posVec, posVec.add(0, -distance, 0), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
-            BlockHitResult result = mc.world.rayTrace(context);
+            RaycastContext context = new RaycastContext(posVec, posVec.add(0, -distance, 0), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
+            BlockHitResult result = mc.world.raycast(context);
             if (result != null && result.getType() == HitResult.Type.BLOCK) {
                 Hand hand = Hand.MAIN_HAND;
                 if (mc.player.getOffHandStack().getItem() == Items.WATER_BUCKET) hand = Hand.OFF_HAND;

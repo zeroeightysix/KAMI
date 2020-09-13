@@ -20,7 +20,7 @@ public class Module extends FullFeature {
     public boolean showInActiveModules = true;
 
     public Module() {
-        Module.Info annotation = getAnnotation();
+        Info annotation = getAnnotation();
         setName(annotation.name());
         setDisplayName(annotation.name());
         setDescription(annotation.description());
@@ -67,8 +67,11 @@ public class Module extends FullFeature {
     public @interface Info
     {
         String name();
+
         String description() default "Descriptionless";
-        Module.Category category();
+
+        Category category();
+
         boolean alwaysListening() default false;
     }
 

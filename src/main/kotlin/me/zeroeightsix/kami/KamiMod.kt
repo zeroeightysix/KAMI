@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager
 class KamiMod : ModInitializer {
     companion object {
         const val MODNAME = "KAMI"
-        const val MODVER = "fabric-1.16.2-debug"
+        const val MODVER = "fabric-1.16.3-debug"
         const val KAMI_KANJI = "\u795E"
 
         @JvmStatic

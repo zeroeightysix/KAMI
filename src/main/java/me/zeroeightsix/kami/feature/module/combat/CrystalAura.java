@@ -32,7 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.explosion.Explosion;
 import org.lwjgl.opengl.GL11;
 
@@ -203,8 +203,8 @@ class CrystalAura extends Module {
                 return;
             }
             lookAtPacket(q.getX() + .5, q.getY() - .5, q.getZ() + .5, mc.player);
-            RayTraceContext context = new RayTraceContext(new Vec3d(mc.player.getX(), mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ()), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, mc.player);
-            BlockHitResult result = mc.world.rayTrace(context);
+            RaycastContext context = new RaycastContext(new Vec3d(mc.player.getX(), mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ()), new Vec3d(q.getX() + .5, q.getY() - .5d, q.getZ() + .5), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
+            BlockHitResult result = mc.world.raycast(context);
             Direction f;
             if (result == null || result.getSide() == null) {
                 f = Direction.UP;

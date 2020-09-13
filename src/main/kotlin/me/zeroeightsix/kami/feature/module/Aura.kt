@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
-import net.minecraft.world.RayTraceContext
+import net.minecraft.world.RaycastContext
 
 @Module.Info(
     name = "Aura",
@@ -146,7 +146,7 @@ object Aura : Module() {
     }
 
     private fun canEntityFeetBeSeen(entityIn: Entity): Boolean {
-        val context = RayTraceContext(
+        val context = RaycastContext(
             mc.player?.getEyeHeight(mc.player!!.pose)?.toDouble()?.let {
                 mc.player?.pos?.add(
                     0.0,
@@ -155,11 +155,11 @@ object Aura : Module() {
                 )
             },
             entityIn.pos,
-            RayTraceContext.ShapeType.COLLIDER,
-            RayTraceContext.FluidHandling.NONE,
+            RaycastContext.ShapeType.COLLIDER,
+            RaycastContext.FluidHandling.NONE,
             mc.player
         )
-        return mc.world?.rayTrace(context)?.type == HitResult.Type.MISS
+        return mc.world?.raycast(context)?.type == HitResult.Type.MISS
     }
 
     @GenerateType("Only use 32k")
