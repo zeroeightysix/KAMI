@@ -108,6 +108,7 @@ object MurderMysteries : Module() {
                         Items.CARROT_ON_A_STICK -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                         Items.GOLDEN_CARROT -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                         Items.BLAZE_ROD -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+                        Items.SPONGE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                     }
 
                     //Check for items the detective or innocent players could use to stop them murderer
