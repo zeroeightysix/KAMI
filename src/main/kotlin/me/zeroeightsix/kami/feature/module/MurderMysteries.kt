@@ -78,7 +78,7 @@ object MurderMysteries : Module() {
                         Items.WOODEN_AXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                     }
 
-                    //Check for tool items like shovels, hoes, and shears (hypixel knife skin)
+                    //Check for tool items like shovels, hoes, and shears, and picks (hypixel knife skin)
                     if (toolItems) when (it.item) {
                         Items.NETHERITE_SHOVEL -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                         Items.DIAMOND_SHOVEL -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
@@ -91,6 +91,12 @@ object MurderMysteries : Module() {
                         Items.IRON_HOE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                         Items.GOLDEN_HOE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                         Items.WOODEN_HOE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+
+                        Items.NETHERITE_PICKAXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+                        Items.DIAMOND_PICKAXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+                        Items.IRON_PICKAXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+                        Items.GOLDEN_PICKAXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
+                        Items.WOODEN_PICKAXE -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
 
                         Items.SHEARS -> mc.player?.sendMessage(murdererIs(username, it.item.name.string), false)
                     }
