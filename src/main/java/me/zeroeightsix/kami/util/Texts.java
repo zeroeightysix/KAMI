@@ -11,6 +11,7 @@ import java.util.Iterator;
 /**
  * A helper class for condensed, formatted literal {@link Text} creation.
  */
+@Deprecated
 public class Texts {
 
     /**
