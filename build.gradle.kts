@@ -105,7 +105,7 @@ dependencies {
         shadow(it)
     }
 
-    include("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
+    include("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.3.1+facf3bbf95")
 }
 
 tasks {
