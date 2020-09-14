@@ -15,11 +15,11 @@ import me.zeroeightsix.kami.setting.getAnyInterface
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
-import me.zeroeightsix.kami.util.Texts
+import me.zeroeightsix.kami.util.text
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.util.Formatting.*
 import java.util.function.Function
 import java.util.stream.Stream
 
@@ -47,20 +47,10 @@ object SettingsCommand : Command() {
                                         "feature",
                                         FullFeature::class.java
                                     ) as FullFeature
-                                source.sendFeedback(
-                                    Texts.i(
-                                        Texts.append(
-                                            Texts.flit(
-                                                Formatting.YELLOW,
-                                                f.name
-                                            ),
-                                            Texts.flit(
-                                                Formatting.GOLD,
-                                                " has the following properties:"
-                                            )
-                                        )
-                                    )
-                                )
+                                source replyWith text(ITALIC) {
+                                    +f.name(YELLOW)
+                                    +" has the following properties:"(GOLD)
+                                }
                                 f.config.list().forEach {
                                     it?.let { source.sendFeedback(it) }
                                 }
@@ -109,36 +99,20 @@ object SettingsCommand : Command() {
                                                     interf?.let {
                                                         val runtimeValue = interf.valueFromString(stringValue)
                                                         setting.value = configType.toSerializedType(runtimeValue)
-                                                        val value = interf.valueToString(runtimeValue)
-                                                        (context.source as KamiCommandSource).sendFeedback(
-                                                            Texts.f(
-                                                                Formatting.GOLD,
-                                                                Texts.append(
-                                                                    Texts.lit("Set property "),
-                                                                    Texts.flit(
-                                                                        Formatting.YELLOW,
-                                                                        setting.name
-                                                                    ),
-                                                                    Texts.lit(" of module "),
-                                                                    Texts.flit(
-                                                                        Formatting.YELLOW,
-                                                                        feature.name
-                                                                    ),
-                                                                    Texts.lit(" to "),
-                                                                    Texts.flit(
-                                                                        Formatting.LIGHT_PURPLE,
-                                                                        value
-                                                                    ),
-                                                                    Texts.lit("!")
-                                                                )
-                                                            )
-                                                        )
+                                                        val value = interf.valueToString(runtimeValue) ?: ""
+                                                        context replyWith text(GOLD) {
+                                                            +"Set property "
+                                                            +setting.name(YELLOW)
+                                                            +" of module "
+                                                            +feature.name(YELLOW)
+                                                            +" to "
+                                                            +value(LIGHT_PURPLE)
+                                                            +"!"
+                                                        }
                                                     } ?: run {
-                                                        (context.source as KamiCommandSource).sendFeedback(
-                                                            Texts.flit(
-                                                                Formatting.RED,
-                                                                "This setting can not be changed using the settings command."
-                                                            )
+                                                        context replyWith text(
+                                                            RED,
+                                                            "This setting can not be changed using the settings command."
                                                         )
                                                     }
                                                     0
@@ -164,20 +138,20 @@ fun ConfigNode.list(): Stream<Text?> = when (this) {
         }
     }
     else -> {
-        Stream.of(Texts.lit("unknown node"))
+        Stream.of(text(null, "unknown node"))
     }
 }
 
 fun <T> ConfigLeaf<T>.list(): Text? {
     val interf = this.getAnyInterface() ?: return null
     val type = interf.type
-    val value = interf.valueToString(getAnyRuntimeConfigType()?.toRuntimeType(this.value))
-    return Texts.append(
-        Texts.flit(Formatting.YELLOW, this.name),
-        Texts.flit(Formatting.GRAY, " ("),
-        Texts.flit(Formatting.GREEN, type),
-        Texts.flit(Formatting.GRAY, ") "),
-        Texts.flit(Formatting.GOLD, "= "),
-        Texts.flit(Formatting.LIGHT_PURPLE, value)
-    )
+    val value = interf.valueToString(getAnyRuntimeConfigType()?.toRuntimeType(this.value)) ?: ""
+    return text {
+        +name(YELLOW)
+        +" ("(GRAY)
+        +type(GREEN)
+        +") "(GRAY)
+        +"= "(GOLD)
+        +value(LIGHT_PURPLE)
+    }
 }

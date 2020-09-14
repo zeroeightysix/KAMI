@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IShulkerBoxBlockEntity
 import me.zeroeightsix.kami.util.ShulkerBoxCommon
-import me.zeroeightsix.kami.util.Texts
+import me.zeroeightsix.kami.util.text
 import net.minecraft.block.ShulkerBoxBlock
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
@@ -19,7 +19,7 @@ import net.minecraft.item.BlockItem
 import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
-import net.minecraft.util.Formatting
+import net.minecraft.util.Formatting.RED
 import java.util.function.Function
 
 object PeekCommand : Command(), Listenable {
@@ -72,7 +72,7 @@ object PeekCommand : Command(), Listenable {
                     sb = null
                 } catch (e: Exception) {
                     mc.player?.sendMessage(
-                        Texts.flit(Formatting.RED, "Failed to read shulker box contents."),
+                        text(RED, "Failed to read shulker box contents."),
                         true
                     )
                 }
