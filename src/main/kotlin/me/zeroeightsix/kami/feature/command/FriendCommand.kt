@@ -7,16 +7,15 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.mixin.client.IEntitySelector
 import me.zeroeightsix.kami.util.Friends
-import me.zeroeightsix.kami.util.Texts
 import me.zeroeightsix.kami.util.Wrapper
+import me.zeroeightsix.kami.util.text
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.command.EntitySelector
 import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.util.Formatting.*
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -31,46 +30,32 @@ object FriendCommand : Command() {
             literal("list") {
                 does {
                     val source = it.source as KamiCommandSource
+
                     if (Friends.friends.isEmpty()) {
-                        source.sendFeedback(
-                            Texts.flit(
-                                Formatting.GOLD,
-                                "You don't have any friends."
-                            )
-                        )
+                        it replyWith text(GOLD, "You don't have any friends.")
                         return@does 0
                     }
-                    var text: Text? = null
-                    Friends.friends.stream()
-                        .map { obj: GameProfile -> obj.name }
-                        .forEach { s: String? ->
+
+                    var text: MutableText? = null
+                    Friends.friends
+                        .mapNotNull { obj: GameProfile -> obj.name }
+                        .forEach { s: String ->
                             if (text == null) {
-                                text = Texts.flit(
-                                    Formatting.YELLOW,
-                                    s
-                                )
+                                text = text(YELLOW, s)
                             } else {
-                                //text = text!!.append(
-                                Texts.append(
-                                    Texts.lit(", "),
-                                    Texts.flit(
-                                        Formatting.YELLOW,
-                                        s
-                                    )
-                                )
-                                //)
+                                text?.append(text {
+                                    +", "
+                                    +s(YELLOW)
+                                })
                             }
                         }
-                    text = Texts.f(Formatting.GOLD, text as MutableText?)
-                    source.sendFeedback(
-                        Texts.i(
-                            Texts.flit(
-                                Formatting.GOLD,
-                                "You have the following friends:"
-                            )
-                        )
-                    )
-                    source.sendFeedback(text)
+
+                    source replyWith text(ITALIC) {
+                        +"You have the following friends:"(GOLD)
+                    }
+                    text?.formatted(GOLD)?.let { text ->
+                        source replyWith text
+                    }
                     0
                 }
             }
@@ -86,18 +71,11 @@ object FriendCommand : Command() {
                     },
                     { entry: PlayerListEntry, source: KamiCommandSource ->
                         Friends.addFriend(entry.profile)
-                        source.sendFeedback(
-                            Texts.f(
-                                Formatting.GOLD, Texts.append(
-                                    Texts.lit("Added "),
-                                    Texts.flit(
-                                        Formatting.YELLOW,
-                                        entry.profile.name
-                                    ),
-                                    Texts.lit(" to your friends list!")
-                                )
-                            )
-                        )
+                        source replyWith text(GOLD) {
+                            +"Added "
+                            +entry.profile.name(YELLOW)
+                            +" to your friends list!"
+                        }
                         0
                     }
                 ))
@@ -115,18 +93,11 @@ object FriendCommand : Command() {
                         },
                         { entry: PlayerListEntry, source: KamiCommandSource ->
                             Friends.removeFriend(entry.profile)
-                            source.sendFeedback(
-                                Texts.f(
-                                    Formatting.GOLD, Texts.append(
-                                        Texts.lit("Removed "),
-                                        Texts.flit(
-                                            Formatting.YELLOW,
-                                            entry.profile.name
-                                        ),
-                                        Texts.lit(" from your friends list!")
-                                    )
-                                )
-                            )
+                            source replyWith text(GOLD) {
+                                +"Removed "
+                                +entry.profile.name(YELLOW)
+                                +" from your friends list!"
+                            }
                             0
                         }
                     )

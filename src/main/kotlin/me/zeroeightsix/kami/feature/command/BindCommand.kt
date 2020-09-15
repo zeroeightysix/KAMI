@@ -5,9 +5,9 @@ import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.util.Bind
-import me.zeroeightsix.kami.util.Texts
+import me.zeroeightsix.kami.util.text
 import net.minecraft.server.command.CommandSource
-import net.minecraft.util.Formatting
+import net.minecraft.util.Formatting.*
 
 object BindCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
@@ -36,20 +36,15 @@ object BindCommand : Command() {
     private fun sendFeedback(
         source: KamiCommandSource,
         name: String,
-        inbetween: String,
+        infix: String,
         bind: Bind
     ) {
-        source.sendFeedback(
-            Texts.f(
-                Formatting.GOLD,
-                Texts.append(
-                    Texts.lit("Feature "),
-                    Texts.flit(Formatting.YELLOW, name),
-                    Texts.lit(inbetween),
-                    Texts.flit(Formatting.LIGHT_PURPLE, bind.toString()),
-                    Texts.lit("!")
-                )
-            )
-        )
+        source replyWith text(GOLD) {
+            +"Feature "
+            +name(YELLOW)
+            +infix
+            +bind.toString()(LIGHT_PURPLE)
+            +"!"
+        }
     }
 }

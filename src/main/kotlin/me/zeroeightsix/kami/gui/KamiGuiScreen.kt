@@ -11,13 +11,12 @@ import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
-import me.zeroeightsix.kami.util.Texts.lit
+import me.zeroeightsix.kami.util.text
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
-object KamiGuiScreen : Screen(lit("Kami GUI") as Text?) {
+object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
 
     val colourIndices = Col.values().map { it.i }
 

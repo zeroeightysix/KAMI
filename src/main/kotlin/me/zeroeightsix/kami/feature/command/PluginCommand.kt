@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.feature.plugin.Plugin
-import me.zeroeightsix.kami.util.Texts.*
+import me.zeroeightsix.kami.util.text
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.GOLD
@@ -47,23 +47,15 @@ object PluginCommand : Command() {
     private fun toggle(word: String, source: KamiCommandSource, plugin: Plugin, enable: Boolean) {
         if (plugin.enabled != enable) {
             plugin.enabled = enable
-            source.sendFeedback(
-                f(
-                    GOLD, append(
-                        lit("${word.capitalize()}d plugin "),
-                        flit(YELLOW, plugin.name)
-                    )
-                )
-            )
+            source replyWith text(GOLD) {
+                +"${word.capitalize()}d plugin "
+                +plugin.name(YELLOW)
+            }
         } else
-            source.sendFeedback(
-                f(
-                    GOLD, append(
-                        flit(YELLOW, plugin.name),
-                        lit(" is already ${word}d.")
-                    )
-                )
-            )
+            source replyWith text(GOLD) {
+                +plugin.name(YELLOW)
+                +"is already ${word}d."
+            }
     }
 
 }
