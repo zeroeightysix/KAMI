@@ -7,6 +7,9 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.util.text
 import net.minecraft.item.*
+import net.minecraft.nbt.Tag.AQUA
+import net.minecraft.nbt.Tag.RED
+import net.minecraft.nbt.Tag.GOLD
 import net.minecraft.util.Formatting
 
 @Module.Info(
@@ -27,9 +30,24 @@ object MurderMysteries : Module() {
     @Setting(name = "IgnoreWoodenShovel")
     private var ignoreWoodenShovel = false
     @Setting(name = "CooldownOnOutput") // This is how often it will tell the player in chat
-    private var updateEvery: @Constrain.Range(min = 2.0, max = 16.0, step = Double.MIN_VALUE) Int = 10
+    private var updateEvery: @Constrain.Range(min = 2.0, max = 16.0, step = 0.2) Float = 8f
 
     private var lastUpdate: Long = 0L
+
+    private val innocentItemsList = listOf(
+            Items.CARROT,
+            Items.BONE,
+            Items.CARROT_ON_A_STICK,
+            Items.GOLDEN_CARROT,
+            Items.BLAZE_ROD,
+            Items.SPONGE,
+            Items.COBWEB
+    )
+    private val detectiveItemsList = listOf(
+            Items.BOW,
+            Items.SNOWBALL,
+            Items.ARROW
+    )
 
     @EventHandler
     val worldListener = Listener<TickEvent.Client.InGame>({
@@ -38,19 +56,6 @@ object MurderMysteries : Module() {
                 //Make sure the player is not being told that they are the murderer
                 if (player == mc.player) return@forEach
 
-                val innocentItemsList = listOf(
-                        Items.CARROT,
-                        Items.BONE,
-                        Items.CARROT_ON_A_STICK,
-                        Items.GOLDEN_CARROT,
-                        Items.BLAZE_ROD,
-                        Items.SPONGE
-                )
-                val detectiveItemsList = listOf(
-                        Items.BOW,
-                        Items.SNOWBALL,
-                        Items.ARROW
-                )
                 //Check for weaponly items (swords, axes)s
                 player.itemsEquipped.forEach {
                     if ((weaponItems && (it.item is AxeItem || it.item is SwordItem)) ||
@@ -59,13 +64,27 @@ object MurderMysteries : Module() {
                                     it.item is HoeItem || it.item is ShearsItem) &&
                                     !(it.item == Items.WOODEN_SHOVEL && ignoreWoodenShovel))) {
                         lastUpdate = System.currentTimeMillis()
-                        mc.player?.sendMessage(text(Formatting.WHITE, "[MurderMysteries] §b${player.displayName.string}§r is the §cmurderer!§r Wields §6${it.item.name.string}!"), false)
+                        mc.player?.sendMessage(text {
+                            +"[MurderMysteries] "
+                            +player.displayName.string(AQUA)
+                            +" is the "
+                            +"murderer"(RED)
+                            +"! Wields "
+                            +it.item.name.string(GOLD)
+                            +"!"
+                        }, false)
                     }
 
                     //Check for items the detective or innocent players could use to stop them murderer
                     if (detectiveItems && it.item in detectiveItemsList) {
                         lastUpdate = System.currentTimeMillis()
-                        mc.player?.sendMessage(text(Formatting.WHITE, "[MurderMysteries] §b${player.displayName.string}§r has §6${it.item.name.string}!"), false)
+                        mc.player?.sendMessage(text {
+                            +"[MurderMysteries] "
+                            +player.displayName.string(AQUA)
+                            +" has "
+                            +it.item.name.string(GOLD)
+                            +"!"
+                        }, false)
                     }
                 }
             }
