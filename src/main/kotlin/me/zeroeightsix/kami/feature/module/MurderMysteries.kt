@@ -27,7 +27,7 @@ object MurderMysteries : Module() {
     @Setting(name = "IgnoreWoodenShovel")
     private var ignoreWoodenShovel = false
     @Setting(name = "CooldownOnOutput") // This is how often it will tell the player in chat
-    private var updateEvery: @Constrain.Range(min = 2.0, max = 16.0, step = 0.1) Int = 10
+    private var updateEvery: @Constrain.Range(min = 2.0, max = 16.0, step = Double.MIN_VALUE) Int = 10
 
     private var lastUpdate: Long = 0L
 
