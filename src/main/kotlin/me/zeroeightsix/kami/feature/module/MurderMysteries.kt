@@ -5,10 +5,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting.Constrain
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
-import me.zeroeightsix.kami.util.Texts
 import me.zeroeightsix.kami.util.text
 import net.minecraft.item.*
-import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting
 
 @Module.Info(
@@ -38,7 +36,7 @@ object MurderMysteries : Module() {
         if ((lastUpdate + updateEvery * 1000L <= System.currentTimeMillis()))
             mc.world?.players?.forEach { player ->
                 //Make sure the player is not being told that they are the murderer
-                //if (player == mc.player) return@forEach
+                if (player == mc.player) return@forEach
 
                 val innocentItemsList = listOf(
                         Items.CARROT,
@@ -54,7 +52,7 @@ object MurderMysteries : Module() {
                         Items.ARROW
                 )
                 //Check for weaponly items (swords, axes)s
-                player.itemsEquipped.forEach { it ->
+                player.itemsEquipped.forEach {
                     if ((weaponItems && (it.item is AxeItem || it.item is SwordItem)) ||
                             (innocuousItems && (it.item in innocentItemsList)) ||
                             (toolItems && (it.item is ShovelItem || it.item is PickaxeItem ||
