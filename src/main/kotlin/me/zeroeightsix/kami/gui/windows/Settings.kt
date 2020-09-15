@@ -26,6 +26,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
+import me.zeroeightsix.kami.gui.charButton
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
@@ -100,6 +101,10 @@ object Settings {
             window("Settings", ::settingsWindowOpen, flags = WindowFlag.AlwaysAutoResize.i) {
                 tabBar("kami-settings-tabbar", TabBarFlag.None.i) {
                     tabItem("Behaviour") {
+                        charButton("Command prefix", ::commandPrefix)
+                        sameLine()
+                        demoDebugInformations.helpMarker("The character used to denote KAMI commands.")
+
                         boolSetting(
                             "Keybind modifiers",
                             ::modifiersEnabled,
