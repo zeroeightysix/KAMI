@@ -18,8 +18,8 @@ object ModuleCamera : Module() {
     @Setting(name = "Distance from player")
     var desiredDistance: @Setting.Constrain.Range(
         min = 0.0,
-        max = 50.0, /* TODO: Remove when kotlin bug fixed */
-        step = java.lang.Double.MIN_VALUE
+        max = 50.0,
+        step = 0.1
     ) Double = 4.0
 
     @Setting(name = "Shift Y")

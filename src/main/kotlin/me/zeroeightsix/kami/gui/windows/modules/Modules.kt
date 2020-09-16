@@ -131,9 +131,13 @@ object Modules {
         } else { // Generate one window with all modules in it
             Windows(
                 mutableListOf(
-                    ModuleWindow("All modules", groups = FeatureManager.modules.groupBy {
-                        it.category.getName()
-                    }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }), id = 0)
+                    ModuleWindow(
+                        "All modules",
+                        groups = FeatureManager.modules.filter { !it.hidden && !it.category.isHidden }.groupBy {
+                            it.category.getName()
+                        }.mapValuesTo(mutableMapOf(), { entry -> entry.value.toMutableList() }),
+                        id = 0
+                    )
                 )
             )
         }

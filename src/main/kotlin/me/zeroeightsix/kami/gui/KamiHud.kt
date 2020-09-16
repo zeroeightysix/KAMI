@@ -28,9 +28,11 @@ object KamiHud {
     private val io: IO
     private val postDrawStack: Stack<(MatrixStack) -> Unit>
 
+    private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
+
     init {
         fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: FontConfig) {
-            val chars = javaClass.getResourceAsStream("/assets/kami/Minecraftia.ttf")?.let {
+            val chars = javaClass.getResourceAsStream(minecraftiaLocation)?.let {
                 val bytes = it.readBytes()
                 CharArray(bytes.size) { bytes[it].c }
             } ?: return
@@ -54,19 +56,19 @@ object KamiHud {
             return fontCfg
         }
 
-        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 12f, fontCfg {
+        addKamiFontFromTTF(minecraftiaLocation, 12f, fontCfg {
             oversample put 1
             pixelSnapH = true
             glyphOffset = Vec2(0, -2)
         })
-        addKamiFontFromTTF("/assets/kami/Minecraftia.ttf", 24f, fontCfg {
+        addKamiFontFromTTF(minecraftiaLocation, 24f, fontCfg {
             oversample put 1
             pixelSnapH = true
             glyphOffset = Vec2(0, -2)
         })
         ImGui.io.fonts.addFontDefault()
 
-        Themes.Variants.values()[Settings.styleIdx].applyStyle()
+        Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
         ImGui.io.fontDefault = ImGui.io.fonts.fonts.getOrElse(Settings.font) { ImGui.io.fonts.fonts.first() }
 
         postDrawStack = Stack()

@@ -56,7 +56,7 @@ object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
 
     operator fun invoke() {
         if (Settings.rainbowMode) {
-            Themes.Variants.values()[Settings.styleIdx].applyStyle()
+            Themes.Variants.values()[Settings.styleIdx].applyStyle(false)
             val colors = ImGui.style.colors
             colourIndices.forEach { idx ->
                 val col = colors[idx]
