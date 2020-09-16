@@ -27,10 +27,14 @@ object MurderMysteries : Module() {
     private var toolItems = true
     @Setting(name = "DetectiveItems")
     private var detectiveItems = false
-    @Setting(name = "IgnoreWoodenShovel")
+    @Setting(name = "IgnoreWoodenShovel", comment = "Ignore wooden shovels from ToolItems")
     private var ignoreWoodenShovel = false
-    @Setting(name = "CooldownOnOutput") // This is how often it will tell the player in chat
-    private var updateEvery: @Constrain.Range(min = 2.0, max = 16.0, step = 0.2) Float = 8f
+    @Setting(name = "CooldownOnOutput", comment = "How often it will say who is murderer") // This is how often it will tell the player in chat
+    private var updateEvery: @Constrain.Range(min = 3.0, max = 16.0, step = 0.5) Float = 8f
+    @Setting(name = "AnnounceMode", comment = "Say who the murderer is in chat (WARNING: THIS COULD RESULT IN A BAN)")
+    private var announceMode = true
+    @Setting(name = "IgnoreSelf", comment = "Does not announce that you are the murderer")
+    private var ignoreSelf = true
 
     private var lastUpdate: Long = 0L
 
@@ -51,10 +55,10 @@ object MurderMysteries : Module() {
 
     @EventHandler
     val worldListener = Listener<TickEvent.Client.InGame>({
-        if ((lastUpdate + updateEvery * 1000L <= System.currentTimeMillis()))
+        if ((lastUpdate + (updateEvery * 1000f).toLong() <= System.currentTimeMillis()))
             mc.world?.players?.forEach { player ->
                 //Make sure the player is not being told that they are the murderer
-                if (player == mc.player) return@forEach
+                if ((player == mc.player) && ignoreSelf) return@forEach
 
                 //Check for weaponly items (swords, axes)s
                 player.itemsEquipped.forEach {
@@ -73,6 +77,7 @@ object MurderMysteries : Module() {
                             +it.item.name.string(GOLD)
                             +"!"
                         }, false)
+                        if (announceMode) mc.player?.sendChatMessage("${player.displayName.string} is the murderer! They have  ${it.item.name.string}!")
                     }
 
                     //Check for items the detective or innocent players could use to stop them murderer
@@ -85,6 +90,7 @@ object MurderMysteries : Module() {
                             +it.item.name.string(GOLD)
                             +"!"
                         }, false)
+                        if (announceMode) mc.player?.sendChatMessage("${player.displayName.string} has ${it.item.name.string}!")
                     }
                 }
             }
