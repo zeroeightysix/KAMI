@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.feature.FullFeature
-import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.text
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Formatting
@@ -20,7 +19,7 @@ object ToggleCommand : Command() {
                         +"Toggled feature "
                         +f.name(YELLOW)
                         +", now "
-                        +f.enabled.to("ON", "OFF")(f.enabled.to(Formatting.GREEN, Formatting.RED))
+                        +(if (f.enabled) "ON" else "OFF")(if (f.enabled) Formatting.GREEN else Formatting.RED)
                     }
                     0
                 }

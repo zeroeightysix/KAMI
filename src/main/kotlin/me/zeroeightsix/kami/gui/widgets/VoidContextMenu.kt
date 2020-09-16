@@ -3,7 +3,6 @@ package me.zeroeightsix.kami.gui.widgets
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.*
-import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.gui.View
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
@@ -78,7 +77,7 @@ object VoidContextMenu {
                 ImGui.popStyleColor()
                 ImGui.sameLine()
                 dsl.button("Create", Vec2(100, 0)) {
-                    val widgetName = buffer.backToString()
+                    val widgetName = buffer.cStr
                     buffer = ByteArray(128)
                     factory(widgetName)
                     widgetProducer = null

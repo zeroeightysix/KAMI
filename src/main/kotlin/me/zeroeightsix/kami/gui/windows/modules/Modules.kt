@@ -30,7 +30,6 @@ import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
-import me.zeroeightsix.kami.then
 
 @FindSettings
 object Modules {
@@ -84,7 +83,9 @@ object Modules {
             // Restore state
             ImGui.io.mouseDoubleClicked[0] = doubleClicked
         } else {
-            selectable(module.name, module.enabled).then { module.enabled = !module.enabled }
+            if (selectable(module.name, module.enabled)) {
+                module.enabled = !module.enabled
+            }
             openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right)
             popup("module-settings-${module.name}") {
                 showModuleSettings(module)

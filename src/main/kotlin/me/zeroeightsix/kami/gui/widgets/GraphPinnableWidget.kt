@@ -11,7 +11,6 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
-import me.zeroeightsix.kami.to
 import kotlin.math.roundToInt
 
 @GenerateType
@@ -79,7 +78,7 @@ class GraphPinnableWidget(
                         variable.name,
                         { idx -> samples[idx] },
                         samples.size,
-                        scaleMin = baseLineZero.to(0f, Float.MAX_VALUE),
+                        scaleMin = if (baseLineZero) 0f else Float.MAX_VALUE,
                         graphSize = Vec2(0, ImGui.windowHeight - ImGui.style.windowPadding.y * 2)
                     )
                 }

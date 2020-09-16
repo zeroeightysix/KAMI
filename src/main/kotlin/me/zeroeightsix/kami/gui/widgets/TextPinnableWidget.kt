@@ -29,7 +29,6 @@ import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.sumByFloat
 import me.zeroeightsix.kami.tempSet
-import me.zeroeightsix.kami.to
 import me.zeroeightsix.kami.util.ResettableLazy
 
 open class TextPinnableWidget(
@@ -291,10 +290,7 @@ open class TextPinnableWidget(
 
                 it.edit(
                     true,
-                    minecraftFont.to(
-                        CompiledText.Part.FormattingEditMode.ENABLED,
-                        CompiledText.Part.FormattingEditMode.DISABLED
-                    )
+                    if (minecraftFont) CompiledText.Part.FormattingEditMode.ENABLED else CompiledText.Part.FormattingEditMode.DISABLED
                 )
             }
         }

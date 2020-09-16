@@ -24,7 +24,6 @@ import imgui.dsl.menuItem
 import imgui.dsl.popupContextItem
 import imgui.dsl.popupModal
 import imgui.dsl.window
-import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import kotlin.collections.set
 
@@ -55,7 +54,7 @@ object ModuleWindowsEditor {
                     val buf = window.title.toByteArray(ByteArray(window.title.length + 2))
                     setNextItemWidth(-1f)
                     if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
-                        window.title = buf.backToString()
+                        window.title = buf.cStr
                     }
                     nextColumn()
                 }
@@ -76,13 +75,17 @@ object ModuleWindowsEditor {
                                     selectable(module.name)
                                     if (!rearrange) {
                                         dragDropSource {
-                                            setDragDropPayload(KAMI_MODULE_PAYLOAD, ModulePayload(mutableSetOf(module), window))
+                                            setDragDropPayload(
+                                                KAMI_MODULE_PAYLOAD,
+                                                ModulePayload(mutableSetOf(module), window)
+                                            )
                                             text(module.name)
                                         }
                                     } else {
                                         val hovered = ImGui.isItemHovered()
                                         if (ImGui.isItemActive && !hovered) {
-                                            val nNext = n + if (ImGui.getMouseDragDelta(MouseButton.Left).y < 0f) -1 else 1
+                                            val nNext =
+                                                n + if (ImGui.getMouseDragDelta(MouseButton.Left).y < 0f) -1 else 1
                                             if (nNext in group.value.indices) {
                                                 group.value[n] = group.value[nNext]
                                                 group.value[nNext] = module
@@ -124,7 +127,7 @@ object ModuleWindowsEditor {
                                                 ImGui.setKeyboardFocusHere()
                                             val buf = name.toByteArray(ByteArray(name.length + 2))
                                             if (ImGui.inputText("", name, flags = InputTextFlag.EnterReturnsTrue.i)) {
-                                                name = buf.backToString()
+                                                name = buf.cStr
                                                 rename()
                                             }
                                             button("Rename") { rename() }

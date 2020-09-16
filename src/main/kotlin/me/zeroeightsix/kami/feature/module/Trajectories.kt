@@ -156,7 +156,7 @@ object Trajectories : Module() {
                     buffer.begin(GL11.GL_LINE_STRIP, VertexFormats.POSITION_COLOR)
                     while (!mimic.landed) {
                         buffer.vertex(mimic.x - cX + offset.x, mimic.y - cY + offset.y, mimic.z - cZ + offset.z)
-                            .color(lineColour)
+                            .colour(lineColour)
                             .next()
                         mimic.tick()
                         offset *= 0.8

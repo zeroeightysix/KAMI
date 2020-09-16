@@ -2,10 +2,10 @@ package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
 import imgui.ImGui
+import imgui.cStr
 import imgui.dsl.button
 import imgui.dsl.child
 import imgui.dsl.menuItem
-import me.zeroeightsix.kami.backToString
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.gui.text.CompiledText
 
@@ -21,7 +21,7 @@ val modulesVariable = object : CompiledText.StringVariable("modules", true, {
         ImGui.inputText("Filter##active-modules-filter", filter)
         child("active-modules-show-list", Vec2(ImGui.windowContentRegionWidth, 60)) {
             FeatureManager.modules.filter {
-                !it.hidden && it.name.toLowerCase().contains(filter.backToString().toLowerCase())
+                !it.hidden && it.name.toLowerCase().contains(filter.cStr.toLowerCase())
             }.forEach {
                 menuItem(it.name, selected = it.showInActiveModules) {
                     it.showInActiveModules = !it.showInActiveModules

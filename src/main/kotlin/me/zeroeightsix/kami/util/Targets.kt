@@ -6,8 +6,10 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.*
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.isFriend
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.InvalidValueException
 import me.zeroeightsix.kami.setting.extend
 import me.zeroeightsix.kami.setting.settingInterface
@@ -25,7 +27,8 @@ import net.minecraft.entity.passive.PassiveEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.Inventory
-import kotlin.collections.map
+
+fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
 
 val invalidationListener = Listener<TickEvent.Client.InGame>({
     EntityTarget.values().forEach { it.invalidate() }
@@ -186,14 +189,14 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                             val strings = possibleTargets.keys.toList()
                             val targetReadable = target.name.humanReadable()
                             val array = intArrayOf(strings.indexOf(targetReadable))
-                            combo("##$name-target-$index", array, strings.toList()).then {
+                            if (combo("##$name-target-$index", array, strings.toList())) {
                                 possibleTargets[strings[array[0]]]?.let { retT = it }
                             }
 
                             // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
                             if (value.size > 1) {
                                 sameLine()
-                                button("-##$name-target-$index-rm").then {
+                                if (button("-##$name-target-$index-rm")) {
                                     retT = null // Return nothing, which removes the entry from the map.
                                 }
                             }
@@ -221,7 +224,7 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
                             separator()
                             val strings = possibleTargets.keys.toList()
                             val array = intArrayOf(-1)
-                            combo("New##$name-target-new", array, strings).then {
+                            if (combo("New##$name-target-new", array, strings)) {
                                 // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
                                 // This does require there to always be a target entry, though
                                 // please don't make empty targets, will you?

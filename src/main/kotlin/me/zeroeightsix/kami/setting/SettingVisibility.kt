@@ -6,7 +6,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigLeafBuilder
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
-import me.zeroeightsix.kami.to
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
 
@@ -65,7 +64,7 @@ object ConstantVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVi
             ConfigAttribute.create(
                 FiberId("kami", "setting_visibility"),
                 visibilityType,
-                annotation!!.value.to(alwaysTrue, alwaysFalse)
+                if (annotation!!.value) alwaysTrue else alwaysFalse
             )
         )
     }

@@ -31,7 +31,6 @@ import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
-import me.zeroeightsix.kami.to
 
 @FindSettings
 object Wizard {
@@ -134,7 +133,7 @@ object Wizard {
         text("%s", "Assuming 'K' is bound to Aura,")
         text("%s", "And 'CTRL+Q' is bound to Brightness,")
         dummy(Vec2(10))
-        val not = Settings.modifiersEnabled.to(" NOT ", " ")
+        val not = if (Settings.modifiersEnabled) " NOT " else " "
         text("%s", "Pressing K WILL toggle Aura.")
         text("%s", "Pressing SHIFT+K WILL${not}toggle Aura.")
         dummy(Vec2(10))

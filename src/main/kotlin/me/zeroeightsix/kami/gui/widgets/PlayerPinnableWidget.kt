@@ -8,7 +8,6 @@ import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
-import me.zeroeightsix.kami.to
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.LivingEntity
 
@@ -58,7 +57,9 @@ class PlayerPinnableWidget(
                             entityRenderDispatcher.render<LivingEntity>(
                                 mc.player,
                                 0.0,
-                                player.isFallFlying.to(player.height.toDouble() / 2.0, 0.0),
+                                if (player.isFallFlying) {
+                                    player.height.toDouble() / 2.0
+                                } else 0.0,
                                 0.0,
                                 0f,
                                 mc.tickDelta,

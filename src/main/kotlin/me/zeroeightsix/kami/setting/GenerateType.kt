@@ -6,7 +6,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
-import me.zeroeightsix.kami.to
 import java.lang.reflect.AnnotatedType
 import java.lang.reflect.Type
 import kotlin.reflect.KMutableProperty
@@ -106,7 +105,7 @@ annotation class GenerateType(val name: String = "") {
                                 }
                             }
                     }
-                    return dirty.to(t, null)
+                    return if (dirty) t else null
                 }
             }
 

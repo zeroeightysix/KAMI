@@ -3,7 +3,10 @@ package me.zeroeightsix.kami.gui.text
 import glm_.vec4.Vec4
 import imgui.*
 import imgui.dsl.withStyleColor
-import me.zeroeightsix.kami.*
+import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.conditionalWrap
+import me.zeroeightsix.kami.cyclingIterator
+import me.zeroeightsix.kami.forEachRemainingIndexed
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -116,13 +119,12 @@ class CompiledText(
             colour: Boolean = false,
             formatting: FormattingEditMode = FormattingEditMode.ABSENT
         ) {
-            colour then {
+            if (colour) {
                 val col = this.colour
                 dsl.combo(
-                    "Colour mode", ::editColourComboIndex, this.multiline.to(
-                        ColourMode.listMultiline,
-                        ColourMode.listNormal
-                    )
+                    "Colour mode",
+                    ::editColourComboIndex,
+                    if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
                 ) {
                     this.colourMode = ColourMode.values()[editColourComboIndex]
                 }
@@ -140,16 +142,14 @@ class CompiledText(
 
                         // TODO: Allow colours to be added / removed
                     }
-                    else -> {
-                    }
+                    else -> Unit
                 }
             }
 
             this.editValue(VarMap.inner)
 
             when (formatting) {
-                FormattingEditMode.ABSENT -> {
-                }
+                FormattingEditMode.ABSENT -> Unit
                 FormattingEditMode.DISABLED -> {
                     ImGui.textDisabled("Styles disabled")
                     if (ImGui.isItemHovered()) {
@@ -296,7 +296,7 @@ class CompiledText(
             val buf =
                 string.toByteArray(ByteArray((((floor((abs((string.length - 4) / 256) + 1).toDouble()))) * 256).toInt()))
             if (ImGui.inputText("Text", buf)) {
-                string = buf.backToString()
+                string = buf.cStr
             }
             ImGui.sameLine()
             ImGui.text("+")
@@ -320,9 +320,9 @@ class CompiledText(
         extraspace: Boolean = true
     ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
         private var editVarComboIndex = -1
-        private var editDigits = (variable is NumericalVariable).then(
-            { (variable as NumericalVariable).digits }, { 0 }
-        )
+        private var editDigits = if (variable is NumericalVariable) {
+            (variable as NumericalVariable).digits
+        } else 0
 
         override val multiline: Boolean
             get() = variable.multiline

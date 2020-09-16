@@ -7,6 +7,7 @@ import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
 import imgui.NUL
+import imgui.cStr
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
@@ -125,7 +126,7 @@ object KamiConfig {
                         name,
                         floats,
                         ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
-                    ).then {
+                    ) then {
                         Colour(floats[3], floats[0], floats[1], floats[2])
                     }
                 }
@@ -475,7 +476,7 @@ object KamiConfig {
                     val array = type.toSerializedType(value).encodeToByteArray()
                     array.copyInto(this.strBuffer)
                     strBuffer[array.size] = NUL.toByte()
-                    ImGui.inputText(name, strBuffer).to(strBuffer.backToString(), null)
+                    if (ImGui.inputText(name, strBuffer)) strBuffer.cStr else null
                 })
             }
         }

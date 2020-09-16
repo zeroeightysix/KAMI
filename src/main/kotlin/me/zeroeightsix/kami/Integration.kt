@@ -4,6 +4,7 @@ import baritone.api.BaritoneAPI
 import glm_.vec2.Vec2
 import imgui.ImGui
 import imgui.WindowFlag
+import imgui.cStr
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
@@ -64,11 +65,11 @@ object BaritoneIntegration {
             if (settingsOpen) {
                 dsl.window("Baritone settings", ::settingsOpen, flags = WindowFlag.AlwaysAutoResize.i) {
                     var resetScroll = false
-                    ImGui.inputText("Filter##baritone-settings-filter", filter).then {
+                    if (ImGui.inputText("Filter##baritone-settings-filter", filter)) {
                         // If the user searched something, reset their scroll to the top left.
                         // This way the most relevant search result will always be visible.
                         resetScroll = true
-                        val filter = filter.backToString()
+                        val filter = filter.cStr
                         if (filter.isNotEmpty()) {
                             baritoneSettings.sortByDescending {
                                 FuzzySearch.partialRatio(filter.toLowerCase(), it.first.toLowerCase())

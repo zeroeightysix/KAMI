@@ -24,33 +24,44 @@ import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
-fun <T> Boolean.to(ifTrue: T, ifFalse: T) = if (this) ifTrue else ifFalse
+/// Quality of life and primitive extensions
+
+/**
+ * If `true`, compute a value. Else, return `null`.
+ *
+ * Use only where the return value is used & makes sense. This method isn't supposed to be a cool if statement.
+ */
 infix fun <T> Boolean.then(block: () -> T): T? {
     if (this) return block()
     return null
 }
 
-infix fun Boolean.notThen(block: () -> Unit) = (!this).then(block)
-fun <T> Boolean.then(ifTrue: () -> T, ifFalse: () -> T) = if (this) ifTrue() else ifFalse()
 fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () -> Unit) {
     if (this) before()
     during()
     if (this) after()
 }
 
+fun String.splitFirst(char: Char): Pair<String, String> {
+    val index = this.indexOf(char)
+    return Pair(this.substring(0, index), this.substring(index + 1))
+}
+
+inline fun <T> KMutableProperty0<T>.tempSet(value: T, block: () -> Unit) {
+    val old = get()
+    set(value)
+    block()
+    set(old)
+}
+
 val Long.unsignedInt
     get() = toUint().toInt()
 
-fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
+inline fun unreachable(): Nothing = TODO()
 
-fun ByteArray.backToString(): String {
-    var str = ""
-    for (c in this) {
-        if (c == 0.toByte()) break
-        str += c.toChar()
-    }
-    return str
-}
+fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
+
+/// Collection/iterable utilities
 
 fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -> Unit) {
     var index = startAt
@@ -58,11 +69,6 @@ fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -
         action(index, next())
         index++
     }
-}
-
-fun String.splitFirst(char: Char): Pair<String, String> {
-    val index = this.indexOf(char)
-    return Pair(this.substring(0, index), this.substring(index + 1))
 }
 
 /**
@@ -98,15 +104,26 @@ fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
     }
 }
 
+/**
+ * Returns the sum of all values produced by [selector] function applied to each element in the collection.
+ */
+inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
+    var sum: Float = 0f
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+/// Math
+
 inline fun MatrixStack.matrix(block: () -> Unit) {
     push()
     block()
     pop()
 }
 
-operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
-
-inline fun unreachable(): Nothing = TODO()
+fun MatrixStack.push(entry: MatrixStack.Entry) = getStack().addLast(entry)
 
 fun createIdentityMatrixStackEntry(): MatrixStack.Entry {
     val model = Matrix4f()
@@ -116,7 +133,7 @@ fun createIdentityMatrixStackEntry(): MatrixStack.Entry {
     return `IMatrixStack$Entry`.create(model, normal)
 }
 
-fun MatrixStack.push(entry: MatrixStack.Entry) = getStack().addLast(entry)
+operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
 
 fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
     with (matrixStack) {
@@ -131,6 +148,33 @@ fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
         mc.gameRenderer.loadProjectionMatrix(peek().model)
     }
 }
+
+fun Matrix4f.multiplyMatrix(q: Quaternion) = Quaternion(
+    a00 * q.x + a01 * q.y + a02 * q.z + a03 * q.w,
+    a10 * q.x + a11 * q.y + a12 * q.z + a13 * q.w,
+    a20 * q.x + a21 * q.y + a22 * q.z + a23 * q.w,
+    a30 * q.x + a31 * q.y + a32 * q.z + a33 * q.w
+)
+
+fun Quaternion.toScreen(): Quaternion {
+    val newW = 1.0f / w * 0.5f
+    return Quaternion(
+        x * newW + 0.5f,
+        y * newW + 0.5f,
+        z * newW + 0.5f,
+        newW
+    )
+}
+
+val Entity.prevPos
+    get() = Vec3d(prevX, prevY, prevZ)
+
+fun Entity.getInterpolatedPos(tickDelta: Float = mc.tickDelta): Vec3d {
+    val prev = prevPos
+    return prev + (pos - prev) * tickDelta.toDouble()
+}
+
+/// Rendering
 
 data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
@@ -160,50 +204,4 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     }
 }
 
-fun VertexConsumer.vertex(x: Double, y: Double) = this.vertex(x, y, 0.0)
-fun VertexConsumer.vertex(matrix: Matrix4f, x: Float, y: Float) = this.vertex(matrix, x, y, 0f)
-fun VertexConsumer.color(color: Colour) = this.color(color.r, color.g, color.b, color.a)
-
-fun Matrix4f.multiplyMatrix(q: Quaternion) = Quaternion(
-    a00 * q.x + a01 * q.y + a02 * q.z + a03 * q.w,
-    a10 * q.x + a11 * q.y + a12 * q.z + a13 * q.w,
-    a20 * q.x + a21 * q.y + a22 * q.z + a23 * q.w,
-    a30 * q.x + a31 * q.y + a32 * q.z + a33 * q.w
-)
-
-fun Quaternion.toScreen(): Quaternion {
-    val newW = 1.0f / w * 0.5f
-    return Quaternion(
-        x * newW + 0.5f,
-        y * newW + 0.5f,
-        z * newW + 0.5f,
-        newW
-    )
-}
-
-val Entity.prevPos
-    get() = Vec3d(prevX, prevY, prevZ)
-fun Entity.getInterpolatedPos(tickDelta: Float = mc.tickDelta): Vec3d {
-    val prev = prevPos
-    return prev + (pos - prev) * tickDelta.toDouble()
-}
-
-fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
-
-/**
- * Returns the sum of all values produced by [selector] function applied to each element in the collection.
- */
-inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
-    var sum: Float = 0f
-    for (element in this) {
-        sum += selector(element)
-    }
-    return sum
-}
-
-inline fun <T> KMutableProperty0<T>.tempSet(value: T, block: () -> Unit) {
-    val old = get()
-    set(value)
-    block()
-    set(old)
-}
+fun VertexConsumer.colour(colour: Colour) = this.color(colour.r, colour.g, colour.b, colour.a)
