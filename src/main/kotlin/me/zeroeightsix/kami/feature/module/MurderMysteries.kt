@@ -31,8 +31,8 @@ object MurderMysteries : Module() {
     private var ignoreWoodenShovel = false
     @Setting(name = "CooldownOnOutput", comment = "How often it will say who is murderer") // This is how often it will tell the player in chat
     private var updateEvery: @Constrain.Range(min = 3.0, max = 16.0, step = 0.5) Float = 8f
-    @Setting(name = "AnnounceMode", comment = "Say who the murderer is in chat (WARNING: THIS COULD RESULT IN A BAN)")
-    private var announceMode = true
+    @Setting(name = "AnnounceMode", comment = "Say who the murderer is in chat (WARNING: VERY EVIDENT YOU ARE USING THIS MODULE)")
+    private var announceMode = false
     @Setting(name = "IgnoreSelf", comment = "Does not announce that you are the murderer")
     private var ignoreSelf = true
 
