@@ -56,7 +56,7 @@ object VarMap {
 
     // Speed in meter per second.
     private val speedMps: Double
-        get() = (mc.player?.velocity ?: Vec3d.ZERO).modified(y = 0.0)
+        get() = (mc.player?.vehicle?.velocity ?: mc.player?.velocity ?: Vec3d.ZERO).modified(y = 0.0)
             .length() * 20.0 / 0.546 // *20 because 20 ticks in 1 sec, and velocity is tick-based. I don't know where the 0.546 error factor comes from. I got it by comparing what I got without it with the values from the wiki, and they match up nicely.
 
     internal val inner: MutableMap<String, () -> CompiledText.Variable> = mutableMapOf(
