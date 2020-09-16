@@ -1,30 +1,39 @@
-package me.zeroeightsix.kami.feature.module.misc;
+package me.zeroeightsix.kami.feature.module
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listener;
-import me.zeroeightsix.kami.event.PacketEvent;
-import me.zeroeightsix.kami.feature.module.Module;
-import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.event.PacketEvent.Send
+import me.zeroeightsix.kami.mixin.client.IChatMessageC2SPacket
+import me.zeroeightsix.kami.setting.SettingVisibility
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 
 @Module.Info(name = "CustomChat", category = Module.Category.MISC, description = "Modifies your chat messages")
-public class CustomChat extends Module {
-
+object CustomChat : Module() {
     @Setting(name = "Commands")
-    private boolean commands = false;
+    private var commands = false
 
-    private final String KAMI_SUFFIX = " \u23D0 \u1D0B\u1D00\u1D0D\u026A";
+    // Of course we could omit this setting and just have the default value for the custom suffix be KAMI_SUFFIX.
+    // Though, in reality, we _do_ want to promote KAMI - and one way to do that is by making it as easy as possible to fallback to the default one (through this setting).
+    @Setting(name = "Custom suffix", comment = "Whether or not to use the default KAMI suffix, or the custom one.")
+    private var customSuffix = false
+
+    @Setting(name = "Suffix")
+    @SettingVisibility.Method("ifCustomSuffix")
+    private var suffix = " | KAMI"
+
+    fun ifCustomSuffix() = customSuffix
+
+    private const val KAMI_SUFFIX = " \u23D0 \u1D0B\u1D00\u1D0D\u026A"
 
     @EventHandler
-    public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
-        if (event.getPacket() instanceof ChatMessageC2SPacket) {
-            String s = ((IChatMessageC2SPacket) event.getPacket()).getChatMessage();
-            if (s.startsWith("/") && !commands) return;
-            s += KAMI_SUFFIX;
-            if (s.length() >= 256) s = s.substring(0, 256);
-            ((IChatMessageC2SPacket) event.getPacket()).setChatMessage(s);
+    var listener = Listener({ event: Send ->
+        if (event.packet is ChatMessageC2SPacket) {
+            var s = (event.packet as IChatMessageC2SPacket).chatMessage
+            if (s.startsWith("/") && !commands) return@Listener
+            s += if (customSuffix) suffix else KAMI_SUFFIX
+            if (s.length >= 256) s = s.substring(0, 256)
+            (event.packet as IChatMessageC2SPacket).chatMessage = s
         }
-    });
-
+    })
 }
