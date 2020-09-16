@@ -46,5 +46,5 @@ object ActiveModules : TextPinnableWidget(
                 CompiledText.VariablePart(modulesVariable, extraspace = false)
             )
         )
-    ), position = Position.TOP_RIGHT, textAlignment = Alignment.RIGHT
+    ), position = Position.TOP_RIGHT, alignment = Alignment.RIGHT
 )

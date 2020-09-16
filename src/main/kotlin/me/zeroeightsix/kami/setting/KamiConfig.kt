@@ -248,12 +248,14 @@ object KamiConfig {
     val listOfCompiledTextType = ConfigTypes.makeList(compiledTextType)
     val positionType = ConfigTypes.makeEnum(PinnableWidget.Position::class.java)
     val alignmentType = ConfigTypes.makeEnum(TextPinnableWidget.Alignment::class.java)
+    val orderingType = ConfigTypes.makeEnum(TextPinnableWidget.Ordering::class.java)
     val textPinnableSerializableType = RecordSerializableType(
         mapOf(
             "texts" to listOfCompiledTextType.serializedType,
             "title" to DEFAULT_STRING,
             "position" to positionType.serializedType,
-            "alignment" to alignmentType.serializedType
+            "alignment" to alignmentType.serializedType,
+            "ordering" to orderingType.serializedType
         )
     )
     val textPinnableWidgetType = RecordConfigType(textPinnableSerializableType, TextPinnableWidget::class.java, {
@@ -261,13 +263,15 @@ object KamiConfig {
         val position = positionType.toRuntimeType(it["position"] as String?)
         val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
         val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
-        TextPinnableWidget(title, texts.toMutableList(), position, alignment)
+        val ordering = orderingType.toRuntimeType(it["ordering"] as String?)
+        TextPinnableWidget(title, texts.toMutableList(), position, alignment, ordering)
     }, {
         mapOf(
             "texts" to listOfCompiledTextType.toSerializedType(it.text),
             "title" to it.title,
             "position" to positionType.toSerializedType(it.position),
-            "alignment" to alignmentType.toSerializedType(it.textAlignment)
+            "alignment" to alignmentType.toSerializedType(it.alignment),
+            "ordering" to orderingType.toSerializedType(it.ordering)
         )
     })
     val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->

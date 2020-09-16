@@ -27,15 +27,18 @@ import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.sumByFloat
 import me.zeroeightsix.kami.tempSet
 import me.zeroeightsix.kami.util.ResettableLazy
 
+@GenerateType
 open class TextPinnableWidget(
     val title: String,
     var text: MutableList<CompiledText> = mutableListOf(CompiledText()),
     position: Position = Position.TOP_LEFT,
-    var textAlignment: Alignment = Alignment.LEFT
+    var alignment: Alignment = Alignment.LEFT,
+    var ordering: Ordering = Ordering.ORIGINAL
 ) : PinnableWidget(title, position) {
 
     private var minecraftFont = true
@@ -48,16 +51,16 @@ open class TextPinnableWidget(
         val fontHeight = (mc.textRenderer.fontHeight + 4) * scale
 
         text.map {
-            it.parts.map {
-                val str = it.toString()
-                val (w, h) = if (it.multiline) {
+            it.parts.map { part ->
+                val str = part.toString()
+                val (w, h) = if (part.multiline) {
                     val lines = str.split("\n")
                     (lines.map { slice -> mc.textRenderer.getWidth(slice) }.max()
                         ?: 0) to lines.size * (fontHeight - 2) // multiline strings have less spacing between new lines
                 } else {
                     mc.textRenderer.getWidth(str) to fontHeight
                 }
-                Triple(it, str, Vec2(w * scale, h))
+                Triple(part, str, Vec2(w * scale, h))
             }
         }
     }
@@ -81,18 +84,28 @@ open class TextPinnableWidget(
                     for (triplets in immediateText) {
                         fun calcFullWidth() = triplets.map { it.third.x }.sum()
 
-                        var xOffset = when (textAlignment) {
+                        var xOffset = when (alignment) {
                             Alignment.LEFT -> 0f
                             Alignment.CENTER -> ((rect.width - calcFullWidth()) * 0.5f - style.windowPadding.x) / scale
                             Alignment.RIGHT -> ((rect.width - calcFullWidth()) - style.windowPadding.x * 2) / scale
                         }
 
-                        for ((command, str, _) in triplets) {
-                            if (command.multiline) {
-                                val codes = command.codes
+                        for ((part, str, _) in triplets) {
+                            if (part.multiline) {
+                                val codes = part.codes
                                 var lastWidth = 0f
-                                str.split("\n").forEach {
-                                    val localXOffset = when (textAlignment) {
+                                str.split("\n").let { lines ->
+                                    when (ordering) {
+                                        Ordering.ORIGINAL -> lines
+                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { mc.textRenderer.getWidth(it) }
+                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending {
+                                            mc.textRenderer.getWidth(
+                                                it
+                                            )
+                                        }
+                                    }
+                                }.forEach {
+                                    val localXOffset = when (alignment) {
                                         Alignment.LEFT -> xOffset
                                         Alignment.CENTER -> {
                                             ((rect.width - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPadding.x) / scale
@@ -103,13 +116,13 @@ open class TextPinnableWidget(
                                             )
                                         }
                                     }
-                                    val width = if (command.shadow)
+                                    val width = if (part.shadow)
                                         mc.textRenderer.drawWithShadow(
                                             matrices,
                                             codes + it,
                                             x + localXOffset,
                                             y,
-                                            command.currentColourARGB()
+                                            part.currentColourARGB()
                                         ) - (x + localXOffset)
                                     else
                                         mc.textRenderer.draw(
@@ -117,23 +130,23 @@ open class TextPinnableWidget(
                                             codes + it,
                                             x + localXOffset,
                                             y,
-                                            command.currentColourARGB()
+                                            part.currentColourARGB()
                                         ) - (x + localXOffset)
                                     lastWidth = width
                                     y += mc.textRenderer.fontHeight + 3
                                 }
                                 xOffset += lastWidth - 1
                                 y -= mc.textRenderer.fontHeight + 3
-                                command.resetMultilinePattern()
+                                part.resetMultilinePattern()
                             } else {
-                                val strCodes = command.codes + str
-                                val width = if (command.shadow)
+                                val strCodes = part.codes + str
+                                val width = if (part.shadow)
                                     mc.textRenderer.drawWithShadow(
                                         matrices,
                                         strCodes,
                                         x + xOffset,
                                         y,
-                                        command.currentColourARGB()
+                                        part.currentColourARGB()
                                     ) - (x + xOffset)
                                 else
                                     mc.textRenderer.draw(
@@ -141,7 +154,7 @@ open class TextPinnableWidget(
                                         strCodes,
                                         x + xOffset,
                                         y,
-                                        command.currentColourARGB()
+                                        part.currentColourARGB()
                                     ) - (x + xOffset)
                                 xOffset += width - 1
                             }
@@ -157,7 +170,7 @@ open class TextPinnableWidget(
 
                 fun calcFullWidth() = triplets.map { calcTextSize(it.second).x }.sum()
 
-                fun align(width: Float = calcFullWidth()) = when (textAlignment) {
+                fun align(width: Float = calcFullWidth()) = when (alignment) {
                     Alignment.LEFT -> Unit
                     Alignment.CENTER -> cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
                     Alignment.RIGHT -> cursorPosX =
@@ -185,11 +198,17 @@ open class TextPinnableWidget(
                         // We need a different rendering strategy for **aligned** multiline strings.
                         // imgui doesn't support them, so we need to align each line ourselves
                         // imgui CAN handle the 'left' alignment (as it is the only alignment)
-                        if (part.multiline && textAlignment !== Alignment.LEFT) {
+                        if (part.multiline && alignment !== Alignment.LEFT) {
                             // As long as we're rendering the multiline string, we don't want any spacing between the lines.
                             style.itemSpacing::y.tempSet(0f) {
                                 // manually align each line
-                                str.split("\n").forEach {
+                                str.split("\n").let { lines ->
+                                    when (ordering) {
+                                        Ordering.ORIGINAL -> lines
+                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { calcTextSize(it).x }
+                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending { calcTextSize(it).x }
+                                    }
+                                }.forEach {
                                     align(calcTextSize(it).x)
                                     text(it)
                                 }
@@ -303,9 +322,15 @@ open class TextPinnableWidget(
         demoDebugInformations.helpMarker("Only visible when GUI is closed.")
 
         menu("Alignment") {
-            menuItem("Left", "", textAlignment == Alignment.LEFT) { textAlignment = Alignment.LEFT }
-            menuItem("Center", "", textAlignment == Alignment.CENTER) { textAlignment = Alignment.CENTER }
-            menuItem("Right", "", textAlignment == Alignment.RIGHT) { textAlignment = Alignment.RIGHT }
+            menuItem("Left", "", alignment == Alignment.LEFT) { alignment = Alignment.LEFT }
+            menuItem("Center", "", alignment == Alignment.CENTER) { alignment = Alignment.CENTER }
+            menuItem("Right", "", alignment == Alignment.RIGHT) { alignment = Alignment.RIGHT }
+        }
+
+        menu("Multiline ordering") {
+            menuItem("None", "", ordering == Ordering.ORIGINAL) { ordering = Ordering.ORIGINAL }
+            menuItem("Ascending", "", ordering == Ordering.WIDTH_ASCENDING) { ordering = Ordering.WIDTH_ASCENDING }
+            menuItem("Descending", "", ordering == Ordering.WIDTH_DESCENDING) { ordering = Ordering.WIDTH_DESCENDING }
         }
     }
 
@@ -315,8 +340,14 @@ open class TextPinnableWidget(
         }
     }
 
+    @GenerateType
     enum class Alignment {
         LEFT, CENTER, RIGHT
+    }
+
+    @GenerateType
+    enum class Ordering {
+        ORIGINAL, WIDTH_ASCENDING, WIDTH_DESCENDING
     }
 
 }
