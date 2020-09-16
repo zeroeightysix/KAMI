@@ -10,7 +10,6 @@ import net.minecraft.item.*
 import net.minecraft.nbt.Tag.AQUA
 import net.minecraft.nbt.Tag.RED
 import net.minecraft.nbt.Tag.GOLD
-import net.minecraft.util.Formatting
 
 @Module.Info(
         name = "MurderMysteries",
@@ -19,22 +18,20 @@ import net.minecraft.util.Formatting
 )
 object MurderMysteries : Module() {
 
-    @Setting(name = "InnocuousItems")
+    @Setting
     private var innocuousItems = true
-    @Setting(name = "WeaponItems")
+    @Setting
     private var weaponItems = true
-    @Setting(name = "ToolItems")
+    @Setting
     private var toolItems = true
-    @Setting(name = "DetectiveItems")
+    @Setting
     private var detectiveItems = false
-    @Setting(name = "IgnoreWoodenShovel", comment = "Ignore wooden shovels from ToolItems")
+    @Setting(comment = "Ignore wooden shovels from ToolItems")
     private var ignoreWoodenShovel = false
     @Setting(name = "CooldownOnOutput", comment = "How often it will say who is murderer") // This is how often it will tell the player in chat
     private var updateEvery: @Constrain.Range(min = 3.0, max = 16.0, step = 0.5) Float = 8f
-    @Setting(name = "AnnounceMode", comment = "Say who the murderer is in chat (WARNING: VERY EVIDENT YOU ARE USING THIS MODULE)")
+    @Setting(comment = "Say who the murderer is in chat (WARNING: VERY EVIDENT YOU ARE USING THIS MODULE)")
     private var announceMode = false
-    @Setting(name = "IgnoreSelf", comment = "Does not announce that you are the murderer")
-    private var ignoreSelf = true
 
     private var lastUpdate: Long = 0L
 
@@ -65,7 +62,7 @@ object MurderMysteries : Module() {
         if ((lastUpdate + (updateEvery * 1000f).toLong() <= System.currentTimeMillis()))
             mc.world?.players?.forEach { player ->
                 //Make sure the player is not being told that they are the murderer
-                if ((player == mc.player) && ignoreSelf) return@forEach
+                if (player == mc.player) return@forEach
 
                 //Check for weaponly items (swords, axes)s
                 player.itemsEquipped.forEach {
