@@ -47,7 +47,12 @@ object MurderMysteries : Module() {
             Items.SPONGE,
             Items.COBWEB,
             Items.FEATHER,
-            Items.STICK
+            Items.STICK,
+            Items.SALMON,
+            Items.COOKED_SALMON,
+            Items.COD,
+            Items.COOKED_COD,
+            Items.TROPICAL_FISH
     )
     private val detectiveItemsList = listOf(
             Items.BOW,
