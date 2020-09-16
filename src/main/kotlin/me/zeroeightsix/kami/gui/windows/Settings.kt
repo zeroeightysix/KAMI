@@ -143,7 +143,7 @@ object Settings {
                         showFontSelector("Font###kami-settings-font-selector")
 
                         if (ImGui.combo("Theme", ::styleIdx, themes)) {
-                            Themes.Variants.values()[styleIdx].applyStyle()
+                            Themes.Variants.values()[styleIdx].applyStyle(true)
                         }
 
                         boolSetting(
@@ -151,7 +151,7 @@ object Settings {
                             ::rainbowMode,
                             "If enabled, turns the GUI into a rainbow-coloured mess"
                         ) {
-                            Themes.Variants.values()[styleIdx].applyStyle()
+                            Themes.Variants.values()[styleIdx].applyStyle(false)
                         }
 
                         dragFloat(
