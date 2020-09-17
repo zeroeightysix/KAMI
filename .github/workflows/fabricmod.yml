@@ -41,5 +41,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Package
-          path: build/libs/kami-1.16.3-sep.jar
+          path: ./**/kami-*.jar
       
