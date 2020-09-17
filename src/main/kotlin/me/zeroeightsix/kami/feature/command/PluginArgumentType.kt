@@ -14,7 +14,7 @@ import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
-class PluginArgumentType: ArgumentType<Plugin> {
+class PluginArgumentType : ArgumentType<Plugin> {
 
     private val examples: MutableCollection<String> = mutableListOf("Aura", "CameraClip", "Flight")
     private val invalidPluginException = DynamicCommandExceptionType(

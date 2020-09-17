@@ -101,5 +101,4 @@ object BaritoneIntegration {
     operator fun invoke(block: () -> Unit) {
         if (present) block()
     }
-
 }

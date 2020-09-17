@@ -56,14 +56,16 @@ annotation class GenerateType(val name: String = "") {
 
                 // Create the config type from the type of the parameter.
                 // I couldn't find a standard way to convert KCallable to an Annotated type, so we use an anonymous object instead
-                val type = supplier.toConfigType(object : AnnotatedType {
-                    override fun <T : Annotation?> getAnnotation(p0: Class<T>): T? =
-                        declaredAnnotations.filterIsInstance(p0).firstOrNull()
+                val type = supplier.toConfigType(
+                    object : AnnotatedType {
+                        override fun <T : Annotation?> getAnnotation(p0: Class<T>): T? =
+                            declaredAnnotations.filterIsInstance(p0).firstOrNull()
 
-                    override fun getAnnotations(): Array<Annotation> = declaredAnnotations
-                    override fun getDeclaredAnnotations(): Array<Annotation> = it.annotations.toTypedArray()
-                    override fun getType(): Type = it.type.javaType
-                }) as ConfigType<Any, Any, *>?
+                        override fun getAnnotations(): Array<Annotation> = declaredAnnotations
+                        override fun getDeclaredAnnotations(): Array<Annotation> = it.annotations.toTypedArray()
+                        override fun getType(): Type = it.type.javaType
+                    }
+                ) as ConfigType<Any, Any, *>?
                 if (type == null) {
                     KamiMod.log.error("$it.type (of $name) does not have an already installed config type, it will be skipped for the generation of $kClass's type.")
                     return@mapNotNull null
@@ -76,15 +78,20 @@ annotation class GenerateType(val name: String = "") {
                 // Maps the parameters to their serializable type
                 params.mapValues { it.value.second.serializedType }.mapKeys { it.key.name!! }
             )
-            val configType = RecordConfigType(serializableType, clazz, { map ->
-                constructor.callBy(params.mapValues { it.value.second.toRuntimeType(map[it.key.name!!]) })
-            }, { t ->
-                params.map {
-                    val name = it.key.name!!
-                    val type = it.value.second
-                    name to type.toSerializedType(it.value.first.call(t))
-                }.toMap()
-            })
+            val configType = RecordConfigType(
+                serializableType,
+                clazz,
+                { map ->
+                    constructor.callBy(params.mapValues { it.value.second.toRuntimeType(map[it.key.name!!]) })
+                },
+                { t ->
+                    params.map {
+                        val name = it.key.name!!
+                        val type = it.value.second
+                        name to type.toSerializedType(it.value.first.call(t))
+                    }.toMap()
+                }
+            )
 
             val interf = object : SettingInterface<T> {
                 override val type: String = name

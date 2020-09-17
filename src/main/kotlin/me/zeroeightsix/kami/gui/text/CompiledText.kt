@@ -1,8 +1,16 @@
 package me.zeroeightsix.kami.gui.text
 
 import glm_.vec4.Vec4
-import imgui.*
+import imgui.Col
+import imgui.ColorEditFlag
+import imgui.ImGui
+import imgui.MouseButton
+import imgui.PAYLOAD_TYPE_COLOR_4F
+import imgui.cStr
+import imgui.dsl
 import imgui.dsl.withStyleColor
+import imgui.toByteArray
+import imgui.vec4
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
@@ -34,7 +42,8 @@ class CompiledText(
                 highlight.conditionalWrap(
                     {
                         ImGui.pushStyleColor(Col.Text, (ImGui.style.colors[Col.Text.i] / 1.2f))
-                    }, {
+                    },
+                    {
                         dsl.button("${part.editLabel}###part-button-$id-$n") {
                             this.selectedPart = part
                         }
@@ -66,7 +75,8 @@ class CompiledText(
                         }
 
                         ImGui.sameLine() // The next button should be on the same line
-                    }, {
+                    },
+                    {
                         ImGui.popStyleColor()
                     }
                 )
@@ -185,10 +195,10 @@ class CompiledText(
 
         private fun toCodes(): String {
             return (if (obfuscated) "§k" else "") +
-                    (if (bold) "§l" else "") +
-                    (if (strike) "§m" else "") +
-                    (if (underline) "§n" else "") +
-                    (if (italic) "§o" else "")
+                (if (bold) "§l" else "") +
+                (if (strike) "§m" else "") +
+                (if (underline) "§n" else "") +
+                (if (italic) "§o" else "")
         }
 
         open val editLabel: String
@@ -400,5 +410,4 @@ class CompiledText(
             return provider()
         }
     }
-
 }

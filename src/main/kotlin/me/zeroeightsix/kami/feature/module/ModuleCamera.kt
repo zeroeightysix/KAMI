@@ -39,5 +39,4 @@ object ModuleCamera : Module() {
             ipos += Vec3d(0.0, shiftY, 0.0)
         }
     })
-
 }

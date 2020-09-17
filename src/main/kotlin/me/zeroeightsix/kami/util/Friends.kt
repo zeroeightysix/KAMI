@@ -35,5 +35,4 @@ object Friends {
             mirror.value = list
         }
     }
-
 }

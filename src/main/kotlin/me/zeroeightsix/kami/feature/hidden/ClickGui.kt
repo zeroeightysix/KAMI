@@ -39,5 +39,4 @@ object ClickGui : Feature, Listenable, HasBind {
     override fun initListening() {
         KamiMod.EVENT_BUS.subscribe(bindListener)
     }
-
 }

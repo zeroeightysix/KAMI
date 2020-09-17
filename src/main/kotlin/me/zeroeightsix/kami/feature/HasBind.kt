@@ -5,5 +5,4 @@ import me.zeroeightsix.kami.util.Bind
 interface HasBind {
 
     var bind: Bind
-
 }

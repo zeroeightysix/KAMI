@@ -17,5 +17,4 @@ object Timer : Module() {
     } else {
         1f
     }
-
 }

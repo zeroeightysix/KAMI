@@ -47,5 +47,4 @@ object MenuBar {
         // imgui needs a window to add the void popup to, so we disgustingly add it to the only window that will always be there: the main menu bar
         VoidContextMenu()
     }
-
 }

@@ -1,7 +1,8 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
 import glm_.vec4.Vec4
-import imgui.*
+import imgui.Col
+import imgui.ImGui
 import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
@@ -10,10 +11,14 @@ import imgui.ImGui.openPopupContextItem
 import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
+import imgui.MouseButton
+import imgui.TreeNodeFlag
+import imgui.WindowFlag
 import imgui.dsl.dragDropTarget
 import imgui.dsl.popup
 import imgui.dsl.window
 import imgui.internal.sections.ItemStatusFlag
+import imgui.or
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
@@ -29,6 +34,9 @@ import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 @FindSettings
 object Modules {
@@ -214,7 +222,6 @@ object Modules {
 
             return closed
         }
-
     }
 
     class Windows(val backing: MutableList<ModuleWindow>) : MutableList<ModuleWindow> by backing {
@@ -226,7 +233,6 @@ object Modules {
             return backing.hashCode()
         }
     }
-
 }
 
 private fun showModuleSettings(module: Module) {

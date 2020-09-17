@@ -108,5 +108,4 @@ object AutoTotem : Module() {
         inventory.offHand[0] = inventory.main[fromSlot]
         inventory.main[fromSlot] = offHandStack
     }
-
 }

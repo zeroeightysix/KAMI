@@ -16,5 +16,4 @@ class ResettableLazy<T>(private var initializer: () -> T) : Lazy<T> {
     private inner class Inner {
         val value = lazy(initializer)
     }
-
 }

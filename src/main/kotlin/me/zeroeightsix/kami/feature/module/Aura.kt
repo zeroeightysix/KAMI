@@ -80,10 +80,10 @@ object Aura : Module() {
             }
             targets.entities.forEach { (entity, target) ->
                 val living = entity as? LivingEntity ?: return@forEach
-                if (living.health <= 0
-                    || (waitMode == WaitMode.DYNAMIC && entity.hurtTime != 0)
-                    || (mc.player!!.distanceTo(entity) > hitRange)
-                    || (!ignoreWalls && !mc.player!!.canSee(entity) && !canEntityFeetBeSeen(entity))
+                if (living.health <= 0 ||
+                    (waitMode == WaitMode.DYNAMIC && entity.hurtTime != 0) ||
+                    (mc.player!!.distanceTo(entity) > hitRange) ||
+                    (!ignoreWalls && !mc.player!!.canSee(entity) && !canEntityFeetBeSeen(entity))
                 ) {
                     return@forEach
                 }

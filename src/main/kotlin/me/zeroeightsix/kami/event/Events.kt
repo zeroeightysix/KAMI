@@ -18,7 +18,11 @@ import net.minecraft.network.Packet
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket
 import net.minecraft.text.Text
 import net.minecraft.util.hit.EntityHitResult
-import net.minecraft.util.math.*
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Matrix4f
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
@@ -67,7 +71,6 @@ open class EntityEvent(val entity: Entity) : KamiEvent() {
     ) : EntityEvent(entity)
 
     class EntityDamage(entity: Entity, var damage: Int) : EntityEvent(entity)
-
 }
 
 class EntityJoinWorldEvent(val id: Int, val entity: Entity) : KamiEvent()
@@ -80,7 +83,6 @@ open class PacketEvent(val packet: Packet<*>) : KamiEvent() {
 
     class Receive(packet: Packet<*>) : PacketEvent(packet)
     class Send(packet: Packet<*>) : PacketEvent(packet)
-
 }
 
 class PlayerAttackBlockEvent(val position: BlockPos, val facing: Direction)
@@ -132,7 +134,6 @@ open class ScreenEvent(var screen: Screen?) : KamiEvent() {
 
     class Displayed(screen: Screen?) : ScreenEvent(screen)
     class Closed(screen: Screen?) : ScreenEvent(screen)
-
 }
 
 class TargetEntityEvent(
@@ -162,7 +163,6 @@ open class TickEvent private constructor(private val stage: Stage) : KamiEvent()
          */
         class OutOfGame : Client()
     }
-
 }
 
 class CameraUpdateEvent(

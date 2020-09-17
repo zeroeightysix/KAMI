@@ -153,92 +153,100 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
     targetConfigType: StringConfigType<T>,
     crossinline factory: (Map<T, M>) -> C
 ) =
-    ConfigTypes.makeMap(targetConfigType, metaType).derive(C::class.java, {
-        factory(it)
-    }, {
-        it
-    }).also {
+    ConfigTypes.makeMap(targetConfigType, metaType).derive(
+        C::class.java,
+        {
+            factory(it)
+        },
+        {
+            it
+        }
+    ).also {
         metaType.settingInterface?.let { interf ->
             val metaName = interf.type.capitalize()
-            it.extend({
-                "targets" // We don't try to convert targets <-> string
-            }, {
-                throw InvalidValueException("Targets can not be set from the settings command.") // same here
-            }, { name, value ->
-                val possibleTargets =
-                    T::class.java.enumConstants.map { it.name.humanReadable() to it }.toMap().toMutableMap()
-                var index = 0
-                var modified: C? = null
+            it.extend(
+                {
+                    "targets" // We don't try to convert targets <-> string
+                },
+                {
+                    throw InvalidValueException("Targets can not be set from the settings command.") // same here
+                },
+                { name, value ->
+                    val possibleTargets =
+                        T::class.java.enumConstants.map { it.name.humanReadable() to it }.toMap().toMutableMap()
+                    var index = 0
+                    var modified: C? = null
 
-                with(ImGui) {
-                    dsl.columns("$name-targets-columns", 2) {
-                        text("%s", name)
-                        nextColumn()
-                        text("%s", metaName)
-                        separator()
-                        nextColumn()
+                    with(ImGui) {
+                        dsl.columns("$name-targets-columns", 2) {
+                            text("%s", name)
+                            nextColumn()
+                            text("%s", metaName)
+                            separator()
+                            nextColumn()
 
-                        var dirty = false
+                            var dirty = false
 
-                        val map = value.mapNotNull { (target, meta) ->
-                            // The target to return. If null, remove this entry.
-                            var retT: T? = target
-                            // The meta to return
-                            var retM: M = meta
+                            val map = value.mapNotNull { (target, meta) ->
+                                // The target to return. If null, remove this entry.
+                                var retT: T? = target
+                                // The meta to return
+                                var retM: M = meta
 
-                            val strings = possibleTargets.keys.toList()
-                            val targetReadable = target.name.humanReadable()
-                            val array = intArrayOf(strings.indexOf(targetReadable))
-                            if (combo("##$name-target-$index", array, strings.toList())) {
-                                possibleTargets[strings[array[0]]]?.let { retT = it }
-                            }
+                                val strings = possibleTargets.keys.toList()
+                                val targetReadable = target.name.humanReadable()
+                                val array = intArrayOf(strings.indexOf(targetReadable))
+                                if (combo("##$name-target-$index", array, strings.toList())) {
+                                    possibleTargets[strings[array[0]]]?.let { retT = it }
+                                }
 
-                            // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
-                            if (value.size > 1) {
-                                sameLine()
-                                if (button("-##$name-target-$index-rm")) {
-                                    retT = null // Return nothing, which removes the entry from the map.
+                                // Users are not allowed to remove the last remaining target, as it is required for copying over the meta when creating new targets.
+                                if (value.size > 1) {
+                                    sameLine()
+                                    if (button("-##$name-target-$index-rm")) {
+                                        retT = null // Return nothing, which removes the entry from the map.
+                                    }
+                                }
+                                index++
+
+                                // To avoid duplicate entries (which aren't possible, so the UI would act weird when you try to make one)
+                                possibleTargets.remove(targetReadable)
+
+                                nextColumn()
+                                interf.displayImGui("$metaName##$name-target-$metaName-$index", meta)?.let {
+                                    retM = it
+                                    // the meta object itself might actually be mutated instead of being a new object.
+                                    // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
+                                    // therefore we set this flag to make sure the 'new' map is processed.
+                                    dirty = true
+                                }
+                                nextColumn()
+
+                                retT?.let {
+                                    it to retM
+                                }
+                            }.toMap().toMutableMap()
+
+                            if (possibleTargets.isNotEmpty()) {
+                                separator()
+                                val strings = possibleTargets.keys.toList()
+                                val array = intArrayOf(-1)
+                                if (combo("New##$name-target-new", array, strings)) {
+                                    // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
+                                    // This does require there to always be a target entry, though
+                                    // please don't make empty targets, will you?
+                                    possibleTargets[strings[array[0]]]?.let { map[it] = value.values.last() }
                                 }
                             }
-                            index++
 
-                            // To avoid duplicate entries (which aren't possible, so the UI would act weird when you try to make one)
-                            possibleTargets.remove(targetReadable)
-
-                            nextColumn()
-                            interf.displayImGui("$metaName##$name-target-$metaName-$index", meta)?.let {
-                                retM = it
-                                // the meta object itself might actually be mutated instead of being a new object.
-                                // thus, the map == value check might say that they're the same because the same object in the original map was also changed.
-                                // therefore we set this flag to make sure the 'new' map is processed.
-                                dirty = true
+                            if (dirty || map != value) {
+                                modified = factory(map)
                             }
-                            nextColumn()
-
-                            retT?.let {
-                                it to retM
-                            }
-                        }.toMap().toMutableMap()
-
-                        if (possibleTargets.isNotEmpty()) {
-                            separator()
-                            val strings = possibleTargets.keys.toList()
-                            val array = intArrayOf(-1)
-                            if (combo("New##$name-target-new", array, strings)) {
-                                // I can't be bothered to implement a default meta constant, so we just copy over the last meta type as the value for this new entry
-                                // This does require there to always be a target entry, though
-                                // please don't make empty targets, will you?
-                                possibleTargets[strings[array[0]]]?.let { map[it] = value.values.last() }
-                            }
-                        }
-
-                        if (dirty || map != value) {
-                            modified = factory(map)
                         }
                     }
-                }
 
-                modified
-            })
+                    modified
+                }
+            )
         }
     }

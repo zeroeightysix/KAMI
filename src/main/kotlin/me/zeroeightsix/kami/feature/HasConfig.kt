@@ -10,5 +10,4 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 interface HasConfig {
 
     var config: ConfigBranch
-
 }

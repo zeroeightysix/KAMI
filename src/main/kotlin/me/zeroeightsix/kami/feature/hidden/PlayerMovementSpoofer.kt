@@ -150,5 +150,4 @@ object PlayerMovementSpoofer : Feature, Listenable {
             }
         }
     }
-
 }

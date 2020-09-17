@@ -107,5 +107,4 @@ abstract class PinnableWidget(
     public enum class Position(val top: Boolean, val left: Boolean) {
         CUSTOM(false, false), TOP_LEFT(true, true), TOP_RIGHT(true, false), BOTTOM_LEFT(false, true), BOTTOM_RIGHT(false, false)
     }
-
 }

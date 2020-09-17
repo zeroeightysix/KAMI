@@ -67,7 +67,8 @@ object PrepHandler : Feature, Listenable {
                 if (Wrapper.getMinecraft().currentScreen !is KamiGuiScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
                     renderHud(it.matrixStack)
                 }
-            }, EventPriority.HIGHEST
+            },
+            EventPriority.HIGHEST
         )
 
     @EventHandler
@@ -89,7 +90,8 @@ object PrepHandler : Feature, Listenable {
                 GlStateManager.disableDepthTest()
                 GlStateManager.lineWidth(1f)
                 mc.profiler.pop()
-            }, EventPriority.HIGHEST
+            },
+            EventPriority.HIGHEST
         )
 
     @EventHandler
@@ -107,7 +109,7 @@ object PrepHandler : Feature, Listenable {
                 KamiTessellator.releaseGL()
                 mc.profiler.pop()
                 mc.profiler.pop()
-            }, EventPriority.LOWEST
+            },
+            EventPriority.LOWEST
         )
-
 }

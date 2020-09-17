@@ -1,7 +1,8 @@
 package me.zeroeightsix.kami.gui
 
 import glm_.vec2.Vec2
-import imgui.*
+import imgui.Col
+import imgui.ImGui
 import imgui.ImGui.buttonBehavior
 import imgui.ImGui.calcTextSize
 import imgui.ImGui.clearActiveID
@@ -15,10 +16,21 @@ import imgui.ImGui.renderNavHighlight
 import imgui.ImGui.renderText
 import imgui.ImGui.setActiveID
 import imgui.ImGui.style
+import imgui.InputTextCallback
+import imgui.InputTextFlag
 import imgui.api.g
+import imgui.cStr
+import imgui.hasnt
 import imgui.internal.classes.Rect
 import imgui.internal.sections.ItemFlags
-import java.util.*
+import imgui.invoke
+import imgui.or
+import imgui.toByteArray
+import java.util.WeakHashMap
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.set
 import kotlin.reflect.KMutableProperty0
 
 // This file is not called 'kotlin imgui', but rather KAMI imgui.

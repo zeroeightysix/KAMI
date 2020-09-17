@@ -27,8 +27,10 @@ class PlayerPinnableWidget(
 
     override fun preWindow() {
         val scale = KamiHud.getScale()
-        height = size * (mc.player?.height
-            ?: 1).toFloat() * scale * 1.1f // Extra margin because the player doesn't always fit inside
+        height = size * (
+            mc.player?.height
+                ?: 1
+            ).toFloat() * scale * 1.1f // Extra margin because the player doesn't always fit inside
         ImGui.setNextWindowSize(Vec2(size * scale, height))
     }
 

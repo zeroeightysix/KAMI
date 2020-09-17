@@ -15,5 +15,4 @@ object SafeWalk : Module() {
     val clipListener = Listener<ClipAtLedgeEvent>({
         it.clip = true
     })
-
 }

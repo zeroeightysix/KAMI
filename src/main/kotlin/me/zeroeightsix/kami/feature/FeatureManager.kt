@@ -5,7 +5,7 @@ import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
 import org.reflections.Reflections
-import java.util.*
+import java.util.Collections
 
 object FeatureManager {
 
@@ -64,13 +64,16 @@ object FeatureManager {
                     }
                 }
             }
-            tryErr({
-                val feature = it.getConstructor().newInstance() as Feature
-                features.add(feature)
-            }, {
-                val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
-                features.add(instFeature)
-            })
+            tryErr(
+                {
+                    val feature = it.getConstructor().newInstance() as Feature
+                    features.add(feature)
+                },
+                {
+                    val instFeature = it.getDeclaredField("INSTANCE").get(null) as Feature
+                    features.add(instFeature)
+                }
+            )
         }
 
         features.forEach {
@@ -81,11 +84,12 @@ object FeatureManager {
             it.register(Command.dispatcher)
         }
 
-        features.sortWith(compareBy {
-            if (it is FullFeature) it.name else null
-        })
+        features.sortWith(
+            compareBy {
+                if (it is FullFeature) it.name else null
+            }
+        )
 
         KamiMod.log.info("Features initialised")
     }
-
 }

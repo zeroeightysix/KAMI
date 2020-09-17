@@ -9,9 +9,13 @@ import imgui.dsl.menuItem
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.gui.text.CompiledText
 
-val modulesVariable = object : CompiledText.StringVariable("modules", true, {
-    FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
-}) {
+val modulesVariable = object : CompiledText.StringVariable(
+    "modules",
+    true,
+    {
+        FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
+    }
+) {
     var filter = ByteArray(128)
     override var editLabel: String = "(active modules)"
 
@@ -40,11 +44,14 @@ val modulesVariable = object : CompiledText.StringVariable("modules", true, {
 }
 
 object ActiveModules : TextPinnableWidget(
-    "Active modules", text = mutableListOf(
+    "Active modules",
+    text = mutableListOf(
         CompiledText(
             mutableListOf(
                 CompiledText.VariablePart(modulesVariable, extraspace = false)
             )
         )
-    ), position = Position.TOP_RIGHT, alignment = Alignment.RIGHT
+    ),
+    position = Position.TOP_RIGHT,
+    alignment = Alignment.RIGHT
 )

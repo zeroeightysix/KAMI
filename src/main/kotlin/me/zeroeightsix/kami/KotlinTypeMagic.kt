@@ -9,9 +9,11 @@ import kotlin.reflect.KMutableProperty
 object KotlinTypeMagic {
     @JvmStatic
     fun getKotlinAnnotatedType(pojo: Any, setting: Field): AnnotatedType {
-        val annotations = (pojo::class.members.find {
-            it.name == setting.name && it is KMutableProperty
-        } ?: return setting.annotatedType).returnType.annotations.toMutableList()
+        val annotations = (
+            pojo::class.members.find {
+                it.name == setting.name && it is KMutableProperty
+            } ?: return setting.annotatedType
+            ).returnType.annotations.toMutableList()
 
         val type = setting.annotatedType
         annotations.addAll(type.annotations)

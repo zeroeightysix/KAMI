@@ -32,11 +32,15 @@ interface SettingVisibilitySupplier {
 }
 
 val visibilityType: StringConfigType<SettingVisibilitySupplier> =
-    ConfigTypes.STRING.derive(SettingVisibilitySupplier::class.java, {
-        SettingVisibilitySupplier.suppliers[Identifier(it)]
-    }, {
-        it!!.id.toString()
-    })
+    ConfigTypes.STRING.derive(
+        SettingVisibilitySupplier::class.java,
+        {
+            SettingVisibilitySupplier.suppliers[Identifier(it)]
+        },
+        {
+            it!!.id.toString()
+        }
+    )
 
 object ConstantVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVisibility.Constant> {
     private val alwaysTrue: SettingVisibilitySupplier = object : SettingVisibilitySupplier {

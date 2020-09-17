@@ -34,7 +34,6 @@ interface SettingInterface<R> {
         } catch (e: Exception) {
             false
         }
-
 }
 
 inline fun <reified R, S, T : SerializableType<S>> ConfigType<R, S, T>.extend(

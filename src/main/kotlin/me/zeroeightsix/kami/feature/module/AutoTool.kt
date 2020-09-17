@@ -33,6 +33,7 @@ object AutoTool : Module() {
                 }
             }
         )
+
     @EventHandler
     private val attackListener =
         Listener(
@@ -51,9 +52,12 @@ object AutoTool : Module() {
             var eff: Int
             if (speed != null) {
                 if (speed > 1) {
-                    speed += (if (EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack).also {
-                            eff = it
-                        } > 0) (eff.toDouble().pow(2.0) + 1) else 0.0).toFloat()
+                    speed += (
+                        if (EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, stack).also {
+                                eff = it
+                            } > 0
+                        ) (eff.toDouble().pow(2.0) + 1) else 0.0
+                        ).toFloat()
                     if (speed > max) {
                         max = speed.toDouble()
                         bestSlot = i
@@ -76,16 +80,16 @@ object AutoTool : Module() {
                 if (stack.item is MiningToolItem || stack.item is SwordItem) {
                     // Not sure of the best way to cast stack.item as either SwordItem or MiningToolItem
                     val damage = if (stack.item is SwordItem) {
-                            (stack.item as SwordItem).attackDamage + EnchantmentHelper.getAttackDamage(
-                                    stack,
-                                    EntityGroup.DEFAULT
-                            ).toDouble()
-                        } else {
-                            (stack.item as MiningToolItem).attackDamage + EnchantmentHelper.getAttackDamage(
-                                    stack,
-                                    EntityGroup.DEFAULT
-                            ).toDouble()
-                        }
+                        (stack.item as SwordItem).attackDamage + EnchantmentHelper.getAttackDamage(
+                            stack,
+                            EntityGroup.DEFAULT
+                        ).toDouble()
+                    } else {
+                        (stack.item as MiningToolItem).attackDamage + EnchantmentHelper.getAttackDamage(
+                            stack,
+                            EntityGroup.DEFAULT
+                        ).toDouble()
+                    }
                     if (damage > maxDamage) {
                         maxDamage = damage
                         bestSlot = i

@@ -1,7 +1,11 @@
 package me.zeroeightsix.kami.mixin.extend
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import me.zeroeightsix.kami.mixin.client.*
+import me.zeroeightsix.kami.mixin.client.ICamera
+import me.zeroeightsix.kami.mixin.client.IGameRenderer
+import me.zeroeightsix.kami.mixin.client.IInputUtilType
+import me.zeroeightsix.kami.mixin.client.IMatrix4f
+import me.zeroeightsix.kami.mixin.client.IMatrixStack
 import net.minecraft.client.input.Input
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.GameRenderer
@@ -9,7 +13,7 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3d
-import java.util.*
+import java.util.Deque
 
 // TODO: These could be extension properties
 
@@ -22,6 +26,7 @@ fun MatrixStack.getStack(): Deque<MatrixStack.Entry> = (this as IMatrixStack).st
 var Camera.ipos: Vec3d
     get() = pos
     set(value) = (this as ICamera).callSetPos(value)
+
 fun Camera.setRotation(yaw: Float, pitch: Float) = (this as ICamera).callSetRotation(yaw, pitch)
 val Camera.iyaw: Float
     get() = (this as ICamera).yaw

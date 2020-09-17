@@ -50,11 +50,13 @@ class SettingValueArgumentType(
 
     companion object {
         val INVALID_VALUE_EXCEPTION =
-            DynamicCommandExceptionType(Function { `object`: Any ->
-                LiteralText(
-                    "Invalid value '" + (`object` as Array<Any>)[0] + "' for property '" + `object`[1] + "'"
-                )
-            })
+            DynamicCommandExceptionType(
+                Function { `object`: Any ->
+                    LiteralText(
+                        "Invalid value '" + (`object` as Array<Any>)[0] + "' for property '" + `object`[1] + "'"
+                    )
+                }
+            )
 
         fun value(
             dependantType: ArgumentType<ConfigLeaf<*>>,

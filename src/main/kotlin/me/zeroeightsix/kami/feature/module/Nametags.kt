@@ -18,8 +18,12 @@ import me.zeroeightsix.kami.util.EntityTargets
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.render.*
+import net.minecraft.client.render.BufferBuilder
+import net.minecraft.client.render.BufferRenderer
+import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.OverlayTexture.DEFAULT_UV
+import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.render.item.ItemRenderer
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.SpriteAtlasTexture
@@ -37,7 +41,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.registry.Registry
 import org.lwjgl.opengl.GL11
-import java.util.*
+import java.util.Optional
 import kotlin.math.roundToInt
 
 @Info(
@@ -285,7 +289,6 @@ object Nametags : Module() {
                         item.renderGuiItemOverlay(stack = it, matrices = event.matrixStack)
                         event.matrixStack.translate(16.0, 0.0, 0.0)
                     }
-
                 }
 
                 RenderSystem.disableAlphaTest()
@@ -411,13 +414,20 @@ object Nametags : Module() {
 
                 bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
                 bufferBuilder.drawQuad(
-                    2f, 13f,
-                    13, 2,
-                    0, 0, 0, 255
+                    2f,
+                    13f,
+                    13,
+                    2,
+                    0,
+                    0,
+                    0,
+                    255
                 )
                 bufferBuilder.drawQuad(
-                    2f, 13f,
-                    i, 1,
+                    2f,
+                    13f,
+                    i,
+                    1,
                     j shr 16 and 255,
                     j shr 8 and 255,
                     j and 255,
@@ -445,8 +455,10 @@ object Nametags : Module() {
                 val bufferBuilder = tessellator2.buffer
                 bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR)
                 bufferBuilder.drawQuad(
-                    0f, MathHelper.floor(16.0f * (1.0f - k)).toFloat(),
-                    16, MathHelper.ceil(16.0f * k),
+                    0f,
+                    MathHelper.floor(16.0f * (1.0f - k)).toFloat(),
+                    16,
+                    MathHelper.ceil(16.0f * k),
                     255,
                     255,
                     255,
@@ -460,5 +472,4 @@ object Nametags : Module() {
             }
         }
     }
-
 }

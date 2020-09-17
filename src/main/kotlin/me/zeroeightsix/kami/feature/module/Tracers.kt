@@ -1,6 +1,10 @@
 package me.zeroeightsix.kami.feature.module
 
-import com.mojang.blaze3d.platform.GlStateManager.*
+import com.mojang.blaze3d.platform.GlStateManager.disableDepthTest
+import com.mojang.blaze3d.platform.GlStateManager.disableTexture
+import com.mojang.blaze3d.platform.GlStateManager.enableDepthTest
+import com.mojang.blaze3d.platform.GlStateManager.enableTexture
+import com.mojang.blaze3d.platform.GlStateManager.lineWidth
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
@@ -71,7 +75,6 @@ object Tracers : Module() {
                 }
 
             tessellator.draw()
-
         }
 
         enableTexture()

@@ -5,7 +5,23 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
-import me.zeroeightsix.kami.mixin.extend.*
+import me.zeroeightsix.kami.mixin.extend.a00
+import me.zeroeightsix.kami.mixin.extend.a01
+import me.zeroeightsix.kami.mixin.extend.a02
+import me.zeroeightsix.kami.mixin.extend.a03
+import me.zeroeightsix.kami.mixin.extend.a10
+import me.zeroeightsix.kami.mixin.extend.a11
+import me.zeroeightsix.kami.mixin.extend.a12
+import me.zeroeightsix.kami.mixin.extend.a13
+import me.zeroeightsix.kami.mixin.extend.a20
+import me.zeroeightsix.kami.mixin.extend.a21
+import me.zeroeightsix.kami.mixin.extend.a22
+import me.zeroeightsix.kami.mixin.extend.a23
+import me.zeroeightsix.kami.mixin.extend.a30
+import me.zeroeightsix.kami.mixin.extend.a31
+import me.zeroeightsix.kami.mixin.extend.a32
+import me.zeroeightsix.kami.mixin.extend.a33
+import me.zeroeightsix.kami.mixin.extend.getStack
 import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.minus
 import me.zeroeightsix.kami.util.plus
@@ -24,7 +40,7 @@ import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
-/// Quality of life and primitive extensions
+// / Quality of life and primitive extensions
 
 /**
  * If `true`, compute a value. Else, return `null`.
@@ -61,7 +77,7 @@ inline fun unreachable(): Nothing = TODO()
 
 fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
 
-/// Collection/iterable utilities
+// / Collection/iterable utilities
 
 fun <T> Iterator<T>.forEachRemainingIndexed(startAt: Int = 0, action: (Int, T) -> Unit) {
     var index = startAt
@@ -115,7 +131,7 @@ inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
     return sum
 }
 
-/// Math
+// / Math
 
 inline fun MatrixStack.matrix(block: () -> Unit) {
     push()
@@ -136,7 +152,7 @@ fun createIdentityMatrixStackEntry(): MatrixStack.Entry {
 operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
 
 fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
-    with (matrixStack) {
+    with(matrixStack) {
         val entry = createIdentityMatrixStackEntry()
         entry.model.multiply(mc.gameRenderer.getBasicProjectionMatrix(mc.gameRenderer.camera, mc.tickDelta, true))
         push(entry)
@@ -174,7 +190,7 @@ fun Entity.getInterpolatedPos(tickDelta: Float = mc.tickDelta): Vec3d {
     return prev + (pos - prev) * tickDelta.toDouble()
 }
 
-/// Rendering
+// / Rendering
 
 data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())

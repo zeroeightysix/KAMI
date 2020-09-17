@@ -25,5 +25,6 @@ object Information : TextPinnableWidget(
                 }
             )
         )
-    ), position = Position.TOP_LEFT
+    ),
+    position = Position.TOP_LEFT
 )

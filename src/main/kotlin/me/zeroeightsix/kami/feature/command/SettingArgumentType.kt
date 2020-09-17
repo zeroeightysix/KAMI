@@ -58,12 +58,15 @@ class SettingArgumentType(
             if (contains(' ')) return "\"$this\""
             return this
         }
-        return CommandSource.suggestMatching(f.config.items.stream().filter {
-            it.getAttributeValue(
-                FiberId("kami", "setting_visibility"),
-                visibilityType
-            ).map { sup -> sup.isVisible() }.orElse(true)
-        }.map { it.name.quoteIfNecessary() }, builder)
+        return CommandSource.suggestMatching(
+            f.config.items.stream().filter {
+                it.getAttributeValue(
+                    FiberId("kami", "setting_visibility"),
+                    visibilityType
+                ).map { sup -> sup.isVisible() }.orElse(true)
+            }.map { it.name.quoteIfNecessary() },
+            builder
+        )
     }
 
     override fun getExamples(): Collection<String> {
@@ -73,11 +76,13 @@ class SettingArgumentType(
     companion object {
         private val EXAMPLES: Collection<String> = listOf("enabled", "speed")
         val INVALID_SETTING_EXCEPTION =
-            DynamicCommandExceptionType(Function { `object`: Any ->
-                LiteralText(
-                    "Unknown setting '" + (`object` as Array<*>)[0] + "' for feature " + `object`[1]
-                )
-            })
+            DynamicCommandExceptionType(
+                Function { `object`: Any ->
+                    LiteralText(
+                        "Unknown setting '" + (`object` as Array<*>)[0] + "' for feature " + `object`[1]
+                    )
+                }
+            )
 
         fun setting(
             dependentType: FeatureArgumentType<FullFeature>,

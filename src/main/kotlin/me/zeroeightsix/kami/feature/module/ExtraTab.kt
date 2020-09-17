@@ -27,5 +27,4 @@ object ExtraTab : Module() {
         return if (highlightFriends && isFriend(dname!!.string)) dname.shallowCopy()
             .formatted(Formatting.GREEN) else dname
     }
-
 }

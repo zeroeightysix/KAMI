@@ -4,7 +4,13 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.multiplyMatrix
 import me.zeroeightsix.kami.toScreen
 import net.minecraft.client.util.math.Vector4f
-import net.minecraft.util.math.*
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Matrix4f
+import net.minecraft.util.math.Position
+import net.minecraft.util.math.Quaternion
+import net.minecraft.util.math.Vec2f
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 
 operator fun Vec3d.not(): Vec3d = this.negate()
 operator fun Vec3d.plus(other: Position) = Vec3d(this.x + other.x, this.y + other.y, this.z + other.z)
@@ -67,5 +73,4 @@ object VectorMath {
         if (vec == null) return null
         return Vec2f(vec.x / factor, vec.y / factor)
     }
-
 }

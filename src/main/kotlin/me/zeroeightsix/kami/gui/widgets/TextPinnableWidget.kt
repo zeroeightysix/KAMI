@@ -55,8 +55,10 @@ open class TextPinnableWidget(
                 val str = part.toString()
                 val (w, h) = if (part.multiline) {
                     val lines = str.split("\n")
-                    (lines.map { slice -> mc.textRenderer.getWidth(slice) }.max()
-                        ?: 0) to lines.size * (fontHeight - 2) // multiline strings have less spacing between new lines
+                    (
+                        lines.map { slice -> mc.textRenderer.getWidth(slice) }.max()
+                            ?: 0
+                        ) to lines.size * (fontHeight - 2) // multiline strings have less spacing between new lines
                 } else {
                     mc.textRenderer.getWidth(str) to fontHeight
                 }
@@ -173,8 +175,9 @@ open class TextPinnableWidget(
                 fun align(width: Float = calcFullWidth()) = when (alignment) {
                     Alignment.LEFT -> Unit
                     Alignment.CENTER -> cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
-                    Alignment.RIGHT -> cursorPosX =
-                        (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
+                    Alignment.RIGHT ->
+                        cursorPosX =
+                            (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
                 }
 
                 for ((part, str, _) in triplets) {
@@ -239,9 +242,11 @@ open class TextPinnableWidget(
         }
 
         if (minecraftFont && !guiOpen && text.isNotEmpty()) {
-            val width = (immediateText.map {
-                it.sumByFloat { it.third.x }
-            }.max() ?: 0f) + style.windowPadding.x * 2
+            val width = (
+                immediateText.map {
+                    it.sumByFloat { it.third.x }
+                }.max() ?: 0f
+                ) + style.windowPadding.x * 2
             val height = immediateText.mapNotNull {
                 it.map { it.third.y }.max()
             }.sum() + style.windowPadding.y * 2
@@ -349,5 +354,4 @@ open class TextPinnableWidget(
     enum class Ordering {
         ORIGINAL, WIDTH_ASCENDING, WIDTH_DESCENDING
     }
-
 }

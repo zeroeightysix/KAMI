@@ -131,5 +131,4 @@ object EntitySpeed : Module() {
 
     private val boat: BoatEntity?
         get() = if (mc.player?.vehicle != null && mc.player!!.vehicle is BoatEntity) mc.player!!.vehicle as BoatEntity? else null
-
 }

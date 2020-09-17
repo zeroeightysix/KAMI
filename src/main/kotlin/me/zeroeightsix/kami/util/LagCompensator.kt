@@ -7,7 +7,7 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.PacketEvent.Receive
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket
 import net.minecraft.util.math.MathHelper
-import java.util.*
+import java.util.Arrays
 
 object LagCompensator : Listenable {
     private val tickRates = FloatArray(20)
@@ -20,7 +20,8 @@ object LagCompensator : Listenable {
             if (event.packet is WorldTimeUpdateS2CPacket) {
                 onTimeUpdate()
             }
-        })
+        }
+    )
 
     fun reset() {
         nextIndex = 0

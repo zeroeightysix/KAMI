@@ -70,5 +70,4 @@ object ESP : Module() {
             entityOutlinesFramebuffer = null
         }
     }
-
 }

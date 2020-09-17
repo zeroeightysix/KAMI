@@ -14,10 +14,21 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationEx
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.*
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.EnumConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.NumberConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.*
-import me.zeroeightsix.kami.*
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
+import me.zeroeightsix.kami.Colour
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
@@ -31,7 +42,16 @@ import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
-import me.zeroeightsix.kami.util.*
+import me.zeroeightsix.kami.splitFirst
+import me.zeroeightsix.kami.then
+import me.zeroeightsix.kami.unsignedInt
+import me.zeroeightsix.kami.util.Bind
+import me.zeroeightsix.kami.util.BlockTarget
+import me.zeroeightsix.kami.util.BlockTargets
+import me.zeroeightsix.kami.util.EntityTarget
+import me.zeroeightsix.kami.util.EntityTargets
+import me.zeroeightsix.kami.util.Friends
+import me.zeroeightsix.kami.util.createTargetsType
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import org.reflections.Reflections
@@ -41,11 +61,11 @@ import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-import java.util.*
+import java.util.Collections
+import java.util.UUID
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.collections.ArrayList
 import kotlin.math.log10
 
 object KamiConfig {
@@ -60,27 +80,39 @@ object KamiConfig {
 
     val mutableListTypeProcessor = ParameterizedTypeProcessor {
         fun <T> makeMutableListType(type: ConfigType<T, *, *>) =
-            ConfigTypes.makeList(type).derive(ArrayList::class.java, {
-                ArrayList(it)
-            }, {
-                it
-            })
+            ConfigTypes.makeList(type).derive(
+                ArrayList::class.java,
+                {
+                    ArrayList(it)
+                },
+                {
+                    it
+                }
+            )
         makeMutableListType(it[0])
     }
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val entityTargetType = ConfigTypes.STRING.derive(EntityTarget::class.java, {
-        EntityTarget.valueOf(it)
-    }, {
-        it.name
-    })
+    val entityTargetType = ConfigTypes.STRING.derive(
+        EntityTarget::class.java,
+        {
+            EntityTarget.valueOf(it)
+        },
+        {
+            it.name
+        }
+    )
 
-    val blockTargetType = ConfigTypes.STRING.derive(BlockTarget::class.java, {
-        BlockTarget.valueOf(it)
-    }, {
-        it.name
-    })
+    val blockTargetType = ConfigTypes.STRING.derive(
+        BlockTarget::class.java,
+        {
+            BlockTarget.valueOf(it)
+        },
+        {
+            it.name
+        }
+    )
 
     fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<EntityTargets<M>, S>? {
         return createTargetsType(
@@ -110,27 +142,35 @@ object KamiConfig {
 
     val colourType =
         ConfigTypes.STRING
-            .derive(Colour::class.java, {
-                Colour.fromARGB((it.toLongOrNull(radix = 16) ?: 0xFFFFFFFF).unsignedInt)
-            }, {
-                it.asARGB().asHexString
-            })
-            .extend({
-                it.asARGB().asHexString
-            }, {
-                Colour.fromARGB(it.toInt(radix = 16))
-            }, { name, colour ->
-                with(ImGui) {
-                    val floats = colour.asFloatRGBA().toFloatArray()
-                    colorEdit4(
-                        name,
-                        floats,
-                        ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
-                    ) then {
-                        Colour(floats[3], floats[0], floats[1], floats[2])
+            .derive(
+                Colour::class.java,
+                {
+                    Colour.fromARGB((it.toLongOrNull(radix = 16) ?: 0xFFFFFFFF).unsignedInt)
+                },
+                {
+                    it.asARGB().asHexString
+                }
+            )
+            .extend(
+                {
+                    it.asARGB().asHexString
+                },
+                {
+                    Colour.fromARGB(it.toInt(radix = 16))
+                },
+                { name, colour ->
+                    with(ImGui) {
+                        val floats = colour.asFloatRGBA().toFloatArray()
+                        colorEdit4(
+                            name,
+                            floats,
+                            ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
+                        ) then {
+                            Colour(floats[3], floats[0], floats[1], floats[2])
+                        }
                     }
                 }
-            })
+            )
 
     val colourModeType = ConfigTypes.makeEnum(CompiledText.Part.ColourMode::class.java)
     val partSerializableType = RecordSerializableType(
@@ -148,86 +188,99 @@ object KamiConfig {
             "colour" to colourType.serializedType
         )
     )
-    val variableType = ConfigTypes.STRING.derive(CompiledText.Variable::class.java, {
-        (VarMap[it] ?: VarMap["none"]!!)()
-    }, {
-        it.name
-    })
-    val numericalVariableType = variableType.derive(CompiledText.NumericalVariable::class.java, {
-        it as CompiledText.NumericalVariable
-    }, {
-        it
-    })
-    val partType = RecordConfigType(partSerializableType, CompiledText.Part::class.java, {
-        val obfuscated = it["obfuscated"] as Boolean
-        val bold = it["bold"] as Boolean
-        val strike = it["strike"] as Boolean
-        val underline = it["underline"] as Boolean
-        val italic = it["italic"] as Boolean
-        val shadow = it["shadow"] as Boolean
-        val extraspace = it["extraspace"] as Boolean
-        val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
-        val type = it["type"] as String
-        val value = it["value"] as String
-        val colour = colourType.toRuntimeType(it["colour"] as String)
+    val variableType = ConfigTypes.STRING.derive(
+        CompiledText.Variable::class.java,
+        {
+            (VarMap[it] ?: VarMap["none"]!!)()
+        },
+        {
+            it.name
+        }
+    )
+    val numericalVariableType = variableType.derive(
+        CompiledText.NumericalVariable::class.java,
+        {
+            it as CompiledText.NumericalVariable
+        },
+        {
+            it
+        }
+    )
+    val partType = RecordConfigType(
+        partSerializableType,
+        CompiledText.Part::class.java,
+        {
+            val obfuscated = it["obfuscated"] as Boolean
+            val bold = it["bold"] as Boolean
+            val strike = it["strike"] as Boolean
+            val underline = it["underline"] as Boolean
+            val italic = it["italic"] as Boolean
+            val shadow = it["shadow"] as Boolean
+            val extraspace = it["extraspace"] as Boolean
+            val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
+            val type = it["type"] as String
+            val value = it["value"] as String
+            val colour = colourType.toRuntimeType(it["colour"] as String)
 
-        val part = when (type) {
-            "literal" -> CompiledText.LiteralPart(
-                value,
-                obfuscated,
-                bold,
-                strike,
-                underline,
-                italic,
-                shadow,
-                colourMode,
-                extraspace
-            )
-            "variable" -> CompiledText.VariablePart(
-                variableType.toRuntimeType(value),
-                obfuscated,
-                bold,
-                strike,
-                underline,
-                italic,
-                shadow,
-                colourMode,
-                extraspace
-            )
-            else -> CompiledText.LiteralPart(
-                "Invalid part",
-                obfuscated,
-                bold,
-                strike,
-                underline,
-                italic,
-                shadow,
-                colourMode,
-                extraspace
+            val part = when (type) {
+                "literal" -> CompiledText.LiteralPart(
+                    value,
+                    obfuscated,
+                    bold,
+                    strike,
+                    underline,
+                    italic,
+                    shadow,
+                    colourMode,
+                    extraspace
+                )
+                "variable" -> CompiledText.VariablePart(
+                    variableType.toRuntimeType(value),
+                    obfuscated,
+                    bold,
+                    strike,
+                    underline,
+                    italic,
+                    shadow,
+                    colourMode,
+                    extraspace
+                )
+                else -> CompiledText.LiteralPart(
+                    "Invalid part",
+                    obfuscated,
+                    bold,
+                    strike,
+                    underline,
+                    italic,
+                    shadow,
+                    colourMode,
+                    extraspace
+                )
+            }
+            part.colour = colour.asVec4()
+            part
+        },
+        {
+            val (type, value) = when (it) {
+                is CompiledText.LiteralPart -> "literal" to it.string
+                is CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
+                else -> throw IllegalStateException("Unknown part type")
+            }
+            mapOf(
+                "obfuscated" to it.obfuscated,
+                "bold" to it.bold,
+                "strike" to it.strike,
+                "underline" to it.underline,
+                "italic" to it.italic,
+                "shadow" to it.shadow,
+                "extraspace" to it.extraspace,
+                "colourMode" to colourModeType.toSerializedType(it.colourMode),
+                "type" to type,
+                "value" to value,
+                "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour))
             )
         }
-        part.colour = colour.asVec4()
-        part
-    }, {
-        val (type, value) = when (it) {
-            is CompiledText.LiteralPart -> "literal" to it.string
-            is CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
-            else -> throw IllegalStateException("Unknown part type")
-        }
-        mapOf(
-            "obfuscated" to it.obfuscated,
-            "bold" to it.bold,
-            "strike" to it.strike,
-            "underline" to it.underline,
-            "italic" to it.italic,
-            "shadow" to it.shadow,
-            "extraspace" to it.extraspace,
-            "colourMode" to colourModeType.toSerializedType(it.colourMode),
-            "type" to type,
-            "value" to value,
-            "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour))
-        )
-    })
+    )
     val compiledTextType = ConfigTypes.makeList(partType).derive(
         CompiledText::class.java,
         {
@@ -236,15 +289,23 @@ object KamiConfig {
         {
             it.parts
         }
-    ).extend({
-        it.toString()
-    }, {
-        throw InvalidValueException("CompiledTexts can not be made from text")
-    }, { name, text ->
-        text.edit(name, false, selectedAction = { part ->
-            part.editValue(VarMap.inner)
-        }) then { text }
-    })
+    ).extend(
+        {
+            it.toString()
+        },
+        {
+            throw InvalidValueException("CompiledTexts can not be made from text")
+        },
+        { name, text ->
+            text.edit(
+                name,
+                false,
+                selectedAction = { part ->
+                    part.editValue(VarMap.inner)
+                }
+            ) then { text }
+        }
+    )
     val listOfCompiledTextType = ConfigTypes.makeList(compiledTextType)
     val positionType = ConfigTypes.makeEnum(PinnableWidget.Position::class.java)
     val alignmentType = ConfigTypes.makeEnum(TextPinnableWidget.Alignment::class.java)
@@ -258,104 +319,124 @@ object KamiConfig {
             "ordering" to orderingType.serializedType
         )
     )
-    val textPinnableWidgetType = RecordConfigType(textPinnableSerializableType, TextPinnableWidget::class.java, {
-        val title = it["title"] as String
-        val position = positionType.toRuntimeType(it["position"] as String?)
-        val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
-        val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
-        val ordering = orderingType.toRuntimeType(it["ordering"] as String?)
-        TextPinnableWidget(title, texts.toMutableList(), position, alignment, ordering)
-    }, {
-        mapOf(
-            "texts" to listOfCompiledTextType.toSerializedType(it.text),
-            "title" to it.title,
-            "position" to positionType.toSerializedType(it.position),
-            "alignment" to alignmentType.toSerializedType(it.alignment),
-            "ordering" to orderingType.toSerializedType(it.ordering)
-        )
-    })
-    val moduleType = ConfigTypes.STRING.derive<Module>(Module::class.java, { name ->
-        FeatureManager.modules.find { it.name == name }
-    }, { m ->
-        m.name
-    })
+    val textPinnableWidgetType = RecordConfigType(
+        textPinnableSerializableType,
+        TextPinnableWidget::class.java,
+        {
+            val title = it["title"] as String
+            val position = positionType.toRuntimeType(it["position"] as String?)
+            val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
+            val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
+            val ordering = orderingType.toRuntimeType(it["ordering"] as String?)
+            TextPinnableWidget(title, texts.toMutableList(), position, alignment, ordering)
+        },
+        {
+            mapOf(
+                "texts" to listOfCompiledTextType.toSerializedType(it.text),
+                "title" to it.title,
+                "position" to positionType.toSerializedType(it.position),
+                "alignment" to alignmentType.toSerializedType(it.alignment),
+                "ordering" to orderingType.toSerializedType(it.ordering)
+            )
+        }
+    )
+    val moduleType = ConfigTypes.STRING.derive<Module>(
+        Module::class.java,
+        { name ->
+            FeatureManager.modules.find { it.name == name }
+        },
+        { m ->
+            m.name
+        }
+    )
     val moduleListType = ConfigTypes.makeList(moduleType)
     val modulesGroupsType = ConfigTypes.makeMap(ConfigTypes.STRING, moduleListType)
     val windowsType = ConfigTypes.makeMap(ConfigTypes.STRING, modulesGroupsType)
-        .derive(Modules.Windows::class.java, {
-            val windows = mutableListOf<Modules.ModuleWindow>()
-            for ((nameAndId, groups) in it) {
-                val (id, name) = nameAndId.splitFirst('-')
-                windows.add(
-                    Modules.ModuleWindow(
-                        name,
-                        groups = groups.mapValues { it.value.toMutableList() }.toMutableMap(),
-                        id = id.toInt()
+        .derive(
+            Modules.Windows::class.java,
+            {
+                val windows = mutableListOf<Modules.ModuleWindow>()
+                for ((nameAndId, groups) in it) {
+                    val (id, name) = nameAndId.splitFirst('-')
+                    windows.add(
+                        Modules.ModuleWindow(
+                            name,
+                            groups = groups.mapValues { it.value.toMutableList() }.toMutableMap(),
+                            id = id.toInt()
+                        )
                     )
-                )
+                }
+                Modules.Windows(windows)
+            },
+            {
+                val map = mutableMapOf<String, Map<String, List<Module>>>()
+                for (window in it) {
+                    val nameAndId = "${window.id}-${window.title}"
+                    map[nameAndId] = window.groups.toMutableMap()
+                }
+                map
             }
-            Modules.Windows(windows)
-        }, {
-            val map = mutableMapOf<String, Map<String, List<Module>>>()
-            for (window in it) {
-                val nameAndId = "${window.id}-${window.title}"
-                map[nameAndId] = window.groups.toMutableMap()
-            }
-            map
-        })
+        )
 
     val bindType = ConfigTypes.STRING
-        .derive(Bind::class.java, {
-            var s = it.toLowerCase()
+        .derive(
+            Bind::class.java,
+            {
+                var s = it.toLowerCase()
 
-            fun remove(part: String): Boolean {
-                val removed = s.replace(part, "")
-                val changed = s != removed
-                s = removed
-                return changed
-            }
-
-            val ctrl = remove("ctrl+")
-            val alt = remove("alt+")
-            val shift = remove("shift+")
-
-            s = s.removePrefix("key.keyboard.")
-
-            Bind(
-                ctrl,
-                alt,
-                shift,
-                bindMap[s] ?: Bind.Code.none()
-            )
-        }, {
-            var s = ""
-            if (it.isCtrl) s += "ctrl+"
-            if (it.isAlt) s += "alt+"
-            if (it.isShift) s += "shift+"
-            s += it.code.translationKey
-            s
-        })
-        .extend({ _, bind ->
-            with(ImGui) {
-                text("Bound to $bind") // TODO: Highlight bind in another color?
-                sameLine(0, -1)
-                if (button("Bind", Vec2())) { // TODO: Bind popup?
-                    // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+                fun remove(part: String): Boolean {
+                    val removed = s.replace(part, "")
+                    val changed = s != removed
+                    s = removed
+                    return changed
                 }
+
+                val ctrl = remove("ctrl+")
+                val alt = remove("alt+")
+                val shift = remove("shift+")
+
+                s = s.removePrefix("key.keyboard.")
+
+                Bind(
+                    ctrl,
+                    alt,
+                    shift,
+                    bindMap[s] ?: Bind.Code.none()
+                )
+            },
+            {
+                var s = ""
+                if (it.isCtrl) s += "ctrl+"
+                if (it.isAlt) s += "alt+"
+                if (it.isShift) s += "shift+"
+                s += it.code.translationKey
+                s
             }
-            null
-        }, { _, b ->
-            val range = 0..b.remaining.lastIndexOf('+')
-            val left = b.remaining.substring(range)
-            val right = b.remaining.toLowerCase().removeRange(range)
-            Stream.concat(
-                listOf("ctrl+", "shift+", "alt+").stream(),
-                bindMap.keys.stream()
-            ).forEach {
-                if (it.startsWith(right)) b.suggest("$left$it")
+        )
+        .extend(
+            { _, bind ->
+                with(ImGui) {
+                    text("Bound to $bind") // TODO: Highlight bind in another color?
+                    sameLine(0, -1)
+                    if (button("Bind", Vec2())) { // TODO: Bind popup?
+                        // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
+                    }
+                }
+                null
+            },
+            { _, b ->
+                val range = 0..b.remaining.lastIndexOf('+')
+                val left = b.remaining.substring(range)
+                val right = b.remaining.toLowerCase().removeRange(range)
+                Stream.concat(
+                    listOf("ctrl+", "shift+", "alt+").stream(),
+                    bindMap.keys.stream()
+                ).forEach {
+                    if (it.startsWith(right)) b.suggest("$left$it")
+                }
+                b.buildFuture()
             }
-            b.buildFuture()
-        })
+        )
 
     val profileType =
         ConfigTypes.makeMap(ConfigTypes.STRING, ConfigTypes.STRING)
@@ -390,14 +471,17 @@ object KamiConfig {
         ConfigTypes.BOOLEAN.extend(
             {
                 it.toString()
-            }, {
+            },
+            {
                 it.toBoolean()
-            }, { name, bool ->
+            },
+            { name, bool ->
                 val bArray = booleanArrayOf(bool)
                 if (ImGui.checkbox(name, bArray)) {
                     bArray[0]
                 } else null
-            }, { _, b -> CommandSource.suggestMatching(listOf("true", "false"), b) }
+            },
+            { _, b -> CommandSource.suggestMatching(listOf("true", "false"), b) }
         )
     }
 
@@ -418,6 +502,7 @@ object KamiConfig {
     }
 
     var float: Float = 0f
+
     /**
      * Sets `type`'s [SettingInterface] to an applicable generic setting interface, if available.
      *
@@ -429,59 +514,74 @@ object KamiConfig {
             // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
             is NumberConfigType<*> -> {
                 val type = (type as NumberConfigType<Any>)
-                type.extend({
-                    it.toString()
-                }, {
-                    type.toRuntimeType(BigDecimal(it))
-                }, { name, value ->
-                    val sType = type.serializedType
-                    this.float = type.toSerializedType(value).toFloat()
-                    val increment = sType.increment?.toFloat() ?: 1.0f
-                    val precision = log10(1f / increment).floor.toInt()
-                    val format = "%.${precision}f"
-                    ImGui.dragFloat(
-                        name,
-                        ::float,
-                        vSpeed = increment,
-                        vMin = sType.minimum?.toFloat() ?: 0f,
-                        vMax = sType.maximum?.toFloat() ?: 0f,
-                        format = format
-                    ).then {
-                        // If the value changed, return it
-                        // of course we also need to correct the type again
-                        type.toRuntimeType(BigDecimal.valueOf(float.toDouble()))
-                    } // If it didn't change, this will return null
-                }, type = "number")
+                type.extend(
+                    {
+                        it.toString()
+                    },
+                    {
+                        type.toRuntimeType(BigDecimal(it))
+                    },
+                    { name, value ->
+                        val sType = type.serializedType
+                        this.float = type.toSerializedType(value).toFloat()
+                        val increment = sType.increment?.toFloat() ?: 1.0f
+                        val precision = log10(1f / increment).floor.toInt()
+                        val format = "%.${precision}f"
+                        ImGui.dragFloat(
+                            name,
+                            ::float,
+                            vSpeed = increment,
+                            vMin = sType.minimum?.toFloat() ?: 0f,
+                            vMax = sType.maximum?.toFloat() ?: 0f,
+                            format = format
+                        ).then {
+                            // If the value changed, return it
+                            // of course we also need to correct the type again
+                            type.toRuntimeType(BigDecimal.valueOf(float.toDouble()))
+                        } // If it didn't change, this will return null
+                    },
+                    type = "number"
+                )
             }
             is EnumConfigType<*> -> {
                 val type = (type as EnumConfigType<Any>)
                 val values = type.serializedType.validValues.toList()
-                type.extend({
-                    it.toString()
-                }, {
-                    type.toRuntimeType(it)
-                }, { name, value ->
-                    val index = values.indexOf(type.toSerializedType(value))
-                    val array = intArrayOf(index)
-                    ImGui.combo(name, array, values).then {
-                        type.toRuntimeType(values[array[0]])
-                    }
-                }, { _, b ->
-                    CommandSource.suggestMatching(values, b)
-                }, type = "enum")
+                type.extend(
+                    {
+                        it.toString()
+                    },
+                    {
+                        type.toRuntimeType(it)
+                    },
+                    { name, value ->
+                        val index = values.indexOf(type.toSerializedType(value))
+                        val array = intArrayOf(index)
+                        ImGui.combo(name, array, values).then {
+                            type.toRuntimeType(values[array[0]])
+                        }
+                    },
+                    { _, b ->
+                        CommandSource.suggestMatching(values, b)
+                    },
+                    type = "enum"
+                )
             }
             is StringConfigType<*> -> {
                 val type = (type as StringConfigType<Any>)
-                type.extend({
-                    it.toString()
-                }, {
-                    it
-                }, { name, value ->
-                    val array = type.toSerializedType(value).encodeToByteArray()
-                    array.copyInto(this.strBuffer)
-                    strBuffer[array.size] = NUL.toByte()
-                    if (ImGui.inputText(name, strBuffer)) strBuffer.cStr else null
-                })
+                type.extend(
+                    {
+                        it.toString()
+                    },
+                    {
+                        it
+                    },
+                    { name, value ->
+                        val array = type.toSerializedType(value).encodeToByteArray()
+                        array.copyInto(this.strBuffer)
+                        strBuffer[array.size] = NUL.toByte()
+                        if (ImGui.inputText(name, strBuffer)) strBuffer.cStr else null
+                    }
+                )
             }
         }
     }
@@ -586,7 +686,6 @@ object KamiConfig {
                     }
                 }
             }
-
         }
 
         val built = builder.build()
@@ -612,11 +711,13 @@ object KamiConfig {
     ) {
         val features = builder.fork("features")
         // only full features because they have names
-        fullFeatures.forEach(Consumer { f: FullFeature ->
-            f.config = features.fork(f.name)
-                .applyFromPojo(f, settings)
-                .build()
-        })
+        fullFeatures.forEach(
+            Consumer { f: FullFeature ->
+                f.config = features.fork(f.name)
+                    .applyFromPojo(f, settings)
+                    .build()
+            }
+        )
         features.finishBranch()
     }
 
@@ -661,5 +762,4 @@ object KamiConfig {
             )
         }
     }
-
 }

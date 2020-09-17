@@ -12,7 +12,7 @@ import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasBind
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
-import java.util.*
+import java.util.NoSuchElementException
 import java.util.concurrent.CompletableFuture
 
 class FeatureArgumentType<T>(val clazz: Class<T>) : ArgumentType<T> {
@@ -20,8 +20,10 @@ class FeatureArgumentType<T>(val clazz: Class<T>) : ArgumentType<T> {
     override fun parse(reader: StringReader): T {
         val string = reader.readUnquotedString()
         try {
-            return clazz.cast(features.filter { clazz.isInstance(it) }
-                .first { it.name.equals(string, ignoreCase = true) })
+            return clazz.cast(
+                features.filter { clazz.isInstance(it) }
+                    .first { it.name.equals(string, ignoreCase = true) }
+            )
         } catch (e: NoSuchElementException) {
             throw INVALID_MODULE_EXCEPTION.create(string)
         }

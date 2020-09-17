@@ -57,5 +57,4 @@ object PluginCommand : Command() {
                 +"is already ${word}d."
             }
     }
-
 }

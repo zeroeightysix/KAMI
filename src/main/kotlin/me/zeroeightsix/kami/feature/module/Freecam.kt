@@ -111,5 +111,4 @@ object Freecam : Module() {
     operator fun Boolean.times(times: Float) = if (this) {
         times
     } else 0f
-
 }

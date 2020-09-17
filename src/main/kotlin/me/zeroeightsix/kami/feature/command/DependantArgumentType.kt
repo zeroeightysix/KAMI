@@ -40,5 +40,4 @@ abstract class DependantArgumentType<T, D>(
         }
         reader.skip() // We just found a space; skip it.
     }
-
 }

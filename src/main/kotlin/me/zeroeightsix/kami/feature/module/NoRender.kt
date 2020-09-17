@@ -4,7 +4,11 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PacketEvent
-import net.minecraft.network.packet.s2c.play.*
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
+import net.minecraft.network.packet.s2c.play.ExperienceOrbSpawnS2CPacket
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
+import net.minecraft.network.packet.s2c.play.LightUpdateS2CPacket
+import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket
 
 @Module.Info(
     name = "NoRender",

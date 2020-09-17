@@ -27,7 +27,7 @@ public class AntiAFK extends Module {
         if (mc.player.age % 40 == 0 && swing)
             mc.getNetworkHandler().getConnection().send(new PlayerInteractItemC2SPacket(Hand.MAIN_HAND));
         if (mc.player.age % 15 == 0 && turn)
-            mc.player.yaw = random.nextInt(360) - 180;
+            mc.player.yaw = random.nextFloat() * 360f - 180f;
 
         if (!(swing || turn) && mc.player.age % 80 == 0) {
             mc.player.jump();

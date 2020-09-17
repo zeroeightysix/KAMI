@@ -180,15 +180,15 @@ object Themes {
             colors[Col.MenuBarBg](0.20f, 0.22f, 0.27f, 0.47f)
             colors[Col.ScrollbarBg](0.20f, 0.22f, 0.27f, 1.00f)
             colors[Col.ScrollbarGrab](0.09f, 0.15f, 0.16f, 1.00f)
-            colors[Col.ScrollbarGrabHovered]  (0.46f, 0.12f, 0.30f, 0.78f)
-            colors[Col.ScrollbarGrabActive]   (0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.CheckMark]             (0.71f, 0.22f, 0.27f, 1.00f)
-            colors[Col.SliderGrab]            (0.47f, 0.77f, 0.83f, 0.14f)
-            colors[Col.SliderGrabActive]      (0.71f, 0.22f, 0.27f, 1.00f)
-            colors[Col.Button]                (0.47f, 0.77f, 0.83f, 0.14f)
-            colors[Col.ButtonHovered]         (0.46f, 0.12f, 0.30f, 0.86f)
-            colors[Col.ButtonActive]          (0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.Header]                (0.46f, 0.12f, 0.30f, 0.76f)
+            colors[Col.ScrollbarGrabHovered](0.46f, 0.12f, 0.30f, 0.78f)
+            colors[Col.ScrollbarGrabActive](0.46f, 0.12f, 0.30f, 1.00f)
+            colors[Col.CheckMark](0.71f, 0.22f, 0.27f, 1.00f)
+            colors[Col.SliderGrab](0.47f, 0.77f, 0.83f, 0.14f)
+            colors[Col.SliderGrabActive](0.71f, 0.22f, 0.27f, 1.00f)
+            colors[Col.Button](0.47f, 0.77f, 0.83f, 0.14f)
+            colors[Col.ButtonHovered](0.46f, 0.12f, 0.30f, 0.86f)
+            colors[Col.ButtonActive](0.46f, 0.12f, 0.30f, 1.00f)
+            colors[Col.Header](0.46f, 0.12f, 0.30f, 0.76f)
             colors[Col.HeaderHovered](0.46f, 0.12f, 0.30f, 0.86f)
             colors[Col.HeaderActive](0.50f, 0.08f, 0.26f, 1.00f)
             colors[Col.Separator](0.14f, 0.16f, 0.19f, 1.00f)
@@ -218,5 +218,4 @@ object Themes {
     }
 
     operator fun <T> ArrayList<T>.get(col: Col): T = get(col.i)
-
 }

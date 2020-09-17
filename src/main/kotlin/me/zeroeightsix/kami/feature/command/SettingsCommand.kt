@@ -19,15 +19,23 @@ import me.zeroeightsix.kami.util.text
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting.*
+import net.minecraft.util.Formatting.GOLD
+import net.minecraft.util.Formatting.GRAY
+import net.minecraft.util.Formatting.GREEN
+import net.minecraft.util.Formatting.ITALIC
+import net.minecraft.util.Formatting.LIGHT_PURPLE
+import net.minecraft.util.Formatting.RED
+import net.minecraft.util.Formatting.YELLOW
 import java.util.function.Function
 import java.util.stream.Stream
 
 object SettingsCommand : Command() {
     private val FAILED_EXCEPTION =
-        DynamicCommandExceptionType(Function { o: Any ->
-            LiteralText(o.toString())
-        })
+        DynamicCommandExceptionType(
+            Function { o: Any ->
+                LiteralText(o.toString())
+            }
+        )
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         val featureArgumentType = FeatureArgumentType.fullFeature()
@@ -131,7 +139,8 @@ fun ConfigNode.list(): Stream<Text?> = when (this) {
     }
     is ConfigLeaf<*> -> {
         if (getAttributeValue(FiberId("kami", "setting_visibility"), visibilityType).map { it.isVisible() }
-                .orElse(true)) {
+                .orElse(true)
+        ) {
             Stream.of(this.list())
         } else {
             Stream.empty()

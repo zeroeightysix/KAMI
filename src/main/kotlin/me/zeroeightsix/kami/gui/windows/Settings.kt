@@ -215,5 +215,4 @@ object Settings {
             ImGui.endCombo()
         }
     }
-
 }

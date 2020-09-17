@@ -5,8 +5,17 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.Client.InGame
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
-import me.zeroeightsix.kami.util.*
-import net.minecraft.block.*
+import me.zeroeightsix.kami.util.Wrapper
+import me.zeroeightsix.kami.util.asVec
+import me.zeroeightsix.kami.util.asVec3d
+import me.zeroeightsix.kami.util.div
+import me.zeroeightsix.kami.util.plus
+import net.minecraft.block.Block
+import net.minecraft.block.BlockState
+import net.minecraft.block.BlockWithEntity
+import net.minecraft.block.Blocks
+import net.minecraft.block.FallingBlock
+import net.minecraft.block.ShapeContext
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.LookOnly
@@ -16,7 +25,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
-import java.util.*
+import java.util.Arrays
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
 object Scaffold : Module() {
@@ -134,7 +143,8 @@ object Scaffold : Module() {
         mc.networkHandler!!.sendPacket(
             LookOnly(
                 rotations[0],
-                rotations[1], Wrapper.getPlayer().isOnGround
+                rotations[1],
+                Wrapper.getPlayer().isOnGround
             )
         )
     }
@@ -148,8 +158,8 @@ object Scaffold : Module() {
         val yaw = Math.toDegrees(Math.atan2(diffZ, diffX)).toFloat() - 90f
         val pitch = (-Math.toDegrees(Math.atan2(diffY, diffXZ))).toFloat()
         return floatArrayOf(
-            Wrapper.getPlayer().yaw
-                    + MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
+            Wrapper.getPlayer().yaw +
+                MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
             Wrapper.getPlayer().pitch + MathHelper
                 .wrapDegrees(pitch - Wrapper.getPlayer().pitch)
         )

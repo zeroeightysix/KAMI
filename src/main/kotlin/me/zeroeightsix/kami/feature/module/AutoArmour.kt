@@ -76,20 +76,26 @@ object AutoArmour : Module() {
             // check if armor can be swapped
             // needs 1 free slot where it can put the old armor
             val oldArmor = player.inventory.getArmorStack(armorType)
-            if (oldArmor != ItemStack.EMPTY
-                || player.inventory.emptySlot != -1
+            if (oldArmor != ItemStack.EMPTY ||
+                player.inventory.emptySlot != -1
             ) {
                 // hotbar fix
                 if (slot < 9) slot += 36
 
                 // swap armor
                 mc.interactionManager!!.clickSlot(
-                    0, 8 - armorType, 0,
-                    SlotActionType.QUICK_MOVE, mc.player
+                    0,
+                    8 - armorType,
+                    0,
+                    SlotActionType.QUICK_MOVE,
+                    mc.player
                 )
                 mc.interactionManager!!.clickSlot(
-                    0, slot, 0,
-                    SlotActionType.QUICK_MOVE, mc.player
+                    0,
+                    slot,
+                    0,
+                    SlotActionType.QUICK_MOVE,
+                    mc.player
                 )
                 break
             }

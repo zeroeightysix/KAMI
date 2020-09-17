@@ -101,7 +101,7 @@ class GraphPinnableWidget(
         if (edit && mc.currentScreen is KamiGuiScreen) {
             dsl.window("Edit $name", ::edit, WindowFlag.AlwaysAutoResize.i) {
                 editVarComboIndex = numVarMap.keys.indexOf(this.variable.name)
-                dsl.combo("Variable##${name}-graph-var", ::editVarComboIndex, numVarMapComboItems) {
+                dsl.combo("Variable##$name-graph-var", ::editVarComboIndex, numVarMapComboItems) {
                     numVarMap[numVarMap.keys.toList()[editVarComboIndex]]?.let { it() }?.let {
                         this.variable = it as CompiledText.NumericalVariable
                         this.samples.clear()
@@ -110,7 +110,7 @@ class GraphPinnableWidget(
 
                 // We store in variables instead of doing it in the if statement to prevent the conditional from short-circuiting, and not displaying a slider for one frame.
                 val sampleChanged = ImGui.dragFloat(
-                    "Sample rate##${name}-graph-sr",
+                    "Sample rate##$name-graph-sr",
                     ::sampleRate,
                     vMin = 0f,
                     vMax = 60f,
@@ -118,7 +118,7 @@ class GraphPinnableWidget(
                     format = "%.2f Hz"
                 )
                 val secondsChanged = ImGui.dragFloat(
-                    "Capacity##${name}-graph-capacity-seconds",
+                    "Capacity##$name-graph-capacity-seconds",
                     ::seconds,
                     vMin = 0f,
                     vMax = 60f * 60f,

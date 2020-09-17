@@ -12,11 +12,13 @@ import net.minecraft.entity.player.PlayerEntity
 )
 object Chams : Module() {
     @Setting
-    private var players = true;
+    private var players = true
+
     @Setting
-    private var animals = false;
+    private var animals = false
+
     @Setting
-    private var mobs = false;
+    private var mobs = false
 
     fun renderChams(entity: Entity?): Boolean {
         return if (entity is PlayerEntity) players else if (EntityUtil.isPassive(entity)) animals else mobs

@@ -5,7 +5,8 @@ import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
 
 object Coordinates : TextPinnableWidget(
-    "Coordinates", text = mutableListOf(
+    "Coordinates",
+    text = mutableListOf(
         CompiledText(
             mutableListOf(
                 CompiledText.VariablePart(VarMap["facing_axis"]!!()),
@@ -20,5 +21,6 @@ object Coordinates : TextPinnableWidget(
                 }
             )
         )
-    ), position = Position.BOTTOM_LEFT
+    ),
+    position = Position.BOTTOM_LEFT
 )

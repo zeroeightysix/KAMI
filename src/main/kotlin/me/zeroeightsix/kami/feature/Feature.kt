@@ -6,5 +6,4 @@ interface Feature {
     var hidden: Boolean
 
     fun initListening() {}
-
 }

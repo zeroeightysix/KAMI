@@ -18,7 +18,7 @@ import me.zeroeightsix.kami.tempSet
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
-import java.util.*
+import java.util.Stack
 
 object KamiHud {
 
@@ -56,16 +56,24 @@ object KamiHud {
             return fontCfg
         }
 
-        addKamiFontFromTTF(minecraftiaLocation, 12f, fontCfg {
-            oversample put 1
-            pixelSnapH = true
-            glyphOffset = Vec2(0, -2)
-        })
-        addKamiFontFromTTF(minecraftiaLocation, 24f, fontCfg {
-            oversample put 1
-            pixelSnapH = true
-            glyphOffset = Vec2(0, -2)
-        })
+        addKamiFontFromTTF(
+            minecraftiaLocation,
+            12f,
+            fontCfg {
+                oversample put 1
+                pixelSnapH = true
+                glyphOffset = Vec2(0, -2)
+            }
+        )
+        addKamiFontFromTTF(
+            minecraftiaLocation,
+            24f,
+            fontCfg {
+                oversample put 1
+                pixelSnapH = true
+                glyphOffset = Vec2(0, -2)
+            }
+        )
         ImGui.io.fonts.addFontDefault()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
@@ -92,7 +100,9 @@ object KamiHud {
         implGlfw.newFrame()
         ImGui.newFrame()
 
-        try { block() } finally {
+        try {
+            block()
+        } finally {
             ImGui.render()
             implGl.renderDrawData(ImGui.drawData!!)
             while (!postDrawStack.isEmpty()) {
@@ -120,5 +130,4 @@ object KamiHud {
         if (scaleFactor == 0) scaleFactor = 1
         return scaleFactor
     }
-
 }

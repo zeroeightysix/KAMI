@@ -48,7 +48,7 @@ object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
         super.render(matrices, mouseX, mouseY, delta)
 
         KamiHud.frame(matrices!!) {
-            if (Wizard()) return@frame;
+            if (Wizard()) return@frame
 
             this()
         }
@@ -99,5 +99,4 @@ object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
         super.init()
         ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse
     }
-
 }

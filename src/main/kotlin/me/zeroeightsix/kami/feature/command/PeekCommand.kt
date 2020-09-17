@@ -26,9 +26,11 @@ object PeekCommand : Command(), Listenable {
     var sb: ShulkerBoxBlockEntity? = null
 
     private val FAILED_EXCEPTION =
-        DynamicCommandExceptionType(Function { o: Any ->
-            LiteralText(o.toString())
-        })
+        DynamicCommandExceptionType(
+            Function { o: Any ->
+                LiteralText(o.toString())
+            }
+        )
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher register rootLiteral("peek") {

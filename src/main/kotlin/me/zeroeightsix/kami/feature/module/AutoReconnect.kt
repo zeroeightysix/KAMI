@@ -28,7 +28,7 @@ object AutoReconnect : Module() {
         min = 0.0, /* TODO: Remove when kotlin bug fixed */
         max = java.lang.Double.POSITIVE_INFINITY,
         step = java.lang.Double.MIN_VALUE
-    ) Int = 5;
+    ) Int = 5
 
     @EventHandler
     val closedListener =
@@ -72,13 +72,18 @@ object AutoReconnect : Module() {
             millis -= (a - cTime).toInt()
             cTime = a
             val s = "Reconnecting in " + 0.0.coerceAtLeast(floor(millis.toDouble() / 100) / 10) + "s"
-            textRenderer.drawWithShadow(matrices,s, width / 2 - textRenderer.getWidth(s) / 2.toFloat(), height - 16.toFloat(), 0xffffff)
+            textRenderer.drawWithShadow(
+                matrices,
+                s,
+                width / 2 - textRenderer.getWidth(s) / 2.toFloat(),
+                height - 16.toFloat(),
+                0xffffff
+            )
         }
 
         init {
             cTime = System.currentTimeMillis()
             parent = (disconnected as IDisconnectedScreen).parent
         }
-
     }
 }

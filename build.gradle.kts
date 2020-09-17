@@ -1,4 +1,6 @@
-import Build_gradle.IncludeMethod.*
+import Build_gradle.IncludeMethod.INCLUDE
+import Build_gradle.IncludeMethod.NOT
+import Build_gradle.IncludeMethod.SHADOW
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val minecraft_version: String by project
@@ -90,7 +92,7 @@ dependencies {
     }
     depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
 
-    //Discord RPC
+    // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
 
     // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.

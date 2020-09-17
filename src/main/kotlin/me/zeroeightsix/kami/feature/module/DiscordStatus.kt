@@ -51,23 +51,23 @@ object DiscordStatus : Module() {
 
     @EventHandler
     private val updateListener =
-            Listener<TickEvent.Client.InGame>({
-                if ((lastUpdate + updateLimit <= System.currentTimeMillis())) {
-                    // This is the bottom half of the RPC with server ip and funny message
-                    val presence = DiscordRichPresence.Builder(secondLine.toString())
-                        // This is the top half with modver and username
-                        .setDetails(firstLine.toString())
-                        // Image key (kami) and text when you scroll over it (kamiclient.com)
-                        .setBigImage("kami", "kamiclient.com")
-                        // Small image key and text when hovered over
-                        // TODO: Donator / contributor / whatever instead of big rat
-                        .setSmallImage("bigrat", "he is massive :)")
+        Listener<TickEvent.Client.InGame>({
+            if ((lastUpdate + updateLimit <= System.currentTimeMillis())) {
+                // This is the bottom half of the RPC with server ip and funny message
+                val presence = DiscordRichPresence.Builder(secondLine.toString())
+                    // This is the top half with modver and username
+                    .setDetails(firstLine.toString())
+                    // Image key (kami) and text when you scroll over it (kamiclient.com)
+                    .setBigImage("kami", "kamiclient.com")
+                    // Small image key and text when hovered over
+                    // TODO: Donator / contributor / whatever instead of big rat
+                    .setSmallImage("bigrat", "he is massive :)")
 
-                    //Update the RPC
-                    DiscordRPC.discordUpdatePresence(presence.build())
-                    lastUpdate = System.currentTimeMillis()
-                }
-            })
+                // Update the RPC
+                DiscordRPC.discordUpdatePresence(presence.build())
+                lastUpdate = System.currentTimeMillis()
+            }
+        })
 
     fun initDiscord() {
         val handlers = DiscordEventHandlers.Builder().build()
@@ -82,5 +82,4 @@ object DiscordStatus : Module() {
         OperatingSystem.LINUX -> "i use arch btw B)"
         else -> "wtf temple os how"
     }
-
 }

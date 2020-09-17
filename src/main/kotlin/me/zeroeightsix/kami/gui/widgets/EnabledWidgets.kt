@@ -78,5 +78,4 @@ object EnabledWidgets : Feature, Listenable {
     override fun initListening() {
         KamiMod.EVENT_BUS.subscribe(saveListener)
     }
-
 }

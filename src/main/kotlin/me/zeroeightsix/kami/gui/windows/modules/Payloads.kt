@@ -38,5 +38,4 @@ internal data class ModulePayload(val modules: MutableSet<Module>, val source: M
 internal object Payloads {
 
     const val KAMI_MODULE_PAYLOAD = "KAMI_MODS"
-
 }

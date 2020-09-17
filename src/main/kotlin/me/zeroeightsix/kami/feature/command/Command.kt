@@ -57,7 +57,7 @@ abstract class Command : Feature {
 
         @Deprecated("")
         fun sendRawChatMessage(message: String?) {
-            mc.player?.sendMessage(ChatMessage(message),false)
+            mc.player?.sendMessage(ChatMessage(message), false)
         }
     }
 }

@@ -22,5 +22,4 @@ open class Plugin(
         super.onDisable()
         features.forEach { FeatureManager.removeFeature(it) }
     }
-
 }

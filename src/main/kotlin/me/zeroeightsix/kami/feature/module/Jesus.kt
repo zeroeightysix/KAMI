@@ -45,22 +45,16 @@ object Jesus : Module() {
     var addCollisionBoxToListEventListener =
         Listener(
             { event: AddCollisionBoxToListEvent ->
-                if (mc.player != null && event.block is FluidBlock
-                    && (EntityUtil.isDrivenByPlayer(event.entity) || event.entity === mc.player)
-                    && event.entity !is BoatEntity
-                    && !mc.player!!.isSneaking
-                    && mc.player!!.fallDistance < 3 && !EntityUtil.isInWater(mc.player)
-                    && (EntityUtil.isAboveWater(
-                        mc.player,
-                        false
-                    ) || EntityUtil.isAboveWater(
-                        mc.player!!.vehicle,
-                        false
-                    ))
-                    && isAboveBlock(
-                        mc.player,
-                        event.pos
-                    )
+                if (mc.player != null && event.block is FluidBlock &&
+                    (EntityUtil.isDrivenByPlayer(event.entity) || event.entity === mc.player) &&
+                    event.entity !is BoatEntity &&
+                    !mc.player!!.isSneaking &&
+                    mc.player!!.fallDistance < 3 && !EntityUtil.isInWater(mc.player) &&
+                    (
+                        EntityUtil.isAboveWater(mc.player, false) ||
+                            EntityUtil.isAboveWater(mc.player!!.vehicle, false)
+                        ) &&
+                    isAboveBlock(mc.player, event.pos)
                 ) {
                     val axisalignedbb = WATER_WALK_AA.offset(event.pos)
                     if (event.entityBox.intersects(axisalignedbb)) event.collidingBoxes.add(axisalignedbb)
@@ -72,21 +66,16 @@ object Jesus : Module() {
     @EventHandler
     var packetEventSendListener = Listener(
         { event: Send ->
-            if (event.era === KamiEvent.Era.PRE) {
-                if (event.packet is PlayerMoveC2SPacket) {
-                    if (EntityUtil.isAboveWater(
-                            mc.player,
-                            true
-                        ) && !EntityUtil.isInWater(mc.player) && !isAboveLand(
-                            mc.player
-                        )
-                    ) {
-                        val ticks = mc.player!!.age % 2
-                        if (ticks == 0) {
-                            val xyz = event.packet as IPlayerMoveC2SPacket
-                            xyz.y = xyz.y + 0.02
-                        }
-                    }
+            if (event.era === KamiEvent.Era.PRE &&
+                event.packet is PlayerMoveC2SPacket &&
+                EntityUtil.isAboveWater(mc.player, true) &&
+                !EntityUtil.isInWater(mc.player) &&
+                !isAboveLand(mc.player)
+            ) {
+                val ticks = mc.player!!.age % 2
+                if (ticks == 0) {
+                    val xyz = event.packet as IPlayerMoveC2SPacket
+                    xyz.y = xyz.y + 0.02
                 }
             }
         }
@@ -98,12 +87,14 @@ object Jesus : Module() {
     private fun isAboveLand(entity: Entity?): Boolean {
         if (entity == null) return false
         val y = entity.y - 0.01
-        for (x in MathHelper.floor(entity.x) until MathHelper.ceil(entity.x)) for (z in MathHelper.floor(
+        for (x in MathHelper.floor(entity.x) until MathHelper.ceil(entity.x)) for (
+        z in MathHelper.floor(
             entity.z
-        ) until MathHelper.ceil(entity.z)) {
+        ) until MathHelper.ceil(entity.z)
+        ) {
             val pos = BlockPos(x, MathHelper.floor(y), z)
 
-            //if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
+            // if (Wrapper.getWorld().getBlockState(pos).getBlock().isFullOpaque(Wrapper.getWorld().getBlockState(pos), EmptyBlockView.INSTANCE, pos)) return true;
             if (Wrapper.getWorld().getBlockState(pos).isOpaque) return true
         }
         return false

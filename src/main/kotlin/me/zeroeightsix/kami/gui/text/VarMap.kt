@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.registry.Registry
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import kotlin.math.floor
 
 /**
@@ -37,12 +37,14 @@ object VarMap {
         this to { CompiledText.StringVariable(this, provider = strProvider) }
 
     private fun toMb(bytes: Long) = (bytes / 1e+6)
-    private fun scaleDimensional(value: Double) = value * (mc.world?.let {
-        if (it.registryKey.value.path == "overworld")
-            1.0 / 8.0
-        else
-            it.dimension.coordinateScale
-    } ?: 1.0)
+    private fun scaleDimensional(value: Double) = value * (
+        mc.world?.let {
+            if (it.registryKey.value.path == "overworld")
+                1.0 / 8.0
+            else
+                it.dimension.coordinateScale
+        } ?: 1.0
+        )
 
     // KAMI will almost always be used on vanilla, so we strip the minecraft namespace from identifiers.
     // If it's not in the minecraft namespace, we return the default toString of the identifier.
@@ -105,9 +107,13 @@ object VarMap {
             }
         },
         "durability" numeric {
-            ((mc.player?.activeItem?.filterAir ?: mc.player?.itemsHand?.mapNotNull { it.filterAir }
-                ?.firstOrNull())?.let { it.maxDamage - it.damage }
-                ?: 0).toDouble()
+            (
+                (
+                    mc.player?.activeItem?.filterAir ?: mc.player?.itemsHand?.mapNotNull { it.filterAir }
+                        ?.firstOrNull()
+                    )?.let { it.maxDamage - it.damage }
+                    ?: 0
+                ).toDouble()
         },
         "biome" string {
             mc.world?.registryManager?.get(Registry.BIOME_KEY)?.getId(mc.world?.getBiome(mc.player?.blockPos))
@@ -139,5 +145,4 @@ object VarMap {
     )
 
     operator fun get(variable: String) = inner[variable]
-
 }

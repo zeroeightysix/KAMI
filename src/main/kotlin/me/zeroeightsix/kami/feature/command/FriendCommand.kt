@@ -15,12 +15,14 @@ import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
-import net.minecraft.util.Formatting.*
+import net.minecraft.util.Formatting.GOLD
+import net.minecraft.util.Formatting.ITALIC
+import net.minecraft.util.Formatting.YELLOW
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.*
+import java.util.Scanner
 import java.util.function.BiFunction
 import java.util.function.Function
 
@@ -43,10 +45,12 @@ object FriendCommand : Command() {
                             if (text == null) {
                                 text = text(YELLOW, s)
                             } else {
-                                text?.append(text {
-                                    +", "
-                                    +s(YELLOW)
-                                })
+                                text?.append(
+                                    text {
+                                        +", "
+                                        +s(YELLOW)
+                                    }
+                                )
                             }
                         }
 
@@ -60,25 +64,27 @@ object FriendCommand : Command() {
                 }
             }
             literal("add") {
-                then(createFriendArgument(
-                    Function { entry: PlayerListEntry ->
-                        if (Friends.isFriend(entry.profile.name)) {
-                            return@Function FAILED_EXCEPTION.create(
-                                "That player is already your friend!"
-                            )
+                then(
+                    createFriendArgument(
+                        Function { entry: PlayerListEntry ->
+                            if (Friends.isFriend(entry.profile.name)) {
+                                return@Function FAILED_EXCEPTION.create(
+                                    "That player is already your friend!"
+                                )
+                            }
+                            null
+                        },
+                        { entry: PlayerListEntry, source: KamiCommandSource ->
+                            Friends.addFriend(entry.profile)
+                            source replyWith text(GOLD) {
+                                +"Added "
+                                +entry.profile.name(YELLOW)
+                                +" to your friends list!"
+                            }
+                            0
                         }
-                        null
-                    },
-                    { entry: PlayerListEntry, source: KamiCommandSource ->
-                        Friends.addFriend(entry.profile)
-                        source replyWith text(GOLD) {
-                            +"Added "
-                            +entry.profile.name(YELLOW)
-                            +" to your friends list!"
-                        }
-                        0
-                    }
-                ))
+                    )
+                )
             }
             literal("remove") {
                 then(

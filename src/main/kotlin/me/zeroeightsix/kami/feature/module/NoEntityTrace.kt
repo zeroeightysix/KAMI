@@ -20,8 +20,10 @@ object NoEntityTrace : Module() {
     }
 
     @EventHandler
-    val targetListener = Listener(EventHook<TargetEntityEvent> {
-        if (traceMode == TraceMode.STATIC || mc.interactionManager?.isBreakingBlock == true)
-            it.trace = null
-    })
+    val targetListener = Listener(
+        EventHook<TargetEntityEvent> {
+            if (traceMode == TraceMode.STATIC || mc.interactionManager?.isBreakingBlock == true)
+                it.trace = null
+        }
+    )
 }

@@ -2,7 +2,12 @@ package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
-import imgui.*
+import imgui.Col
+import imgui.ImGui
+import imgui.MouseButton
+import imgui.WindowFlag
+import imgui.cStr
+import imgui.dsl
 import me.zeroeightsix.kami.gui.View
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
@@ -98,5 +103,4 @@ object VoidContextMenu {
                 it.remove(PinnableWidget.Position.CUSTOM)
             }
             .firstOrNull() ?: PinnableWidget.Position.CUSTOM
-
 }
