@@ -40,6 +40,6 @@ jobs:
     
       - uses: actions/upload-artifact@v2
         with:
-          name: Package
-          path: ./**/kami-*.jar
+          name: KAMI mod jar
+          path: '*/build/libs/kami-1.16.?.jar'
       
