@@ -21,7 +21,7 @@ import imgui.ImGui.textWrapped
 import imgui.dsl.button
 import imgui.dsl.popupModal
 import imgui.dsl.radioButton
-import imgui.internal.ItemFlag
+import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.FindSettings

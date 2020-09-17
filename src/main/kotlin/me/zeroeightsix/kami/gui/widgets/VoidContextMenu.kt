@@ -15,7 +15,7 @@ object VoidContextMenu {
     private var widgetProducer: Pair<String, (String) -> Unit>? = null
 
     operator fun invoke() {
-        dsl.popupContextVoid("kami-void-popup", MouseButton.Right) {
+        dsl.popupContextVoid("kami-void-popup", MouseButton.Right.i) {
             dsl.menuItem("Resize module windows") {
                 Modules.resize = true
             }

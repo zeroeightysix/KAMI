@@ -6,7 +6,6 @@ import glm_.func.common.floor
 import glm_.vec2.Vec2
 import imgui.ColorEditFlag
 import imgui.ImGui
-import imgui.NUL
 import imgui.cStr
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
@@ -36,6 +35,7 @@ import me.zeroeightsix.kami.util.*
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import org.reflections.Reflections
+import uno.kotlin.NUL
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.file.Files

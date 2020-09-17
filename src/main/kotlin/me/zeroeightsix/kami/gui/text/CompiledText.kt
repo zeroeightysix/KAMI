@@ -7,6 +7,7 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
 import me.zeroeightsix.kami.forEachRemainingIndexed
+import uno.kotlin.NUL
 import kotlin.math.abs
 import kotlin.math.floor
 

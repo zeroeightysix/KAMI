@@ -97,7 +97,7 @@ object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
 
     override fun init() {
         super.init()
-        ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse.i
+        ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse
     }
 
 }

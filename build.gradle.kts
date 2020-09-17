@@ -81,9 +81,13 @@ dependencies {
     depend(SHADOW, "com.github.kotlin-graphics:kool:$kool_version")
     depend(SHADOW, "org.reflections:reflections:0.9.11")
     depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
-    depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version")
+    depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version") {
+        exclude(group = "org.lwjgl")
+    }
     depend(SHADOW, "com.github.kotlin-graphics:glm:$glm_version")
-    depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version")
+    depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version") {
+        exclude(group = "org.lwjgl")
+    }
     depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
 
     //Discord RPC
@@ -97,10 +101,10 @@ dependencies {
         "org.jetbrains:annotations:13.0",
         "com.github.kotlin-graphics:gln:$gln_version",
         "com.github.kotlin-graphics:gli:$gli_version",
-        "com.github.kotlin-graphics.imgui:imgui-core:$kg_version",
-        "com.github.kotlin-graphics.imgui:imgui-glfw:$kg_version",
-        "com.github.kotlin-graphics.imgui:imgui-gl:$kg_version",
-        "com.github.kotlin-graphics.uno-sdk:uno-core:$uno_version"
+        "com.github.kotlin-graphics.imgui:core:$kg_version",
+        "com.github.kotlin-graphics.imgui:glfw:$kg_version",
+        "com.github.kotlin-graphics.imgui:gl:$kg_version",
+        "com.github.kotlin-graphics.uno-sdk:core:$uno_version"
     ).forEach {
         shadow(it)
     }

@@ -16,8 +16,8 @@ import imgui.ImGui.renderText
 import imgui.ImGui.setActiveID
 import imgui.ImGui.style
 import imgui.api.g
-import imgui.internal.ItemFlags
 import imgui.internal.classes.Rect
+import imgui.internal.sections.ItemFlags
 import java.util.*
 import kotlin.reflect.KMutableProperty0
 

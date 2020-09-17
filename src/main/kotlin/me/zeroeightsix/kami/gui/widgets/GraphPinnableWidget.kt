@@ -1,7 +1,10 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import glm_.vec2.Vec2
-import imgui.*
+import imgui.Col
+import imgui.ImGui
+import imgui.WindowFlag
+import imgui.dsl
 import imgui.impl.time
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.gui.KamiGuiScreen
@@ -11,6 +14,7 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
+import uno.kotlin.NUL
 import kotlin.math.roundToInt
 
 @GenerateType

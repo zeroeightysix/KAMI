@@ -6,15 +6,14 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.openPopupOnItemClick
+import imgui.ImGui.openPopupContextItem
 import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.dsl.dragDropTarget
 import imgui.dsl.popup
 import imgui.dsl.window
-import imgui.internal.ItemStatusFlag
-import imgui.internal.or
+import imgui.internal.sections.ItemStatusFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
@@ -86,7 +85,7 @@ object Modules {
             if (selectable(module.name, module.enabled)) {
                 module.enabled = !module.enabled
             }
-            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right)
+            openPopupContextItem("module-settings-${module.name}", MouseButton.Right.i)
             popup("module-settings-${module.name}") {
                 showModuleSettings(module)
             }
@@ -99,7 +98,7 @@ object Modules {
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
             val window = currentWindow
             window.dc.stateStorage[id] = !open
-            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
+            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen.i
         }
 
         return moduleWindow
