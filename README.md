@@ -52,7 +52,7 @@ To ask for help, join the [Discord](http://discord.gg/9hvwgeg).
 
 1. Download or clone the KAMI repository.
 2. Run `gradle build`
-3. The built jar is in `build/libs/`. There are 4 jars, pick the one **without** a suffix.
+3. The built jar is in `build/libs/`. There are 2 jars, pick the in the format of `KAMI-version.jar`, not `KAMI-version-shadow.jar`.
 
 
 ## Thank you

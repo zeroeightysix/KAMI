@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io/api/linux,gradle,eclipse,windows,forgegradle,intellij+all,emacs,vim
 
+# Fabric
+logs/
+
 ### Eclipse ###
 
 .metadata
