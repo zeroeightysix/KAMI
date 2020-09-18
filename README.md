@@ -1,5 +1,5 @@
 # KAMI
-[![Build Status](https://travis-ci.com/zeroeightysix/KAMI.svg?branch=fabric)](https://travis-ci.com/zeroeightysix/KAMI)
+[![Build](https://github.com/zeroeightysix/KAMI/workflows/Fabric%20mod%20jar%20build/badge.svg)](https://github.com/zeroeightysix/KAMI/actions)
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
@@ -20,7 +20,7 @@ The Fabric 1.16.3 version is in active development.
 
 ## Installing
 
-KAMI is a fabric mod. Download the [latest release](https://github.com/zeroeightysix/KAMI/releases), or preferrably, [**build it yourself**](#building).
+KAMI is a fabric mod. Download the [latest release](https://github.com/zeroeightysix/KAMI/releases), or preferably, [**build it yourself**](#building).
 
 Download and run the installer for Fabric from [here](https://fabricmc.net/use/) if you do not have it already. KAMI does not require Fabric API.
 
