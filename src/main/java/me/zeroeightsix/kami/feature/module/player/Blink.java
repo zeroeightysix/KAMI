@@ -18,11 +18,11 @@ import java.util.Queue;
 
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
 public class Blink extends Module {
-    @Setting(name = "PacketDiscard")
+    @Setting
     private boolean packetDiscard = true;
-    @Setting(name = "WithholdAllPackets", comment = "Withhold all packets, not just PlayerMoveC2SPacket")
+    @Setting(comment = "Withhold all packets, not just PlayerMoveC2SPacket")
     private boolean withholdAllPackets = true;
-    @Setting(name = "MaxPacketSize")
+    @Setting
     private @Setting.Constrain.Range(min = 50, max = 500, step = Double.MIN_VALUE) int maxPacketAmount = 100;
 
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
@@ -56,7 +56,7 @@ public class Blink extends Module {
             clonedPlayer.copyFrom(mc.player);
             clonedPlayer.headYaw = mc.player.headYaw;
             // id of cloned player is -68419 in the future there might be an entity with an id -69420
-            // due to the hilarity of a contributor but in all likelihood nobody will use -69420
+            // but nobody is going to use id -68419
             mc.world.addEntity(-68419, clonedPlayer);
         }
     }
