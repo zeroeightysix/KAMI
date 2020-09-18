@@ -41,5 +41,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: KAMI mod jar
-          path: build/libs/KAMI-1.16.?.jar
+          path: '*/build/libs/KAMI-1.16.3.jar'
       
