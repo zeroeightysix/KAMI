@@ -1,6 +1,6 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.feature.module.render.Brightness;
+import me.zeroeightsix.kami.feature.module.Brightness;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
