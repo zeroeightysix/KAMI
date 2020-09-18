@@ -19,7 +19,7 @@ import java.util.Queue;
 public class Blink extends Module {
     @Setting
     private boolean packetDiscard = true;
-    @Setting(comment = "Withhold all packets, not just PlayerMoveC2SPacket")
+    @Setting(comment = "Withhold all packets, not only Movement Packets")
     private boolean withholdAllPackets = true;
     @Setting
     private @Setting.Constrain.Range(min = 50d, max = 500d, step = Double.MIN_VALUE) int maxPacketAmount = 100;
