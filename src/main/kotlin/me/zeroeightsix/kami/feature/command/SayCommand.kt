@@ -9,7 +9,7 @@ object SayCommand : Command() {
         dispatcher register rootLiteral("say") {
             greedyString("message") {
                 does {
-                    mc.player?.sendChatMessage(it.input.removeRange(0, 4))
+                    mc.player?.sendChatMessage("message" from it)
                     0
                 }
             }
