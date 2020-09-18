@@ -12,9 +12,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Formatting;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
-
 
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
 public class Blink extends Module {
@@ -23,10 +22,10 @@ public class Blink extends Module {
     @Setting(comment = "Withhold all packets, not just PlayerMoveC2SPacket")
     private boolean withholdAllPackets = true;
     @Setting
-    private @Setting.Constrain.Range(min = 50, max = 500, step = Double.MIN_VALUE) int maxPacketAmount = 100;
+    private @Setting.Constrain.Range(min = 50d, max = 500d, step = Double.MIN_VALUE) int maxPacketAmount = 100;
 
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
-    Queue<Packet> packets = new LinkedList<>(); // Create list to hold our packets
+    Queue<Packet> packets = new ArrayDeque<>(); // Create list to hold our packets
 
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
@@ -42,10 +41,10 @@ public class Blink extends Module {
 
             // Shows up above hotbar
             mc.player.sendMessage(Texts.f(Formatting.WHITE, Texts.append(
-                    Texts.lit("Packets "),
-                    Texts.flit(packetColor, Integer.toString(packets.size())),
-                    Texts.flit(Formatting.WHITE, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
-                    true);
+                Texts.lit("Packets "),
+                Texts.flit(packetColor, Integer.toString(packets.size())),
+                Texts.flit(Formatting.WHITE, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
+                true);
         }
     });
 
