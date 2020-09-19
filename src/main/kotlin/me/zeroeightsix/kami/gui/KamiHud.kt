@@ -122,12 +122,5 @@ object KamiHud {
         ImplGlfw.scrollCallback(Vec2d(d, e))
     }
 
-    fun getScale(): Int {
-        var scale: Int = Wrapper.getMinecraft().options.guiScale
-        if (scale == 0) scale = 1000
-        var scaleFactor = 0
-        while (scaleFactor < scale && Wrapper.getMinecraft().window.width / (scaleFactor + 1) >= 320 && Wrapper.getMinecraft().window.height / (scaleFactor + 1) >= 240) scaleFactor++
-        if (scaleFactor == 0) scaleFactor = 1
-        return scaleFactor
-    }
+    fun getScale() = mc.window.scaleFactor.toInt()
 }
