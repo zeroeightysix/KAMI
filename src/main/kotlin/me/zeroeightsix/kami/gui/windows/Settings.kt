@@ -28,8 +28,11 @@ import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.charButton
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.settingInterface
 import kotlin.reflect.KMutableProperty0
 
 @FindSettings
@@ -82,6 +85,9 @@ object Settings {
 
     @Setting
     var hudWithDebug = false
+
+    @Setting
+    var moduleAlignment = TextPinnableWidget.Alignment.CENTER
 
     val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
 
@@ -144,6 +150,10 @@ object Settings {
 
                         if (ImGui.combo("Theme", ::styleIdx, themes)) {
                             Themes.Variants.values()[styleIdx].applyStyle(true)
+                        }
+                        
+                        KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {
+                            this.moduleAlignment = it
                         }
 
                         boolSetting(

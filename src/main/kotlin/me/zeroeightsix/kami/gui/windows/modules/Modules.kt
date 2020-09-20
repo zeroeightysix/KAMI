@@ -12,8 +12,10 @@ import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
 import imgui.MouseButton
+import imgui.StyleVar
 import imgui.TreeNodeFlag
 import imgui.WindowFlag
+import imgui.dsl
 import imgui.dsl.dragDropTarget
 import imgui.dsl.popup
 import imgui.dsl.window
@@ -53,7 +55,7 @@ object Modules {
     /**
      * Returns if this module has detached
      */
-    fun collapsibleModule(
+    fun module(
         module: Module,
         source: ModuleWindow,
         sourceGroup: String
@@ -176,14 +178,18 @@ object Modules {
 
         fun draw(): Boolean {
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
-                return list.removeIf {
-                    val moduleWindow = collapsibleModule(it, this, group)
-                    moduleWindow?.let {
-                        newWindows.add(moduleWindow)
-                        return@removeIf true
+                var ret: Boolean = false
+                dsl.withStyleVar(StyleVar.SelectableTextAlign, Settings.moduleAlignment.vecAlignment) {
+                    ret = list.removeIf {
+                        val moduleWindow = module(it, this, group)
+                        moduleWindow?.let {
+                            newWindows.add(moduleWindow)
+                            return@removeIf true
+                        }
+                        return@removeIf false
                     }
-                    return@removeIf false
                 }
+                return ret
             }
 
             val flags = if (resize) {

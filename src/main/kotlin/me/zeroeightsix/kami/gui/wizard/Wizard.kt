@@ -126,7 +126,7 @@ object Wizard {
             text("%s", "Try it out:")
             popStyleColor()
 
-            Modules.collapsibleModule(Aura, Modules.ModuleWindow("", Aura), "")
+            Modules.module(Aura, Modules.ModuleWindow("", Aura), "")
 
             separator()
         },

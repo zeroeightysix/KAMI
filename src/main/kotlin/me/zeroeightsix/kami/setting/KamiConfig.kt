@@ -645,6 +645,7 @@ object KamiConfig {
             .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
             .registerTypeMapping(CompiledText::class.java, compiledTextType)
             .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
+            .registerTypeMapping(TextPinnableWidget.Alignment::class.java, alignmentType)
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor

@@ -346,8 +346,10 @@ open class TextPinnableWidget(
     }
 
     @GenerateType
-    enum class Alignment {
-        LEFT, CENTER, RIGHT
+    enum class Alignment(val f: Float) {
+        LEFT(0f), CENTER(0.5f), RIGHT(1f);
+        
+        val vecAlignment = Vec2(this.f, 0.5f)
     }
 
     @GenerateType
