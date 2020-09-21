@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
@@ -10,6 +11,9 @@ import net.minecraft.block.BlockState
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.EntityGroup
+import net.minecraft.item.AxeItem
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
 import net.minecraft.item.MiningToolItem
 import net.minecraft.item.SwordItem
 import kotlin.math.pow
@@ -20,6 +24,9 @@ import kotlin.math.pow
     category = Module.Category.MISC
 )
 object AutoTool : Module() {
+    @Setting
+    var preferredWeapon = PreferredWeapon.AXE
+
     @EventHandler
     private val leftClickListener =
         Listener(
@@ -77,10 +84,10 @@ object AutoTool : Module() {
                 if (stack.isEmpty) continue
             }
             if (stack != null) {
-                if (stack.item is MiningToolItem || stack.item is SwordItem) {
-                    // Not sure of the best way to cast stack.item as either SwordItem or MiningToolItem
-                    val damage = if (stack.item is SwordItem) {
-                        (stack.item as SwordItem).attackDamage + EnchantmentHelper.getAttackDamage(
+                val isPreferredWeapon = preferredWeapon.item.isAssignableFrom(stack.item::class.java)
+                if ((stack.item is MiningToolItem && PreferredWeapon.values().none { it.item.isAssignableFrom(stack.item::class.java) }) || isPreferredWeapon) {
+                    val damage = if (isPreferredWeapon) {
+                        preferredWeapon.damage(stack)!! + EnchantmentHelper.getAttackDamage(
                             stack,
                             EntityGroup.DEFAULT
                         ).toDouble()
@@ -103,5 +110,9 @@ object AutoTool : Module() {
     private fun equip(slot: Int) {
         mc.player?.inventory?.selectedSlot = slot
         (mc.interactionManager as IClientPlayerInteractionManager).invokeSyncSelectedSlot()
+    }
+
+    enum class PreferredWeapon(val item: Class<out Item>, val damage: (ItemStack) -> Float?) {
+        SWORD(SwordItem::class.java, { (it.item as? SwordItem)?.attackDamage }), AXE(AxeItem::class.java, { (it.item as? AxeItem)?.attackDamage })
     }
 }
