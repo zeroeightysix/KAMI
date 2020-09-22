@@ -80,6 +80,10 @@ object VarMap {
                 mc.networkHandler?.getPlayerListEntry(it.uuid)?.latency?.toDouble()
             } ?: -1.0
         },
+        "server_brand" string { mc.player?.serverBrand.toString() },
+        "server_name" string { mc.currentServerEntry?.name ?: "Singleplayer"},
+        "server_ip" string { mc.currentServerEntry?.address ?: "Offline" },
+        "server_version" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
         "username" const { mc.session.username },
         "version" const { KamiMod.MODVER },
         "client" const { KamiMod.MODNAME },
@@ -115,6 +119,7 @@ object VarMap {
                     ?: 0
                 ).toDouble()
         },
+        "health" numeric {(mc.player?.health ?: 0f).toDouble()},
         "biome" string {
             mc.world?.registryManager?.get(Registry.BIOME_KEY)?.getId(mc.world?.getBiome(mc.player?.blockPos))
                 ?.stripMinecraftNamespace()?.replace("_", " ")
