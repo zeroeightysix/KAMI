@@ -80,10 +80,10 @@ object VarMap {
                 mc.networkHandler?.getPlayerListEntry(it.uuid)?.latency?.toDouble()
             } ?: -1.0
         },
-        "serverbrand" string { mc.player?.serverBrand.toString() },
-        "servername" string { mc.currentServerEntry?.name ?: "Singleplayer"},
-        "serverip" string { mc.currentServerEntry?.address ?: "" },
-        "serverversion" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
+        "server_brand" string { mc.player?.serverBrand.toString() },
+        "server_name" string { mc.currentServerEntry?.name ?: "Singleplayer"},
+        "server_ip" string { mc.currentServerEntry?.address ?: "" },
+        "server_version" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
         "username" const { mc.session.username },
         "version" const { KamiMod.MODVER },
         "client" const { KamiMod.MODNAME },
