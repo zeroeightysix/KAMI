@@ -80,11 +80,10 @@ object VarMap {
                 mc.networkHandler?.getPlayerListEntry(it.uuid)?.latency?.toDouble()
             } ?: -1.0
         },
-        //TODO: Does not update on server/map load.
-        "serverbrand" const { mc.player?.serverBrand.toString() },
-        "servername" const { mc.currentServerEntry?.name ?: "Singleplayer"},
-        "serverip" const { mc.currentServerEntry?.address ?: "" },
-        "serverversion" const { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
+        "serverbrand" string { mc.player?.serverBrand.toString() },
+        "servername" string { mc.currentServerEntry?.name ?: "Singleplayer"},
+        "serverip" string { mc.currentServerEntry?.address ?: "" },
+        "serverversion" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
         "username" const { mc.session.username },
         "version" const { KamiMod.MODVER },
         "client" const { KamiMod.MODNAME },
@@ -120,6 +119,7 @@ object VarMap {
                     ?: 0
                 ).toDouble()
         },
+        "health" numeric {(mc.player?.health ?: 0f).toDouble()},
         "biome" string {
             mc.world?.registryManager?.get(Registry.BIOME_KEY)?.getId(mc.world?.getBiome(mc.player?.blockPos))
                 ?.stripMinecraftNamespace()?.replace("_", " ")
