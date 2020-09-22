@@ -82,7 +82,7 @@ object VarMap {
         },
         "server_brand" string { mc.player?.serverBrand.toString() },
         "server_name" string { mc.currentServerEntry?.name ?: "Singleplayer"},
-        "server_ip" string { mc.currentServerEntry?.address ?: "" },
+        "server_ip" string { mc.currentServerEntry?.address ?: "Offline" },
         "server_version" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
         "username" const { mc.session.username },
         "version" const { KamiMod.MODVER },
