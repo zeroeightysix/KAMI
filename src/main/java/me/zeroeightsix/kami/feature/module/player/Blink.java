@@ -9,20 +9,21 @@ import me.zeroeightsix.kami.util.Texts;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
 public class Blink extends Module {
-    @Setting
-    private boolean packetDiscard = true;
+    @Setting(comment = "Will not attempt to send packets if you are more than 10 blocks away from where you blinked")
+    private boolean isCancelable = true;
     @Setting(comment = "Withhold all packets, not only Movement Packets")
     private boolean withholdAllPackets = true;
-    @Setting
-    private @Setting.Constrain.Range(min = 50d, max = 500d, step = Double.MIN_VALUE) int maxPacketAmount = 100;
+    private @Setting.Constrain.Range(min = 50d, max = 200d, step = Double.MIN_VALUE) int maxPacketAmount = 100;
 
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
     Queue<Packet> packets = new ArrayDeque<>(); // Create list to hold our packets
@@ -30,21 +31,25 @@ public class Blink extends Module {
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
         // We don't want to withhold login packets if a player logs out with blink enabled
-        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null)) {
+        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PacketListener))) { // maybe ServerPlayPacketListener
             event.cancel();
             packets.add(event.getPacket());
 
-            // Create a sense of urgency to unblick when approaching packet threshold
+            // Create a sense of urgency to unblink when approaching packet threshold
             Formatting packetColor = Formatting.WHITE;
             if (packets.size() > maxPacketAmount*(0.6f)) packetColor = Formatting.YELLOW;
             if (packets.size() > maxPacketAmount) packetColor = Formatting.RED;
 
+            Formatting distanceColor = Formatting.WHITE;
+            if (clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 6)  distanceColor = Formatting.YELLOW;
+            if (clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 10) distanceColor = Formatting.RED;
+
             // Shows up above hotbar
             mc.player.sendMessage(Texts.f(Formatting.WHITE, Texts.append(
-                Texts.lit("Packets "),
-                Texts.flit(packetColor, Integer.toString(packets.size())),
-                Texts.flit(Formatting.WHITE, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
-                true);
+                    Texts.lit("Packets "),
+                    Texts.flit(packetColor, Integer.toString(packets.size())),
+                    Texts.flit(distanceColor, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
+                    true);
         }
     });
 
@@ -62,9 +67,14 @@ public class Blink extends Module {
 
     @Override
     public void onDisable() {
-        if (packets.size() > maxPacketAmount && packetDiscard) {
-            if (clonedPlayer != null) // We don't want a NPE when a player tries to disable blink after logging in
-                mc.player.setPos(clonedPlayer.getPos().x, clonedPlayer.getPos().y, clonedPlayer.getPos().z); // Snap back to where we were
+        if (packets.size() > maxPacketAmount &&
+                isCancelable && clonedPlayer != null &&
+                clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 10) { // If its more than 10 blocks
+
+            System.out.println("Based and Redpilled");
+            if (clonedPlayer != null) { // We don't want a NPE when a player tries to disable blink after logging in
+                mc.player.setPos(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
+            }
             packets.clear(); //Empty the list of packets to send
         }
 
