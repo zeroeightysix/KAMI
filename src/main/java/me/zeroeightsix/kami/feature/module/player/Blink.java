@@ -52,7 +52,7 @@ public class Blink extends Module {
             mc.player.sendMessage(Texts.f(Formatting.WHITE, Texts.append(
                     Texts.lit("Packets "),
                     Texts.flit(packetColor, Integer.toString(packets.size())),
-                    Texts.flit(Formatting.WHITE, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
+                    Texts.flit(Formatting.WHITE, "/"+(isCancelable?Integer.toString(maxPacketAmount):"∞")))),
                     true);
         }
     });
