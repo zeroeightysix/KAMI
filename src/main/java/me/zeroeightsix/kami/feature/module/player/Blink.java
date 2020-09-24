@@ -11,6 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 
@@ -37,7 +39,7 @@ public class Blink extends Module {
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
         // We don't want to withhold login packets if a player logs out with blink enabled
-        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PacketListener))) { // maybe use ServerPlayPacketListener
+        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PlayerRespawnS2CPacket) && !(event.getPacket() instanceof PlayerSpawnS2CPacket) && !(event.getPacket() instanceof PacketListener))) { // maybe use ServerPlayPacketListener
             event.cancel();
             packets.add(event.getPacket());
 
