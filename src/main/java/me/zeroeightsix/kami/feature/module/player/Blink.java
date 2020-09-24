@@ -23,7 +23,13 @@ public class Blink extends Module {
     private boolean isCancelable = true;
     @Setting(comment = "Withhold all packets, not only Movement Packets")
     private boolean withholdAllPackets = true;
-    private @Setting.Constrain.Range(min = 50d, max = 200d, step = Double.MIN_VALUE) int maxPacketAmount = 100;
+    @Setting(comment = "How many packets are allowed to be cached before they all get canceled")
+    private @Setting.Constrain.Range(min = 20d, max = 200d, step = Double.MIN_VALUE) int maxPacketAmount = 50;
+
+    @Setting(comment = "Send packets gradually instead of all at once")
+    private boolean gradualPacketMode = false;
+    @Setting(comment = "The percent of cached packets to send per tick")
+    private @Setting.Constrain.Range(min = 1d, max = 100d, step = Double.MIN_VALUE) int percentOfPacketsPerTick = 50;
 
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
     Queue<Packet> packets = new ArrayDeque<>(); // Create list to hold our packets
@@ -31,7 +37,7 @@ public class Blink extends Module {
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
         // We don't want to withhold login packets if a player logs out with blink enabled
-        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PacketListener))) { // maybe ServerPlayPacketListener
+        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PacketListener))) { // maybe use ServerPlayPacketListener
             event.cancel();
             packets.add(event.getPacket());
 
@@ -40,15 +46,11 @@ public class Blink extends Module {
             if (packets.size() > maxPacketAmount*(0.6f)) packetColor = Formatting.YELLOW;
             if (packets.size() > maxPacketAmount) packetColor = Formatting.RED;
 
-            Formatting distanceColor = Formatting.WHITE;
-            if (clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 6)  distanceColor = Formatting.YELLOW;
-            if (clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 10) distanceColor = Formatting.RED;
-
             // Shows up above hotbar
             mc.player.sendMessage(Texts.f(Formatting.WHITE, Texts.append(
                     Texts.lit("Packets "),
                     Texts.flit(packetColor, Integer.toString(packets.size())),
-                    Texts.flit(distanceColor, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
+                    Texts.flit(Formatting.WHITE, "/"+(withholdAllPackets?Integer.toString(maxPacketAmount):"∞")))),
                     true);
         }
     });
@@ -59,26 +61,31 @@ public class Blink extends Module {
             clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile()); // Create Fake Player
             clonedPlayer.copyFrom(mc.player);
             clonedPlayer.headYaw = mc.player.headYaw;
-            // id of cloned player is -68419 in the future there might be an entity with an id -69420
-            // but nobody is going to use id -68419
-            mc.world.addEntity(-68419, clonedPlayer);
+            mc.world.addEntity(-68419, clonedPlayer); //There is likely not going to be an entity with this id
         }
     }
 
     @Override
     public void onDisable() {
-        if (packets.size() > maxPacketAmount &&
-                isCancelable && clonedPlayer != null &&
-                clonedPlayer.getPos().distanceTo(mc.player.getPos()) > 10) { // If its more than 10 blocks
-
-            System.out.println("Based and Redpilled");
-            if (clonedPlayer != null) { // We don't want a NPE when a player tries to disable blink after logging in
-                mc.player.setPos(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
-            }
+        if (packets.size() > maxPacketAmount && isCancelable && clonedPlayer != null) {
+            if (clonedPlayer != null)  // We don't want a NPE when a player tries to disable blink after logging in
+                mc.player.updatePosition(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
             packets.clear(); //Empty the list of packets to send
         }
 
-        while (!packets.isEmpty()) mc.getNetworkHandler().sendPacket(packets.poll()); // Send all packets at once
+        if (!gradualPacketMode) while (!packets.isEmpty()) mc.getNetworkHandler().sendPacket(packets.poll()); // Send all packets at once
+        else {
+            float packetsPerClump = packets.size()*(percentOfPacketsPerTick/100f); // Get the amount of packets to send
+            Thread sendPacketThread = new Thread(() -> { // Use a new thread because the while loop might take some time to finish
+                while (!packets.isEmpty() && mc.player != null)
+                    if (mc.player.age % 2 == 0) // Runs every tick
+                        for (int i = 0; i < packetsPerClump; i++)
+                            if (!packets.isEmpty())
+                                mc.getNetworkHandler().sendPacket(packets.poll());
+            });
+            sendPacketThread.start();
+        }
+
 
         PlayerEntity localPlayer = mc.player;
         if (localPlayer != null) {
