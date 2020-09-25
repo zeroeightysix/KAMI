@@ -5,7 +5,7 @@
     "dstrgb": "1-srcalpha"
   },
   "vertex": "sobel",
-  "fragment": "entity_sharp_sobel",
+  "fragment": "kami:entity_sharp_sobel",
   "attributes": [
     "Position"
   ],
