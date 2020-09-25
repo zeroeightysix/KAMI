@@ -4,6 +4,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.PacketEvent;
+import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.Texts;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -14,9 +15,9 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.Queue;
 
 @Module.Info(name = "Blink", category = Module.Category.PLAYER)
@@ -35,6 +36,7 @@ public class Blink extends Module {
 
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
     Queue<Packet> packets = new ArrayDeque<>(); // Create list to hold our packets
+    private float packetsPerClump = 0;
 
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
@@ -57,9 +59,20 @@ public class Blink extends Module {
         }
     });
 
+    @EventHandler
+    public Listener<TickEvent.Client.InGame> tickListener = new Listener<>(event -> {
+        if (getAlwaysListening()) {
+            for (int i = 0; i < packetsPerClump; i++)
+                if (!packets.isEmpty())
+                    Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(packets.poll());
+                else setAlwaysListening(false);
+        }
+    });
+
     @Override
     public void onEnable() {
         if (mc.player != null) {
+            assert mc.world != null;
             clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile()); // Create Fake Player
             clonedPlayer.copyFrom(mc.player);
             clonedPlayer.headYaw = mc.player.headYaw;
@@ -69,28 +82,21 @@ public class Blink extends Module {
 
     @Override
     public void onDisable() {
-        if (packets.size() > maxPacketAmount && isCancelable && clonedPlayer != null) {
+        if (packets.size() > maxPacketAmount && isCancelable && mc.player != null) {
             if (clonedPlayer != null)  // We don't want a NPE when a player tries to disable blink after logging in
                 mc.player.updatePosition(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
             packets.clear(); //Empty the list of packets to send
         }
 
-        if (!gradualPacketMode) while (!packets.isEmpty()) mc.getNetworkHandler().sendPacket(packets.poll()); // Send all packets at once
+        if (!gradualPacketMode) while (!packets.isEmpty()) Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(packets.poll()); // Send all packets at once
         else {
-            float packetsPerClump = packets.size()*(percentOfPacketsPerTick/100f); // Get the amount of packets to send
-            Thread sendPacketThread = new Thread(() -> { // Use a new thread because the while loop might take some time to finish
-                while (!packets.isEmpty() && mc.player != null)
-                    if (mc.player.age % 2 == 0) // Runs every tick
-                        for (int i = 0; i < packetsPerClump; i++)
-                            if (!packets.isEmpty())
-                                mc.getNetworkHandler().sendPacket(packets.poll());
-            });
-            sendPacketThread.start();
+            setAlwaysListening(true);
+            packetsPerClump = packets.size()*(percentOfPacketsPerTick/100f); // Get the amount of packets to send
         }
 
 
         PlayerEntity localPlayer = mc.player;
-        if (localPlayer != null) {
+        if (localPlayer != null && mc.world != null) {
             mc.world.removeEntity(-68419); // Remove fake blink Player
             clonedPlayer = null;
         }
