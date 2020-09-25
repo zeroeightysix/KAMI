@@ -176,3 +176,5 @@ class UpdateLookEvent(
 ) : KamiEvent()
 
 class ConfigSaveEvent(config: ConfigTree?) : KamiEvent()
+
+class ChunkCullingEvent(var chunkCulling: Boolean) : KamiEvent()

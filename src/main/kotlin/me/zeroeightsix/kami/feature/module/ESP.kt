@@ -2,8 +2,11 @@ package me.zeroeightsix.kami.feature.module
 
 import com.google.gson.JsonSyntaxException
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import me.zero.alpine.listener.EventHandler
+import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.event.ChunkCullingEvent
 import me.zeroeightsix.kami.util.BlockTarget
 import me.zeroeightsix.kami.util.BlockTargets
 import me.zeroeightsix.kami.util.EntityTarget
@@ -41,6 +44,11 @@ object ESP : Module() {
             BlockTarget.CHESTS to Colour(1f, 0.92f, 0.81f, 0.28f) // Gold brownish
         )
     )
+
+    @EventHandler
+    val cullingListener = Listener<ChunkCullingEvent>({
+        it.chunkCulling = false // TODO: Only =false if ESP is actively showing blocks that require chunk culling to be off
+    })
 
     fun closeShader() = outlineShader?.close()
 
