@@ -64,7 +64,7 @@ public class MixinRebuildTask {
 
             List<BakedQuad> list = bakedModel.getQuads(blockState, direction, random);
             if (!list.isEmpty()) {
-                renderQuadsFlatUnlit(manager, blockRenderView, blockState, blockPos, 0xf000f0, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumer, list, 1.0f);
+                renderQuadsFlatUnlit(manager, blockRenderView, blockState, blockPos, 0xf000f0, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumer, list);
                 ret = true;
             }
         }
@@ -72,11 +72,12 @@ public class MixinRebuildTask {
         return ret;
     }
 
-    private static void renderQuadsFlatUnlit(BlockRenderManager manager, BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos, int i, int j, MatrixStack matrixStack, VertexConsumer vertexConsumer, List<BakedQuad> list, float brightness) {
+    private static void renderQuadsFlatUnlit(BlockRenderManager manager, BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos, int i, int j, MatrixStack matrixStack, VertexConsumer vertexConsumer, List<BakedQuad> list) {
         IBlockModelRenderer renderer = (IBlockModelRenderer) manager.getModelRenderer();
         MatrixStack.Entry model = matrixStack.peek();
         for (BakedQuad quad : list) {
-            renderer.callRenderQuad(blockRenderView, blockState, blockPos, vertexConsumer, model, quad, brightness, brightness, brightness, brightness, i, i, i, i, j);
+            float quadBrightness = blockRenderView.getBrightness(quad.getFace(), quad.hasShade());
+            renderer.callRenderQuad(blockRenderView, blockState, blockPos, vertexConsumer, model, quad, quadBrightness, quadBrightness, quadBrightness, quadBrightness, i, i, i, i, j);
         }
     }
 
