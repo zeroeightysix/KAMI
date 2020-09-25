@@ -117,17 +117,23 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     public void onResized(int i, int j, CallbackInfo ci) {
         ShaderEffect shader = ESP.INSTANCE.getOutlineShader();
         if (shader != null) shader.setupDimensions(i, j);
+
+        KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue().resize(i, j, MinecraftClient.IS_SYSTEM_MAC);
     }
 
     @Inject(method = "render", at = @At("HEAD"))
     public void onRender(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         ESP.INSTANCE.getEntityOutlinesFramebuffer().clear(MinecraftClient.IS_SYSTEM_MAC);
+        KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue().clear(MinecraftClient.IS_SYSTEM_MAC);
         this.client.getFramebuffer().beginWrite(false);
     }
 
     @Inject(method = "drawEntityOutlinesFramebuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;draw(IIZ)V"))
     public void onDrawEntityOutlinesFramebuffer(CallbackInfo ci) {
         ESP.INSTANCE.getEntityOutlinesFramebuffer().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
+        RenderSystem.disableLighting();
+        KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
+        RenderSystem.enableLighting();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -142,10 +148,11 @@ public abstract class MixinWorldRenderer implements HotSwappable {
         double x = pos.x;
         double y = pos.y;
         double z = pos.z;
+        Framebuffer framebuffer = KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue();
+        framebuffer.beginWrite(false);
         renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
-        ESP.INSTANCE.getEntityOutlinesFramebuffer().beginWrite(false);
-//        swapWhile(() -> renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z));
-        renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
+//        ESP.INSTANCE.getEntityOutlinesFramebuffer().beginWrite(false);
+//        renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
     }
 
