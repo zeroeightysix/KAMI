@@ -5,7 +5,7 @@
   ],
   "passes": [
     {
-      "name": "entity_outline",
+      "name": "kami:entity_sharp_outline",
       "intarget": "final",
       "outtarget": "swap"
     },

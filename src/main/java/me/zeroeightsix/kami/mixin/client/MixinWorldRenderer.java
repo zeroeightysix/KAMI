@@ -14,7 +14,6 @@ import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
@@ -35,15 +34,16 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @Shadow
     private Framebuffer entityOutlinesFramebuffer;
 
+    @Shadow
+    protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
+
+    @Shadow
+    protected abstract void renderLayer(RenderLayer renderLayer, MatrixStack matrixStack, double d, double e, double f);
+
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
     public void onDraw(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         // Render the vertices in the buffer
-        Framebuffer entityOutlinesFramebuffer = this.entityOutlinesFramebuffer;
-        this.entityOutlinesFramebuffer = ESP.INSTANCE.getEntityOutlinesFramebuffer();
-
-        ESP.INSTANCE.getOutlineConsumerProvider().draw();
-
-        this.entityOutlinesFramebuffer = entityOutlinesFramebuffer;
+        swapWhile(() -> ESP.INSTANCE.getOutlineConsumerProvider().draw());
 
         // Apply the outline shader to our freshly drawn-to framebuffer
         ESP.INSTANCE.getOutlineShader().render(tickDelta);
@@ -94,39 +94,6 @@ public abstract class MixinWorldRenderer implements HotSwappable {
         this.renderEntity(entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     }
 
-    @Override
-    public void swapWhile(Runnable runnable) {
-        Framebuffer entityOutlinesFramebuffer = this.entityOutlinesFramebuffer;
-        this.entityOutlinesFramebuffer = ESP.INSTANCE.getEntityOutlinesFramebuffer();
-        runnable.run();
-        this.entityOutlinesFramebuffer = entityOutlinesFramebuffer;
-    }
-
-    @Shadow
-    protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
-
-    @Shadow
-    protected abstract void renderLayer(RenderLayer renderLayer, MatrixStack matrixStack, double d, double e, double f);
-
-    @Inject(method = "close", at = @At("RETURN"))
-    public void onClose(CallbackInfo ci) {
-        ESP.INSTANCE.closeShader();
-    }
-
-    @Inject(method = "apply", at = @At("RETURN"))
-    public void onApply(ResourceManager manager, CallbackInfo ci) {
-        // (Re)load sharp entity outline shader
-        ESP.INSTANCE.loadOutlineShader();
-    }
-
-    @Inject(method = "onResized", at = @At("RETURN"))
-    public void onResized(int i, int j, CallbackInfo ci) {
-        ShaderEffect shader = ESP.INSTANCE.getOutlineShader();
-        if (shader != null) shader.setupDimensions(i, j);
-
-        KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue().resize(i, j, MinecraftClient.IS_SYSTEM_MAC);
-    }
-
     @Inject(method = "render", at = @At("HEAD"))
     public void onRender(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         ESP.INSTANCE.getEntityOutlinesFramebuffer().clear(MinecraftClient.IS_SYSTEM_MAC);
@@ -156,6 +123,14 @@ public abstract class MixinWorldRenderer implements HotSwappable {
         framebuffer.beginWrite(false);
         renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+    }
+
+    @Override
+    public void swapWhile(Runnable runnable) {
+        Framebuffer entityOutlinesFramebuffer = this.entityOutlinesFramebuffer;
+        this.entityOutlinesFramebuffer = ESP.INSTANCE.getEntityOutlinesFramebuffer().getFramebuffer();
+        runnable.run();
+        this.entityOutlinesFramebuffer = entityOutlinesFramebuffer;
     }
 
 }
