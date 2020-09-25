@@ -11,12 +11,11 @@ void main(){
     vec4 right = texture2D(DiffuseSampler, texCoord + vec2(oneTexel.x, 0.0));
     vec4 up = texture2D(DiffuseSampler, texCoord - vec2(0.0, oneTexel.y));
     vec4 down = texture2D(DiffuseSampler, texCoord + vec2(0.0, oneTexel.y));
-    float leftDiff  = abs(center.a - left.a);
-    float rightDiff = abs(center.a - right.a);
-    float upDiff    = abs(center.a - up.a);
-    float downDiff  = abs(center.a - down.a);
-    float total = clamp(leftDiff + rightDiff + upDiff + downDiff, 0.0, 1.0);
-    //    float total = max(max(leftDiff, rightDiff), max(upDiff, downDiff));
+    float leftDiff  = clamp(left.a - center.a, 0.0, 1.0);
+    float rightDiff = clamp(right.a - center.a, 0.0, 1.0);
+    float upDiff    = clamp(up.a - center.a, 0.0, 1.0);
+    float downDiff  = clamp(down.a - center.a, 0.0, 1.0);
+    float total = leftDiff + rightDiff + downDiff + upDiff;
     vec3 outColor = center.rgb * center.a + left.rgb * left.a + right.rgb * right.a + up.rgb * up.a + down.rgb * down.a;
-    gl_FragColor = vec4(outColor * 0.2, total);
+    gl_FragColor = vec4(outColor / total, clamp(total, 0.0, 1.0));
 }
