@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.Colour;
 import me.zeroeightsix.kami.KamiMod;
+import me.zeroeightsix.kami.event.ChunkCullingEvent;
 import me.zeroeightsix.kami.event.RenderWeatherEvent;
 import me.zeroeightsix.kami.feature.module.ESP;
 import me.zeroeightsix.kami.feature.module.Freecam;
@@ -21,10 +21,7 @@ import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -73,6 +70,14 @@ public abstract class MixinWorldRenderer implements HotSwappable {
         return Freecam.INSTANCE.getEnabled() || isSpectator;
     }
 
+    // Modify chunk culling
+    @ModifyVariable(method = "setupTerrain", name = "bl3", at = @At("STORE"))
+    public boolean modifyBl3(boolean bl3) {
+        ChunkCullingEvent event = new ChunkCullingEvent(bl3);
+        KamiMod.EVENT_BUS.post(event);
+        return event.getChunkCulling();
+    }
+
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     public void renderEntity(WorldRenderer worldRenderer, Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
         if (ESP.INSTANCE.getEnabled()) {
@@ -100,7 +105,8 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @Shadow
     protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
 
-    @Shadow protected abstract void renderLayer(RenderLayer renderLayer, MatrixStack matrixStack, double d, double e, double f);
+    @Shadow
+    protected abstract void renderLayer(RenderLayer renderLayer, MatrixStack matrixStack, double d, double e, double f);
 
     @Inject(method = "close", at = @At("RETURN"))
     public void onClose(CallbackInfo ci) {
@@ -131,9 +137,7 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @Inject(method = "drawEntityOutlinesFramebuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;draw(IIZ)V"))
     public void onDrawEntityOutlinesFramebuffer(CallbackInfo ci) {
         ESP.INSTANCE.getEntityOutlinesFramebuffer().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
-        RenderSystem.disableLighting();
         KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
-        RenderSystem.enableLighting();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -151,8 +155,6 @@ public abstract class MixinWorldRenderer implements HotSwappable {
         Framebuffer framebuffer = KamiRenderLayers.INSTANCE.getFilteredFramebuffer().getValue();
         framebuffer.beginWrite(false);
         renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
-//        ESP.INSTANCE.getEntityOutlinesFramebuffer().beginWrite(false);
-//        renderLayer(KamiRenderLayers.INSTANCE.getSolidFiltered(), matrixStack, x, y, z);
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
     }
 
