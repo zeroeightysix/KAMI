@@ -4,6 +4,7 @@
   "package": "me.zeroeightsix.kami.mixin.client",
   "client": [
     "IBackedConfigLeaf",
+    "IBlockModelRenderer",
     "ICamera",
     "IChatMessageC2SPacket",
     "IChatMessageS2CPacket",
