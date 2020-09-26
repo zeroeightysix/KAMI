@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.lang.reflect.Field;
 
-@Mixin(BackedConfigLeaf.class)
+@Mixin(value = BackedConfigLeaf.class, remap = false)
 public interface IBackedConfigLeaf<R, S> {
 
     @Accessor
