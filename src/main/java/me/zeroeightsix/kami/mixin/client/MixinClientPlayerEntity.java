@@ -13,6 +13,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.Vec3d;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,13 +41,12 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         }
     }
 
-    @Redirect(method = "updateNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;openScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
-    public void openScreen(MinecraftClient client, Screen screen) {
+    @Redirect(method = "updateNausea", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;", ordinal = 0), allow = 1, require = 1)
+    public Screen getCurrentScreen(MinecraftClient client) {
+        Screen screen = client.currentScreen;
         CloseScreenInPortalEvent event = new CloseScreenInPortalEvent(screen);
         KamiMod.EVENT_BUS.post(event);
-        if (!event.isCancelled()) {
-            client.openScreen(screen);
-        }
+        return event.isCancelled() ? null : screen;
     }
 
     @Shadow
