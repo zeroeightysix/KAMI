@@ -71,7 +71,11 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     }
 
     // Modify chunk culling
-    @ModifyVariable(method = "setupTerrain", name = "bl3", at = @At("STORE"))
+    @ModifyVariable(method = "setupTerrain",
+            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setRenderDistanceMultiplier(D)V"), to = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOpaqueFullCube(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Z")),
+            at = @At("STORE"),
+            index = 20 // Highly subject to change, check print=true output when updating this mixin
+            /*print = true*/)
     public boolean modifyBl3(boolean bl3) {
         ChunkCullingEvent event = new ChunkCullingEvent(bl3);
         KamiMod.EVENT_BUS.post(event);
