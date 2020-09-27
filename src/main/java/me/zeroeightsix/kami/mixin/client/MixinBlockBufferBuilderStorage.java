@@ -21,7 +21,7 @@ public class MixinBlockBufferBuilderStorage {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void onInit(CallbackInfo ci) {
-        builders.putAll(KamiRenderLayers.INSTANCE.getLayers().stream().collect(Collectors.toMap(renderLayer -> renderLayer, renderLayer -> new BufferBuilder(renderLayer.getExpectedBufferSize()))));
+        this.builders.putAll(KamiRenderLayers.INSTANCE.getLayers().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> new BufferBuilder(entry.getKey().getExpectedBufferSize()))));
     }
 
 }

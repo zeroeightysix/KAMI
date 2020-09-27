@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import me.zeroeightsix.kami.util.OutlineVertexConsumer;
 import me.zeroeightsix.kami.world.KamiRenderLayers;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -31,19 +33,39 @@ import static org.lwjgl.opengl.GL11C.GL_QUADS;
 @Mixin(targets = "net.minecraft.client.render.chunk.ChunkBuilder$BuiltChunk$RebuildTask")
 public class MixinRebuildTask {
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "render(FFFLnet/minecraft/client/render/chunk/ChunkBuilder$ChunkData;Lnet/minecraft/client/render/chunk/BlockBufferBuilderStorage;)Ljava/util/Set;", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onPop(float f, float g, float h, ChunkBuilder.ChunkData chunkData, BlockBufferBuilderStorage blockBufferBuilderStorage, CallbackInfoReturnable<Set<BlockEntity>> cir, int i, BlockPos blockPos, BlockPos blockPos2, ChunkOcclusionDataBuilder chunkOcclusionDataBuilder, Set set, ChunkRendererRegion chunkRendererRegion, MatrixStack matrixStack, Random random, BlockRenderManager blockRenderManager, Iterator var15, BlockPos blockPos3, BlockState blockState, RenderLayer renderLayer2, BufferBuilder bufferBuilder2) {
         if (blockState.getBlock() == Blocks.DIAMOND_ORE) {
-            RenderLayer layer = KamiRenderLayers.INSTANCE.getSolidFiltered();
-            BufferBuilder builder = blockBufferBuilderStorage.get(layer);
             IChunkData iChunkData = (IChunkData) chunkData;
-            if (iChunkData.getInitializedLayers().add(layer)) {
-                builder.begin(GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+            VertexConsumer consumer;
+            RenderLayer filteredLayer = KamiRenderLayers.INSTANCE.getSolidFiltered();
+            RenderLayer outlineLayer = null;
+            {
+                BufferBuilder builder = blockBufferBuilderStorage.get(filteredLayer);
+                if (iChunkData.getInitializedLayers().add(filteredLayer)) {
+                    builder.begin(GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+                }
+
+                consumer = builder;
             }
 
-            if (renderAllSidesUnlitFlat(blockRenderManager, blockState, blockPos3, chunkRendererRegion, matrixStack, builder, random)) {
+            { // if: has outline
+                outlineLayer = KamiRenderLayers.INSTANCE.getSolidFilteredOutline();
+                BufferBuilder outlineBuilder = blockBufferBuilderStorage.get(outlineLayer);
+                if (iChunkData.getInitializedLayers().add(outlineLayer)) {
+                    outlineBuilder.begin(GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
+                }
+                // todo: customizable colour
+                OutlineVertexConsumer outlineVertexConsumer = new OutlineVertexConsumer(outlineBuilder, 255, 0, 255, 128);
+
+                consumer = VertexConsumers.dual(consumer, outlineVertexConsumer);
+            }
+
+            if (renderAllSidesUnlitFlat(blockRenderManager, blockState, blockPos3, chunkRendererRegion, matrixStack, consumer, random)) {
                 iChunkData.setEmpty(false);
-                iChunkData.getNonEmptyLayers().add(layer);
+                iChunkData.getNonEmptyLayers().add(filteredLayer);
+                if (outlineLayer != null)
+                    iChunkData.getNonEmptyLayers().add(outlineLayer);
             }
         }
     }

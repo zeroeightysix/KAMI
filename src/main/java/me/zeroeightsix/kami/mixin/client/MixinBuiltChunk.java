@@ -3,11 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.world.KamiRenderLayers;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.BlockBufferBuilderStorage;
 import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +21,7 @@ public class MixinBuiltChunk {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void onInit(ChunkBuilder outer, CallbackInfo ci) {
-        this.buffers.putAll(KamiRenderLayers.INSTANCE.getLayers().stream().collect(Collectors.toMap(renderLayer -> renderLayer, renderLayer -> new VertexBuffer(VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL))));
+        this.buffers.putAll(KamiRenderLayers.INSTANCE.getLayers().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> new VertexBuffer(entry.getValue()))));
     }
 
 }

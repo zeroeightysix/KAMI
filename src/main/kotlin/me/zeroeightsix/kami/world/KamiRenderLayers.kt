@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
 import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.RenderPhase
+import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.texture.SpriteAtlasTexture
 import org.lwjgl.opengl.GL11
@@ -19,7 +20,7 @@ object KamiRenderLayers {
         "kami_solid_filtered",
         VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL,
         GL11.GL_QUADS,
-        2097152,
+        2097152 / 2,
         true,
         false,
         RenderLayer.MultiPhaseParameters.builder()
@@ -29,9 +30,26 @@ object KamiRenderLayers {
             .build(false)
     )
 
-    val layers = listOf(solidFiltered)
+    @Suppress("INACCESSIBLE_TYPE")
+    val solidFilteredOutline: RenderLayer = RenderLayer.of(
+        "kami_solid_filtered_outline",
+        VertexFormats.POSITION_COLOR_TEXTURE,
+        GL11.GL_QUADS,
+        2097152 / 4,
+        true,
+        false,
+        RenderLayer.MultiPhaseParameters.builder()
+            .lightmap(disableLightmap)
+            .texture(mipmapTexture)
+            .build(false)
+    )
 
-    val filteredFramebuffer = lazy {
+    val layers = mapOf(
+        solidFiltered to VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL,
+        solidFilteredOutline to VertexFormats.POSITION_COLOR_TEXTURE
+    )
+
+    val filteredFramebuffer by lazy {
         Framebuffer(mc.window.framebufferWidth, mc.window.framebufferHeight, true, IS_SYSTEM_MAC)
     }
 }
