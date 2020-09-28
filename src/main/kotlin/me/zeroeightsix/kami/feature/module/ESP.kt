@@ -22,12 +22,10 @@ import net.minecraft.util.Identifier
 object ESP : Module() {
 
     var outlineShader: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
-    val entityOutlinesFramebuffer: ManagedFramebuffer by lazy {
-        outlineShader.getTarget("final")
-    }
+    val outlineFramebuffer: ManagedFramebuffer = outlineShader.getTarget("final")
 
     // Lazy so the init happens when everything is set up; otherwise entityVertexConsumers will be null
-    val outlineConsumerProvider by lazy {
+    val entityOutlineVertexConsumerProvider by lazy {
         OutlineVertexConsumerProvider(mc.bufferBuilders.entityVertexConsumers)
     }
 

@@ -15,9 +15,11 @@ import me.zeroeightsix.kami.setting.extend
 import me.zeroeightsix.kami.setting.settingInterface
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.block.entity.EnderChestBlockEntity
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.entity.mob.AmbientEntity
 import net.minecraft.entity.mob.Angerable
 import net.minecraft.entity.mob.Monster
@@ -26,6 +28,7 @@ import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.passive.PassiveEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.vehicle.AbstractMinecartEntity
 import net.minecraft.inventory.Inventory
 
 fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
@@ -69,7 +72,9 @@ enum class EntityTarget(
         { !(it as PlayerEntity).isFriend() },
         ALL_PLAYERS::entities,
         ALL_PLAYERS.genericBaseBelongsFunc
-    );
+    ),
+    MINECARTS({ it is AbstractMinecartEntity }, ::allEntities),
+    ITEM_FRAMES({ it is ItemFrameEntity }, ::allEntities);
 
     val provider = ResettableLazy {
         this.baseCollection()?.filter { this.belongsFunc(it) }
@@ -96,7 +101,8 @@ enum class BlockTarget(
     ALL_BLOCK_ENTITIES({ true }, ::allBlockEntities),
     CONTAINERS({ it is Inventory }, ::allBlockEntities),
     CHESTS({ it is ChestBlockEntity }, ::allBlockEntities),
-    SHULKERS({ it is ShulkerBoxBlockEntity }, ::allBlockEntities);
+    ENDER_CHESTS({ it is EnderChestBlockEntity }, ::allBlockEntities),
+    SHULKERS({ it is ShulkerBoxBlockEntity }, CONTAINERS::entities);
 
     val provider = ResettableLazy {
         this.baseCollection()?.filter { this.belongsFunc(it) }
