@@ -1,3 +1,5 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package me.zeroeightsix.kami.mixin.extend
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
@@ -28,10 +30,6 @@ var Camera.ipos: Vec3d
     set(value) = (this as ICamera).callSetPos(value)
 
 fun Camera.setRotation(yaw: Float, pitch: Float) = (this as ICamera).callSetRotation(yaw, pitch)
-val Camera.iyaw: Float
-    get() = (this as ICamera).yaw
-val Camera.ipitch: Float
-    get() = (this as ICamera).pitch
 
 fun Input.update(from: Input) = (this as ExtendedInput).update(from)
 
