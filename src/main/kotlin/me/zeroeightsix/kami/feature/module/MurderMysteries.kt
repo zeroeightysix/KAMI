@@ -73,54 +73,55 @@ object MurderMysteries : Module() {
     )
 
     @EventHandler
-    val worldListener = Listener<TickEvent.Client.InGame>({
+    val worldListener = Listener<TickEvent.InGame>({
+        val player = it.player
         if ((lastUpdate + (updateEvery * 1000f).toLong() <= System.currentTimeMillis()))
-            mc.world?.players?.forEach { player ->
+            mc.world?.players?.forEach { otherPlayer ->
                 // Make sure the player is not being told that they are the murderer
-                if (player == mc.player) return@forEach
+                if (otherPlayer == player) return@forEach
 
                 // Check for weaponly items (swords, axes)s
-                player.itemsEquipped.forEach {
-                    if ((weaponItems && (it.item is AxeItem || it.item is SwordItem)) ||
-                        (innocuousItems && (it.item in innocentItemsList)) ||
+                otherPlayer.itemsEquipped.forEach { itemStack ->
+                    if ((weaponItems && (itemStack.item is AxeItem || itemStack.item is SwordItem)) ||
+                        (innocuousItems && (itemStack.item in innocentItemsList)) ||
                         (
                             toolItems && (
-                                it.item is ShovelItem || it.item is PickaxeItem ||
-                                    it.item is HoeItem || it.item is ShearsItem
+                                itemStack.item is ShovelItem || itemStack.item is PickaxeItem ||
+                                    itemStack.item is HoeItem || itemStack.item is ShearsItem
                                 ) &&
-                                !(it.item == Items.WOODEN_SHOVEL && ignoreWoodenShovel)
+                                !(itemStack.item == Items.WOODEN_SHOVEL && ignoreWoodenShovel)
                             )
                     ) {
                         lastUpdate = System.currentTimeMillis()
-                        mc.player?.sendMessage(
+                        player.sendMessage(
                             text {
                                 +"[MurderMysteries] "
-                                +player.displayName.string(AQUA)
+                                +otherPlayer.displayName.string(AQUA)
                                 +" is the "
                                 +"murderer"(RED)
                                 +"! Wields "
-                                +it.item.name.string(GOLD)
+                                +itemStack.item.name.string(GOLD)
                                 +"!"
                             },
                             false
                         )
-                        if (announceMode) mc.player?.sendChatMessage("${player.displayName.string} is the murderer! They have  ${it.item.name.string}!")
+                        if (announceMode) player.sendChatMessage("${otherPlayer.displayName.string} is the murderer! They have  ${itemStack.item.name.string}!")
                     }
 
                     // Check for items the detective or innocent players could use to stop them murderer
-                    if (detectiveItems && it.item in detectiveItemsList) {
+                    if (detectiveItems && itemStack.item in detectiveItemsList) {
                         lastUpdate = System.currentTimeMillis()
-                        mc.player?.sendMessage(
+                        player.sendMessage(
                             text {
                                 +"[MurderMysteries] "
-                                +player.displayName.string(AQUA)
+                                +otherPlayer.displayName.string(AQUA)
                                 +" has "
-                                +it.item.name.string(GOLD)
+                                +itemStack.item.name.string(GOLD)
                                 +"!"
                             },
                             false
                         )
-                        if (announceMode) mc.player?.sendChatMessage("${player.displayName.string} has ${it.item.name.string}!")
+                        if (announceMode) player.sendChatMessage("${otherPlayer.displayName.string} has ${itemStack.item.name.string}!")
                     }
                 }
             }

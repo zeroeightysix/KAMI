@@ -11,11 +11,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.text.LiteralText;
 
+import java.util.Objects;
+
 @Module.Info(name = "AutoLog", description = "Automatically log when in danger or on low health", category = Module.Category.COMBAT)
 public class AutoLog extends Module {
 
     @Setting(name = "Health")
-    private @Setting.Constrain.Range(min = 0, max = 36, /* TODO: Remove when kotlin bug fixed */ step = Double.MIN_VALUE) int health = 6;
+    private @Setting.Constrain.Range(min = 0, max = 36) int health = 6;
     private boolean shouldLog = false;
     long lastLog = System.currentTimeMillis();
 
@@ -40,11 +42,11 @@ public class AutoLog extends Module {
     });*/ //TODO
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (shouldLog) {
             shouldLog = false;
             if (System.currentTimeMillis() - lastLog < 2000) return;
-            MinecraftClient.getInstance().getNetworkHandler().onDisconnect(new DisconnectS2CPacket(new LiteralText("AutoLogged")));
+            Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).onDisconnect(new DisconnectS2CPacket(new LiteralText("AutoLogged")));
         }
     });
 

@@ -51,7 +51,7 @@ object DiscordStatus : Module() {
 
     @EventHandler
     private val updateListener =
-        Listener<TickEvent.Client.InGame>({
+        Listener<TickEvent.InGame>({
             if ((lastUpdate + updateLimit <= System.currentTimeMillis())) {
                 // This is the bottom half of the RPC with server ip and funny message
                 val presence = DiscordRichPresence.Builder(secondLine.toString())
