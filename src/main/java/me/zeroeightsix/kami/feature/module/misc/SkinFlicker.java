@@ -39,7 +39,7 @@ public class SkinFlicker extends Module {
     private int len = PlayerModelPart.values().length;
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         switch (mode) {
             case RANDOM:
                 if (mc.player.age % slowness != 0) return;

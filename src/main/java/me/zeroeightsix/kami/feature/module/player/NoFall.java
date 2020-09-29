@@ -36,7 +36,7 @@ public class NoFall extends Module {
     });
 
     @EventHandler
-    public Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    public Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (bucket && mc.player.fallDistance >= distance && !EntityUtil.isAboveWater(mc.player) && System.currentTimeMillis() - last > 10) {
             Vec3d posVec = mc.player.getPos();
             RaycastContext context = new RaycastContext(posVec, posVec.add(0, -distance, 0), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);

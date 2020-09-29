@@ -10,7 +10,7 @@ import me.zeroeightsix.kami.util.EntityUtil;
 public class AutoJump extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (mc.player.isSubmergedInWater() || mc.player.isInLava()) {
             EntityUtil.updateVelocityY(mc.player, 0.1);
         }

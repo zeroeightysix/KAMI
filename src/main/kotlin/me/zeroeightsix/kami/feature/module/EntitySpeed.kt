@@ -39,7 +39,7 @@ object EntitySpeed : Module() {
 
     @EventHandler
     private val updateListener = Listener(
-        EventHook<TickEvent.Client.InGame> {
+        EventHook<TickEvent.InGame> {
             if (mc.world != null && mc.player?.vehicle != null) {
                 when (val riding = mc.player!!.vehicle) {
                     is BoatEntity, is PigEntity, is HorseBaseEntity, is StriderEntity -> {

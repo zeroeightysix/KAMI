@@ -84,7 +84,7 @@ class CrystalAura extends Module {
     }
 
     @EventHandler
-    private Listener<TickEvent.Client> clientListener = new Listener<>(client -> {
+    private Listener<TickEvent.InGame> clientListener = new Listener<>(client -> {
         EndCrystalEntity crystal = Stream.of(mc.world.getEntities())
                 .filter(entity -> entity instanceof EndCrystalEntity)
                 .map(entity -> (EndCrystalEntity) entity)

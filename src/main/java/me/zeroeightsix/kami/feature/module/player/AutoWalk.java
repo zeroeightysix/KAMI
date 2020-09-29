@@ -11,7 +11,7 @@ public class AutoWalk extends Module {
     @Setting(name = "Mode")
     private AutoWalkMode mode = AutoWalkMode.FORWARD;
 
-    private Listener<TickEvent.Client.InGame> tickListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> tickListener = new Listener<>(event -> {
         assert mc.player != null;
         mc.player.input.movementForward = mode.forward;
     });

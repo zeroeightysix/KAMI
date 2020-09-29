@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.Wrapper

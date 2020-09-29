@@ -10,7 +10,7 @@ import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 public class Fastplace extends Module {
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         ((IMinecraftClient) mc).setItemUseCooldown(0);
     });
 

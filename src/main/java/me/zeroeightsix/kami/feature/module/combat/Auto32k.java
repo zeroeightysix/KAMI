@@ -80,7 +80,7 @@ public class Auto32k extends Module {
     private static boolean isSneaking;
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (Freecam.INSTANCE.getEnabled()) {
             return;
         }

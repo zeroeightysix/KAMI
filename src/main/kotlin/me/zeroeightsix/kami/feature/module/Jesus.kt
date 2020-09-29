@@ -6,7 +6,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.AddCollisionBoxToListEvent
 import me.zeroeightsix.kami.event.KamiEvent
 import me.zeroeightsix.kami.event.PacketEvent.Send
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.mixin.client.IPlayerMoveC2SPacket
 import me.zeroeightsix.kami.util.EntityUtil
 import me.zeroeightsix.kami.util.Wrapper

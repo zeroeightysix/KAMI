@@ -21,7 +21,7 @@ public class AntiAFK extends Module {
     private Random random = new Random();
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (mc.interactionManager.isBreakingBlock()) return;
 
         if (mc.player.age % 40 == 0 && swing)

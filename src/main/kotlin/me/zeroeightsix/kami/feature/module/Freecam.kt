@@ -78,7 +78,7 @@ object Freecam : Module() {
     })
 
     @EventHandler
-    val tickListener = Listener<TickEvent.Client.InGame>({
+    val tickListener = Listener<TickEvent.InGame>({
         this.input.tick(false)
         val movement = this.input.movementInput
 

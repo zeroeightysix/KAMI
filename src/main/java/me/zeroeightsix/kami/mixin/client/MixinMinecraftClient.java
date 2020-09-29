@@ -33,11 +33,11 @@ public class MixinMinecraftClient {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
     public void tick(CallbackInfo info) {
-        TickEvent.Client event;
+        TickEvent event;
         if (player != null && world != null) {
-            event = new TickEvent.Client.InGame();
+            event = new TickEvent.InGame(player, world);
         } else {
-            event = new TickEvent.Client.OutOfGame();
+            event = new TickEvent.OutOfGame();
         }
         profiler.push("kamiTick");
         KamiMod.EVENT_BUS.post(event);

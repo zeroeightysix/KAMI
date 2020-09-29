@@ -73,7 +73,7 @@ object MurderMysteries : Module() {
     )
 
     @EventHandler
-    val worldListener = Listener<TickEvent.Client.InGame>({
+    val worldListener = Listener<TickEvent.InGame>({
         if ((lastUpdate + (updateEvery * 1000f).toLong() <= System.currentTimeMillis()))
             mc.world?.players?.forEach { player ->
                 // Make sure the player is not being told that they are the murderer

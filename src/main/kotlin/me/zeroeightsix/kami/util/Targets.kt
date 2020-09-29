@@ -30,7 +30,7 @@ import net.minecraft.inventory.Inventory
 
 fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
 
-val invalidationListener = Listener<TickEvent.Client.InGame>({
+val invalidationListener = Listener<TickEvent.InGame>({
     EntityTarget.values().forEach { it.invalidate() }
 }).also {
     KamiMod.EVENT_BUS.subscribe(it)

@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.mixin.client.IKeyBinding
 import net.minecraft.client.options.KeyBinding
 import net.minecraft.item.ItemGroup

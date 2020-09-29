@@ -56,7 +56,7 @@ object Aura : Module() {
 
     @EventHandler
     private val updateListener =
-        Listener<TickEvent.Client.InGame>({
+        Listener<TickEvent.InGame>({
             if (!mc.player?.isAlive!!) {
                 return@Listener
             }

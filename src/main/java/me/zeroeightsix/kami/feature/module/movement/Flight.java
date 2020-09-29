@@ -19,7 +19,7 @@ public class Flight extends Module {
     private FlightMode mode = FlightMode.VANILLA;
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         switch (mode) {
             case STATIC:
                 mc.player.abilities.flying = false;

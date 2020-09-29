@@ -18,7 +18,7 @@ public class YawLock extends Module {
     private int slice = 8;
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
         if (slice == 0) return;
         if (auto) {
             int angle = 360 / slice;

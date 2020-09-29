@@ -25,7 +25,7 @@ object AutoTotem : Module() {
         get() = this.item === Items.TOTEM_OF_UNDYING
 
     @EventHandler
-    val updateListener = Listener<TickEvent.Client.InGame>({
+    val updateListener = Listener<TickEvent.InGame>({
         if (mc.currentScreen is GenericContainerScreen) return@Listener
         val player = mc.player ?: return@Listener
 

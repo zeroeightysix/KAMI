@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.ElytraItem
