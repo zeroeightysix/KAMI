@@ -11,24 +11,22 @@ import net.minecraft.util.Hand
 
 @Module.Info(name = "AutoEat", description = "Automatically eat when hungry", category = Module.Category.PLAYER)
 object AutoEat : Module() {
-    var eating: Hand? = null
-    var oldSlot: Int? = null
+    private var eating: Hand? = null
+    private var oldSlot: Int? = null
 
     private fun isValid(stack: ItemStack, food: Int): Boolean {
         return stack.item.group === ItemGroup.FOOD && 20 - food >= stack.item?.foodComponent?.hunger ?: 0
     }
 
     @EventHandler
-    private val updateListener = Listener<InGame>({
-        val player =
-            mc.player ?: return@Listener // InGame gets fired if player != null so this return shouldn't ever happen
-
+    private val updateListener = Listener<InGame>({ it ->
+        val player = it.player
         val foodLevel = player.hungerManager.foodLevel
 
-        eating?.let {
+        eating?.let { hand ->
             // Set the use keybinding to true. This is so minecraft doesn't try to cancel the eating action because the key is 'no longer' held down.
             KeyBinding.setKeyPressed((mc.options.keyUse as IKeyBinding).boundKey, true)
-            mc.interactionManager?.interactItem(player, mc.world, it)
+            mc.interactionManager?.interactItem(player, mc.world, hand)
             // If the current item isn't a valid food item, quit.
             // Usually happens when it is consumed.
             if (!isValid(player.inventory.getStack(player.inventory.selectedSlot), foodLevel)) {

@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.AddCollisionBoxToListEvent
 import me.zeroeightsix.kami.event.KamiEvent
@@ -25,14 +24,15 @@ import net.minecraft.util.math.MathHelper
 )
 object Jesus : Module() {
     @EventHandler
-    private val updateListener = Listener(
-        EventHook<InGame> { event: InGame? ->
+    private val updateListener = Listener<InGame>(
+        {
+            val player = it.player
             if (!Freecam.enabled) {
-                if (EntityUtil.isInWater(mc.player) && !mc.player!!.isSneaking) {
+                if (EntityUtil.isInWater(mc.player) && !player.isSneaking) {
                     EntityUtil.updateVelocityY(mc.player, 0.1)
-                    if (mc.player!!.vehicle != null && mc.player!!.vehicle !is BoatEntity) {
+                    if (player.vehicle != null && player.vehicle !is BoatEntity) {
                         EntityUtil.updateVelocityY(
-                            mc.player!!.vehicle,
+                            player.vehicle,
                             0.3
                         )
                     }
@@ -56,8 +56,8 @@ object Jesus : Module() {
                         ) &&
                     isAboveBlock(mc.player, event.pos)
                 ) {
-                    val axisalignedbb = WATER_WALK_AA.offset(event.pos)
-                    if (event.entityBox.intersects(axisalignedbb)) event.collidingBoxes.add(axisalignedbb)
+                    val axisAlignedBB = WATER_WALK_AA.offset(event.pos)
+                    if (event.entityBox.intersects(axisAlignedBB)) event.collidingBoxes.add(axisAlignedBB)
                     event.cancel()
                 }
             }

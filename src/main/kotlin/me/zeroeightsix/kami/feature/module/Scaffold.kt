@@ -15,7 +15,8 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.BlockWithEntity
 import net.minecraft.block.Blocks
 import net.minecraft.block.FallingBlock
-import net.minecraft.block.ShapeContext
+import net.minecraft.client.network.ClientPlayerEntity
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.LookOnly
@@ -25,32 +26,36 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
-import java.util.Arrays
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
 object Scaffold : Module() {
-    private val blackList = Arrays.asList(
+    private val blackList = listOf(
         Blocks.ENDER_CHEST,
         Blocks.CHEST,
         Blocks.TRAPPED_CHEST
     )
 
-    private fun getIrreplaceableNeighbour(blockPos: BlockPos): Pair<BlockPos, Direction>? {
+    private fun getIrreplaceableNeighbour(world: ClientWorld, blockPos: BlockPos): Pair<BlockPos, Direction>? {
         for (side in Direction.values()) {
             val neighbour = blockPos.offset(side)
-            if (mc.world?.getBlockState(neighbour)?.material?.isReplaceable == false) return neighbour to side.opposite
+            if (world.getBlockState(neighbour)?.material?.isReplaceable == false) return neighbour to side.opposite
         }
         return null
     }
 
     @EventHandler
-    private val updateListener = Listener<InGame>({
-        val vec3d = mc.player?.getInterpolatedPos() ?: return@Listener
-        var blockPos: BlockPos = BlockPos(vec3d).down()
+    private val updateListener = Listener<InGame>({ it ->
+        val player = it.player
+        val world = it.world
+
+        val vec3d = player.getInterpolatedPos()
+        val blockPos: BlockPos = BlockPos(vec3d).down()
         val belowBlockPos = blockPos.down()
 
         // check if block is already placed
-        if (!mc.world!!.getBlockState(blockPos).material.isReplaceable) return@Listener
+        if (!world.getBlockState(blockPos).material.isReplaceable) return@Listener
 
         // search blocks in hotbar
         var newSlot = -1
@@ -58,7 +63,7 @@ object Scaffold : Module() {
         while (i < 9) {
 
             // filter out non-block items
-            val stack = mc.player!!.inventory.getStack(i)
+            val stack = player.inventory.getStack(i)
             if (stack == ItemStack.EMPTY || stack.item !is BlockItem) {
                 i++
                 continue
@@ -86,7 +91,6 @@ object Scaffold : Module() {
             }
             newSlot = i
             break
-            i++
         }
 
         // check if any blocks were found
@@ -97,27 +101,27 @@ object Scaffold : Module() {
         Wrapper.getPlayer().inventory.selectedSlot = newSlot
 
         // check if we don't have a block adjacent to blockpos
-        getIrreplaceableNeighbour(blockPos).let {
+        getIrreplaceableNeighbour(world, blockPos).let {
             if (it == null) {
                 for (side in Direction.values()) {
-                    return@let getIrreplaceableNeighbour(blockPos.offset(side)) ?: continue
+                    return@let getIrreplaceableNeighbour(world, blockPos.offset(side)) ?: continue
                 }
             }
             it
         }?.let { (solid, side) ->
             // place block
-            placeBlockScaffold(solid, side)
+            placeBlockScaffold(player, world, solid, side)
         }
 
         // reset slot
         Wrapper.getPlayer().inventory.selectedSlot = oldSlot
     })
 
-    fun placeBlockScaffold(solid: BlockPos, side: Direction) {
+    private fun placeBlockScaffold(player: ClientPlayerEntity, world: ClientWorld, solid: BlockPos, side: Direction) {
 //        faceVectorPacketInstant(hitVec) // TODO: some util that manages look packets. Now the player will rapidly look up and down which is silly
         mc.interactionManager?.interactBlock(
-            mc.player,
-            mc.world,
+            player,
+            world,
             Hand.MAIN_HAND,
             BlockHitResult(solid.asVec + 0.5 + side.vector.asVec3d / 2.0, side, solid, false)
         )
@@ -133,13 +137,9 @@ object Scaffold : Module() {
         return getState(pos).block
     }
 
-    fun canBeClicked(pos: BlockPos?): Boolean {
-        return mc.world?.canPlace(getState(pos), pos, ShapeContext.absent()) ?: false
-    }
-
     @JvmStatic
-    fun faceVectorPacketInstant(vec: Vec3d) {
-        val rotations = getNeededRotations2(vec)
+    fun faceVectorPacketInstant(player: ClientPlayerEntity, vec: Vec3d) {
+        val rotations = getNeededRotations2(player, vec)
         mc.networkHandler!!.sendPacket(
             LookOnly(
                 rotations[0],
@@ -149,14 +149,14 @@ object Scaffold : Module() {
         )
     }
 
-    private fun getNeededRotations2(vec: Vec3d): FloatArray {
-        val eyesPos = eyesPos
+    private fun getNeededRotations2(player: ClientPlayerEntity, vec: Vec3d): FloatArray {
+        val eyesPos = player.eyesPos
         val diffX = vec.x - eyesPos.x
         val diffY = vec.y - eyesPos.y
         val diffZ = vec.z - eyesPos.z
-        val diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ)
-        val yaw = Math.toDegrees(Math.atan2(diffZ, diffX)).toFloat() - 90f
-        val pitch = (-Math.toDegrees(Math.atan2(diffY, diffXZ))).toFloat()
+        val diffXZ = sqrt(diffX * diffX + diffZ * diffZ)
+        val yaw = Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f
+        val pitch = (-Math.toDegrees(atan2(diffY, diffXZ))).toFloat()
         return floatArrayOf(
             Wrapper.getPlayer().yaw +
                 MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
@@ -165,12 +165,6 @@ object Scaffold : Module() {
         )
     }
 
-    val eyesPos: Vec3d
-        get() = Vec3d(
-            Wrapper.getPlayer().x,
-            Wrapper.getPlayer().y + Wrapper.getPlayer().getEyeHeight(
-                mc.player!!.pose
-            ),
-            Wrapper.getPlayer().z
-        )
+    val ClientPlayerEntity.eyesPos: Vec3d
+        get() = Vec3d(x, y + getEyeHeight(pose), z)
 }

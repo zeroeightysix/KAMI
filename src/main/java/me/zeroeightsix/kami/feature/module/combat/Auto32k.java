@@ -16,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -100,7 +101,7 @@ public class Auto32k extends Module {
 
         boolean swapReady = true;
 
-        ScreenHandler container = ((HandledScreen) mc.currentScreen).getScreenHandler();
+        ScreenHandler container = ((HandledScreen<?>) mc.currentScreen).getScreenHandler();
 
         if (container.getSlot(0).getStack().isEmpty()) {
             swapReady = false;
@@ -111,6 +112,7 @@ public class Auto32k extends Module {
         }
 
         if (swapReady) {
+            assert mc.interactionManager != null;
             mc.interactionManager.clickSlot(container.syncId, 0, swordSlot - 32, SlotActionType.SWAP, mc.player);
             if (autoEnableHitAura) {
                 Aura.INSTANCE.enable();
@@ -125,6 +127,8 @@ public class Auto32k extends Module {
             this.disable();
             return;
         }
+
+        ClientPlayerEntity player = mc.player;
 
         df.setRoundingMode(RoundingMode.CEILING);
 
@@ -274,14 +278,14 @@ public class Auto32k extends Module {
         }
 
         mc.player.inventory.selectedSlot = hopperSlot;
-        placeBlock(new BlockPos(placeTarget));
+        placeBlock(player, new BlockPos(placeTarget));
 
         mc.player.inventory.selectedSlot = shulkerSlot;
-        placeBlock(new BlockPos(placeTarget.add(0, 1, 0)));
+        placeBlock(player, new BlockPos(placeTarget.add(0, 1, 0)));
 
         if (placeObiOnTop && obiSlot != -1) {
             mc.player.inventory.selectedSlot = obiSlot;
-            placeBlock(new BlockPos(placeTarget.add(0, 2, 0)));
+            placeBlock(player, new BlockPos(placeTarget.add(0, 2, 0)));
         }
 
         if (isSneaking) {
@@ -330,7 +334,7 @@ public class Auto32k extends Module {
 
     }
 
-    private static void placeBlock(BlockPos pos) {
+    private static void placeBlock(ClientPlayerEntity player, BlockPos pos) {
 
         if (!mc.world.getBlockState(pos).getMaterial().isReplaceable()) {
             return;
@@ -359,7 +363,7 @@ public class Auto32k extends Module {
                 isSneaking = true;
             }
 
-            faceVectorPacketInstant(hitVec);
+            faceVectorPacketInstant(player, hitVec);
             mc.interactionManager.interactBlock(mc.player, mc.world, Hand.MAIN_HAND, new BlockHitResult(hitVec, side2, neighbor, false));
             mc.player.swingHand(Hand.MAIN_HAND);
             ((IMinecraftClient) mc).setItemUseCooldown(4);

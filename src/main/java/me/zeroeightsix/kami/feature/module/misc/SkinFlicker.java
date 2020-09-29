@@ -5,6 +5,7 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 
 import java.util.Random;
@@ -40,14 +41,16 @@ public class SkinFlicker extends Module {
 
     @EventHandler
     private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
+        ClientPlayerEntity player = event.getPlayer();
+
         switch (mode) {
             case RANDOM:
-                if (mc.player.age % slowness != 0) return;
+                if (player.age % slowness != 0) return;
                 mc.options.togglePlayerModelPart(PlayerModelPart.values()[r.nextInt(len)]);
                 break;
             case VERTICAL:
             case HORIZONTAL:
-                int i = (mc.player.age / slowness) % (PARTS_HORIZONTAL.length * 2); // *2 for on/off
+                int i = (player.age / slowness) % (PARTS_HORIZONTAL.length * 2); // *2 for on/off
                 boolean on = false;
                 if (i >= PARTS_HORIZONTAL.length) {
                     on = true;

@@ -5,6 +5,8 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
 @Module.Info(name = "PitchLock", category = Module.Category.PLAYER)
@@ -19,15 +21,17 @@ public class PitchLock extends Module {
 
     @EventHandler
     private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
+        ClientPlayerEntity player = event.getPlayer();
         if (slice == 0) return;
         if (auto) {
             int angle = 360 / slice;
-            float yaw = mc.player.pitch;
-            yaw = Math.round(yaw / angle) * angle;
-            mc.player.pitch = yaw;
-            if (mc.player.isRiding()) mc.player.getVehicle().pitch = yaw;
+            float pitch = player.pitch;
+            pitch = Math.round(pitch / angle) * angle;
+            player.pitch = pitch;
+            Entity vehicle = player.getVehicle();
+            if (player.isRiding() && vehicle != null) vehicle.pitch = pitch;
         } else {
-            mc.player.pitch = MathHelper.clamp(pitch - 180, -180, 180);
+            player.pitch = MathHelper.clamp(pitch - 180, -180, 180);
         }
     });
 

@@ -38,12 +38,12 @@ object EntitySpeed : Module() {
     private var wobble = true
 
     @EventHandler
-    private val updateListener = Listener(
-        EventHook<TickEvent.InGame> {
-            if (mc.world != null && mc.player?.vehicle != null) {
-                when (val riding = mc.player!!.vehicle) {
+    private val updateListener = Listener<TickEvent.InGame>(
+        {
+            val player = it.player
+            if (player.vehicle != null) {
+                when (val riding = player.vehicle) {
                     is BoatEntity, is PigEntity, is HorseBaseEntity, is StriderEntity -> {
-                        val player = mc.player!!
                         val input = player.input.movementInput
 
                         val movement = IEntity.movementInputToVelocity(
@@ -92,7 +92,7 @@ object EntitySpeed : Module() {
             entity.yaw = mc.player?.yaw!!
         }
         // make sure boat doesn't sink
-        else if (entity is BoatEntity && !(forward && back)){
+        else if (entity is BoatEntity && !(forward && back)) {
             EntityUtil.updateVelocityY(entity, 0.0)
         }
     }
@@ -111,5 +111,5 @@ object EntitySpeed : Module() {
         })
 
     private val boat: BoatEntity?
-        get() = if (mc.player?.vehicle != null && mc.player!!.vehicle is BoatEntity) mc.player!!.vehicle as BoatEntity? else null
+        get() = if (mc.player?.vehicle != null && mc.player?.vehicle is BoatEntity) mc.player?.vehicle as BoatEntity? else null
 }

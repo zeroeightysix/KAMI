@@ -5,6 +5,8 @@ import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
 @Module.Info(name = "YawLock", category = Module.Category.PLAYER)
@@ -19,15 +21,18 @@ public class YawLock extends Module {
 
     @EventHandler
     private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
+        ClientPlayerEntity player = event.getPlayer();
+        
         if (slice == 0) return;
         if (auto) {
             int angle = 360 / slice;
-            float yaw = mc.player.yaw;
+            float yaw = player.yaw;
             yaw = Math.round(yaw / angle) * angle;
-            mc.player.yaw = yaw;
-            if (mc.player.isRiding()) mc.player.getVehicle().yaw = yaw;
+            player.yaw = yaw;
+            Entity vehicle = player.getVehicle();
+            if (player.isRiding() && vehicle != null) vehicle.yaw = yaw;
         } else {
-            mc.player.yaw = MathHelper.clamp(yaw - 180, -180, 180);
+            player.yaw = MathHelper.clamp(yaw - 180, -180, 180);
         }
     });
 }

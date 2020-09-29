@@ -4,6 +4,7 @@ import imgui.ImGui
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
@@ -30,10 +31,11 @@ import net.minecraft.inventory.Inventory
 
 fun String.humanReadable() = this.replace('_', ' ').toLowerCase().capitalize()
 
-val invalidationListener = Listener<TickEvent.InGame>({
+@Suppress("UNUSED") // This variable uses itself
+val invalidationListener = Listener<TickEvent.InGame>({ _ ->
     EntityTarget.values().forEach { it.invalidate() }
-}).also {
-    KamiMod.EVENT_BUS.subscribe(it)
+}).also { listener ->
+    KamiMod.EVENT_BUS.subscribe(listener)
 }
 
 fun isPassive(e: Entity): Boolean {
@@ -71,7 +73,7 @@ enum class EntityTarget(
         ALL_PLAYERS.genericBaseBelongsFunc
     );
 
-    val provider = ResettableLazy {
+    private val provider = ResettableLazy {
         this.baseCollection()?.filter { this.belongsFunc(it) }
     }
     val entities by provider
@@ -98,7 +100,7 @@ enum class BlockTarget(
     CHESTS({ it is ChestBlockEntity }, ::allBlockEntities),
     SHULKERS({ it is ShulkerBoxBlockEntity }, ::allBlockEntities);
 
-    val provider = ResettableLazy {
+    private val provider = ResettableLazy {
         this.baseCollection()?.filter { this.belongsFunc(it) }
     }
     val entities by provider
@@ -117,7 +119,7 @@ class EntityTargets<T>(inner: Map<EntityTarget, T>) : Targets<EntityTarget, T, E
         for ((target, t) in this) {
             target.entities?.forEach { map[it] = t }
         }
-        map.remove(mc.player) // We never want the player included in the entity list. Sorry bud.
+        map.remove<Entity, T>(mc.player!!) // We never want the player included in the entity list. Sorry bud.
         return map
     }
 
@@ -152,7 +154,7 @@ inline fun <M, S, reified T : Enum<T>, reified C : Targets<T, M, *>> createTarge
     metaType: ConfigType<M, S, *>,
     targetConfigType: StringConfigType<T>,
     crossinline factory: (Map<T, M>) -> C
-) =
+): MapConfigType<C, S> =
     ConfigTypes.makeMap(targetConfigType, metaType).derive(
         C::class.java,
         {

@@ -11,6 +11,7 @@ public class Fastbreak extends Module {
 
     @EventHandler
     private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
+        assert mc.interactionManager != null;
         ((IClientPlayerInteractionManager) mc.interactionManager).setBlockBreakingCooldown(0);
     });
 
