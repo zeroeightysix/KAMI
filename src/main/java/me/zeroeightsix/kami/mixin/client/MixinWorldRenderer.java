@@ -89,7 +89,7 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     public void renderEntity(WorldRenderer worldRenderer, Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
         if (ESP.INSTANCE.getEnabled()) {
-            Colour colour = ESP.INSTANCE.getTargets().get(entity);
+            Colour colour = ESP.INSTANCE.getEntityTargets().get(entity);
             if (colour != null) {
                 swapWhile(() -> {
                     OutlineVertexConsumerProvider provider = ESP.INSTANCE.getEntityOutlineVertexConsumerProvider();
@@ -116,8 +116,8 @@ public abstract class MixinWorldRenderer implements HotSwappable {
 
     @Inject(method = "drawEntityOutlinesFramebuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;draw(IIZ)V"))
     public void onDrawEntityOutlinesFramebuffer(CallbackInfo ci) {
-        ESP.INSTANCE.getOutlineFramebuffer().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
         KamiRenderLayers.INSTANCE.getFilteredFramebuffer().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
+        ESP.INSTANCE.getOutlineFramebuffer().draw(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight(), false);
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)

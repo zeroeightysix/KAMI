@@ -1,5 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
+import me.zeroeightsix.kami.Colour;
+import me.zeroeightsix.kami.feature.module.ESP;
 import me.zeroeightsix.kami.util.OutlineVertexConsumer;
 import me.zeroeightsix.kami.world.KamiRenderLayers;
 import net.minecraft.block.Block;
@@ -45,7 +47,11 @@ public class MixinRebuildTask {
         RenderLayer solidLayer = null;
         RenderLayer outlineLayer = null;
 
-        if (block == Blocks.DIAMOND_ORE) {
+        ESP.ESPTarget target = ESP.INSTANCE.getBlockTargets().get(block);
+        
+        if (target == null) return;
+
+        if (target.getSolid()) {
             solidLayer = KamiRenderLayers.INSTANCE.getSolidFiltered();
             BufferBuilder builder = blockBufferBuilderStorage.get(solidLayer);
             if (iChunkData.getInitializedLayers().add(solidLayer)) {
@@ -55,14 +61,20 @@ public class MixinRebuildTask {
             consumer = builder;
         }
 
-        if (block == Blocks.IRON_ORE) { // if: has outline
+        if (target.getOutline()) { // if: has outline
             outlineLayer = KamiRenderLayers.INSTANCE.getSolidFilteredOutline();
             BufferBuilder outlineBuilder = blockBufferBuilderStorage.get(outlineLayer);
             if (iChunkData.getInitializedLayers().add(outlineLayer)) {
                 outlineBuilder.begin(GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
             }
-            // todo: customizable colour
-            OutlineVertexConsumer outlineVertexConsumer = new OutlineVertexConsumer(outlineBuilder, 255, 0, 255, 128);
+            Integer[] outlineColour = target.getOutlineColour().asInts();
+            OutlineVertexConsumer outlineVertexConsumer = new OutlineVertexConsumer(
+                outlineBuilder,
+                outlineColour[1],
+                outlineColour[2],
+                outlineColour[3],
+                outlineColour[0]
+            );
 
             if (consumer != null)
                 consumer = VertexConsumers.dual(consumer, outlineVertexConsumer);

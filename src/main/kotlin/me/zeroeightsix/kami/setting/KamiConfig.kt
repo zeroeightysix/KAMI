@@ -17,7 +17,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableTy
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.EnumConfigType
-import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.MapConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.NumberConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
@@ -43,18 +42,18 @@ import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
+import me.zeroeightsix.kami.target.BlockCategory
 import me.zeroeightsix.kami.target.BlockEntityCategory
 import me.zeroeightsix.kami.target.BlockEntitySupplier
+import me.zeroeightsix.kami.target.BlockSupplier
 import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
-import me.zeroeightsix.kami.target.TargetSupplier
 import me.zeroeightsix.kami.target.createTargetsType
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.unsignedInt
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
-import net.minecraft.entity.EntityType
 import net.minecraft.server.command.CommandSource
 import net.minecraft.util.Identifier
 import org.reflections.Reflections
@@ -142,6 +141,23 @@ object KamiConfig {
         }
     )
 
+    val blockCategoryType = ConfigTypes.STRING.derive(BlockCategory::class.java,
+        {
+            BlockCategory.valueOf(it)
+        },
+        {
+            it.name
+        }
+    )
+    val blockSpecificType = identifierType.derive(BlockSupplier.SpecificBlock::class.java,
+        {
+            BlockSupplier.SpecificBlock(it)
+        },
+        {
+            it.typeIdentifier
+        }
+    )
+
     fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType, { EntitySupplier.SpecificEntity() }) { e, s ->
         EntitySupplier(e, s)
     }
@@ -150,12 +166,20 @@ object KamiConfig {
         BlockEntitySupplier(e, s)
     }
 
+    fun <M, S> createBlockType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockCategoryType, blockSpecificType, { BlockSupplier.SpecificBlock() }) { e, s ->
+        BlockSupplier(e, s)
+    }
+    
     val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntitySupplier<*>> {
         createEntityTargetsType(it[0])
     }
 
-    val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockEntitySupplier<*>> {
+    val blockEntityTargetsTypeProcessor = ParameterizedTypeProcessor<BlockEntitySupplier<*>> {
         createBlockTargetsType(it[0])
+    }
+
+    val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockSupplier<*>> {
+        createBlockType(it[0])
     }
 
     val colourType =
@@ -655,7 +679,8 @@ object KamiConfig {
             .useNamingConvention(ProperCaseConvention)
             .registerTypeMapping(ArrayList::class.java, mutableListTypeProcessor)
             .registerTypeMapping(EntitySupplier::class.java, entityTargetsTypeProcessor)
-            .registerTypeMapping(BlockEntitySupplier::class.java, blockTargetsTypeProcessor)
+            .registerTypeMapping(BlockEntitySupplier::class.java, blockEntityTargetsTypeProcessor)
+            .registerTypeMapping(BlockSupplier::class.java, blockTargetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)

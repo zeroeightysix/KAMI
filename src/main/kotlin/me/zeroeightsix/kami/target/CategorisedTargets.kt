@@ -6,6 +6,11 @@ import me.zeroeightsix.kami.event.TickEvent.*
 import me.zeroeightsix.kami.isFriend
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.ResettableLazy
+import net.minecraft.block.Block
+import net.minecraft.block.Fertilizable
+import net.minecraft.block.OreBlock
+import net.minecraft.block.SlabBlock
+import net.minecraft.block.Waterloggable
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.block.entity.EnderChestBlockEntity
@@ -134,6 +139,17 @@ enum class BlockEntityCategory(
     override val provider = ResettableLazy {
         this.baseCollection()?.filterLazily(belongsFunc)
     }
+}
+
+@Suppress("unused")
+enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : CategorisedTargetProvider<Block> {
+    NONE({ false }),
+    ORES({ it is OreBlock }),
+    SLABS({ it is SlabBlock }),
+    FERTILIZABLE({ it is Fertilizable }),
+    WATERLOGGABLE({ it is Waterloggable });
+
+    override val provider: ResettableLazy<Iterator<Block>?> = ResettableLazy { emptyIterator() }
 }
 
 @Suppress("unused") // Yes, it is unused, but the initializer does happen!
