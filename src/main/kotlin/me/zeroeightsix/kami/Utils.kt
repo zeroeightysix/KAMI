@@ -30,17 +30,25 @@ import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
 import unsigned.toUint
+import java.util.Optional
 import java.util.stream.Stream
 import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
 // / Quality of life and primitive extensions
+
+val <T> Optional<T>.kotlin
+    get() = if (this.isPresent) this.get() else null
+
+val Identifier.minecraftNamespaceOmitted: String
+    get() = if (namespace == "minecraft") this.path else this.toString()
 
 /**
  * If `true`, compute a value. Else, return `null`.
