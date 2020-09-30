@@ -1,0 +1,292 @@
+package me.zeroeightsix.kami.target
+
+import imgui.ImGui
+import imgui.dsl
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
+import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.setting.GenerateType.Companion.columnMode
+import me.zeroeightsix.kami.setting.InvalidValueException
+import me.zeroeightsix.kami.setting.extend
+import me.zeroeightsix.kami.setting.settingInterface
+import me.zeroeightsix.kami.tempSet
+import me.zeroeightsix.kami.util.ResettableLazy
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.Entity
+import java.util.Arrays
+import java.util.stream.Collectors
+
+val String.humanReadable
+    get() = this.replace('_', ' ').toLowerCase().capitalize()
+
+/**
+ * This class implements the basic actions of a [TargetSupplier] type.
+ */
+abstract class TargetSupplier<T, M, E, S : TargetSupplier.SpecificTarget<T>>(
+    val enumTargets: Map<E, M>,
+    val specificTargets: Map<S, M>
+) where E : Enum<E>, E : CategorisedTargetProvider<T> {
+    init {
+        Listener<TickEvent.InGame>({
+            this.invalidate()
+        }).also {
+            KamiMod.EVENT_BUS.subscribe(it)
+        }
+    }
+
+    private var targetsDelegate = ResettableLazy {
+        flat()
+    }
+
+    val targets: MutableMap<T, M> by targetsDelegate
+
+    /**
+     * @return nonnull instance of [M] if `target` is supplied by this [TargetSupplier]
+     */
+    operator fun get(target: T) =
+        this.enumTargets.entries.find { (e, _) -> e.belongsFunc(target) }?.value
+            ?: this.specificTargets.entries.find { (e, _) -> e.belongs(target) }?.value
+
+    private fun invalidate() {
+        this.targetsDelegate.invalidate()
+    }
+
+    protected open fun flat(): MutableMap<T, M> {
+        val map = mutableMapOf<T, M>()
+        this.enumTargets.forEach { (target, meta) -> target.provider.value?.forEach { map[it] = meta } }
+        this.specificTargets.forEach { (sTarget, meta) -> sTarget.targets.forEach { map[it] = meta } }
+        return map
+    }
+
+    abstract class SpecificTarget<T> {
+
+        abstract val targets: Set<T>
+        abstract fun belongs(target: T): Boolean
+    }
+}
+
+class EntitySupplier<M>(
+    enumTargets: Map<EntityCategory, M>,
+    specificTargets: Map<SpecificEntity, M>
+) : TargetSupplier<Entity, M, EntityCategory, EntitySupplier.SpecificEntity>(
+    enumTargets, specificTargets
+) {
+    class SpecificEntity : SpecificTarget<Entity>() {
+        override val targets: Set<Entity>
+            get() = TODO("Not yet implemented")
+
+        override fun belongs(target: Entity): Boolean {
+            TODO("Not yet implemented")
+        }
+    }
+
+    override fun flat(): MutableMap<Entity, M> {
+        val map = super.flat()
+        // Exclude the player from things like tracers
+        mc.player?.let { map.remove(it) }
+        return map
+    }
+}
+
+class BlockEntitySupplier<M>(
+    enumTargets: Map<BlockEntityCategory, M>,
+    specificTargets: Map<SpecificBlockEntity, M>
+) : TargetSupplier<BlockEntity, M, BlockEntityCategory, BlockEntitySupplier.SpecificBlockEntity>(
+    enumTargets, specificTargets
+) {
+    class SpecificBlockEntity : SpecificTarget<BlockEntity>() {
+        override val targets: Set<BlockEntity>
+            get() = TODO("Not yet implemented")
+
+        override fun belongs(target: BlockEntity): Boolean {
+            TODO("Not yet implemented")
+        }
+    }
+}
+
+inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget<*>, reified T : TargetSupplier<*, M, E, S>> createTargetsType(
+    metaType: ConfigType<M, B, *>,
+    enumType: StringConfigType<E>,
+    specificTargetType: StringConfigType<S>,
+    crossinline factory: (Map<E, M>, Map<S, M>) -> T
+): RecordConfigType<T> {
+    val catMapType = ConfigTypes.makeMap(enumType, metaType)
+    val specMapType = ConfigTypes.makeMap(specificTargetType, metaType)
+    val recordSerializableType = RecordSerializableType(
+        mapOf(
+            "categorised" to catMapType.serializedType,
+            "specific" to specMapType.serializedType
+        )
+    )
+    return RecordConfigType(
+        recordSerializableType,
+        T::class.java,
+        {
+            @Suppress("UNCHECKED_CAST") val categories: MutableMap<E, M> =
+                catMapType.toRuntimeType(it["categorised"] as MutableMap<String, B>?)
+            @Suppress("UNCHECKED_CAST") val specifics: MutableMap<S, M> =
+                specMapType.toRuntimeType(it["specific"] as MutableMap<String, B>?)
+
+            factory(categories, specifics)
+        },
+        {
+            mapOf(
+                "categorised" to catMapType.toSerializedType(it.enumTargets),
+                "specific" to specMapType.toSerializedType(it.specificTargets)
+            )
+        }
+    ).also { targetType ->
+        val metaInterface = metaType.settingInterface
+
+        val isColumns = metaInterface != null
+
+        val next = if (isColumns) {
+            { ImGui.nextColumn() }
+        } else {
+            { Unit }
+        }
+
+        targetType.extend(
+            {
+                "targets" // We don't try to convert targets <-> string
+            },
+            {
+                throw InvalidValueException("Targets can not be set from the settings command.") // same here
+            },
+            { name, supplier ->
+                // If either are nonnull, the factory is called & the target gets updated.
+                var dirtyEnumMap: Map<E, M>? = null
+                var dirtySpecMap: Map<S, M>? = null
+
+                ImGui.run {
+                    textDisabled(name)
+                    dsl.withId(name) {
+                        dsl.columns(columnsCount = if (isColumns) 2 else 1) {
+                            val enumTargets = supplier.enumTargets
+
+                            separator()
+                            // All categories that have already been picked by the user
+                            val chosenEnums = enumTargets.keys
+                            // The categories that *haven't* been picked yet (set of enums \ chosen enums)
+                            val availableEnums: Array<E> =
+                                Arrays.stream(E::class.java.enumConstants).filter { !chosenEnums.contains(it) }
+                                    .collect(Collectors.toSet()).toTypedArray()
+
+                            var dirty = false
+
+                            @Suppress("NAME_SHADOWING") val enumMap = enumTargets.mapNotNull { (enum, meta) ->
+                                var enum = enum
+                                var meta = meta
+
+                                val humanReadableName = enum.name.humanReadable
+
+                                dsl.withId(enum) {
+                                    alignTextToFramePadding()
+
+                                    val nodeOpen = if (isColumns) {
+                                        // Show the node with the human readable name of the selected enum as title
+                                        treeNode(enum, humanReadableName)
+                                    } else false
+
+                                    next()
+
+                                    // We construct a list of available enums, but with the currently picked enum at idx 0 (otherwise it wouldn't be in the list of items to pick, so the user wouldn't have a item to click that 'cancels' the combobox)
+                                    val items = availableEnums.toMutableList().also {
+                                        // Add the current enum at idx 0
+                                        it.add(0, enum)
+                                    }.map { it.name.humanReadable } // Map them to human readable names
+
+                                    // Show the combobox for the user to select which enum to **switch** to
+                                    val currentItem = intArrayOf(0)
+                                    if (combo("##$name-etarget-$humanReadableName", currentItem, items)) {
+                                        // Get the index of the picked item. Minus 1 because we also inserted the (before this) picked item!
+                                        val currentItem = currentItem[0] - 1
+                                        // If selected combo item index was 0 (and thus, the element that we inserted), don't continue
+                                        // (-1 because 0-1 = -1)
+                                        if (currentItem != -1) {
+                                            val currentItem = availableEnums[currentItem]
+                                            enum = currentItem
+                                            dirty = true
+                                        }
+                                    }
+
+                                    // If there is more than one option, show a `-` button to delete a target.
+                                    // We don't want the user to be able to remove all targets as we'd have no meta to copy for a new target.
+                                    if (enumTargets.size > 1 && sameLine().run { smallButton("-") }) {
+                                        // Return null. `mapNotNull` will omit entries from the map that returned null.
+                                        dirty = true
+                                        return@mapNotNull null
+                                    }
+
+                                    next()
+
+                                    // If the tree node was opened, show this target's options
+                                    if (nodeOpen) {
+                                        // For types generated by @GenerateType, turn on column mode.
+                                        // Most target meta types are generated this way.
+                                        ::columnMode.tempSet(true) {
+                                            next()
+                                            metaInterface?.let {
+                                                it.displayImGui(it.type.capitalize(), meta)?.let { changedMeta ->
+                                                    dirty = true
+                                                    meta = changedMeta
+                                                }
+                                            }
+                                            next()
+                                        }
+                                        treePop()
+                                    }
+                                }
+
+                                enum to meta
+                            }.toMap()
+
+                            if (dirty)
+                                dirtyEnumMap = enumMap
+
+                            // Display the widget to add targets
+                            // If columns, we display the label of the combobox separately.
+                            if (isColumns) {
+                                textDisabled("New")
+                                next()
+                            }
+
+                            val currentItem = intArrayOf(-1)
+                            val options = availableEnums
+                                .map { it.name.humanReadable }
+                                .toMutableList()
+                                .also {
+                                    it.add(0, "Custom")
+                                }
+                            if (combo((if (isColumns) "##" else "") + "New##", currentItem, options)) {
+                                @Suppress("NAME_SHADOWING") val currentItem = currentItem[0]
+                                // User selected 'Custom' option
+                                if (currentItem == 0) {
+
+                                } else {
+                                    // User selected one of the categories (enums)
+                                    @Suppress("NAME_SHADOWING") val currentItem = availableEnums[currentItem - 1] // -1 as offset for the added Custom option
+                                    dirtyEnumMap = supplier.enumTargets.toMutableMap().also {
+                                        // Add the selected enum, with meta from the last entry in the enum map.
+                                        it[currentItem] = it[chosenEnums.last()]!! // Copy the meta from the last entry
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    separator()
+                }
+
+                if (dirtyEnumMap != null || dirtySpecMap != null) {
+                    factory(dirtyEnumMap ?: supplier.enumTargets, dirtySpecMap ?: supplier.specificTargets)
+                } else null
+            }
+        )
+    }
+}

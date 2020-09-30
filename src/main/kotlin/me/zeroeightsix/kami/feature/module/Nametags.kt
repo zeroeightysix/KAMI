@@ -13,8 +13,8 @@ import me.zeroeightsix.kami.feature.module.Module.Info
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.setting.GenerateType
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
+import me.zeroeightsix.kami.target.EntityCategory
+import me.zeroeightsix.kami.target.EntitySupplier
 import me.zeroeightsix.kami.util.VectorMath
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -52,16 +52,17 @@ import kotlin.math.roundToInt
 object Nametags : Module() {
 
     @Setting
-    var targets = EntityTargets(
+    var targets = EntitySupplier(
         mapOf(
-            EntityTarget.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
-            EntityTarget.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f)),
-            EntityTarget.ALL_PLAYERS to NametagsTarget(
+            EntityCategory.PASSIVE to NametagsTarget(false, colour = Colour(0.3f, 0.3f, 1f, 0.3f)),
+            EntityCategory.HOSTILE to NametagsTarget(colour = Colour(0.75f, 1f, 0.3f, 0.3f)),
+            EntityCategory.ALL_PLAYERS to NametagsTarget(
                 distance = true,
                 items = NametagsTarget.Items.JUST_ITEMS,
                 colour = Colour(1f, 1f, 1f, 1f)
             )
-        )
+        ),
+        mapOf()
     )
 
     var renderQueue: List<Triple<Entity, Vector4f, NametagsTarget>>? = null
@@ -76,7 +77,7 @@ object Nametags : Module() {
         val camera = mc.gameRenderer?.camera!!
         val model = event.matrixStack.peek().model
         val cameraNegated = camera.pos.negate()
-        renderQueue = targets.entities.mapNotNull { (entity, properties) ->
+        renderQueue = targets.targets.mapNotNull { (entity, properties) ->
             val interpolated = entity.getInterpolatedPos(event.tickDelta)
             VectorMath.project3Dto2D(
                 cameraNegated.add(interpolated.add(0.0, entity.getEyeHeight(entity.pose).toDouble() + 0.5, 0.0)),

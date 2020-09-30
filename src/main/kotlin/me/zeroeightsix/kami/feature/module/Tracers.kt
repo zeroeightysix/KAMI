@@ -12,8 +12,8 @@ import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.RenderEvent
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.noBobbingCamera
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
+import me.zeroeightsix.kami.target.EntityCategory
+import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
@@ -28,10 +28,11 @@ import org.lwjgl.opengl.GL11
 object Tracers : Module() {
 
     @Setting
-    private var targets = EntityTargets(
+    private var targets = EntitySupplier(
         mapOf(
-            EntityTarget.ALL_PLAYERS to Colour.WHITE
-        )
+            EntityCategory.ALL_PLAYERS to Colour.WHITE
+        ),
+        mapOf()
     )
 
     @Setting
@@ -59,7 +60,7 @@ object Tracers : Module() {
 
             bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
 
-            targets.entities
+            targets.targets
                 .filter { (entity, _) -> player.distanceTo(entity) < range }
                 .forEach { (entity, c) ->
                     val pos = entity.getInterpolatedPos(event.tickDelta)

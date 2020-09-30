@@ -43,15 +43,16 @@ import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
+import me.zeroeightsix.kami.target.BlockEntityCategory
+import me.zeroeightsix.kami.target.BlockEntitySupplier
+import me.zeroeightsix.kami.target.EntityCategory
+import me.zeroeightsix.kami.target.EntitySupplier
+import me.zeroeightsix.kami.target.TargetSupplier
+import me.zeroeightsix.kami.target.createTargetsType
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.unsignedInt
 import me.zeroeightsix.kami.util.Bind
-import me.zeroeightsix.kami.util.BlockTarget
-import me.zeroeightsix.kami.util.BlockTargets
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
 import me.zeroeightsix.kami.util.Friends
-import me.zeroeightsix.kami.util.createTargetsType
 import net.minecraft.client.util.InputUtil
 import net.minecraft.server.command.CommandSource
 import org.reflections.Reflections
@@ -77,6 +78,8 @@ object KamiConfig {
     val strBuffer = ByteArray(512)
 
     /** Config types **/
+    
+    val unitType = RecordConfigType(RecordSerializableType(mapOf()), Unit::class.java, { Unit }, { mapOf() })
 
     val mutableListTypeProcessor = ParameterizedTypeProcessor {
         fun <T> makeMutableListType(type: ConfigType<T, *, *>) =
@@ -94,49 +97,47 @@ object KamiConfig {
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val entityTargetType = ConfigTypes.STRING.derive(
-        EntityTarget::class.java,
+    val entityCategoryType = ConfigTypes.STRING.derive(EntityCategory::class.java,
         {
-            EntityTarget.valueOf(it)
+            EntityCategory.valueOf(it)
         },
         {
             it.name
         }
     )
+    val entitySpecificType = ConfigTypes.STRING.derive(EntitySupplier.SpecificEntity::class.java, {
+        EntitySupplier.SpecificEntity()
+    }, {
+        "not implemented"
+    })
 
-    val blockTargetType = ConfigTypes.STRING.derive(
-        BlockTarget::class.java,
+    val blockEntityCategoryType = ConfigTypes.STRING.derive(BlockEntityCategory::class.java,
         {
-            BlockTarget.valueOf(it)
+            BlockEntityCategory.valueOf(it)
         },
         {
             it.name
         }
     )
+    val blockEntitySpecificType = ConfigTypes.STRING.derive(BlockEntitySupplier.SpecificBlockEntity::class.java, {
+        BlockEntitySupplier.SpecificBlockEntity()
+    }, {
+        "not implemented"
+    })
 
-    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<EntityTargets<M>, S>? {
-        return createTargetsType(
-            metaType,
-            entityTargetType
-        ) {
-            EntityTargets(it)
-        }
+    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType) { e, s ->
+        EntitySupplier(e, s)
     }
 
-    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>): MapConfigType<BlockTargets<M>, S>? {
-        return createTargetsType(
-            metaType,
-            blockTargetType
-        ) {
-            BlockTargets(it)
-        }
+    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockEntityCategoryType, blockEntitySpecificType) { e, s ->
+        BlockEntitySupplier(e, s)
     }
 
-    val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntityTargets<*>> {
+    val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntitySupplier<*>> {
         createEntityTargetsType(it[0])
     }
 
-    val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockTargets<*>> {
+    val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockEntitySupplier<*>> {
         createBlockTargetsType(it[0])
     }
 
@@ -636,8 +637,8 @@ object KamiConfig {
             .collectOnlyAnnotatedMembers()
             .useNamingConvention(ProperCaseConvention)
             .registerTypeMapping(ArrayList::class.java, mutableListTypeProcessor)
-            .registerTypeMapping(EntityTargets::class.java, entityTargetsTypeProcessor)
-            .registerTypeMapping(BlockTargets::class.java, blockTargetsTypeProcessor)
+            .registerTypeMapping(EntitySupplier::class.java, entityTargetsTypeProcessor)
+            .registerTypeMapping(BlockEntitySupplier::class.java, blockTargetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
@@ -646,6 +647,7 @@ object KamiConfig {
             .registerTypeMapping(CompiledText::class.java, compiledTextType)
             .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
             .registerTypeMapping(TextPinnableWidget.Alignment::class.java, alignmentType)
+            .registerTypeMapping(Unit::class.java, unitType)
             .registerSettingProcessor(
                 SettingVisibility.Constant::class.java,
                 ConstantVisibilityAnnotationProcessor
