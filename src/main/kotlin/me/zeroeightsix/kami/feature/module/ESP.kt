@@ -8,10 +8,10 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.ChunkCullingEvent
-import me.zeroeightsix.kami.util.BlockTarget
-import me.zeroeightsix.kami.util.BlockTargets
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
+import me.zeroeightsix.kami.target.BlockEntityCategory
+import me.zeroeightsix.kami.target.BlockEntitySupplier
+import me.zeroeightsix.kami.target.EntityCategory
+import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.OutlineVertexConsumerProvider
 import net.minecraft.util.Identifier
 
@@ -30,17 +30,19 @@ object ESP : Module() {
     }
 
     @Setting(name = "Entities")
-    var targets = EntityTargets(
+    var targets = EntitySupplier(
         mapOf(
-            EntityTarget.ALL_PLAYERS to Colour.WHITE
-        )
+            EntityCategory.ALL_PLAYERS to Colour.WHITE
+        ),
+        mapOf()
     )
 
     @Setting(name = "Block entities")
-    var blockTargets = BlockTargets(
+    var blockTargets = BlockEntitySupplier(
         mapOf(
-            BlockTarget.CHESTS to Colour(1f, 0.92f, 0.81f, 0.28f) // Gold brownish
-        )
+            BlockEntityCategory.CHESTS to Colour(1f, 0.92f, 0.81f, 0.28f) // Gold brownish
+        ),
+        mapOf()
     )
 
     @EventHandler

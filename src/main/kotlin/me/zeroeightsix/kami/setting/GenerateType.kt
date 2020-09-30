@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.setting
 
+import imgui.ImGui
 import io.github.fablabsmc.fablabs.api.fiber.v1.exception.FiberTypeProcessingException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
@@ -26,6 +27,8 @@ annotation class GenerateType(val name: String = "") {
     }
 
     companion object {
+        var columnMode = false
+        
         @ExperimentalStdlibApi
         fun <T : Any> generateType(
             clazz: Class<T>,
@@ -102,16 +105,37 @@ annotation class GenerateType(val name: String = "") {
 
                 override fun displayImGui(name: String, t: T): T? {
                     var dirty = false
+
+                    val next = if (columnMode) {
+                        { ImGui.nextColumn() }
+                    } else {
+                        { Unit}
+                    }
+
+                    // Bit of a hack: in column mode, the 'starting' point is expected to be the *second* column. We want labels in the first, so we move to the next column, and hope:
+                    // 1. it's the first column
+                    // 2. the previous column was empty, thus there is no difference in y.
+                    next()
+
                     params.values.forEach { (member, type) ->
                         val value = member.call(t) ?: return@forEach // If null, don't display it.
-                        type.settingInterface?.displayImGui("${member.name.capitalize()}##$name-${member.name}", value)
+                        var label = member.name.capitalize()
+                        val id = "$name-${member.name}"
+                        if (columnMode) {
+                            ImGui.text(label)
+                            next()
+                            label = ""
+                        }
+                        type.settingInterface?.displayImGui("$label##$id", value)
                             ?.let {
                                 if (member is KMutableProperty<*>) {
                                     member.setter.call(t, it)
                                     dirty = true
                                 }
                             }
+                        next()
                     }
+                    next()
                     return if (dirty) t else null
                 }
             }
