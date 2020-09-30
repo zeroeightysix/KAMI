@@ -54,7 +54,9 @@ import me.zeroeightsix.kami.unsignedInt
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
+import net.minecraft.entity.EntityType
 import net.minecraft.server.command.CommandSource
+import net.minecraft.util.Identifier
 import org.reflections.Reflections
 import uno.kotlin.NUL
 import java.io.IOException
@@ -95,6 +97,15 @@ object KamiConfig {
         makeMutableListType(it[0])
     }
 
+    val identifierType = ConfigTypes.STRING.derive(Identifier::class.java,
+        {
+            Identifier(it)
+        },
+        {
+            it.toString()
+        }
+    )
+
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
     val entityCategoryType = ConfigTypes.STRING.derive(EntityCategory::class.java,
@@ -105,11 +116,14 @@ object KamiConfig {
             it.name
         }
     )
-    val entitySpecificType = ConfigTypes.STRING.derive(EntitySupplier.SpecificEntity::class.java, {
-        EntitySupplier.SpecificEntity()
-    }, {
-        "not implemented"
-    })
+    val entitySpecificType = identifierType.derive(EntitySupplier.SpecificEntity::class.java,
+        {
+            EntitySupplier.SpecificEntity(it)
+        },
+        {
+            it.typeIdentifier
+        }
+    )
 
     val blockEntityCategoryType = ConfigTypes.STRING.derive(BlockEntityCategory::class.java,
         {
@@ -119,17 +133,20 @@ object KamiConfig {
             it.name
         }
     )
-    val blockEntitySpecificType = ConfigTypes.STRING.derive(BlockEntitySupplier.SpecificBlockEntity::class.java, {
-        BlockEntitySupplier.SpecificBlockEntity()
-    }, {
-        "not implemented"
-    })
+    val blockEntitySpecificType = identifierType.derive(BlockEntitySupplier.SpecificBlockEntity::class.java,
+        {
+            BlockEntitySupplier.SpecificBlockEntity(it)
+        },
+        {
+            it.typeIdentifier
+        }
+    )
 
-    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType) { e, s ->
+    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType, { EntitySupplier.SpecificEntity() }) { e, s ->
         EntitySupplier(e, s)
     }
 
-    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockEntityCategoryType, blockEntitySpecificType) { e, s ->
+    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockEntityCategoryType, blockEntitySpecificType, { BlockEntitySupplier.SpecificBlockEntity() }) { e, s ->
         BlockEntitySupplier(e, s)
     }
 
