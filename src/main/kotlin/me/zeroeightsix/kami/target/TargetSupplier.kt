@@ -21,6 +21,7 @@ import me.zeroeightsix.kami.setting.extend
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.tempSet
 import me.zeroeightsix.kami.util.ResettableLazy
+import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.Entity
@@ -147,6 +148,20 @@ class BlockEntitySupplier<M>(
             get() = emptySet()
 
         override fun belongs(target: BlockEntity): Boolean = target.type == this.registryEntry
+    }
+}
+
+class BlockSupplier<M>(
+    enumTargets: Map<BlockCategory, M>,
+    specificTargets: Map<SpecificBlock, M>
+) : TargetSupplier<Block, M, BlockCategory, BlockSupplier.SpecificBlock>(
+    enumTargets, specificTargets
+) {
+    class SpecificBlock(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<Block, Block>(identifier, Registry.BLOCK) {
+        override val targets: Set<Block>
+            get() = emptySet()
+
+        override fun belongs(target: Block): Boolean = target == this.registryEntry
     }
 }
 

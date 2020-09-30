@@ -8,8 +8,11 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.event.ChunkCullingEvent
+import me.zeroeightsix.kami.setting.GenerateType
+import me.zeroeightsix.kami.target.BlockCategory
 import me.zeroeightsix.kami.target.BlockEntityCategory
 import me.zeroeightsix.kami.target.BlockEntitySupplier
+import me.zeroeightsix.kami.target.BlockSupplier
 import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.OutlineVertexConsumerProvider
@@ -30,7 +33,7 @@ object ESP : Module() {
     }
 
     @Setting(name = "Entities")
-    var targets = EntitySupplier(
+    var entityTargets = EntitySupplier(
         mapOf(
             EntityCategory.ALL_PLAYERS to Colour.WHITE
         ),
@@ -38,16 +41,29 @@ object ESP : Module() {
     )
 
     @Setting(name = "Block entities")
-    var blockTargets = BlockEntitySupplier(
+    var blockEntityTargets = BlockEntitySupplier(
         mapOf(
             BlockEntityCategory.CHESTS to Colour(1f, 0.92f, 0.81f, 0.28f) // Gold brownish
         ),
         mapOf()
+    )
+    
+    @Setting(name = "Blocks")
+    var blockTargets = BlockSupplier(
+        mapOf(
+            BlockCategory.ORES to ESPTarget()
+        ),
+        mapOf(
+            BlockSupplier.SpecificBlock(Identifier("minecraft", "diamond_block")) to ESPTarget(outline = true)
+        )
     )
 
     @EventHandler
     val cullingListener = Listener<ChunkCullingEvent>({
         it.chunkCulling = false // TODO: Only =false if ESP is actively showing blocks that require chunk culling to be off
     })
+    
+    @GenerateType
+    class ESPTarget(var solid: Boolean = true, var outline: Boolean = false, var outlineColour: Colour = Colour.WHITE)
 
 }
