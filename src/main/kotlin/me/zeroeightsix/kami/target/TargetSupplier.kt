@@ -10,7 +10,10 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfig
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.gui.inputText
+import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.minecraftNamespaceOmitted
 import me.zeroeightsix.kami.setting.GenerateType.Companion.columnMode
 import me.zeroeightsix.kami.setting.InvalidValueException
 import me.zeroeightsix.kami.setting.SettingInterface
@@ -80,17 +83,34 @@ abstract class RegistrySpecificTarget<T, R>(_typeIdentifier: Identifier = noneId
     companion object {
         internal val noneIdentifier = Identifier("kami", "none")
     }
-
+    
     var typeIdentifier = _typeIdentifier
         private set(value) {
             field = value
-            this.registryEntry = fetchRegistryEntry()
+            this.registryEntry = fetchRegistryEntry()?.also {
+                this.editStr = value.minecraftNamespaceOmitted
+            }
+        }
+
+    private var editStr = typeIdentifier.toString()
+        private set(value) {
+            if (value == noneIdentifier.toString()) field = ""
+            else field = value
         }
 
     protected var registryEntry = fetchRegistryEntry()
         private set
 
     private fun fetchRegistryEntry() = typeIdentifier.let { if (it == noneIdentifier) null else this.registry[it] }
+
+    override fun imguiEdit() {
+        if (inputText("##${hashCode()}", ::editStr)) {
+            val id = Identifier(editStr)
+            registry.getOrEmpty(id).kotlin?.let {
+                this.typeIdentifier = id
+            }
+        }
+    }
 
     override fun toString(): String = this.typeIdentifier.path.humanReadable
 }
@@ -106,10 +126,6 @@ class EntitySupplier<M>(
             get() = emptySet()
 
         override fun belongs(target: Entity): Boolean = target.type == this.registryEntry
-
-        override fun imguiEdit() {
-            ImGui.text("placeholder")
-        }
     }
 
     override fun flat(): MutableMap<Entity, M> {
@@ -131,10 +147,6 @@ class BlockEntitySupplier<M>(
             get() = emptySet()
 
         override fun belongs(target: BlockEntity): Boolean = target.type == this.registryEntry
-
-        override fun imguiEdit() {
-            ImGui.text("placeholder2")
-        }
     }
 }
 
