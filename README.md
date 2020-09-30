@@ -6,7 +6,7 @@
 ## A Minecraft utility mod for anarchy servers.
 
 The Forge 1.12.2 version is in slowed development. 
-You can go to the `fabric-1.14` branch to see an actively developed Fabric version. 
+You can go to the `fabric` branch to see an actively developed Fabric version. 
 
 Please note Baritone is not included in 1.12.2 Forge. Get it [from here](https://github.com/cabaletta/baritone/releases).
 
