@@ -1,13 +1,11 @@
 package me.zeroeightsix.kami.mixin.client;
 
-import me.zeroeightsix.kami.Colour;
 import me.zeroeightsix.kami.feature.module.ESP;
 import me.zeroeightsix.kami.util.OutlineVertexConsumer;
 import me.zeroeightsix.kami.world.KamiRenderLayers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -84,7 +82,7 @@ public class MixinRebuildTask {
 
         if (consumer == null) return;
 
-        if (renderAllSidesUnlitFlat(blockRenderManager, blockState, blockPos3, chunkRendererRegion, matrixStack, consumer, random)) {
+        if (renderFlatUnlit(blockRenderManager, blockState, blockPos3, chunkRendererRegion, matrixStack, consumer, random)) {
             iChunkData.setEmpty(false);
             if (solidLayer != null)
                 iChunkData.getNonEmptyLayers().add(solidLayer);
@@ -93,7 +91,7 @@ public class MixinRebuildTask {
         }
     }
 
-    private static boolean renderAllSidesUnlitFlat(BlockRenderManager manager, BlockState blockState, BlockPos blockPos, BlockRenderView blockRenderView, MatrixStack matrixStack, VertexConsumer vertexConsumer, Random random) {
+    private static boolean renderFlatUnlit(BlockRenderManager manager, BlockState blockState, BlockPos blockPos, BlockRenderView blockRenderView, MatrixStack matrixStack, VertexConsumer vertexConsumer, Random random) {
         BlockRenderType blockRenderType = blockState.getRenderType();
         if (blockRenderType != BlockRenderType.MODEL) return false;
 
@@ -105,6 +103,10 @@ public class MixinRebuildTask {
         long seed = blockState.getRenderingSeed(blockPos);
         BakedModel bakedModel = manager.getModel(blockState);
         for (Direction direction : Direction.values()) {
+            BlockPos side = blockPos.offset(direction);
+            BlockState sideState = blockRenderView.getBlockState(side);
+            if (ESP.INSTANCE.getBlockTargets().get(sideState.getBlock()) != null && !Block.shouldDrawSide(blockState, blockRenderView, blockPos, direction)) continue;
+
             random.setSeed(seed);
 
             List<BakedQuad> list = bakedModel.getQuads(blockState, direction, random);
