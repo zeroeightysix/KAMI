@@ -1,6 +1,9 @@
 package me.zeroeightsix.kami.target
 
+import imgui.Col
 import imgui.ImGui
+import imgui.StyleVar
+import imgui.TreeNodeFlag
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
@@ -221,7 +224,11 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                 var dirtySpecMap: Map<S, M>? = null
 
                 ImGui.run {
-                    textDisabled(name)
+                    pushStyleColor(Col.Text, style.colors[Col.TextDisabled])
+                    val settingsOpen = treeNodeEx(name, TreeNodeFlag.NoTreePushOnOpen.i)
+                    popStyleColor()
+                    if (!settingsOpen) return@extend null
+
                     dsl.withId(name) {
                         dsl.columns(columnsCount = if (isColumns) 2 else 1) {
                             val specTargets = supplier.specificTargets
