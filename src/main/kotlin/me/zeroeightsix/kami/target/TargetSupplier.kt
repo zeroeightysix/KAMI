@@ -2,7 +2,6 @@ package me.zeroeightsix.kami.target
 
 import imgui.Col
 import imgui.ImGui
-import imgui.StyleVar
 import imgui.TreeNodeFlag
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
@@ -234,6 +233,9 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                             val specTargets = supplier.specificTargets
                             val enumTargets = supplier.enumTargets
 
+                            // Whether or not there is a single target left. If true, the deletion button should not be shown.
+                            val isSingleton = specTargets.size + enumTargets.size == 1
+
                             separator()
 
                             run {
@@ -256,7 +258,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
 
                                     spec.imguiEdit()
 
-                                    if (sameLine().run { smallButton("-") }) {
+                                    if (!isSingleton && sameLine().run { smallButton("-") }) {
                                         // Return null. `mapNotNull` will omit entries from the map that returned null.
                                         dirty = true
                                         return@mapNotNull null
@@ -327,7 +329,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
 
                                         // If there is more than one option, show a `-` button to delete a target.
                                         // We don't want the user to be able to remove all targets as we'd have no meta to copy for a new target.
-                                        if (enumTargets.size > 1 && sameLine().run { smallButton("-") }) {
+                                        if (!isSingleton && sameLine().run { smallButton("-") }) {
                                             // Return null. `mapNotNull` will omit entries from the map that returned null.
                                             dirty = true
                                             return@mapNotNull null
@@ -371,14 +373,16 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                                 if (currentItem == 0) {
                                     // Add a new spec with the last spec meta as meta or the last enum meta as fallback meta
                                     dirtySpecMap = supplier.specificTargets.toMutableMap().also {
-                                        it[specFactory()] = it.entries.lastOrNull()?.value ?: supplier.enumTargets[chosenEnums.last()]!!
+                                        it[specFactory()] = specTargets.values.lastOrNull() ?: enumTargets.values.last()
                                     }
                                 } else {
                                     // User selected one of the categories (enums)
-                                    @Suppress("NAME_SHADOWING") val currentItem = availableEnums[currentItem - 1] // -1 as offset for the added Custom option
+                                    @Suppress("NAME_SHADOWING") val currentItem =
+                                        availableEnums[currentItem - 1] // -1 as offset for the added Custom option
                                     dirtyEnumMap = supplier.enumTargets.toMutableMap().also {
                                         // Add the selected enum, with meta from the last entry in the enum map.
-                                        it[currentItem] = it[chosenEnums.last()]!! // Copy the meta from the last entry
+                                        it[currentItem] = enumTargets.values.lastOrNull()
+                                            ?: specTargets.values.last() // Copy the meta from the last entry
                                     }
                                 }
                             }
