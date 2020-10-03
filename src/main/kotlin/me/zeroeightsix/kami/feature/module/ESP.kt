@@ -17,6 +17,7 @@ import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.OutlineVertexConsumerProvider
 import net.minecraft.util.Identifier
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener as FiberListener
 
 /**
  * @see me.zeroeightsix.kami.mixin.client.MixinWorldRenderer
@@ -47,7 +48,7 @@ object ESP : Module() {
         ),
         mapOf()
     )
-    
+
     @Setting(name = "Blocks")
     var blockTargets = BlockSupplier(
         mapOf(
@@ -57,6 +58,11 @@ object ESP : Module() {
             BlockSupplier.SpecificBlock(Identifier("minecraft", "diamond_block")) to ESPTarget(outline = true)
         )
     )
+
+    @FiberListener("Blocks")
+    fun onBlocksChanged(new: BlockSupplier<ESPTarget>) {
+        mc.worldRenderer?.reload()
+    }
 
     @EventHandler
     val cullingListener = Listener<ChunkCullingEvent>({
