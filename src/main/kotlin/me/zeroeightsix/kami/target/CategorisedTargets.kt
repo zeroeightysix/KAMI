@@ -16,6 +16,7 @@ import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.block.entity.EnderChestBlockEntity
 import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.entity.Entity
+import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.entity.mob.AmbientEntity
@@ -113,6 +114,7 @@ enum class EntityCategory(
         ALL_PLAYERS::iterator,
         ALL_PLAYERS.genericBaseBelongsFunc
     ),
+    DROPPED_ITEMS({ it is ItemEntity }, ::allEntities),
     MINECARTS({ it is AbstractMinecartEntity }, ::allEntities),
     ITEM_FRAMES({ it is ItemFrameEntity }, ::allEntities);
 
