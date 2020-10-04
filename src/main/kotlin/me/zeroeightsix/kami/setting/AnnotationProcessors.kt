@@ -8,6 +8,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfig
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigAttribute
 import net.minecraft.util.Identifier
 import java.lang.reflect.Field
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
 
 @Target // No target - please use one of the annotations in this class
 @Retention(AnnotationRetention.RUNTIME)
@@ -21,9 +23,23 @@ annotation class SettingVisibility {
     annotation class Method(val value: String)
 }
 
-interface SettingVisibilitySupplier {
-    val id: Identifier
+@Target
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ImGuiExtra {
+    @Target(AnnotationTarget.FIELD)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class Pre(val runner: String)
 
+    @Target(AnnotationTarget.FIELD)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class Post(val runner: String)
+}
+
+interface HasId {
+    val id: Identifier
+}
+
+interface SettingVisibilitySupplier : HasId {
     fun isVisible(): Boolean
 
     companion object {
@@ -31,16 +47,26 @@ interface SettingVisibilitySupplier {
     }
 }
 
-val visibilityType: StringConfigType<SettingVisibilitySupplier> =
-    ConfigTypes.STRING.derive(
-        SettingVisibilitySupplier::class.java,
+interface SettingImExtraRunner : Runnable, HasId {
+    companion object {
+        val suppliers = mutableMapOf<Identifier, SettingImExtraRunner>()
+    }
+}
+
+val visibilityType: StringConfigType<SettingVisibilitySupplier> = createType(SettingVisibilitySupplier::suppliers)
+val runnerType: StringConfigType<SettingImExtraRunner> = createType(SettingImExtraRunner::suppliers)
+
+private inline fun <reified T : HasId> createType(suppliers: KProperty0<Map<Identifier, T>>): StringConfigType<T> {
+    return ConfigTypes.STRING.derive(
+        T::class.java,
         {
-            SettingVisibilitySupplier.suppliers[Identifier(it)]
+            suppliers()[Identifier(it)]
         },
         {
             it!!.id.toString()
         }
     )
+}
 
 object ConstantVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVisibility.Constant> {
     private val alwaysTrue: SettingVisibilitySupplier = object : SettingVisibilitySupplier {
@@ -95,4 +121,38 @@ object MethodVisibilityAnnotationProcessor : LeafAnnotationProcessor<SettingVisi
             )
         )
     }
+}
+
+object ImGuiExtraPostAnnotationProcessor : LeafAnnotationProcessor<ImGuiExtra.Post> {
+    override fun apply(annotation: ImGuiExtra.Post?, field: Field?, pojo: Any?, builder: ConfigLeafBuilder<*, *>?) {
+        addRunner(pojo, field, annotation!!::runner, builder, "post")
+    }
+}
+
+object ImGuiExtraPreAnnotationProcessor : LeafAnnotationProcessor<ImGuiExtra.Pre> {
+    override fun apply(annotation: ImGuiExtra.Pre?, field: Field?, pojo: Any?, builder: ConfigLeafBuilder<*, *>?) {
+        addRunner(pojo, field, annotation!!::runner, builder, "pre")
+    }
+}
+
+private fun addRunner(
+    pojo: Any?,
+    field: Field?,
+    runner: KProperty0<String>,
+    builder: ConfigLeafBuilder<*, *>?,
+    age: String,
+) {
+    val method = field!!.declaringClass.getDeclaredMethod(runner())
+    val runner = object : SettingImExtraRunner {
+        override val id: Identifier = Identifier("kami", "im_extra_${age}_${method.hashCode()}")
+        override fun run() = method.invoke(pojo).let { Unit }
+    }
+    SettingImExtraRunner.suppliers[runner.id] = runner
+    builder!!.withAttribute(
+        ConfigAttribute.create(
+            FiberId("kami", "im_extra_runner_${age}"),
+            runnerType,
+            runner
+        )
+    )
 }

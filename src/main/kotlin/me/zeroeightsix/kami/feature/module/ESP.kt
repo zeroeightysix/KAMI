@@ -1,5 +1,9 @@
 package me.zeroeightsix.kami.feature.module
 
+import imgui.ImGui
+import imgui.StyleVar
+import imgui.dsl
+import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import ladysnake.satin.api.managed.ManagedFramebuffer
 import ladysnake.satin.api.managed.ManagedShaderEffect
@@ -7,8 +11,10 @@ import ladysnake.satin.api.managed.ShaderEffectManager
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
+import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.event.ChunkCullingEvent
 import me.zeroeightsix.kami.setting.GenerateType
+import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.target.BlockCategory
 import me.zeroeightsix.kami.target.BlockEntityCategory
 import me.zeroeightsix.kami.target.BlockEntitySupplier
@@ -22,7 +28,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener as FiberList
 /**
  * @see me.zeroeightsix.kami.mixin.client.MixinWorldRenderer
  */
-@Module.Info(name = "ESP", description = "Draws outlines around targetted entities", category = Module.Category.RENDER)
+@Module.Info(name = "ESP", description = "Draws outlines around targeted entities, blocks, or block entities", category = Module.Category.RENDER)
 object ESP : Module() {
 
     var outlineShader: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
@@ -49,7 +55,10 @@ object ESP : Module() {
         mapOf()
     )
 
+    @Transient var blocksChanged = false
+
     @Setting(name = "Blocks")
+    @ImGuiExtra.Post("applyBlocksImGui")
     var blockTargets = BlockSupplier(
         mapOf(
             BlockCategory.ORES to ESPTarget()
@@ -61,7 +70,27 @@ object ESP : Module() {
 
     @FiberListener("Blocks")
     fun onBlocksChanged(new: BlockSupplier<ESPTarget>) {
-        mc.worldRenderer?.reload()
+        blocksChanged = true
+    }
+
+    @Suppress("unused")
+    fun applyBlocksImGui() {
+        (!blocksChanged).conditionalWrap(
+            {
+                ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
+                ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
+            },
+            {
+                dsl.button("Reload") {
+                    blocksChanged = false
+                    mc.worldRenderer?.reload()
+                }
+            },
+            {
+                ImGui.popItemFlag()
+                ImGui.popStyleVar()
+            }
+        )
     }
 
     @EventHandler
