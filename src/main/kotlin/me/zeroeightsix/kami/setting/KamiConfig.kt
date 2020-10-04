@@ -690,14 +690,10 @@ object KamiConfig {
             .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
             .registerTypeMapping(TextPinnableWidget.Alignment::class.java, alignmentType)
             .registerTypeMapping(Unit::class.java, unitType)
-            .registerSettingProcessor(
-                SettingVisibility.Constant::class.java,
-                ConstantVisibilityAnnotationProcessor
-            )
-            .registerSettingProcessor(
-                SettingVisibility.Method::class.java,
-                MethodVisibilityAnnotationProcessor
-            )
+            .registerSettingProcessor(SettingVisibility.Constant::class.java, ConstantVisibilityAnnotationProcessor)
+            .registerSettingProcessor(SettingVisibility.Method::class.java, MethodVisibilityAnnotationProcessor)
+            .registerSettingProcessor(ImGuiExtra.Pre::class.java, ImGuiExtraPreAnnotationProcessor)
+            .registerSettingProcessor(ImGuiExtra.Post::class.java, ImGuiExtraPostAnnotationProcessor)
             .build()
 
         val builder = ConfigTree.builder()
