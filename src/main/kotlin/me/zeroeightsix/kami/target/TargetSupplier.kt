@@ -15,13 +15,13 @@ import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.gui.inputText
 import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.mc
-import me.zeroeightsix.kami.minecraftNamespaceOmitted
 import me.zeroeightsix.kami.setting.GenerateType.Companion.columnMode
 import me.zeroeightsix.kami.setting.InvalidValueException
 import me.zeroeightsix.kami.setting.SettingInterface
 import me.zeroeightsix.kami.setting.extend
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.tempSet
+import me.zeroeightsix.kami.tryOrNull
 import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
@@ -107,9 +107,10 @@ abstract class RegistrySpecificTarget<T, R>(_typeIdentifier: Identifier = noneId
 
     override fun imguiEdit() {
         if (inputText("##${hashCode()}", ::editStr)) {
-            val id = Identifier(editStr)
-            registry.getOrEmpty(id).kotlin?.let {
-                this.typeIdentifier = id
+            tryOrNull { Identifier(editStr) }?.let { id ->
+                registry.getOrEmpty(id).kotlin?.let {
+                    this.typeIdentifier = id
+                }
             }
         }
     }
