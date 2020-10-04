@@ -71,12 +71,12 @@ abstract class TargetSupplier<T, M, E, S : TargetSupplier.SpecificTarget<T>>(
     protected open fun flat(): MutableMap<T, M> {
         val map = mutableMapOf<T, M>()
         this.enumTargets.forEach { (target, meta) -> target.provider.value?.forEach { map[it] = meta } }
-        this.specificTargets.forEach { (sTarget, meta) -> sTarget.targets.forEach { map[it] = meta } }
+        this.specificTargets.forEach { (sTarget, meta) -> sTarget.targets?.forEach { map[it] = meta } }
         return map
     }
 
     abstract class SpecificTarget<T> {
-        abstract val targets: Set<T>
+        abstract val targets: Iterator<T>?
         abstract fun belongs(target: T): Boolean
         abstract fun imguiEdit()
     }
@@ -124,9 +124,8 @@ class EntitySupplier<M>(
     enumTargets, specificTargets
 ) {
     class SpecificEntity(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<Entity, EntityType<*>>(identifier, Registry.ENTITY_TYPE) {
-        override val targets: Set<Entity>
-            get() = emptySet()
-
+        override val targets
+            get() = mc.world?.entities?.iterator()?.filterLazily(::belongs)
         override fun belongs(target: Entity): Boolean = target.type == this.registryEntry
     }
 
@@ -145,9 +144,8 @@ class BlockEntitySupplier<M>(
     enumTargets, specificTargets
 ) {
     class SpecificBlockEntity(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<BlockEntity, BlockEntityType<*>>(identifier, Registry.BLOCK_ENTITY_TYPE) {
-        override val targets: Set<BlockEntity>
-            get() = emptySet()
-
+        override val targets
+            get() = mc.world?.blockEntities?.iterator()?.filterLazily(::belongs)
         override fun belongs(target: BlockEntity): Boolean = target.type == this.registryEntry
     }
 }
@@ -159,8 +157,7 @@ class BlockSupplier<M>(
     enumTargets, specificTargets
 ) {
     class SpecificBlock(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<Block, Block>(identifier, Registry.BLOCK) {
-        override val targets: Set<Block>
-            get() = emptySet()
+        override val targets = emptyIterator<Block>()
 
         override fun belongs(target: Block): Boolean = target == this.registryEntry
     }
