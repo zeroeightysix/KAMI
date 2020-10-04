@@ -47,7 +47,7 @@ private val allPlayers
 private val allBlockEntities
     get() = mc.world?.blockEntities?.iterator()
 
-private fun <T> emptyIterator() = emptyList<T>().iterator()
+internal fun <T> emptyIterator() = emptyList<T>().iterator()
 
 interface CategorisedTargetProvider<T> {
     val provider: ResettableLazy<Iterator<T>?>
@@ -60,7 +60,7 @@ interface CategorisedTargetProvider<T> {
 /**
  * Returns an iterator over this [Iterator] that evaluates filtered elements only when requested
  */
-private fun <T> Iterator<T>.filterLazily(filter: (T) -> Boolean): Iterator<T> = object : Iterator<T> {
+internal fun <T> Iterator<T>.filterLazily(filter: (T) -> Boolean): Iterator<T> = object : Iterator<T> {
     private val inner = this@filterLazily
 
     private var next: T? = null
