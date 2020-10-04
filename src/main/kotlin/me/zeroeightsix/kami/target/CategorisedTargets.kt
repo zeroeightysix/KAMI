@@ -154,14 +154,10 @@ enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : Categor
     override val provider: ResettableLazy<Iterator<Block>?> = ResettableLazy { emptyIterator() }
 }
 
-@Suppress("unused") // Yes, it is unused, but the initializer does happen!
-private object CategorisedTargets {
-    init {
-        Listener<InGame>({
-            EntityCategory.values().forEach(CategorisedTargetProvider<*>::invalidate)
-            BlockEntityCategory.values().forEach(CategorisedTargetProvider<*>::invalidate)
-        }).also {
-            KamiMod.EVENT_BUS.subscribe(it)
-        }
-    }
+@Suppress("unused")
+val invalidationListener = Listener<InGame>({
+    EntityCategory.values().forEach(CategorisedTargetProvider<*>::invalidate)
+    BlockEntityCategory.values().forEach(CategorisedTargetProvider<*>::invalidate)
+}).also {
+    KamiMod.EVENT_BUS.subscribe(it)
 }
