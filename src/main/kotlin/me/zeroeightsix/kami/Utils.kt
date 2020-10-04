@@ -44,11 +44,10 @@ val mc: MinecraftClient = MinecraftClient.getInstance()
 
 // / Quality of life and primitive extensions
 
+fun <T> tryOrNull(block: () -> T): T? = try { block() } catch (e: Exception) { null }
+
 val <T> Optional<T>.kotlin
     get() = if (this.isPresent) this.get() else null
-
-val Identifier.minecraftNamespaceOmitted: String
-    get() = if (namespace == "minecraft") this.path else this.toString()
 
 /**
  * If `true`, compute a value. Else, return `null`.
