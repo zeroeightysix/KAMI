@@ -75,8 +75,12 @@ private fun <T> Iterator<T>.filterLazily(filter: (T) -> Boolean): Iterator<T> = 
      */
     private fun toNextFiltered() {
         var n: T? = null
-        while (inner.hasNext() && (n == null || !filter(n)))
+        while (n == null || !filter(n)) {
+            // Nothing left, but n also didn't pass the filter? Set next to null & stop.
+            if (!inner.hasNext())
+                return Unit.also { this.next = null }
             n = inner.next()
+        }
         this.next = n
     }
 
