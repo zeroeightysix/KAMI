@@ -87,19 +87,18 @@ abstract class RegistrySpecificTarget<T, R>(_typeIdentifier: Identifier = noneId
         internal val noneIdentifier = Identifier("kami", "none")
     }
     
+    private val Identifier.pretty
+        get() = if (this == noneIdentifier) "" else if (namespace == "minecraft") this.path else this.toString()
+    
     var typeIdentifier = _typeIdentifier
         private set(value) {
             field = value
             this.registryEntry = fetchRegistryEntry()?.also {
-                this.editStr = value.minecraftNamespaceOmitted
+                this.editStr = value.pretty
             }
         }
 
-    private var editStr = typeIdentifier.toString()
-        private set(value) {
-            if (value == noneIdentifier.toString()) field = ""
-            else field = value
-        }
+    private var editStr = typeIdentifier.pretty
 
     protected var registryEntry = fetchRegistryEntry()
         private set
