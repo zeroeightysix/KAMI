@@ -37,11 +37,12 @@ public class Blink extends Module {
     private OtherClientPlayerEntity clonedPlayer; // Fake Player when player blinked
     Queue<Packet> packets = new ArrayDeque<>(); // Create list to hold our packets
     private float packetsPerClump = 0;
+    static int FAKE_PLAYER_ID = -68419;
 
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
         // We don't want to withhold login packets if a player logs out with blink enabled
-        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PlayerRespawnS2CPacket) && !(event.getPacket() instanceof PlayerSpawnS2CPacket) && !(event.getPacket() instanceof PacketListener))) { // maybe use ServerPlayPacketListener
+        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PlayerRespawnS2CPacket) && !(event.getPacket() instanceof PlayerSpawnS2CPacket))) { // maybe use ServerPlayPacketListener
             event.cancel();
             packets.add(event.getPacket());
 
@@ -94,10 +95,9 @@ public class Blink extends Module {
             packetsPerClump = packets.size()*(percentOfPacketsPerTick/100f); // Get the amount of packets to send
         }
 
-
         PlayerEntity localPlayer = mc.player;
         if (localPlayer != null && mc.world != null) {
-            mc.world.removeEntity(-68419); // Remove fake blink Player
+            mc.world.removeEntity(FAKE_PLAYER_ID); // Remove fake blink Player
             clonedPlayer = null;
         }
     }
