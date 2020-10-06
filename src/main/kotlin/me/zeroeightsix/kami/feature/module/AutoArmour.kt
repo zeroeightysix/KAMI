@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.module
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.ElytraItem
@@ -18,8 +18,8 @@ object AutoArmour : Module() {
 
     @EventHandler
     private val updateListener = Listener<InGame>({
-        val player = mc.player ?: return@Listener
-        if (mc.player!!.age % 2 == 0) return@Listener
+        val player = it.player
+        if (player.age % 2 == 0) return@Listener
         // If a container is opened, don't try to move around items.
         if (mc.currentScreen is GenericContainerScreen) return@Listener
 
@@ -88,14 +88,14 @@ object AutoArmour : Module() {
                     8 - armorType,
                     0,
                     SlotActionType.QUICK_MOVE,
-                    mc.player
+                    player
                 )
                 mc.interactionManager!!.clickSlot(
                     0,
                     slot,
                     0,
                     SlotActionType.QUICK_MOVE,
-                    mc.player
+                    player
                 )
                 break
             }

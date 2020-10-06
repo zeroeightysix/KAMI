@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.module.player;
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting;
+import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listener;
 import me.zeroeightsix.kami.event.TickEvent;
 import me.zeroeightsix.kami.feature.module.Module;
@@ -11,7 +12,8 @@ public class AutoWalk extends Module {
     @Setting(name = "Mode")
     private AutoWalkMode mode = AutoWalkMode.FORWARD;
 
-    private Listener<TickEvent.Client.InGame> tickListener = new Listener<>(event -> {
+    @EventHandler
+    private Listener<TickEvent.InGame> tickListener = new Listener<>(event -> {
         assert mc.player != null;
         mc.player.input.movementForward = mode.forward;
     });

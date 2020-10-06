@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -278,10 +279,8 @@ public class ChunkFinder extends Module {
 
         String[] sp = ip.split("_");
         String ending = sp[sp.length - 1];
-        if (!isInteger(ending)) { // if it is numeric it means it might be a port...
-            return true;
-        }
-        return false;
+        // if it is numeric it means it might be a port...
+        return !isInteger(ending);
     }
 
     private boolean isInteger(String s) {
@@ -336,21 +335,22 @@ public class ChunkFinder extends Module {
             if (alsoSaveNormalCoords != lastSaveNormal) {
                 return true;
             }
+            assert mc.player != null;
             if (dimension != mc.player.getEntityWorld().getDimension()) {
                 return true;
             }
-            if (!mc.getCurrentServerEntry().address.equals(ip)) { // strings need equals + this way because could be null
-                return true;
-            }
-            return false;
+            // strings need equals + this way because could be null
+            return !Objects.requireNonNull(mc.getCurrentServerEntry()).address.equals(ip);
         }
 
         private void update() {
+            assert mc.player != null;
+
             lastSaveOption = saveOption;
             lastInRegion = saveInRegionFolder;
             lastSaveNormal = alsoSaveNormalCoords;
             dimension = mc.player.getEntityWorld().getDimension();
-            ip = mc.getCurrentServerEntry().address;
+            ip = Objects.requireNonNull(mc.getCurrentServerEntry()).address;
         }
     }
 }

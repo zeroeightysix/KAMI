@@ -32,8 +32,10 @@ import me.zeroeightsix.kami.flattenedStream
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
+import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
+import me.zeroeightsix.kami.setting.runnerType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
 import kotlin.collections.component1
@@ -255,9 +257,15 @@ private fun showModuleSettings(module: Module) {
         } else {
             type.toRuntimeType(this.value)
         }
+
+        // Each setting may be decorated with an "imgui extra" annotation, which is just a function that gets called after/before displaying the setting.
+        getAttributeValue(FiberId("kami", "im_extra_runner_pre"), runnerType).kotlin?.run()
+
         type.settingInterface?.displayImGui(this.name, value)?.let {
             this.value = type.toSerializedType(it)
         }
+
+        getAttributeValue(FiberId("kami", "im_extra_runner_post"), runnerType).kotlin?.run()
     }
 
     if (!Settings.hideModuleDescriptions) {

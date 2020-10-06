@@ -78,7 +78,7 @@ object Freecam : Module() {
     })
 
     @EventHandler
-    val tickListener = Listener<TickEvent.Client.InGame>({
+    val tickListener = Listener<TickEvent.InGame>({
         this.input.tick(false)
         val movement = this.input.movementInput
 
@@ -93,7 +93,7 @@ object Freecam : Module() {
         BaritoneIntegration {
             // After baritone completes a task, it reverts the input to a standard minecraft one.
             // We want to set this to the freecam one again.
-            if (mc.player?.input?.javaClass == KeyboardInput::class.java) {
+            if (it.player.input?.javaClass == KeyboardInput::class.java) {
                 disablePlayerInput()
             }
         }

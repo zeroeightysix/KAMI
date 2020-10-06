@@ -38,12 +38,12 @@ object EntitySpeed : Module() {
     private var wobble = true
 
     @EventHandler
-    private val updateListener = Listener(
-        EventHook<TickEvent.Client.InGame> {
-            if (mc.world != null && mc.player?.vehicle != null) {
-                when (val riding = mc.player!!.vehicle) {
-                    is PigEntity, is HorseBaseEntity, is StriderEntity -> {
-                        val player = mc.player!!
+    private val updateListener = Listener<TickEvent.InGame>(
+        {
+            val player = it.player
+            if (player.vehicle != null) {
+                when (val riding = player.vehicle) {
+                    is BoatEntity, is PigEntity, is HorseBaseEntity, is StriderEntity -> {
                         val input = player.input.movementInput
 
                         val movement = IEntity.movementInputToVelocity(
@@ -56,7 +56,6 @@ object EntitySpeed : Module() {
 
                         steerEntity(riding)
                     }
-                    is BoatEntity -> steerBoat(boat)
                 }
             }
         }
@@ -68,12 +67,20 @@ object EntitySpeed : Module() {
     )
 
     private fun steerEntity(entity: Entity) {
-        if (!flight) {
+        val forward = mc.options.keyForward.isPressed
+        val left = mc.options.keyLeft.isPressed
+        val right = mc.options.keyRight.isPressed
+        val back = mc.options.keyBack.isPressed
+        val jump = mc.options.keyJump.isPressed
+
+        if (!forward && !left && !right && !back) return
+
+        if (!flight || entity !is BoatEntity) {
             EntityUtil.updateVelocityY(entity, -0.4)
         } else {
-            if (mc.options.keyJump.isPressed) {
+            if (jump) {
                 EntityUtil.updateVelocityY(entity, speed)
-            } else if (mc.options.keyForward.isPressed || mc.options.keyBack.isPressed) if (wobble) mc.player?.age?.toDouble()
+            } else if (forward || back) if (wobble) mc.player?.age?.toDouble()
                 ?.let { sin(it) } else 0.0.let {
                 EntityUtil.updateVelocityY(
                     entity,
@@ -84,35 +91,9 @@ object EntitySpeed : Module() {
         if (entity is HorseEntity) {
             entity.yaw = mc.player?.yaw!!
         }
-    }
-
-    private fun steerBoat(boat: BoatEntity?) {
-        if (boat == null) return
-        var angle: Int
-        val forward = mc.options.keyForward.isPressed
-        val left = mc.options.keyLeft.isPressed
-        val right = mc.options.keyRight.isPressed
-        val back = mc.options.keyBack.isPressed
-        if (!(forward && back)) {
-            EntityUtil.updateVelocityY(boat, 0.0)
-        }
-        if (mc.options.keyJump.isPressed) {
-            boat.velocity = boat.velocity.add(0.0, speed / 2.0, 0.0)
-        }
-        if (!forward && !left && !right && !back) return
-        if (left && right) angle = if (forward) 0 else if (back) 180 else -1 else if (forward && back) angle =
-            if (left) -90 else if (right) 90 else -1 else {
-            angle = if (left) -90 else if (right) 90 else 0
-            if (forward) angle /= 2 else if (back) angle = 180 - angle / 2
-        }
-        if (angle == -1) return
-        val yaw = mc.player?.yaw?.plus(angle)
-        yaw?.let {
-            boat.setVelocity(
-                EntityUtil.getRelativeX(it) * speed,
-                boat.velocity.y,
-                EntityUtil.getRelativeZ(it) * speed
-            )
+        // make sure boat doesn't sink
+        else if (entity is BoatEntity && !(forward && back)) {
+            EntityUtil.updateVelocityY(entity, 0.0)
         }
     }
 
@@ -130,5 +111,5 @@ object EntitySpeed : Module() {
         })
 
     private val boat: BoatEntity?
-        get() = if (mc.player?.vehicle != null && mc.player!!.vehicle is BoatEntity) mc.player!!.vehicle as BoatEntity? else null
+        get() = if (mc.player?.vehicle != null && mc.player?.vehicle is BoatEntity) mc.player?.vehicle as BoatEntity? else null
 }

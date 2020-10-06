@@ -6,8 +6,9 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.SettingVisibility
-import me.zeroeightsix.kami.util.EntityTarget
-import me.zeroeightsix.kami.util.EntityTargets
+import me.zeroeightsix.kami.target.EntityCategory
+import me.zeroeightsix.kami.target.EntitySupplier
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
@@ -24,10 +25,11 @@ import net.minecraft.world.RaycastContext
 object Aura : Module() {
 
     @Setting
-    var targets = EntityTargets(
+    var targets = EntitySupplier(
         mapOf(
-            EntityTarget.NONFRIENDLY_PLAYERS to AuraTarget(false)
-        )
+            EntityCategory.NONFRIENDLY_PLAYERS to Unit
+        ),
+        mapOf()
     )
 
     @Setting(name = "Hit Range")
@@ -50,23 +52,28 @@ object Aura : Module() {
     @Setting(name = "32k Switch")
     private var switchTo32k = true
 
+    @Setting(name = "Only use 32k")
+    var onlyUse32k: Boolean = false
+
     private var waitCounter = 0
 
+    @Suppress("UNUSED")
     fun ifModeStatic() = waitMode == WaitMode.STATIC
 
     @EventHandler
     private val updateListener =
-        Listener<TickEvent.Client.InGame>({
-            if (!mc.player?.isAlive!!) {
+        Listener<TickEvent.InGame>({
+            val player = it.player
+            if (!player.isAlive) {
                 return@Listener
             }
             val shield =
-                mc.player!!.offHandStack.item == Items.SHIELD && mc.player!!.activeHand == Hand.OFF_HAND
-            if (mc.player!!.isUsingItem && !shield) {
+                player.offHandStack.item == Items.SHIELD && player.activeHand == Hand.OFF_HAND
+            if (player.isUsingItem && !shield) {
                 return@Listener
             }
             if (waitMode == WaitMode.DYNAMIC) {
-                if (mc.player!!.getAttackCooldownProgress(0f) < 1) {
+                if (player.getAttackCooldownProgress(0f) < 1) {
                     return@Listener
                 }
             }
@@ -78,12 +85,12 @@ object Aura : Module() {
                     0
                 }
             }
-            targets.entities.forEach { (entity, target) ->
+            targets.targets.forEach { (entity, _) ->
                 val living = entity as? LivingEntity ?: return@forEach
                 if (living.health <= 0 ||
                     (waitMode == WaitMode.DYNAMIC && entity.hurtTime != 0) ||
-                    (mc.player!!.distanceTo(entity) > hitRange) ||
-                    (!ignoreWalls && !mc.player!!.canSee(entity) && !canEntityFeetBeSeen(entity))
+                    (player.distanceTo(entity) > hitRange) ||
+                    (!ignoreWalls && !player.canSee(entity) && !canEntityFeetBeSeen(player, entity))
                 ) {
                     return@forEach
                 }
@@ -95,7 +102,7 @@ object Aura : Module() {
                     AutoTool.equipBestWeapon()
                 }
 
-                attack(living, target.onlyUse32k)
+                attack(player, living, onlyUse32k)
                 return@Listener // We've attacked, so let's wait until the next tick to attack again.
             }
         })
@@ -113,15 +120,15 @@ object Aura : Module() {
         return false
     }
 
-    private fun attack(e: Entity, onlyUse32k: Boolean) {
+    private fun attack(player: ClientPlayerEntity, e: Entity, onlyUse32k: Boolean) {
         var holding32k = false
-        if (mc.player?.activeItem?.let { checkSharpness(it) }!!) {
+        if (player.activeItem?.let { checkSharpness(it) }!!) {
             holding32k = true
         }
         if (switchTo32k && !holding32k) {
             var newSlot = -1
             for (i in 0..8) {
-                val stack = mc.player?.inventory?.getStack(i)
+                val stack = player.inventory?.getStack(i)
                 if (stack == ItemStack.EMPTY) {
                     continue
                 }
@@ -131,7 +138,7 @@ object Aura : Module() {
                 }
             }
             if (newSlot != -1) {
-                mc.player?.inventory?.selectedSlot = newSlot
+                player.inventory?.selectedSlot = newSlot
                 holding32k = true
             }
         }
@@ -139,16 +146,16 @@ object Aura : Module() {
             return
         }
         mc.interactionManager?.attackEntity(
-            mc.player,
+            player,
             e
         )
-        mc.player?.swingHand(Hand.MAIN_HAND)
+        player.swingHand(Hand.MAIN_HAND)
     }
 
-    private fun canEntityFeetBeSeen(entityIn: Entity): Boolean {
+    private fun canEntityFeetBeSeen(by: ClientPlayerEntity, entityIn: Entity): Boolean {
         val context = RaycastContext(
-            mc.player?.getEyeHeight(mc.player!!.pose)?.toDouble()?.let {
-                mc.player?.pos?.add(
+            by.getEyeHeight(by.pose).toDouble().let {
+                by.pos?.add(
                     0.0,
                     it,
                     0.0
@@ -157,13 +164,10 @@ object Aura : Module() {
             entityIn.pos,
             RaycastContext.ShapeType.COLLIDER,
             RaycastContext.FluidHandling.NONE,
-            mc.player
+            by
         )
         return mc.world?.raycast(context)?.type == HitResult.Type.MISS
     }
-
-    @GenerateType("Only use 32k")
-    class AuraTarget(var onlyUse32k: Boolean)
 
     private enum class WaitMode {
         DYNAMIC, STATIC

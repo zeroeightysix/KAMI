@@ -3,7 +3,6 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
@@ -20,17 +19,13 @@ import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.server.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.RED
-import java.util.function.Function
 
+@Suppress("UNUSED")
 object PeekCommand : Command(), Listenable {
-    var sb: ShulkerBoxBlockEntity? = null
+    private var sb: ShulkerBoxBlockEntity? = null
 
     private val FAILED_EXCEPTION =
-        DynamicCommandExceptionType(
-            Function { o: Any ->
-                LiteralText(o.toString())
-            }
-        )
+        DynamicCommandExceptionType { LiteralText(it.toString()) }
 
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher register rootLiteral("peek") {
@@ -57,29 +52,29 @@ object PeekCommand : Command(), Listenable {
     }
 
     @EventHandler
-    var tickListener = Listener(
-        EventHook<TickEvent.Client.InGame> {
-            if (sb != null) {
-                try {
-                    val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateScreenHandler(
-                        -1,
-                        mc.player?.inventory
-                    ) as ShulkerBoxScreenHandler
-                    val gui = ShulkerBoxScreen(
-                        container,
-                        mc.player?.inventory,
-                        sb!!.displayName
-                    )
-                    mc.openScreen(gui)
-                    sb = null
-                } catch (e: Exception) {
-                    mc.player?.sendMessage(
-                        text(RED, "Failed to read shulker box contents."),
-                        true
-                    )
-                }
-                KamiMod.EVENT_BUS.unsubscribe(this)
+    var tickListener = Listener<TickEvent.InGame>({
+        val player = it.player
+        if (sb != null) {
+            try {
+                val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateScreenHandler(
+                    -1,
+                    player?.inventory
+                ) as ShulkerBoxScreenHandler
+                val gui = ShulkerBoxScreen(
+                    container,
+                    player?.inventory,
+                    sb!!.displayName
+                )
+                mc.openScreen(gui)
+                sb = null
+            } catch (e: Exception) {
+                player?.sendMessage(
+                    text(RED, "Failed to read shulker box contents."),
+                    true
+                )
             }
+            KamiMod.EVENT_BUS.unsubscribe(this)
         }
+    }
     )
 }

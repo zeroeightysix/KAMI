@@ -7,10 +7,12 @@ import net.minecraft.block.BlockState
 import net.minecraft.client.gui.hud.ClientBossBar
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.AbstractClientPlayerEntity
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.util.Window
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
@@ -146,23 +148,17 @@ class TargetEntityEvent(
     var trace: EntityHitResult?
 ) : KamiEvent()
 
-open class TickEvent private constructor(private val stage: Stage) : KamiEvent() {
-    enum class Stage {
-        CLIENT
-    }
+open class TickEvent private constructor() : KamiEvent() {
+    /**
+     * This exists because many listeners for TickEvents will perform player null checks.
+     * This event is ensured to only fire when the player and world is not null.
+     */
+    class InGame(val player: ClientPlayerEntity, val world: ClientWorld) : TickEvent()
 
-    open class Client : TickEvent(Stage.CLIENT) {
-        /**
-         * This exists because many listeners for TickEvents will perform player null checks.
-         * This event is ensured to only fire when the player and world is not null.
-         */
-        class InGame : Client()
-
-        /**
-         * @see InGame
-         */
-        class OutOfGame : Client()
-    }
+    /**
+     * @see InGame
+     */
+    class OutOfGame : TickEvent()
 }
 
 class CameraUpdateEvent(
@@ -180,3 +176,5 @@ class UpdateLookEvent(
 ) : KamiEvent()
 
 class ConfigSaveEvent(config: ConfigTree?) : KamiEvent()
+
+class ChunkCullingEvent(var chunkCulling: Boolean) : KamiEvent()

@@ -30,17 +30,24 @@ import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
 import unsigned.toUint
+import java.util.Optional
 import java.util.stream.Stream
 import kotlin.reflect.KMutableProperty0
 
 val mc: MinecraftClient = MinecraftClient.getInstance()
 
 // / Quality of life and primitive extensions
+
+fun <T> tryOrNull(block: () -> T): T? = try { block() } catch (e: Exception) { null }
+
+val <T> Optional<T>.kotlin
+    get() = if (this.isPresent) this.get() else null
 
 /**
  * If `true`, compute a value. Else, return `null`.
@@ -73,7 +80,9 @@ inline fun <T> KMutableProperty0<T>.tempSet(value: T, block: () -> Unit) {
 val Long.unsignedInt
     get() = toUint().toInt()
 
-inline fun unreachable(): Nothing = TODO()
+private class UnreachableError : Error()
+
+fun unreachable(): Nothing = throw UnreachableError()
 
 fun PlayerEntity.isFriend() = Friends.isFriend(this.gameProfile.name)
 
@@ -124,7 +133,7 @@ fun ConfigNode.flattenedStream(): Stream<ConfigLeaf<*>> {
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
 inline fun <T> Iterable<T>.sumByFloat(selector: (T) -> Float): Float {
-    var sum: Float = 0f
+    var sum = 0f
     for (element in this) {
         sum += selector(element)
     }

@@ -67,12 +67,19 @@ dependencies {
         }
     }
 
+    fun includedModImpl(dependencyNotation: String) {
+        modImplementation(dependencyNotation)
+        include(dependencyNotation)
+    }
+
     // Fabric setup
 
     minecraft("com.mojang:minecraft:$minecraft_version")
     mappings("net.fabricmc:yarn:$yarn_mappings")
     modCompile("net.fabricmc:fabric-loader:$loader_version")
-    modImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
+    includedModImpl("net.fabricmc.fabric-api:fabric-api-base:0.1.3+12a8474cfa")
+    includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
+    includedModImpl("com.github.Ladysnake:Satin:1.5.0")
     modImplementation("com.gitlab.CDAGaming:fabritone:fabritone~1.16.x-Fabric-SNAPSHOT")
 
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
@@ -110,8 +117,6 @@ dependencies {
     ).forEach {
         shadow(it)
     }
-
-    include("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.3.1+facf3bbf95")
 }
 
 tasks {

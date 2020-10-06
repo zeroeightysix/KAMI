@@ -39,10 +39,10 @@ object PrepHandler : Feature, Listenable {
     }
 
     @EventHandler
-    private val clientTickListener = Listener(EventHook<TickEvent.Client.InGame> { update() })
+    private val clientTickListener = Listener(EventHook<TickEvent.InGame> { update() })
 
     @EventHandler
-    private val clientTickListener2 = Listener(EventHook<TickEvent.Client.OutOfGame> { update() })
+    private val clientTickListener2 = Listener(EventHook<TickEvent.OutOfGame> { update() })
 
     fun getRainbowHue(offset: Double = 0.0) = ((System.currentTimeMillis() * rainbowSpeed * 0.0005) + offset) % 360
 

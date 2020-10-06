@@ -8,6 +8,7 @@ import me.zeroeightsix.kami.feature.hidden.PlayerMovementSpoofer;
 import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.util.EntityUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 @Module.Info(category = Module.Category.MOVEMENT, description = "Makes the player fly", name = "Flight")
@@ -19,28 +20,29 @@ public class Flight extends Module {
     private FlightMode mode = FlightMode.VANILLA;
 
     @EventHandler
-    private Listener<TickEvent.Client.InGame> updateListener = new Listener<>(event -> {
+    private Listener<TickEvent.InGame> updateListener = new Listener<>(event -> {
+        ClientPlayerEntity player = event.getPlayer();
         switch (mode) {
             case STATIC:
-                mc.player.abilities.flying = false;
-                mc.player.setVelocity(Vec3d.ZERO);
-                mc.player.flyingSpeed = speed;
+                player.abilities.flying = false;
+                player.setVelocity(Vec3d.ZERO);
+                player.flyingSpeed = speed;
 
                 if (mc.options.keyJump.isPressed()) {
-                    mc.player.addVelocity(0, speed, 0);
+                    player.addVelocity(0, speed, 0);
                 }
                 if (mc.options.keySneak.isPressed()) {
-                    mc.player.addVelocity(0, -speed, 0);
+                    player.addVelocity(0, -speed, 0);
                 }
                 break;
             case VANILLA:
-                mc.player.abilities.setFlySpeed(speed / 20f);
-                mc.player.abilities.flying = true;
-                if (mc.player.abilities.creativeMode) return;
-                mc.player.abilities.allowFlying = true;
+                player.abilities.setFlySpeed(speed / 20f);
+                player.abilities.flying = true;
+                if (player.abilities.creativeMode) return;
+                player.abilities.allowFlying = true;
                 break;
             case PACKET:
-                if (mc.player.isDead()) return;
+                if (player.isDead()) return;
 
                 int angle;
 
@@ -58,16 +60,16 @@ public class Flight extends Module {
                 }
 
                 if (angle != -1 && (forward || left || right || back)) {
-                    float yaw = mc.player.yaw + angle;
-                    mc.player.setVelocity(EntityUtil.getRelativeX(yaw) * 0.2f, mc.player.getVelocity().y, EntityUtil.getRelativeZ(yaw) * 0.2f);
+                    float yaw = player.yaw + angle;
+                    player.setVelocity(EntityUtil.getRelativeX(yaw) * 0.2f, player.getVelocity().y, EntityUtil.getRelativeZ(yaw) * 0.2f);
                 }
 
-                EntityUtil.updateVelocityY(mc.player, 0);
+                EntityUtil.updateVelocityY(player, 0);
 
-                PlayerMovementSpoofer.INSTANCE.setPosition(new Vec3d(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), mc.player.getZ() + mc.player.getVelocity().z),
+                PlayerMovementSpoofer.INSTANCE.setPosition(new Vec3d(player.getX() + player.getVelocity().x, player.getY() + (MinecraftClient.getInstance().options.keyJump.isPressed() ? 0.0622 : 0) - (MinecraftClient.getInstance().options.keySneak.isPressed() ? 0.0622 : 0), player.getZ() + player.getVelocity().z),
                         PlayerMovementSpoofer.Priority.NORMAL,
                         PlayerMovementSpoofer.Mode.INSTANT);
-                PlayerMovementSpoofer.INSTANCE.setPosition(new Vec3d(mc.player.getX() + mc.player.getVelocity().x, mc.player.getY() - 42069 /* nice */, mc.player.getZ() + mc.player.getVelocity().z),
+                PlayerMovementSpoofer.INSTANCE.setPosition(new Vec3d(player.getX() + player.getVelocity().x, player.getY() - 42069 /* nice */, player.getZ() + player.getVelocity().z),
                         PlayerMovementSpoofer.Priority.NORMAL,
                         PlayerMovementSpoofer.Mode.INSTANT);
                 break;

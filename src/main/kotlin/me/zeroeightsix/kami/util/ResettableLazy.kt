@@ -10,7 +10,9 @@ class ResettableLazy<T>(private var initializer: () -> T) : Lazy<T> {
     override fun isInitialized(): Boolean = inner.value.isInitialized()
 
     fun invalidate() {
-        inner = Inner()
+        // No need to create a new Inner if no value has been calculated yet
+        if (isInitialized())
+            inner = Inner()
     }
 
     private inner class Inner {

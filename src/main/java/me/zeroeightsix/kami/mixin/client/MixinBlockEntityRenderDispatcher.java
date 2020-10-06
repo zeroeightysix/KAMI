@@ -23,10 +23,10 @@ public abstract class MixinBlockEntityRenderDispatcher {
     )
     private static <E extends BlockEntity> void onRender(BlockEntityRenderer<E> renderer, E blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
         if (ESP.INSTANCE.getEnabled()) {
-            Colour colour = ESP.INSTANCE.getBlockTargets().belongs(blockEntity);
+            Colour colour = ESP.INSTANCE.getBlockEntityTargets().get(blockEntity);
             if (colour != null) {
                 ((HotSwappable) MinecraftClient.getInstance().worldRenderer).swapWhile(() -> {
-                    OutlineVertexConsumerProvider provider = ESP.INSTANCE.getOutlineConsumerProvider();
+                    OutlineVertexConsumerProvider provider = ESP.INSTANCE.getEntityOutlineVertexConsumerProvider();
                     provider.setColor((int) (colour.getR() * 255), (int) (colour.getG() * 255), (int) (colour.getB() * 255), (int) (colour.getA() * 255));
                     render(renderer, blockEntity, tickDelta, matrices, provider);
                 });

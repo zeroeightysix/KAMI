@@ -4,9 +4,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting.Constrain
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.event.TickEvent.Client.InGame
-import me.zeroeightsix.kami.setting.SettingVisibility
-import java.util.function.Function
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import kotlin.math.sin
 
 @Module.Info(name = "Brightness", description = "Makes everything brighter!", category = Module.Category.RENDER)
