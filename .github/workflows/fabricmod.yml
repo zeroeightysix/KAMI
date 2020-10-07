@@ -3,11 +3,7 @@ name: Fabric mod jar build
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the fabric branch
-on:
-  push:
-    branches: [ fabric ]
-  pull_request:
-    branches: [ fabric ]
+on: [push, pull_request]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -37,7 +33,10 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-    
+
+      - name: Directory structure
+        run: 'find .'
+
       - uses: actions/upload-artifact@v2
         with:
           name: KAMI mod jar
