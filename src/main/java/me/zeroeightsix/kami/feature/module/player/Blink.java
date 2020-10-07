@@ -61,7 +61,7 @@ public class Blink extends Module {
     });
 
     @EventHandler
-    public Listener<TickEvent.Client.InGame> tickListener = new Listener<>(event -> {
+    public Listener<TickEvent.InGame> tickListener = new Listener<>(event -> {
         if (getAlwaysListening()) {
             for (int i = 0; i < packetsPerClump; i++)
                 if (!packets.isEmpty())
