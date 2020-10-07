@@ -16,6 +16,7 @@ import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.network.NetworkSide
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket
 import net.minecraft.text.Text
