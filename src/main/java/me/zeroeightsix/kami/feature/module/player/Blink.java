@@ -42,7 +42,7 @@ public class Blink extends Module {
     @EventHandler
     public Listener<PacketEvent.Send> listener = new Listener<>(event -> {
         // We don't want to withhold login packets if a player logs out with blink enabled
-        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PlayerRespawnS2CPacket) && !(event.getPacket() instanceof PlayerSpawnS2CPacket))) { // maybe use ServerPlayPacketListener
+        if (event.getPacket() instanceof PlayerMoveC2SPacket || (withholdAllPackets && mc.world != null && !(event.getPacket() instanceof PlayerRespawnS2CPacket) && !(event.getPacket() instanceof PlayerSpawnS2CPacket))) {
             event.cancel();
             packets.add(event.getPacket());
 
@@ -77,7 +77,7 @@ public class Blink extends Module {
             clonedPlayer = new OtherClientPlayerEntity(mc.world, mc.getSession().getProfile()); // Create Fake Player
             clonedPlayer.copyFrom(mc.player);
             clonedPlayer.headYaw = mc.player.headYaw;
-            mc.world.addEntity(-68419, clonedPlayer); //There is likely not going to be an entity with this id
+            mc.world.addEntity(FAKE_PLAYER_ID, clonedPlayer); //There is likely not going to be an entity with this id
         }
     }
 
