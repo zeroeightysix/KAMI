@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import com.mojang.authlib.GameProfile;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.CloseScreenInPortalEvent;
+import me.zeroeightsix.kami.event.EntityEvent;
 import me.zeroeightsix.kami.event.PlayerMoveEvent;
 import me.zeroeightsix.kami.feature.module.NoSlowDown;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +14,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,6 +29,12 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
 
     public MixinClientPlayerEntity(ClientWorld world, GameProfile profile) {
         super(world, profile);
+    }
+
+    @Inject(method = "updateHealth", at = @At("HEAD"))
+    public void onUpdateHealth(float health, CallbackInfo ci) {
+        EntityEvent.UpdateHealth event = new EntityEvent.UpdateHealth((ClientPlayerEntity) (Object) this, health);
+        KamiMod.EVENT_BUS.post(event);
     }
 
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;tick(Z)V", shift = At.Shift.AFTER))

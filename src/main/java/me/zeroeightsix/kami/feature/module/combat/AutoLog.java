@@ -22,12 +22,10 @@ public class AutoLog extends Module {
     long lastLog = System.currentTimeMillis();
 
     @EventHandler
-    private Listener<EntityEvent.EntityDamage> livingDamageEventListener = new Listener<>(event -> {
+    private Listener<EntityEvent.UpdateHealth> livingDamageEventListener = new Listener<>(event -> {
         if (mc.player == null) return;
-        if (event.getEntity() == mc.player) {
-            if (mc.player.getHealth() - event.getDamage() < health) {
-                log();
-            }
+        if (event.getHealth() > 0f && event.getEntity() == mc.player && event.getHealth() < health) {
+            log();
         }
     });
 

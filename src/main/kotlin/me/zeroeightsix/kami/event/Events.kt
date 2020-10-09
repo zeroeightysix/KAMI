@@ -65,7 +65,6 @@ class CloseScreenInPortalEvent(val screen: Screen?) : KamiEvent()
 class DisplaySizeChangedEvent
 
 open class EntityEvent(val entity: Entity) : KamiEvent() {
-
     class EntityCollision(
         entity: Entity,
         var x: Double,
@@ -73,7 +72,7 @@ open class EntityEvent(val entity: Entity) : KamiEvent() {
         var z: Double
     ) : EntityEvent(entity)
 
-    class EntityDamage(entity: Entity, var damage: Int) : EntityEvent(entity)
+    class UpdateHealth(entity: Entity, val health: Float) : EntityEvent(entity)
 }
 
 class EntityJoinWorldEvent(val id: Int, val entity: Entity) : KamiEvent()
