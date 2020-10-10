@@ -40,65 +40,27 @@ private fun isHostile(e: Entity) = e is Monster || (e is Angerable && e.angryAt 
 private operator fun <T> ((T) -> Boolean).not() = { t: T -> !this(t) }
 
 private val allEntities
-    get() = mc.world?.entities?.iterator()
+    get() = mc.world?.entities
 private val allPlayers
-    get() = mc.world?.players?.iterator()
+    get() = mc.world?.players
 
 private val allBlockEntities
-    get() = mc.world?.blockEntities?.iterator()
+    get() = mc.world?.blockEntities
 
 internal fun <T> emptyIterator() = emptyList<T>().iterator()
 
 interface CategorisedTargetProvider<T> {
-    val provider: ResettableLazy<Iterator<T>?>
+    val provider: ResettableLazy<List<T>?>
     val belongsFunc: (T) -> Boolean
 
     fun invalidate() = provider.invalidate()
     fun iterator() = provider.value
 }
 
-/**
- * Returns an iterator over this [Iterator] that evaluates filtered elements only when requested
- */
-internal fun <T> Iterator<T>.filterLazily(filter: (T) -> Boolean): Iterator<T> = object : Iterator<T> {
-    private val inner = this@filterLazily
-
-    private var next: T? = null
-
-    init {
-        // Okay. We lied. This iterator actually evaluates the next element ahead of time - if we didn't, we'd have an unstable `hasNext` method.
-        this.toNextFiltered()
-    }
-
-    /**
-     * Calls [Iterator.next] on the underlying iterator until the next element that passes the filter is found. After, sets the [next] field to the element found, or `null` if none.
-     */
-    private fun toNextFiltered() {
-        var n: T? = null
-        while (n == null || !filter(n)) {
-            // Nothing left, but n also didn't pass the filter? Set next to null & stop.
-            if (!inner.hasNext())
-                return Unit.also { this.next = null }
-            n = inner.next()
-        }
-        this.next = n
-    }
-
-    override fun hasNext(): Boolean {
-        return next != null
-    }
-
-    override fun next(): T {
-        return next?.also {
-            toNextFiltered()
-        } ?: throw NoSuchElementException()
-    }
-}
-
 @Suppress("unused")
 enum class EntityCategory(
     val _belongsFunc: (Entity) -> Boolean,
-    internal val baseIterable: () -> Iterator<Entity>?,
+    internal val baseIterable: () -> Iterable<Entity>?,
     /**
      * Player targets work on the pre-filtered set of players minecraft provides.
      * That means their `belongsFunc` will produce false positives when tested against non-player entities.
@@ -106,7 +68,7 @@ enum class EntityCategory(
      */
     internal val genericBaseBelongsFunc: (Entity) -> Boolean = { true }
 ) : CategorisedTargetProvider<Entity> {
-    NONE({ false }, ::emptyIterator, { false }),
+    NONE({ false }, ::emptyList, { false }),
     LIVING({ it is LivingEntity }, ::allEntities),
     NOT_LIVING({ it !is LivingEntity }, ::allEntities),
     PASSIVE(::isPassive, LIVING::iterator),
@@ -125,17 +87,16 @@ enum class EntityCategory(
     override val belongsFunc: (Entity) -> Boolean = { this.genericBaseBelongsFunc(it) && this._belongsFunc(it) }
 
     override val provider = ResettableLazy {
-        this.baseIterable()
-            ?.filterLazily(this._belongsFunc)
+        this.baseIterable()?.filter(this._belongsFunc)
     }
 }
 
 @Suppress("unused")
 enum class BlockEntityCategory(
     override val belongsFunc: (BlockEntity) -> Boolean,
-    internal val baseCollection: () -> Iterator<BlockEntity>?
+    internal val baseCollection: () -> List<BlockEntity>?
 ) : CategorisedTargetProvider<BlockEntity> {
-    NONE({ false }, ::emptyIterator),
+    NONE({ false }, ::emptyList),
     ALL_BLOCK_ENTITIES({ true }, ::allBlockEntities),
     CONTAINERS({ it is Inventory }, ::allBlockEntities),
     CHESTS({ it is ChestBlockEntity }, ::allBlockEntities),
@@ -143,7 +104,7 @@ enum class BlockEntityCategory(
     SHULKERS({ it is ShulkerBoxBlockEntity }, CONTAINERS::iterator);
 
     override val provider = ResettableLazy {
-        this.baseCollection()?.filterLazily(belongsFunc)
+        this.baseCollection()?.filter(belongsFunc)
     }
 }
 
@@ -155,7 +116,7 @@ enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : Categor
     FERTILIZABLE({ it is Fertilizable }),
     WATERLOGGABLE({ it is Waterloggable });
 
-    override val provider: ResettableLazy<Iterator<Block>?> = ResettableLazy { emptyIterator() }
+    override val provider: ResettableLazy<List<Block>?> = ResettableLazy { emptyList() }
 }
 
 @Suppress("unused")
