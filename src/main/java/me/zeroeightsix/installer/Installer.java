@@ -4,6 +4,9 @@ package me.zeroeightsix.installer;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +20,10 @@ import java.util.Locale;
 import java.util.Random;
 
 import net.minecraft.util.Util.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class Installer extends JPanel {
     private final int BUTTON_TEXT_OFFSET = 55;
@@ -78,8 +85,8 @@ public class Installer extends JPanel {
 
             try {
                 InstallKami(getModsFolder());
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+            } catch (IOException | SAXException | ParserConfigurationException Exception) {
+                Exception.printStackTrace();
             }
 
             System.exit(0);
@@ -115,7 +122,7 @@ public class Installer extends JPanel {
         throw new RuntimeException("Cannot find instaces folder.");
     }
 
-    private void InstallKami(String directory) throws IOException {
+    private void InstallKami(String directory) throws IOException, SAXException, ParserConfigurationException {
         if (!hasLatestFabric(directory.substring(0, directory.length() - 4))) InstallFabric();
 
         Path mods  = Paths.get(directory + "Kami.jar");
@@ -126,22 +133,33 @@ public class Installer extends JPanel {
         Files.copy(in, mods, StandardCopyOption.REPLACE_EXISTING);
 
         JOptionPane.showMessageDialog(null, "Installed KAMI to:\n"+directory);
+
+        //new File(System.getProperty("user.dir") + File.separator + "fabric-installer.jar").delete();
     }
 
     private boolean hasLatestFabric(String directory) {
         //TODO: CHECK FOR LATEST VERSION
         File fabric = new File(directory+"fabric");
-        if (fabric.exists()) return true;
-        return false;
+        return fabric.exists();
 
     }
 
-    private void InstallFabric() {
+    private void InstallFabric() throws IOException, SAXException, ParserConfigurationException {
         //TODO
 
-        // latest =  https://maven.fabricmc.net/net/fabricmc/fabric-installer/maven-metadata.xml - > versioning - > latest
-        // download ("https://maven.fabricmc.net/net/fabricmc/fabric-installer/"+latest+"/fabric-installer-"+latest+".jar")
 
+        URL xmlURL = new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/maven-metadata.xml");
+        InputStream xml = xmlURL.openStream();
+        String latestVersion = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml).getElementsByTagName("latest").item(0).getTextContent();
+        xml.close();
+
+        JOptionPane.showMessageDialog(null,"It looks like fabric is not installed, this will prompt you to install fabric version " + latestVersion);
+
+        Path fabricInstall = Paths.get(System.getProperty("user.dir") + File.separator + "fabric-installer.jar");
+        InputStream in = new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/"+latestVersion+"/fabric-installer-"+latestVersion+".jar").openStream();
+        Files.copy(in, fabricInstall, StandardCopyOption.REPLACE_EXISTING);
+
+        Runtime.getRuntime().exec("java -jar fabric-installer.jar");
         return;
     }
 
