@@ -139,6 +139,13 @@ tasks {
         }
     }
 
+
+    jar {
+        manifest {
+            attributes["Main-Class"] = "me.zeroeightsix.installer.Installer"
+        }
+    }
+
     remapJar {
         dependsOn(":shadowJar")
         input.set(shadowJar.get().archiveFile)
