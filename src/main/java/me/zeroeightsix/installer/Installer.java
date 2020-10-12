@@ -21,7 +21,20 @@ import java.util.Random;
 import org.xml.sax.SAXException;
 
 public class Installer extends JPanel {
-    private final int BUTTON_TEXT_OFFSET = 55;
+
+    /**
+     * MultiMC is proving to be difficult it will be added in a separate pr.
+     *
+     * MULTIMC CHECKLIST
+     *
+     *  - Get instances folder for osx (Fixing getInstacesFolder())
+     *  - Un-center button
+     *  - Some way to choose directory
+     *  - Some way to choose instance
+     */
+
+    private final int INSTALL_BUTTON_TEXT_OFFSET = 55;
+    private final int AMOUNT_OF_BACKGROUNDS = 6;
     private final InputStream JETBRAINS = Installer.class.getResourceAsStream("/assets/kami/Jetbrains.ttf");
 
     public static void main(String[] args) throws IOException, FontFormatException {
@@ -42,10 +55,12 @@ public class Installer extends JPanel {
         installButton.setBorderPainted(false);
         installButton.setToolTipText("KAMI INSTALL");
 
+        int installButtonXPos = 195;
+
         Font jetbrainsFont = Font.createFont(Font.TRUETYPE_FONT, JETBRAINS);
         jetbrainsFont = jetbrainsFont.deriveFont(jetbrainsFont.getSize() * 22F);
 
-        URL backgroundImage = Installer.class.getResource("/assets/kami/installer/backgrounds/" + new Random().nextInt(2) + ".png");
+        URL backgroundImage = Installer.class.getResource("/assets/kami/installer/backgrounds/" + new Random().nextInt(AMOUNT_OF_BACKGROUNDS) + ".png");
         JLabel backgroundPane = new JLabel(new ImageIcon(ImageIO.read(backgroundImage)));
 
         URL installButtonImage = Installer.class.getResource("/assets/kami/installer/buttons/red.png");
@@ -68,25 +83,24 @@ public class Installer extends JPanel {
         add(kamiIcon);
         add(backgroundPane); // Add this *LAST* so renders over everything else.
 
-        installIcon.setBounds(90, 245, 200, 50);
-        installButton.setBounds(90, 245, 200, 50);
-        installText.setBounds(90+BUTTON_TEXT_OFFSET, 245, 200, 50);
+        installIcon.setBounds(installButtonXPos, 245, 200, 50);
+        installButton.setBounds(installButtonXPos, 245, 200, 50);
+        installText.setBounds(installButtonXPos + INSTALL_BUTTON_TEXT_OFFSET, 245, 200, 50);
         kamiIcon.setBounds(236, 70, 128, 128);
         backgroundPane.setBounds(0, 0, 600, 355);
 
         installButton.addActionListener(event -> {
-            installButton.setEnabled(false);
-            installIcon.setOpaque(false);
-            try {
-                installKami(getMinecraftFolder());
-            } catch (IOException | SAXException | ParserConfigurationException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.exit(0);
+                installButton.setEnabled(false);
+        installIcon.setOpaque(false);
+        try {
+            installKami(getMinecraftFolder());
+        } catch (IOException | SAXException | ParserConfigurationException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.exit(0);
         });
     }
 
-    //TODO: Center button or add MultiMC support (I'm leaning towards centering)
     private void installKami(String directory) throws IOException, SAXException, ParserConfigurationException, InterruptedException {
         if (!hasLatestFabric(directory.substring(0, directory.length() - 5))) {
             Process process = installFabric();
@@ -103,29 +117,29 @@ public class Installer extends JPanel {
         InputStream in = new URL("https://github.com/zeroeightysix/KAMI/releases/download/" + latestVersion + "/kami-" + latestVersion + ".jar").openStream();
 
         Arrays.stream(Objects.requireNonNull(new File(directory).list())).forEach(mod -> {
-            if ((mod.contains("kami-") && !mod.equals("kami-" + latestVersion + ".jar"))) {
-                File modFile = new File(directory + mod);
-                if (!modFile.isDirectory()) {
-                    JOptionPane.showMessageDialog(null, "Outdated KAMI ver. " + mod.substring(0, mod.length() - 4) + " detected. Deleting...");
-                    modFile.delete();
-                }
+        if ((mod.contains("kami-") && !mod.equals("kami-" + latestVersion + ".jar"))) {
+            File modFile = new File(directory + mod);
+            if (!modFile.isDirectory()) {
+                JOptionPane.showMessageDialog(null, "Outdated KAMI ver. " + mod.substring(0, mod.length() - 4) + " detected. Deleting...");
+                modFile.delete();
             }
+        }
         });
 
         if (new File(String.valueOf(kamiMod)).exists()) {
             JOptionPane.showMessageDialog(null, "It looks like KAMI is already installed.");
         } else {
-            Files.copy(in, kamiMod, StandardCopyOption.REPLACE_EXISTING);
-            JOptionPane.showMessageDialog(null, "Installed KAMI to:\n"+directory);
+            Files.copy( in , kamiMod, StandardCopyOption.REPLACE_EXISTING);
+            JOptionPane.showMessageDialog(null, "Installed KAMI to:\n" + directory);
         }
     }
 
     private Process installFabric() throws IOException, ParserConfigurationException, SAXException {
         String latestVersion = getLatestFabric();
-        JOptionPane.showMessageDialog(null,"It looks like fabric is not installed, this will prompt you to install fabric version " + latestVersion);
+        JOptionPane.showMessageDialog(null, "It looks like fabric is not installed, this will prompt you to install fabric version " + latestVersion);
         Path fabricInstall = Paths.get(System.getProperty("user.dir") + File.separator + "fabric-installer.jar");
-        InputStream in = new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/"+latestVersion+"/fabric-installer-"+latestVersion+".jar").openStream();
-        Files.copy(in, fabricInstall, StandardCopyOption.REPLACE_EXISTING);
+        InputStream in = new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/" + latestVersion + "/fabric-installer-" + latestVersion + ".jar").openStream();
+        Files.copy( in , fabricInstall, StandardCopyOption.REPLACE_EXISTING);
         return Runtime.getRuntime().exec("java -jar fabric-installer.jar");
     }
 
@@ -209,7 +223,7 @@ public class Installer extends JPanel {
         String operatingSystemName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 
         if (operatingSystemName.contains("nux")) {
-            return  System.getProperty("user.home") + "/.minecraft/mods/";
+            return System.getProperty("user.home") + "/.minecraft/mods/";
         } else if (operatingSystemName.contains("mac") || operatingSystemName.contains("darwin")) {
             return System.getProperty("user.home") + "/Library/Application Support/minecraft/mods/";
         } else if (operatingSystemName.contains("win")) {
@@ -221,7 +235,7 @@ public class Installer extends JPanel {
     }
 
     /**
-     *  Fetches location of 'instances' folder on user's computer
+     * Broken on MacOs: Fetches location of 'instances' folder on user's computer
      * @return (MultiMC) Location of 'instances' folder on user's computer
      */
     private String getInstacesFolder() {
@@ -230,12 +244,10 @@ public class Installer extends JPanel {
         if (operatingSystemName.contains("nux")) {
             return System.getProperty("user.home") + "/.local/share/multimc/instances";
         } else if (operatingSystemName.contains("mac") || operatingSystemName.contains("darwin")) {
-            //TODO: get instances folder for osx
-            return "TODO Mac multimc instances folder";
+            return "TODO";
         } else if (operatingSystemName.contains("win")) {
             return System.getenv("PROGRAMFILES") + File.separator + "MultiMC" + File.separator + "instances" + File.separator;
         }
-
         throw new RuntimeException("Cannot find instaces folder.");
     }
 
