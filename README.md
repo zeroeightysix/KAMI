@@ -20,7 +20,7 @@ The Fabric 1.16.3 version is in active development.
 
 ## Installing
 
-KAMI is a fabric mod. Download the [latest release](#downloading), or [build it yourself](#building).
+KAMI is a fabric mod. Download the [latest release](#downloading), or preferably, [**build it yourself**](#building). 
 
 Download and run the installer for Fabric from [here](https://fabricmc.net/use/) if you do not have it already. KAMI does not require Fabric API.
 
@@ -38,6 +38,8 @@ If you encounter bugs or crashes, please [open a new issue](../../issues/new/cho
 To ask for help, join the [Discord](http://discord.gg/9hvwgeg).
 
 ## Downloading
+
+Note: You need to be logged into GitHub to do this. If you don't want to login, [build](#building) your own jar. 
 
 1. Go to the [Actions](https://github.com/zeroeightysix/KAMI/actions) tab
 2. Click on the latest action
