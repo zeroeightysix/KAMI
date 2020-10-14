@@ -10,14 +10,19 @@ import imgui.font.FontConfig
 import imgui.impl.gl.GLInterface
 import imgui.impl.gl.ImplBestGL
 import imgui.impl.glfw.ImplGlfw
+import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tempSet
+import me.zeroeightsix.kami.tryOrNull
 import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.Stack
 
 object KamiHud {
@@ -48,7 +53,12 @@ object KamiHud {
         implGlfw = ImplGlfw(window, false, null)
         implGl = ImplBestGL()
         io = ImGui.io
-        io.iniFilename = "kami-imgui.ini"
+        val iniFilename = "kami-imgui.ini"
+        io.iniFilename = iniFilename
+        tryOrNull {
+            Files.createFile(Paths.get(iniFilename))
+            "Created imgui .ini file!"
+        }?.let { KamiMod.log.info(it) }
 
         fun fontCfg(block: FontConfig.() -> Unit): FontConfig {
             val fontCfg = FontConfig()

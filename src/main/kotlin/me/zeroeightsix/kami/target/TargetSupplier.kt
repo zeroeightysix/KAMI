@@ -9,6 +9,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
+import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
@@ -46,7 +47,7 @@ abstract class TargetSupplier<T, M, E, S : TargetSupplier.SpecificTarget<T>>(
     init {
         Listener<TickEvent.InGame>({
             this.invalidate()
-        }).also {
+        }, EventPriority.HIGHEST + 1).also {
             KamiMod.EVENT_BUS.subscribe(it)
         }
     }
@@ -76,7 +77,7 @@ abstract class TargetSupplier<T, M, E, S : TargetSupplier.SpecificTarget<T>>(
     }
 
     abstract class SpecificTarget<T> {
-        abstract val targets: Iterator<T>?
+        abstract val targets: Iterable<T>?
         abstract fun belongs(target: T): Boolean
         abstract fun imguiEdit()
     }
@@ -126,7 +127,7 @@ class EntitySupplier<M>(
 ) {
     class SpecificEntity(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<Entity, EntityType<*>>(identifier, Registry.ENTITY_TYPE) {
         override val targets
-            get() = mc.world?.entities?.iterator()?.filterLazily(::belongs)
+            get() = mc.world?.entities?.filter(::belongs)
         override fun belongs(target: Entity): Boolean = target.type == this.registryEntry
     }
 
@@ -146,7 +147,7 @@ class BlockEntitySupplier<M>(
 ) {
     class SpecificBlockEntity(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<BlockEntity, BlockEntityType<*>>(identifier, Registry.BLOCK_ENTITY_TYPE) {
         override val targets
-            get() = mc.world?.blockEntities?.iterator()?.filterLazily(::belongs)
+            get() = mc.world?.blockEntities?.filter(::belongs)
         override fun belongs(target: BlockEntity): Boolean = target.type == this.registryEntry
     }
 }
@@ -158,7 +159,7 @@ class BlockSupplier<M>(
     enumTargets, specificTargets
 ) {
     class SpecificBlock(identifier: Identifier = noneIdentifier) : RegistrySpecificTarget<Block, Block>(identifier, Registry.BLOCK) {
-        override val targets = emptyIterator<Block>()
+        override val targets = emptyList<Block>()
 
         override fun belongs(target: Block): Boolean = target == this.registryEntry
     }
