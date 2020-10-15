@@ -2,6 +2,7 @@ import Build_gradle.IncludeMethod.INCLUDE
 import Build_gradle.IncludeMethod.NOT
 import Build_gradle.IncludeMethod.SHADOW
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val minecraft_version: String by project
 val mod_version: String by project
@@ -102,12 +103,14 @@ dependencies {
     // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
 
+
     // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
     // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.
     listOf(
         "org.javassist:javassist:3.21.0-GA",
         "net.jodah:typetools:0.5.0",
         "org.jetbrains:annotations:13.0",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
         "com.github.kotlin-graphics:gln:$gln_version",
         "com.github.kotlin-graphics:gli:$gli_version",
         "com.github.kotlin-graphics.imgui:core:$kg_version",
@@ -142,8 +145,16 @@ tasks {
 
     jar {
         manifest {
-            attributes["Main-Class"] = "me.zeroeightsix.installer.Installer"
+            attributes["Main-Class"] = "me.zeroeightsix.installer.InstallerKt"
         }
+
+        // To add all of the dependencies
+        from(sourceSets.main.get().output)
+
+        dependsOn(configurations.compileClasspath)
+        from({
+            configurations.compileClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+        })
     }
 
     remapJar {
