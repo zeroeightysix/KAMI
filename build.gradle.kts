@@ -103,6 +103,9 @@ dependencies {
     // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
 
+    //Kotlin Stdlib
+    depend(SHADOW, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+
 
     // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
     // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.

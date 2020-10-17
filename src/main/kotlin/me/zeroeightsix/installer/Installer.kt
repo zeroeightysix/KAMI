@@ -15,7 +15,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.Arrays
-import java.util.Locale
 import java.util.Objects
 import java.util.Random
 import javax.imageio.ImageIO
@@ -39,7 +38,7 @@ fun main() {
     frame.isVisible = true
 }
 
-class Installer() : JPanel() {
+class Installer : JPanel() {
     /**
      * MultiMC is proving to be difficult it will be added in a separate pr.
      *
@@ -68,7 +67,7 @@ class Installer() : JPanel() {
         }
         val latestVersion = latestKami
         val kamiMod = Paths.get(directory + "kami-" + latestVersion + ".jar")
-        val `in` =
+        val inputStream =
             URL("https://github.com/zeroeightysix/KAMI/releases/download/$latestVersion/kami-$latestVersion.jar").openStream()
         Arrays.stream(Objects.requireNonNull(File(directory).list())).forEach { mod: String ->
             if (mod.contains("kami-") && mod != "kami-$latestVersion.jar") {
@@ -85,7 +84,7 @@ class Installer() : JPanel() {
         if (File(kamiMod.toString()).exists()) {
             JOptionPane.showMessageDialog(null, "It looks like KAMI is already installed.")
         } else {
-            Files.copy(`in`, kamiMod, StandardCopyOption.REPLACE_EXISTING)
+            Files.copy(inputStream, kamiMod, StandardCopyOption.REPLACE_EXISTING)
             JOptionPane.showMessageDialog(null, "Installed KAMI to:\n$directory")
         }
     }
@@ -95,12 +94,12 @@ class Installer() : JPanel() {
         val latestVersion = latestFabric
         JOptionPane.showMessageDialog(
             null,
-            "It looks like fabric is not installed, this will prompt you to install fabric version $latestVersion"
+            "It looks like the latest version of fabric is not installed, this will prompt you to install fabric version $latestVersion"
         )
         val fabricInstall = Paths.get(System.getProperty("user.dir") + File.separator + "fabric-installer.jar")
-        val `in` =
+        val inputStream =
             URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/$latestVersion/fabric-installer-$latestVersion.jar").openStream()
-        Files.copy(`in`, fabricInstall, StandardCopyOption.REPLACE_EXISTING)
+        Files.copy(inputStream, fabricInstall, StandardCopyOption.REPLACE_EXISTING)
         return Runtime.getRuntime().exec("java -jar fabric-installer.jar")
     }
 
@@ -116,8 +115,8 @@ class Installer() : JPanel() {
     @get:Throws(IOException::class)
     private val latestKami: String
         private get() {
-            URL("https://api.github.com/repos/zeroeightysix/KAMI/releases").openStream().use { `is` ->
-                val reader = BufferedReader(InputStreamReader(`is`, StandardCharsets.UTF_8))
+            URL("https://api.github.com/repos/zeroeightysix/KAMI/releases").openStream().use { line ->
+                val reader = BufferedReader(InputStreamReader(line, StandardCharsets.UTF_8))
                 val builder = StringBuilder()
                 var currentCharacter: Int
                 while (reader.read().also { currentCharacter = it } != -1) {
@@ -191,7 +190,7 @@ class Installer() : JPanel() {
      */
     private val minecraftFolder: String
         private get() {
-            val operatingSystemName = System.getProperty("os.name").toLowerCase(Locale.ROOT)
+            val operatingSystemName = System.getProperty("os.name").toLowerCase()
             if (operatingSystemName.contains("nux")) {
                 return System.getProperty("user.home") + "/.minecraft/mods/"
             } else if (operatingSystemName.contains("mac") || operatingSystemName.contains("darwin")) {
@@ -208,7 +207,7 @@ class Installer() : JPanel() {
      */
     private val instacesFolder: String
         private get() {
-            val operatingSystemName = System.getProperty("os.name").toLowerCase(Locale.ROOT)
+            val operatingSystemName = System.getProperty("os.name").toLowerCase()
             if (operatingSystemName.contains("nux")) {
                 return System.getProperty("user.home") + "/.local/share/multimc/instances"
             } else if (operatingSystemName.contains("mac") || operatingSystemName.contains("darwin")) {
@@ -216,7 +215,7 @@ class Installer() : JPanel() {
             } else if (operatingSystemName.contains("win")) {
                 return System.getenv("PROGRAMFILES") + File.separator + "MultiMC" + File.separator + "instances" + File.separator
             }
-            throw RuntimeException("Cannot find instaces folder.")
+            throw RuntimeException("Cannot find instances folder.")
         }
 
     init {
