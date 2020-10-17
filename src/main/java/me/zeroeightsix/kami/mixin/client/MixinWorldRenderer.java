@@ -3,7 +3,6 @@ package me.zeroeightsix.kami.mixin.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.zeroeightsix.kami.Colour;
 import me.zeroeightsix.kami.KamiMod;
-import me.zeroeightsix.kami.event.ChunkCullingEvent;
 import me.zeroeightsix.kami.event.RenderWeatherEvent;
 import me.zeroeightsix.kami.feature.module.ESP;
 import me.zeroeightsix.kami.feature.module.Freecam;
@@ -72,18 +71,6 @@ public abstract class MixinWorldRenderer implements HotSwappable {
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZIZ)V"), index = 4)
     public boolean isSpectator(boolean isSpectator) {
         return Freecam.INSTANCE.getEnabled() || isSpectator;
-    }
-
-    // Modify chunk culling
-    @ModifyVariable(method = "setupTerrain",
-            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setRenderDistanceMultiplier(D)V"), to = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOpaqueFullCube(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Z")),
-            at = @At("STORE"),
-            index = 20 // Highly subject to change, check print=true output when updating this mixin
-            /*print = true*/)
-    public boolean modifyBl3(boolean bl3) {
-        ChunkCullingEvent event = new ChunkCullingEvent(bl3);
-        KamiMod.EVENT_BUS.post(event);
-        return event.getChunkCulling();
     }
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))

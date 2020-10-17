@@ -8,11 +8,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import ladysnake.satin.api.managed.ManagedFramebuffer
 import ladysnake.satin.api.managed.ManagedShaderEffect
 import ladysnake.satin.api.managed.ShaderEffectManager
-import me.zero.alpine.listener.EventHandler
-import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.conditionalWrap
-import me.zeroeightsix.kami.event.ChunkCullingEvent
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.target.BlockCategory
@@ -93,11 +90,14 @@ object ESP : Module() {
         )
     }
 
-    @EventHandler
-    val cullingListener = Listener<ChunkCullingEvent>({
-        it.chunkCulling = false // TODO: Only =false if ESP is actively showing blocks that require chunk culling to be off
-    })
-    
+    override fun onEnable() {
+        mc.chunkCullingEnabled = false
+    }
+
+    override fun onDisable() {
+        mc.chunkCullingEnabled = true
+    }
+
     @GenerateType
     class ESPTarget(var solid: Boolean = true, var outline: Boolean = false, var outlineColour: Colour = Colour.WHITE)
 

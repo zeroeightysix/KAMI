@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER", "unused")
+
 package me.zeroeightsix.kami.event
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
@@ -176,5 +178,3 @@ class UpdateLookEvent(
 ) : KamiEvent()
 
 class ConfigSaveEvent(config: ConfigTree?) : KamiEvent()
-
-class ChunkCullingEvent(var chunkCulling: Boolean) : KamiEvent()
