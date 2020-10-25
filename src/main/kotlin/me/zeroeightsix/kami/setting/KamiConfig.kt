@@ -227,7 +227,8 @@ object KamiConfig {
             "colourMode" to colourModeType.serializedType,
             "type" to DEFAULT_STRING,
             "value" to DEFAULT_STRING,
-            "colour" to colourType.serializedType
+            "colour" to colourType.serializedType,
+            "digits" to ConfigTypes.INTEGER.serializedType
         )
     )
     val variableType = ConfigTypes.STRING.derive(
@@ -251,7 +252,7 @@ object KamiConfig {
     val partType = RecordConfigType(
         partSerializableType,
         CompiledText.Part::class.java,
-        {
+        { it ->
             val obfuscated = it["obfuscated"] as Boolean
             val bold = it["bold"] as Boolean
             val strike = it["strike"] as Boolean
@@ -263,6 +264,7 @@ object KamiConfig {
             val type = it["type"] as String
             val value = it["value"] as String
             val colour = colourType.toRuntimeType(it["colour"] as String)
+            val digits = ConfigTypes.INTEGER.toRuntimeType(it["digits"] as BigDecimal?)
 
             val part = when (type) {
                 "literal" -> CompiledText.LiteralPart(
@@ -277,7 +279,7 @@ object KamiConfig {
                     extraspace
                 )
                 "variable" -> CompiledText.VariablePart(
-                    variableType.toRuntimeType(value),
+                    variableType.toRuntimeType(value).also { v -> (v as? CompiledText.NumericalVariable)?.digits = digits },
                     obfuscated,
                     bold,
                     strike,
@@ -319,7 +321,8 @@ object KamiConfig {
                 "colourMode" to colourModeType.toSerializedType(it.colourMode),
                 "type" to type,
                 "value" to value,
-                "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour))
+                "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour)),
+                "digits" to ConfigTypes.INTEGER.toSerializedType(((it as? CompiledText.VariablePart)?.variable as? CompiledText.NumericalVariable)?.digits ?: 0)
             )
         }
     )
