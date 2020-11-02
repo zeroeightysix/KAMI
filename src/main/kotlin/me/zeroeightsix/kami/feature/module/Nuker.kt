@@ -46,8 +46,8 @@ object Nuker : Module() {
             currentBlock = nextBlock(it.player, it.world)
 
 
-        if (!it.player.isCreative && currentBlock != null) {
-            val block = currentBlock!!
+        if (!it.player.isCreative) {
+            val block = currentBlock ?: return@Listener
             val state = it.world.getBlockState(block)
 
             if (selectTool)
