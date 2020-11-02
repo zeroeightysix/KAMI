@@ -13,7 +13,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.flattenedStream
 import me.zeroeightsix.kami.setting.visibilityType
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function

@@ -5,7 +5,6 @@ import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
 import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.RenderPhase
-import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.texture.SpriteAtlasTexture
 import org.lwjgl.opengl.GL11
@@ -13,7 +12,7 @@ import org.lwjgl.opengl.GL11
 object KamiRenderLayers {
     private val smoothModel = RenderPhase.ShadeModel(true)
     private val disableLightmap = RenderPhase.Lightmap(false)
-    private val mipmapTexture = RenderPhase.Texture(SpriteAtlasTexture.BLOCK_ATLAS_TEX, false, true)
+    private val mipmapTexture = RenderPhase.Texture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, false, true)
 
     @Suppress("INACCESSIBLE_TYPE")
     val solidFiltered: RenderLayer = RenderLayer.of(

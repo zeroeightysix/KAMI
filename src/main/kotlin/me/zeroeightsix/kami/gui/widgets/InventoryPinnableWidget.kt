@@ -41,8 +41,8 @@ class InventoryPinnableWidget(
                 KamiHud.postDraw {
                     val scale = KamiHud.getScale()
 
-                    mc.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX)
-                    mc.textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX)!!.setFilter(false, false)
+                    mc.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)
+                    mc.textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)!!.setFilter(false, false)
 
                     RenderSystem.enableRescaleNormal()
                     RenderSystem.enableAlphaTest()

@@ -9,7 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FeatureManager.getByName
 import me.zeroeightsix.kami.feature.plugin.Plugin
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function

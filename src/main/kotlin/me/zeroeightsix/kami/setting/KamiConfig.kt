@@ -54,7 +54,7 @@ import me.zeroeightsix.kami.unsignedInt
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.util.Identifier
 import org.reflections.Reflections
 import uno.kotlin.NUL
