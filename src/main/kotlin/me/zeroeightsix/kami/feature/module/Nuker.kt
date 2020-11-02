@@ -7,10 +7,7 @@ import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.util.asVec3d
 import me.zeroeightsix.kami.util.singleVec
-import net.minecraft.block.CommandBlock
 import net.minecraft.block.FluidBlock
-import net.minecraft.block.JigsawBlock
-import net.minecraft.block.StructureBlock
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
@@ -35,6 +32,9 @@ object Nuker : Module() {
     @Setting(comment = "select the best tool for the block being broken")
     private var selectTool = false
 
+    @Setting(comment = "only break blocks that can be instantly broken")
+    private var onlyInstant = false
+
     private var progress = 0.0
     private var currentBlock: BlockPos? = null
 
@@ -46,7 +46,7 @@ object Nuker : Module() {
             currentBlock = nextBlock(it.player, it.world)
 
 
-        if (!it.player.isCreative) {
+        if (!it.player.isCreative && !onlyInstant) {
             val block = currentBlock ?: return@Listener
             val state = it.world.getBlockState(block)
 
