@@ -120,8 +120,7 @@ object Nuker : Module() {
                     player.pos,
                     hitRange
                 ) &&
-                // this stupid way of checking for unbreakable blocks was not my idea
-                (player.isCreative || !(block is CommandBlock || block is StructureBlock || block is JigsawBlock))
+                (player.isCreative || state.getHardness(world, block) > 0)
         }
 
         return blockCheck() && throughBlockCheck()
