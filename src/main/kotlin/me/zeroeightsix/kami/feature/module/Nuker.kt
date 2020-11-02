@@ -42,7 +42,7 @@ object Nuker : Module() {
     private val updateListener = Listener<TickEvent.InGame>({
         instantMineBlocks(it.player, it.world)
 
-        if (currentBlock == null || validate(it.player, it.world, currentBlock!!))
+        if (currentBlock == null || !validate(it.player, it.world, currentBlock!!))
             currentBlock = nextBlock(it.player, it.world)
 
         if (!it.player.isCreative && !onlyInstant) {
@@ -72,8 +72,9 @@ object Nuker : Module() {
             .filter { validate(player, world, it) }
 
     /**
-     * mines a block using packets
-     * @param op if true, mining is started, if false it is stopped
+     * Mines a block using packets
+     *
+     * @param op if `true`, mining is started. Otherwise, it is stopped.
      */
     private fun mine(block: BlockPos, op: Boolean) {
         mc.networkHandler?.sendPacket(
