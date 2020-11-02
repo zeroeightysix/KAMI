@@ -5,6 +5,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.kotlin
+import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.util.asVec3d
 import me.zeroeightsix.kami.util.singleVec
 import net.minecraft.block.FluidBlock
@@ -24,6 +25,10 @@ import net.minecraft.world.RaycastContext
 )
 object Nuker : Module() {
     @Setting
+    private var usePlayerRange = true
+
+    @Setting
+    @SettingVisibility.Method("shouldUseRangeConfig")
     private var hitRange: @Setting.Constrain.Range(min = 0.0, max = 8.0, step = 1.0) Double = 4.0
 
     @Setting
@@ -37,6 +42,15 @@ object Nuker : Module() {
 
     private var progress = 0.0
     private var currentBlock: BlockPos? = null
+
+    private val range
+        get() =
+            // this doesn't look that great, but i can't think of a cleaner way to do this
+            if (usePlayerRange) mc.interactionManager?.reachDistance?.toDouble() ?: hitRange
+            else hitRange
+
+    @Suppress("UNUSED")
+    fun shouldUseRangeConfig() = !usePlayerRange
 
     @EventHandler
     private val updateListener = Listener<TickEvent.InGame>({
@@ -65,7 +79,7 @@ object Nuker : Module() {
     })
 
     private fun getBoxCorner(playerPos: Vec3d, negative: Boolean = false) =
-        playerPos.add(Vec3d(hitRange, hitRange, hitRange).run { if (negative) negate() else this })
+        playerPos.add(singleVec(range).run { if (negative) negate() else this })
 
     private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld) =
         BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
@@ -120,7 +134,7 @@ object Nuker : Module() {
             state.block !is FluidBlock &&
             block.isWithinDistance(
                 player.pos,
-                hitRange
+                range
             ) &&
             (player.isCreative || state.getHardness(world, block) >= 0)
     }
