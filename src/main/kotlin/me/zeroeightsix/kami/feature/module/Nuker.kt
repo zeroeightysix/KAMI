@@ -29,10 +29,10 @@ object Nuker : Module() {
     @Setting
     private var throughBlocks = false
 
-    @Setting(comment = "select the best tool for the block being broken")
+    @Setting(comment = "Select the best tool for the block being broken")
     private var selectTool = false
 
-    @Setting(comment = "only break blocks that can be instantly broken")
+    @Setting(comment = "Only break blocks that can be instantly broken")
     private var onlyInstant = false
 
     private var progress = 0.0
@@ -42,9 +42,8 @@ object Nuker : Module() {
     private val updateListener = Listener<TickEvent.InGame>({
         instantMineBlocks(it.player, it.world)
 
-        if (currentBlock == null)
+        if (currentBlock == null || validate(it.player, it.world, currentBlock!!))
             currentBlock = nextBlock(it.player, it.world)
-
 
         if (!it.player.isCreative && !onlyInstant) {
             val block = currentBlock ?: return@Listener
@@ -55,7 +54,6 @@ object Nuker : Module() {
 
             if (progress == 0.0)
                 mine(block, true)
-
 
             progress += state.calcBlockBreakingDelta(it.player, it.world, block)
             if (progress >= 1.0) {
@@ -68,6 +66,10 @@ object Nuker : Module() {
 
     private fun getBoxCorner(playerPos: Vec3d, negative: Boolean = false) =
         playerPos.add(Vec3d(hitRange, hitRange, hitRange).run { if (negative) negate() else this })
+
+    private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld) =
+        BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
+            .filter { validate(player, world, it) }
 
     /**
      * mines a block using packets
@@ -85,12 +87,11 @@ object Nuker : Module() {
     }
 
     private fun nextBlock(player: ClientPlayerEntity, world: ClientWorld) =
-        BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
-            .filter { validate(player, world, it) }.findFirst().kotlin
+        getValidBlocks(player, world).findFirst().kotlin
 
     private fun instantMineBlocks(player: ClientPlayerEntity, world: ClientWorld) {
-        BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
-            .filter { validate(player, world, it) && canInstaMine(player, world, it) }
+        getValidBlocks(player, world)
+            .filter { canInstaMine(player, world, it) }
             .forEach { mine(it, true) }
     }
 
@@ -100,7 +101,7 @@ object Nuker : Module() {
     private fun validate(player: ClientPlayerEntity, world: ClientWorld, block: BlockPos): Boolean {
         val state = world.getBlockState(block)
 
-        val throughBlockCheck = {
+        val throughBlockCheck =
             throughBlocks ||
                 world.raycast(
                     RaycastContext(
@@ -111,18 +112,15 @@ object Nuker : Module() {
                         player
                     )
                 ).blockPos == block
-        }
 
-        val blockCheck = {
-            !state.isAir &&
-                state.block !is FluidBlock &&
-                block.isWithinDistance(
-                    player.pos,
-                    hitRange
-                ) &&
-                (player.isCreative || state.getHardness(world, block) >= 0)
-        }
+        if (!throughBlockCheck) return false
 
-        return blockCheck() && throughBlockCheck()
+        return !state.isAir &&
+            state.block !is FluidBlock &&
+            block.isWithinDistance(
+                player.pos,
+                hitRange
+            ) &&
+            (player.isCreative || state.getHardness(world, block) >= 0)
     }
 }
