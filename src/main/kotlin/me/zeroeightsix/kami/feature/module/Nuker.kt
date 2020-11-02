@@ -120,7 +120,7 @@ object Nuker : Module() {
                     player.pos,
                     hitRange
                 ) &&
-                (player.isCreative || state.getHardness(world, block) > 0)
+                (player.isCreative || state.getHardness(world, block) >= 0)
         }
 
         return blockCheck() && throughBlockCheck()
