@@ -4,8 +4,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.util.asVec3d
-import me.zeroeightsix.kami.util.single_vec
+import me.zeroeightsix.kami.util.singleVec
 import net.minecraft.block.CommandBlock
 import net.minecraft.block.FluidBlock
 import net.minecraft.block.JigsawBlock
@@ -19,86 +20,78 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RaycastContext
 
-@Module.Info(name = "Nuker", category = Module.Category.PLAYER, description = "Destroys Blocks around the Player")
+@Module.Info(
+    name = "Nuker",
+    category = Module.Category.PLAYER,
+    description = "Destroys Blocks around the Player"
+)
 object Nuker : Module() {
-    @Setting(name = "Hit Range")
+    @Setting
     private var hitRange: @Setting.Constrain.Range(min = 0.0, max = 8.0, step = 1.0) Double = 4.0
 
-    @Setting(name = "Through Blocks")
+    @Setting
     private var throughBlocks = false
 
-    @Setting(name = "Select Tool", comment = "select the best tool for the block being broken")
+    @Setting(comment = "select the best tool for the block being broken")
     private var selectTool = false
+
+    private var progress = 0.0
+    private var currentBlock: BlockPos? = null
 
     @EventHandler
     private val updateListener = Listener<TickEvent.InGame>({
         instantMineBlocks(it.player, it.world)
 
-        if (currentBlock == null) {
-            nextBlock(it.player, it.world)
-        }
+        if (currentBlock == null)
+            currentBlock = nextBlock(it.player, it.world)
+
 
         if (!it.player.isCreative && currentBlock != null) {
-            val state = it.world.getBlockState(currentBlock!!)
+            val block = currentBlock!!
+            val state = it.world.getBlockState(block)
 
-            if (selectTool) {
+            if (selectTool)
                 AutoTool.equipBestTool(state)
-            }
 
-            if (progress == 0.0) {
-                startMine(currentBlock!!)
-            }
+            if (progress == 0.0)
+                mine(block, true)
 
-            progress += state.calcBlockBreakingDelta(it.player, it.world, currentBlock)
+
+            progress += state.calcBlockBreakingDelta(it.player, it.world, block)
             if (progress >= 1.0) {
-                stopMine(currentBlock!!)
+                mine(block, false)
                 progress = 0.0
                 currentBlock = null
             }
         }
     })
 
-    private var progress = 0.0
-    private var currentBlock: BlockPos? = null
-
     private fun getBoxCorner(playerPos: Vec3d, negative: Boolean = false) =
         playerPos.add(Vec3d(hitRange, hitRange, hitRange).run { if (negative) negate() else this })
 
-    private fun startMine(blockPos: BlockPos) {
+    /**
+     * mines a block using packets
+     * @param op if true, mining is started, if false it is stopped
+     */
+    private fun mine(block: BlockPos, op: Boolean) {
         mc.networkHandler?.sendPacket(
             PlayerActionC2SPacket(
-                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK,
-                blockPos,
+                if (op) PlayerActionC2SPacket.Action.START_DESTROY_BLOCK
+                else PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK,
+                block,
                 Direction.DOWN
             )
         )
     }
 
-    private fun stopMine(blockPos: BlockPos) {
-        mc.networkHandler?.sendPacket(
-            PlayerActionC2SPacket(
-                PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK,
-                blockPos,
-                Direction.DOWN
-            )
-        )
-    }
-
-    private fun nextBlock(player: ClientPlayerEntity, world: ClientWorld) {
-        for (block in BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))) {
-            if (validate(player, world, block)) {
-                currentBlock = block
-                break
-            }
-        }
-    }
+    private fun nextBlock(player: ClientPlayerEntity, world: ClientWorld) =
+        BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
+            .filter { validate(player, world, it) }.findFirst().kotlin
 
     private fun instantMineBlocks(player: ClientPlayerEntity, world: ClientWorld) {
-        for (block in BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))) {
-            if (validate(player, world, block) && canInstaMine(player, world, block)) {
-                startMine(block)
-            }
-        }
+        BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
+            .filter { validate(player, world, it) && canInstaMine(player, world, it) }
+            .forEach { mine(it, true) }
     }
 
     private fun canInstaMine(player: ClientPlayerEntity, world: ClientWorld, block: BlockPos) =
@@ -107,26 +100,30 @@ object Nuker : Module() {
     private fun validate(player: ClientPlayerEntity, world: ClientWorld, block: BlockPos): Boolean {
         val state = world.getBlockState(block)
 
-        val throughBlockCheck = throughBlocks ||
-            world.raycast(
-                RaycastContext(
-                    Vec3d(player.pos.x, player.eyeY, player.pos.z),
-                    block.asVec3d.add(single_vec(0.5)),
-                    RaycastContext.ShapeType.COLLIDER,
-                    RaycastContext.FluidHandling.NONE,
-                    player
-                )
-            ).blockPos == block
+        val throughBlockCheck = {
+            throughBlocks ||
+                world.raycast(
+                    RaycastContext(
+                        Vec3d(player.pos.x, player.eyeY, player.pos.z),
+                        block.asVec3d.add(singleVec(0.5)),
+                        RaycastContext.ShapeType.COLLIDER,
+                        RaycastContext.FluidHandling.NONE,
+                        player
+                    )
+                ).blockPos == block
+        }
 
-        val blockCheck = !state.isAir &&
-            state.block !is FluidBlock &&
-            block.isWithinDistance(
-                player.pos,
-                hitRange
-            ) &&
-            // this stupid way of checking for unbreakable blocks was not my idea
-            (player.isCreative || !(block is CommandBlock || block is StructureBlock || block is JigsawBlock))
+        val blockCheck = {
+            !state.isAir &&
+                state.block !is FluidBlock &&
+                block.isWithinDistance(
+                    player.pos,
+                    hitRange
+                ) &&
+                // this stupid way of checking for unbreakable blocks was not my idea
+                (player.isCreative || !(block is CommandBlock || block is StructureBlock || block is JigsawBlock))
+        }
 
-        return blockCheck && throughBlockCheck
+        return blockCheck() && throughBlockCheck()
     }
 }

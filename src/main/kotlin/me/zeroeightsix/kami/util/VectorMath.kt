@@ -31,7 +31,7 @@ val BlockPos.asVec
     get() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 
 // unfortunately there are no static extension functions for java classes at this point
-fun single_vec(v: Double) = Vec3d(v, v, v)
+fun singleVec(v: Double) = Vec3d(v, v, v)
 
 object VectorMath {
 
