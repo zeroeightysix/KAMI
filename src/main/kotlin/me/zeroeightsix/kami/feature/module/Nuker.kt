@@ -45,15 +45,19 @@ object Nuker : Module() {
 
     private val range
         get() =
-            // this doesn't look that great, but i can't think of a cleaner way to do this
             if (usePlayerRange) mc.interactionManager?.reachDistance?.toDouble() ?: hitRange
             else hitRange
+
+    // This exists to use the range without having to recalculate `range` a lot.
+    // Instead it is calculated once at the start of the tick event
+    private var currentRange = range
 
     @Suppress("UNUSED")
     fun shouldUseRangeConfig() = !usePlayerRange
 
     @EventHandler
     private val updateListener = Listener<TickEvent.InGame>({
+        currentRange = range
         instantMineBlocks(it.player, it.world)
 
         if (currentBlock == null || !validate(it.player, it.world, currentBlock!!))
@@ -79,7 +83,7 @@ object Nuker : Module() {
     })
 
     private fun getBoxCorner(playerPos: Vec3d, negative: Boolean = false) =
-        playerPos.add(singleVec(range).run { if (negative) negate() else this })
+        playerPos.add(singleVec(currentRange).run { if (negative) negate() else this })
 
     private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld) =
         BlockPos.method_29715(Box(getBoxCorner(player.pos), getBoxCorner(player.pos, true)))
@@ -134,7 +138,7 @@ object Nuker : Module() {
             state.block !is FluidBlock &&
             block.isWithinDistance(
                 player.pos,
-                range
+                currentRange
             ) &&
             (player.isCreative || state.getHardness(world, block) >= 0)
     }
