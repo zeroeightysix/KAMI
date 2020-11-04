@@ -12,7 +12,7 @@ import me.zeroeightsix.kami.util.text
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.command.EntitySelector
 import net.minecraft.command.argument.EntityArgumentType
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
 import net.minecraft.util.Formatting.GOLD

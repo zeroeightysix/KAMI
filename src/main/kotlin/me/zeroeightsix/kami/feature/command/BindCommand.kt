@@ -6,7 +6,7 @@ import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.util.Bind
 import me.zeroeightsix.kami.util.text
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.util.Formatting.GOLD
 import net.minecraft.util.Formatting.LIGHT_PURPLE
 import net.minecraft.util.Formatting.YELLOW

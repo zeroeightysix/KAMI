@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.util.text
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.util.Formatting
 import net.minecraft.util.Formatting.GOLD
 import net.minecraft.util.Formatting.YELLOW

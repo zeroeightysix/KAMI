@@ -10,7 +10,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.zeroeightsix.kami.feature.FeatureManager.features
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasBind
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import java.util.NoSuchElementException
 import java.util.concurrent.CompletableFuture

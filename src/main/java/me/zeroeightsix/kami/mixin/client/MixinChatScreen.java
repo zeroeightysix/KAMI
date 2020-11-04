@@ -11,7 +11,7 @@ import me.zeroeightsix.kami.gui.windows.Settings;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.server.command.CommandSource;
+import net.minecraft.command.CommandSource;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
