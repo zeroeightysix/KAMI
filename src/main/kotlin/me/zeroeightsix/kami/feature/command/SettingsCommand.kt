@@ -16,7 +16,7 @@ import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
 import me.zeroeightsix.kami.util.text
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting.GOLD

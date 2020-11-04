@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.mc
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 
 object SayCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {

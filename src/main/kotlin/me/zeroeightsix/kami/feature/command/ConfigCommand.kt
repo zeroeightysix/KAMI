@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.text
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.GOLD
 import net.minecraft.util.Formatting.YELLOW

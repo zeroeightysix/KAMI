@@ -6,7 +6,7 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.mc
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
 import java.util.regex.Pattern

@@ -16,7 +16,7 @@ import net.minecraft.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
 import net.minecraft.item.BlockItem
 import net.minecraft.screen.ShulkerBoxScreenHandler
-import net.minecraft.server.command.CommandSource
+import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.RED
 
