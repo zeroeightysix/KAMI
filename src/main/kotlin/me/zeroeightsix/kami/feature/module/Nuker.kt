@@ -12,8 +12,8 @@ import net.minecraft.block.FluidBlock
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RaycastContext
@@ -79,10 +79,10 @@ object Nuker : Module() {
     })
 
     private fun getBoxCorner(playerPos: Vec3d, range: Double, negative: Boolean = false) =
-        playerPos.add(singleVec(range).run { if (negative) negate() else this })
+        BlockPos(playerPos.add(singleVec(range).run { if (negative) negate() else this }))
 
     private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld, range: Double) =
-        BlockPos.method_29715(Box(getBoxCorner(player.pos, range), getBoxCorner(player.pos, range, true)))
+        BlockPos.stream(BlockBox(getBoxCorner(player.pos, range), getBoxCorner(player.pos, range, true)))
             .filter { validate(player, world, it, range) }
 
     /**
