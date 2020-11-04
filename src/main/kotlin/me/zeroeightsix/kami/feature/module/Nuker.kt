@@ -54,10 +54,10 @@ object Nuker : Module() {
     @EventHandler
     private val updateListener = Listener<TickEvent.InGame>({
         val curRange = range
-        instantMineBlocks(curRange, it.player, it.world)
+        instantMineBlocks(it.player, it.world, curRange)
 
-        if (currentBlock == null || !validate(curRange, it.player, it.world, currentBlock!!))
-            currentBlock = nextBlock(curRange, it.player, it.world)
+        if (currentBlock == null || !validate(it.player, it.world, currentBlock!!, range))
+            currentBlock = nextBlock(it.player, it.world, curRange)
 
         if (!it.player.isCreative && !onlyInstant) {
             val block = currentBlock ?: return@Listener
@@ -78,12 +78,12 @@ object Nuker : Module() {
         }
     })
 
-    private fun getBoxCorner(range: Double, playerPos: Vec3d, negative: Boolean = false) =
+    private fun getBoxCorner(playerPos: Vec3d, range: Double, negative: Boolean = false) =
         playerPos.add(singleVec(range).run { if (negative) negate() else this })
 
-    private fun getValidBlocks(range: Double, player: ClientPlayerEntity, world: ClientWorld) =
-        BlockPos.method_29715(Box(getBoxCorner(range, player.pos), getBoxCorner(range, player.pos, true)))
-            .filter { validate(range, player, world, it) }
+    private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld, range: Double) =
+        BlockPos.method_29715(Box(getBoxCorner(player.pos, range), getBoxCorner(player.pos, range, true)))
+            .filter { validate(player, world, it, range) }
 
     /**
      * Mines a block using packets
@@ -101,11 +101,11 @@ object Nuker : Module() {
         )
     }
 
-    private fun nextBlock(range: Double, player: ClientPlayerEntity, world: ClientWorld) =
-        getValidBlocks(range, player, world).findFirst().kotlin
+    private fun nextBlock(player: ClientPlayerEntity, world: ClientWorld, range: Double) =
+        getValidBlocks(player, world, range).findFirst().kotlin
 
-    private fun instantMineBlocks(range: Double, player: ClientPlayerEntity, world: ClientWorld) {
-        getValidBlocks(range, player, world)
+    private fun instantMineBlocks(player: ClientPlayerEntity, world: ClientWorld, range: Double) {
+        getValidBlocks(player, world, range)
             .filter { canInstaMine(player, world, it) }
             .forEach { mine(it, true) }
     }
@@ -113,7 +113,7 @@ object Nuker : Module() {
     private fun canInstaMine(player: ClientPlayerEntity, world: ClientWorld, block: BlockPos) =
         player.isCreative || world.getBlockState(block).calcBlockBreakingDelta(player, world, block) >= 1
 
-    private fun validate(range: Double, player: ClientPlayerEntity, world: ClientWorld, block: BlockPos): Boolean {
+    private fun validate(player: ClientPlayerEntity, world: ClientWorld, block: BlockPos, range: Double): Boolean {
         val state = world.getBlockState(block)
 
         val throughBlockCheck =
