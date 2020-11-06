@@ -47,7 +47,7 @@ object AutoTool : Module() {
             EventHook<PlayerAttackEntityEvent> { event: PlayerAttackEntityEvent? -> equipBestWeapon() }
         )
 
-    private fun equipBestTool(blockState: BlockState) {
+    fun equipBestTool(blockState: BlockState) {
         var bestSlot = -1
         var max = 0.0
         for (i in 0..8) {
