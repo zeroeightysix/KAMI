@@ -48,7 +48,7 @@ public abstract class MixinCommandSuggestor {
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILHARD)
     public void refresh(CallbackInfo ci, String string, StringReader stringReader) {
-        if (!slashOptional) return; // Command block
+        if (slashOptional) return; // Command block
 
         int i;
         if (stringReader.canRead() && stringReader.peek() == Settings.INSTANCE.getCommandPrefix()) {
