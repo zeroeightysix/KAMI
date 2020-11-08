@@ -151,7 +151,7 @@ object VarMap {
         "realtime_ampm" string { ampmFormat.format(Date()) },
         "realtime_24h" string { militaryFormat.format(Date()) }
     ).apply {
-        if (BaritoneIntegration.present) {
+        BaritoneIntegration {
             put("baritone" string { BaritoneIntegration.recentControlProcess?.displayName() ?: "" })
             put("baritone_formatted" string {
                 BaritoneIntegration.recentControlProcess?.displayName()
