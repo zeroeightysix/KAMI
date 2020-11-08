@@ -152,9 +152,9 @@ object VarMap {
         "realtime_24h" string { militaryFormat.format(Date()) }
     ).apply {
         if (BaritoneIntegration.present) {
-            put("baritone" string { BaritoneIntegration.mainProcess?.displayName() ?: "" })
+            put("baritone" string { BaritoneIntegration.recentControlProcess?.displayName() ?: "" })
             put("baritone_formatted" string {
-                BaritoneIntegration.mainProcess?.displayName()
+                BaritoneIntegration.recentControlProcess?.displayName()
                     // remove brackets
                     ?.replaceAll("[]{}".asIterable(), " ")
                     // add space after comma

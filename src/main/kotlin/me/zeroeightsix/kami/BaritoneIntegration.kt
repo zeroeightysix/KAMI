@@ -22,7 +22,7 @@ object BaritoneIntegration {
         }
     }
 
-    val mainProcess
+    val recentControlProcess
         get() = BaritoneAPI.getProvider().primaryBaritone.pathingControlManager.mostRecentInControl().kotlin
 
     private val baritoneSettings by lazy {
