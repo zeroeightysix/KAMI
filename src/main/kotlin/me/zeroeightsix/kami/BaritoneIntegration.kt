@@ -13,6 +13,7 @@ import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
 
 object BaritoneIntegration {
+
     private val present by lazy {
         try {
             Class.forName("baritone.Baritone")
