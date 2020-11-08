@@ -1,10 +1,13 @@
 package me.zeroeightsix.kami.gui.text
 
 import imgui.ImGui
+import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.widgets.modulesVariable
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import me.zeroeightsix.kami.put
+import me.zeroeightsix.kami.replaceAll
 import me.zeroeightsix.kami.util.LagCompensator
 import me.zeroeightsix.kami.util.modified
 import net.minecraft.item.ItemStack
@@ -81,7 +84,7 @@ object VarMap {
             } ?: -1.0
         },
         "server_brand" string { mc.player?.serverBrand.toString() },
-        "server_name" string { mc.currentServerEntry?.name ?: "Singleplayer"},
+        "server_name" string { mc.currentServerEntry?.name ?: "Singleplayer" },
         "server_ip" string { mc.currentServerEntry?.address ?: "Offline" },
         "server_version" string { mc.currentServerEntry?.version?.string ?: mc.gameVersion ?: "" },
         "username" const { mc.session.username },
@@ -119,7 +122,7 @@ object VarMap {
                     ?: 0
                 ).toDouble()
         },
-        "health" numeric {(mc.player?.health ?: 0f).toDouble()},
+        "health" numeric { (mc.player?.health ?: 0f).toDouble() },
         "biome" string {
             mc.world?.registryManager?.get(Registry.BIOME_KEY)?.getId(mc.world?.getBiome(mc.player?.blockPos))
                 ?.stripMinecraftNamespace()?.replace("_", " ")
@@ -147,7 +150,22 @@ object VarMap {
         "gametime_day_ticks" numeric { (mc.world?.timeOfDay?.toDouble() ?: 0.0) % 24000.0 },
         "realtime_ampm" string { ampmFormat.format(Date()) },
         "realtime_24h" string { militaryFormat.format(Date()) }
-    )
+    ).apply {
+        if (BaritoneIntegration.present) {
+            put("baritone" string { BaritoneIntegration.mainProcess?.displayName() ?: "" })
+            put("baritone_formatted" string {
+                BaritoneIntegration.mainProcess?.displayName()
+                    // remove brackets
+                    ?.replaceAll("[]{}".asIterable(), " ")
+                    // add space after comma
+                    ?.replace(",", ", ")
+                    // remove duplicate spaces
+                    ?.replace(Regex("\\s+"), " ")
+                    // remove spaces before commas
+                    ?.replace(" ,", ",") ?: ""
+            })
+        }
+    }
 
     operator fun get(variable: String) = inner[variable]
 }

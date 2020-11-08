@@ -13,8 +13,7 @@ import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
 
 object BaritoneIntegration {
-
-    private val present by lazy {
+    val present by lazy {
         try {
             Class.forName("baritone.Baritone")
             true
@@ -22,6 +21,9 @@ object BaritoneIntegration {
             false
         }
     }
+
+    val mainProcess
+        get() = BaritoneAPI.getProvider().primaryBaritone.pathingControlManager.mostRecentInControl().kotlin
 
     private val baritoneSettings by lazy {
         BaritoneAPI.getSettings().allSettings.mapNotNull { setting ->
