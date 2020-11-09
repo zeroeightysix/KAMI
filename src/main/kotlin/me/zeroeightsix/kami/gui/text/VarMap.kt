@@ -152,7 +152,7 @@ object VarMap {
         "realtime_24h" string { militaryFormat.format(Date()) }
     ).apply {
         BaritoneIntegration {
-            put("baritone" string { BaritoneIntegration.recentControlProcess?.displayName() ?: "" })
+            put("baritone" string { BaritoneIntegration.recentControlProcess?.displayName() ?: "None" })
             put("baritone_formatted" string {
                 BaritoneIntegration.recentControlProcess?.displayName()
                     // remove brackets
@@ -162,7 +162,7 @@ object VarMap {
                     // remove duplicate spaces
                     ?.replace(Regex("\\s+"), " ")
                     // remove spaces before commas
-                    ?.replace(" ,", ",") ?: ""
+                    ?.replace(" ,", ",") ?: "None"
             })
         }
     }
