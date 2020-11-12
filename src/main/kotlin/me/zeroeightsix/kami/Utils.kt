@@ -30,7 +30,6 @@ import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
@@ -230,3 +229,15 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
 }
 
 fun VertexConsumer.colour(colour: Colour) = this.color(colour.r, colour.g, colour.b, colour.a)
+
+fun<K, V> MutableMap<K, V>.put(p: Pair<K, V>) {
+    put(p.first, p.second)
+}
+
+fun String.replaceAll(chars: Iterable<Char>, replacement: String): String {
+    var s = this
+    for (c in chars) {
+        s = s.replace("$c", replacement)
+    }
+    return s
+}

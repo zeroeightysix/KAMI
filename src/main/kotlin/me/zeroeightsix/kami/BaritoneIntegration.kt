@@ -23,6 +23,9 @@ object BaritoneIntegration {
         }
     }
 
+    val recentControlProcess
+        get() = BaritoneAPI.getProvider().primaryBaritone.pathingControlManager.mostRecentInControl().kotlin
+
     private val baritoneSettings by lazy {
         BaritoneAPI.getSettings().allSettings.mapNotNull { setting ->
             val name = setting.name
