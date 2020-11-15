@@ -16,14 +16,14 @@ import me.zeroeightsix.kami.event.TickEvent
     description = "Pauses Baritone"
 )
 object BaritonePause : Module() {
-    var process: PauseBaritoneProcess? = null
+    var process: BaritoneData? = null
     var registeredProcess = false
 
     init {
         hidden = true
         BaritoneIntegration {
             hidden = false
-            process = PauseBaritoneProcess("${KamiMod.MODNAME} Pause Module")
+            process = BaritoneData(BaritoneData.PauseBaritoneProcess("${KamiMod.MODNAME} Pause Module"))
         }
     }
 
@@ -37,33 +37,36 @@ object BaritonePause : Module() {
         BaritoneIntegration {
             val mngr = BaritoneAPI.getProvider()?.primaryBaritone?.pathingControlManager
             mngr?.let {
-                it.registerProcess(process)
+                it.registerProcess(process?.process)
                 registeredProcess = true
             }
         }
     }
 
     override fun onDisable() {
-        process?.isPaused = false
+        process?.process?.isPaused = false
     }
 
     override fun onEnable() {
-        process?.isPaused = true
+        process?.process?.isPaused = true
     }
 }
 
-class PauseBaritoneProcess(
-    val displayName: String,
-    var isPaused: Boolean = false
-) : IBaritoneProcess {
-    override fun isActive(): Boolean = isPaused
+// this wrapper is required in order to keep kami from crashing without baritone
+class BaritoneData(val process: PauseBaritoneProcess) {
+    class PauseBaritoneProcess(
+        val displayName: String,
+        var isPaused: Boolean = false
+    ) : IBaritoneProcess {
+        override fun isActive(): Boolean = isPaused
 
-    override fun onTick(p0: Boolean, p1: Boolean) =
-        PathingCommand(null, PathingCommandType.REQUEST_PAUSE)
+        override fun onTick(p0: Boolean, p1: Boolean) =
+            PathingCommand(null, PathingCommandType.REQUEST_PAUSE)
 
-    override fun isTemporary() = true
+        override fun isTemporary() = true
 
-    override fun onLostControl() {}
+        override fun onLostControl() {}
 
-    override fun displayName0() = displayName
+        override fun displayName0() = displayName
+    }
 }
