@@ -16,14 +16,14 @@ import me.zeroeightsix.kami.event.TickEvent
     description = "Pauses Baritone"
 )
 object BaritonePause : Module() {
-    var process: BaritoneData? = null
+    var process: BaritoneWrapper? = null
     var registeredProcess = false
 
     init {
         hidden = true
         BaritoneIntegration {
             hidden = false
-            process = BaritoneData(BaritoneData.PauseBaritoneProcess("${KamiMod.MODNAME} Pause Module"))
+            process = BaritoneWrapper(BaritoneWrapper.PauseBaritoneProcess("${KamiMod.MODNAME} Pause Module"))
         }
     }
 
@@ -53,7 +53,7 @@ object BaritonePause : Module() {
 }
 
 // this wrapper is required in order to keep kami from crashing without baritone
-class BaritoneData(val process: PauseBaritoneProcess) {
+class BaritoneWrapper(val process: PauseBaritoneProcess) {
     class PauseBaritoneProcess(
         val displayName: String,
         var isPaused: Boolean = false
