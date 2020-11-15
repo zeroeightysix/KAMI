@@ -48,6 +48,8 @@ import me.zeroeightsix.kami.target.BlockEntitySupplier
 import me.zeroeightsix.kami.target.BlockSupplier
 import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
+import me.zeroeightsix.kami.target.ItemCategory
+import me.zeroeightsix.kami.target.ItemSupplier
 import me.zeroeightsix.kami.target.createTargetsType
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.unsignedInt
@@ -158,6 +160,24 @@ object KamiConfig {
         }
     )
 
+    val itemCategoryType = ConfigTypes.STRING.derive(ItemCategory::class.java,
+        {
+            ItemCategory.valueOf(it)
+        },
+        {
+            it.name
+        }
+    )
+    val itemSpecificType = identifierType.derive(ItemSupplier.SpecificItem::class.java,
+        {
+            ItemSupplier.SpecificItem(it)
+        },
+        {
+            it.typeIdentifier
+        }
+    )
+
+
     fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType, { EntitySupplier.SpecificEntity() }) { e, s ->
         EntitySupplier(e, s)
     }
@@ -168,6 +188,10 @@ object KamiConfig {
 
     fun <M, S> createBlockType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockCategoryType, blockSpecificType, { BlockSupplier.SpecificBlock() }) { e, s ->
         BlockSupplier(e, s)
+    }
+
+    fun <M, S> createItemType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, itemCategoryType, itemSpecificType, { ItemSupplier.SpecificItem() }) {e, s ->
+        ItemSupplier(e, s)
     }
     
     val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntitySupplier<*>> {
@@ -180,6 +204,10 @@ object KamiConfig {
 
     val blockTargetsTypeProcessor = ParameterizedTypeProcessor<BlockSupplier<*>> {
         createBlockType(it[0])
+    }
+
+    val itemTargetsTypeProcessor = ParameterizedTypeProcessor<ItemSupplier<*>> {
+        createItemType(it[0])
     }
 
     val colourType =
@@ -684,6 +712,7 @@ object KamiConfig {
             .registerTypeMapping(EntitySupplier::class.java, entityTargetsTypeProcessor)
             .registerTypeMapping(BlockEntitySupplier::class.java, blockEntityTargetsTypeProcessor)
             .registerTypeMapping(BlockSupplier::class.java, blockTargetsTypeProcessor)
+            .registerTypeMapping(ItemSupplier::class.java, itemTargetsTypeProcessor)
             .registerTypeMapping(Bind::class.java, bindType)
             .registerTypeMapping(GameProfile::class.java, profileType)
             .registerTypeMapping(Colour::class.java, colourType)
