@@ -10,6 +10,9 @@ import me.zeroeightsix.kami.target.ItemSupplier
     category = Module.Category.RENDER,
     description = "Highlights certain Item Slots"
 )
+/**
+ * @see me.zeroeightsix.kami.mixin.client.MixinHandledScreen
+ */
 object ItemHighlight: Module() {
     @Setting
     var highlightedItems = ItemSupplier(

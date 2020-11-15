@@ -47,6 +47,7 @@
     "MixinEntity",
     "MixinEntityRenderer",
     "MixinGameRenderer",
+    "MixinHandledScreen",
     "MixinHorseBaseEntity",
     "MixinInGameHud",
     "MixinInGameOverlayRenderer",
@@ -65,7 +66,6 @@
     "MixinRenderPlayer",
     "MixinRenderTickCounter",
     "MixinStriderEntity",
-    "MixinWorldRenderer",
-    "MixinHandledScreen"
+    "MixinWorldRenderer"
   ]
 }
