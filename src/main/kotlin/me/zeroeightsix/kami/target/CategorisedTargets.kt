@@ -132,28 +132,47 @@ enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : Categor
 
 @Suppress("unused")
 enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : CategorisedTargetProvider<Item> {
+    // sorted by priority
     NONE({ false }),
-    TOOLS({ it is ToolItem }),
-    BLOCKS({ it is BlockItem }),
+    GRIEFING_TOOLS({ it in griefingTools }),
     AXES({ it is AxeItem }),
     SHOVELS({ it is ShovelItem }),
-    SWORDS({ it is SwordItem }),
     PICKAXES({ it is PickaxeItem }),
+    SWORDS({ it is SwordItem }),
     HOES({ it is HoeItem }),
-    WEARABLE({ it is Wearable }),
-    FOOD({ it.isFood }),
-    REDSTONE({ it.group == ItemGroup.REDSTONE }),
-    GRIEFING_TOOLS({ it in griefingTools });
+    TOOLS({ it is ToolItem || it in additionalTools }),
+    WEARABLE({ it is Wearable || (it as? BlockItem)?.block is Wearable }),
+    FOOD({ it.isFood || it == Items.CAKE }),
+    REDSTONE({ it.group == ItemGroup.REDSTONE || it in additionalRedstone }),
+    BLOCKS({ it is BlockItem });
 
     companion object {
-        val griefingTools = arrayOf(
+        private val griefingTools = arrayOf(
             Items.TNT,
             Items.TNT_MINECART,
             Items.FLINT,
             Items.FLINT_AND_STEEL,
             Items.GUNPOWDER,
             Items.SAND,
-            Items.LAVA_BUCKET
+            Items.LAVA_BUCKET,
+            Items.WATER_BUCKET,
+            Items.END_CRYSTAL
+        )
+
+        private val additionalTools = arrayOf(
+            Items.SHEARS,
+            Items.FISHING_ROD,
+            Items.FLINT_AND_STEEL
+        )
+
+        private val additionalRedstone = arrayOf(
+            Items.SLIME_BLOCK,
+            Items.HONEY_BLOCK,
+            Items.REDSTONE_ORE, // this is here since redstone ore can detect updates to some extend and thus is usable in contraptions
+            Items.ACTIVATOR_RAIL,
+            Items.DETECTOR_RAIL,
+            Items.POWERED_RAIL,
+            Items.TNT_MINECART
         )
     }
 
