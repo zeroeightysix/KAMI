@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.target
 
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.TickEvent.*
+import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.isFriend
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.ResettableLazy
@@ -29,6 +29,17 @@ import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.vehicle.AbstractMinecartEntity
 import net.minecraft.inventory.Inventory
+import net.minecraft.item.AxeItem
+import net.minecraft.item.BlockItem
+import net.minecraft.item.HoeItem
+import net.minecraft.item.Item
+import net.minecraft.item.ItemGroup
+import net.minecraft.item.Items
+import net.minecraft.item.PickaxeItem
+import net.minecraft.item.ShovelItem
+import net.minecraft.item.SwordItem
+import net.minecraft.item.ToolItem
+import net.minecraft.item.Wearable
 
 private fun isPassive(e: Entity): Boolean {
     if (e is Monster || (e is WolfEntity && e.angryAt != mc.player?.uuid)) return false
@@ -117,6 +128,55 @@ enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : Categor
     WATERLOGGABLE({ it is Waterloggable });
 
     override val provider: ResettableLazy<List<Block>?> = ResettableLazy { emptyList() }
+}
+
+@Suppress("unused")
+enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : CategorisedTargetProvider<Item> {
+    // sorted by priority
+    NONE({ false }),
+    GRIEFING_TOOLS({ it in griefingTools }),
+    AXES({ it is AxeItem }),
+    SHOVELS({ it is ShovelItem }),
+    PICKAXES({ it is PickaxeItem }),
+    SWORDS({ it is SwordItem }),
+    HOES({ it is HoeItem }),
+    TOOLS({ it is ToolItem || it in additionalTools }),
+    WEARABLE({ it is Wearable || (it as? BlockItem)?.block is Wearable }),
+    FOOD({ it.isFood || it == Items.CAKE }),
+    REDSTONE({ it.group == ItemGroup.REDSTONE || it in additionalRedstone }),
+    BLOCKS({ it is BlockItem });
+
+    companion object {
+        private val griefingTools = setOf(
+            Items.TNT,
+            Items.TNT_MINECART,
+            Items.FLINT,
+            Items.FLINT_AND_STEEL,
+            Items.GUNPOWDER,
+            Items.SAND,
+            Items.LAVA_BUCKET,
+            Items.WATER_BUCKET,
+            Items.END_CRYSTAL
+        )
+
+        private val additionalTools = setOf(
+            Items.SHEARS,
+            Items.FISHING_ROD,
+            Items.FLINT_AND_STEEL
+        )
+
+        private val additionalRedstone = setOf(
+            Items.SLIME_BLOCK,
+            Items.HONEY_BLOCK,
+            Items.REDSTONE_ORE, // this is here since redstone ore can detect updates to some extend and thus is usable in contraptions
+            Items.ACTIVATOR_RAIL,
+            Items.DETECTOR_RAIL,
+            Items.POWERED_RAIL,
+            Items.TNT_MINECART
+        )
+    }
+
+    override val provider: ResettableLazy<List<Item>?> = ResettableLazy { emptyList() }
 }
 
 @Suppress("unused")
