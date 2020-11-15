@@ -9,6 +9,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
+import sun.security.krb5.internal.Ticket
 
 @Module.Info(
     name = "BaritonePause",
@@ -17,29 +18,23 @@ import me.zeroeightsix.kami.event.TickEvent
 )
 object BaritonePause : Module() {
     var process: BaritoneWrapper? = null
-    var registeredProcess = false
 
     init {
         hidden = true
         BaritoneIntegration {
             hidden = false
             process = BaritoneWrapper(BaritoneWrapper.PauseBaritoneProcess("${KamiMod.MODNAME} Pause Module"))
-        }
-    }
-
-    @EventHandler
-    val onTick = Listener<TickEvent.InGame>({
-        tryInitProcess()
-    })
-
-    private fun tryInitProcess() {
-        if (registeredProcess) return
-        BaritoneIntegration {
-            val mngr = BaritoneAPI.getProvider()?.primaryBaritone?.pathingControlManager
-            mngr?.let {
-                it.registerProcess(process?.process)
-                registeredProcess = true
-            }
+            var listener: Listener<TickEvent.InGame>? = null
+            listener = Listener({
+                BaritoneIntegration {
+                    val mngr = BaritoneAPI.getProvider()?.primaryBaritone?.pathingControlManager
+                    mngr?.let {
+                        it.registerProcess(process?.process)
+                        KamiMod.EVENT_BUS.unsubscribe(listener)
+                    }
+                }
+            })
+            KamiMod.EVENT_BUS.subscribe(listener)
         }
     }
 
