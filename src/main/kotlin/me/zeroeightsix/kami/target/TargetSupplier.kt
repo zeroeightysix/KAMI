@@ -29,6 +29,7 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.item.Item
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import java.util.Arrays
@@ -162,6 +163,17 @@ class BlockSupplier<M>(
         override val targets = emptyList<Block>()
 
         override fun belongs(target: Block): Boolean = target == this.registryEntry
+    }
+}
+
+class ItemSupplier<M>(
+    enumTargets: Map<ItemCategory, M>,
+    specificTargets: Map<ItemSupplier.SpecificItem, M>
+): TargetSupplier<Item, M, ItemCategory, ItemSupplier.SpecificItem>(enumTargets, specificTargets) {
+    class SpecificItem(identifier: Identifier = noneIdentifier): RegistrySpecificTarget<Item, Item>(identifier, Registry.ITEM) {
+        override val targets = emptyList<Item>()
+
+        override fun belongs(target: Item) = target == this.registryEntry
     }
 }
 

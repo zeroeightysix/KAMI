@@ -65,6 +65,7 @@
     "MixinRenderPlayer",
     "MixinRenderTickCounter",
     "MixinStriderEntity",
-    "MixinWorldRenderer"
+    "MixinWorldRenderer",
+    "MixinHandledScreen"
   ]
 }
