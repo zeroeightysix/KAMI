@@ -147,7 +147,7 @@ enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : Categoris
     BLOCKS({ it is BlockItem });
 
     companion object {
-        private val griefingTools = arrayOf(
+        private val griefingTools = setOf(
             Items.TNT,
             Items.TNT_MINECART,
             Items.FLINT,
@@ -159,13 +159,13 @@ enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : Categoris
             Items.END_CRYSTAL
         )
 
-        private val additionalTools = arrayOf(
+        private val additionalTools = setOf(
             Items.SHEARS,
             Items.FISHING_ROD,
             Items.FLINT_AND_STEEL
         )
 
-        private val additionalRedstone = arrayOf(
+        private val additionalRedstone = setOf(
             Items.SLIME_BLOCK,
             Items.HONEY_BLOCK,
             Items.REDSTONE_ORE, // this is here since redstone ore can detect updates to some extend and thus is usable in contraptions
