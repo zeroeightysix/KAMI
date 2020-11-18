@@ -7,6 +7,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PlayerAttackBlockEvent
 import me.zeroeightsix.kami.event.PlayerAttackEntityEvent
 import me.zeroeightsix.kami.mixin.client.IClientPlayerInteractionManager
+import me.zeroeightsix.kami.util.Texts
 import net.minecraft.block.BlockState
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
@@ -16,6 +17,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.MiningToolItem
 import net.minecraft.item.SwordItem
+import net.minecraft.util.Formatting
 import kotlin.math.pow
 
 @Module.Info(
@@ -26,7 +28,22 @@ import kotlin.math.pow
 object AutoTool : Module() {
     @Setting
     var preferredWeapon = PreferredWeapon.AXE
-
+    @Setting
+    var swapEnabled = false
+    @Setting
+    var alertEnabled = false
+    @Setting
+    var swapDurability: @Setting.Constrain.Range(
+    min = 0.0,
+    max = 20.0, /* TODO: Remove when kotlin bug fixed */
+    step = java.lang.Double.MIN_VALUE
+    ) Int = 2
+    @Setting
+    var alertDurability: @Setting.Constrain.Range(
+    min = 0.0,
+    max = 20.0, /* TODO: Remove when kotlin bug fixed */
+    step = java.lang.Double.MIN_VALUE
+    ) Int = 5
     @EventHandler
     private val leftClickListener =
         Listener(
@@ -48,12 +65,24 @@ object AutoTool : Module() {
         )
 
     fun equipBestTool(blockState: BlockState) {
+        if (alertEnabled&&(mc.player!!.mainHandStack.maxDamage - mc.player!!.mainHandStack.damage < alertDurability)) {
+        mc.player!!.sendMessage(
+            Texts.f(
+                Formatting.DARK_RED, Texts.append(
+                    Texts.lit("[ALERT]"),
+                    Texts.flit(Formatting.WHITE, "Tool durability is Low")
+
+                )
+            ),
+            true
+        )}
+
         var bestSlot = -1
         var max = 0.0
         for (i in 0..8) {
             val stack = mc.player?.inventory?.getStack(i)
             if (stack != null) {
-                if (stack.isEmpty) continue
+                if (stack.isEmpty || (swapEnabled&&(stack.maxDamage - stack.damage < swapDurability))) continue
             }
             var speed = stack?.getMiningSpeedMultiplier(blockState)
             var eff: Int
@@ -76,12 +105,23 @@ object AutoTool : Module() {
     }
 
     fun equipBestWeapon() {
+        if (alertEnabled&&(mc.player!!.mainHandStack.maxDamage - mc.player!!.mainHandStack.damage < alertDurability)) {
+            mc.player!!.sendMessage(
+                Texts.f(
+                    Formatting.DARK_RED, Texts.append(
+                        Texts.lit("[ALERT]"),
+                        Texts.flit(Formatting.WHITE, "Weapon durability is Low")
+
+                    )
+                ),
+                true
+            )}
         var bestSlot = -1
         var maxDamage = 0.0
         for (i in 0..8) {
             val stack = mc.player?.inventory?.getStack(i)
             if (stack != null) {
-                if (stack.isEmpty) continue
+                if (stack.isEmpty || (swapEnabled&&(stack.maxDamage - stack.damage < swapDurability))) continue
             }
             if (stack != null) {
                 val isPreferredWeapon = preferredWeapon.item.isAssignableFrom(stack.item::class.java)
