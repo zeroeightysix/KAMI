@@ -4,12 +4,10 @@ import baritone.api.BaritoneAPI
 import baritone.api.process.IBaritoneProcess
 import baritone.api.process.PathingCommand
 import baritone.api.process.PathingCommandType
-import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
-import sun.security.krb5.internal.Ticket
 
 @Module.Info(
     name = "BaritonePause",
