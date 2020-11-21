@@ -30,6 +30,9 @@ import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.predicate.item.ItemPredicate
 import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
@@ -43,7 +46,11 @@ val mc: MinecraftClient = MinecraftClient.getInstance()
 
 // / Quality of life and primitive extensions
 
-fun <T> tryOrNull(block: () -> T): T? = try { block() } catch (e: Exception) { null }
+fun <T> tryOrNull(block: () -> T): T? = try {
+    block()
+} catch (e: Exception) {
+    null
+}
 
 val <T> Optional<T>.kotlin
     get() = if (this.isPresent) this.get() else null
@@ -230,7 +237,7 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
 
 fun VertexConsumer.colour(colour: Colour) = this.color(colour.r, colour.g, colour.b, colour.a)
 
-fun<K, V> MutableMap<K, V>.put(p: Pair<K, V>) {
+fun <K, V> MutableMap<K, V>.put(p: Pair<K, V>) {
     put(p.first, p.second)
 }
 
@@ -241,3 +248,19 @@ fun String.replaceAll(chars: Iterable<Char>, replacement: String): String {
     }
     return s
 }
+
+operator fun Iterable<ItemPredicate>.contains(i: ItemStack): Boolean {
+    for (item in this) {
+        if (item.test(i))
+            return true
+    }
+    return false
+}
+
+operator fun Iterable<ItemPredicate>.contains(i: Item) = i.defaultStack in this
+
+// just a kotliny shortcut
+// unfortunately can't add static extensions
+fun itemPredicate(applyFun: ItemPredicate.Builder.() -> Unit) =
+    ItemPredicate.Builder.create().apply(applyFun).build()
+

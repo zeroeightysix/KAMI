@@ -2,12 +2,15 @@ package me.zeroeightsix.kami.target
 
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.contains
 import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.isFriend
+import me.zeroeightsix.kami.itemPredicate
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.block.Block
 import net.minecraft.block.Fertilizable
+import net.minecraft.block.Material
 import net.minecraft.block.OreBlock
 import net.minecraft.block.SlabBlock
 import net.minecraft.block.Waterloggable
@@ -40,6 +43,7 @@ import net.minecraft.item.ShovelItem
 import net.minecraft.item.SwordItem
 import net.minecraft.item.ToolItem
 import net.minecraft.item.Wearable
+import net.minecraft.tag.ItemTags
 
 private fun isPassive(e: Entity): Boolean {
     if (e is Monster || (e is WolfEntity && e.angryAt != mc.player?.uuid)) return false
@@ -135,15 +139,34 @@ enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : Categoris
     // sorted by priority
     NONE({ false }),
     GRIEFING_TOOLS({ it in griefingTools }),
+
     AXES({ it is AxeItem }),
     SHOVELS({ it is ShovelItem }),
     PICKAXES({ it is PickaxeItem }),
     SWORDS({ it is SwordItem }),
     HOES({ it is HoeItem }),
     TOOLS({ it is ToolItem || it in additionalTools }),
+
     WEARABLE({ it is Wearable || (it as? BlockItem)?.block is Wearable }),
+
     FOOD({ it.isFood || it == Items.CAKE }),
+    ROTTEN_FOOD({ food ->
+        food.foodComponent?.statusEffects?.stream()
+            ?.anyMatch { effect -> !effect.first.effectType.isBeneficial }
+            ?: false
+    }),
+    NON_ROTTEN_FOOD({ food ->
+        food.foodComponent?.statusEffects?.stream()
+            ?.allMatch { effect -> effect.first.effectType.isBeneficial }
+            ?: false
+    }),
+
     REDSTONE({ it.group == ItemGroup.REDSTONE || it in additionalRedstone }),
+    RESOURCES({ it in resources }),
+    MOB_DROPS({ it in mobDrops }),
+    ORES({ (it as? BlockItem)?.block is OreBlock || it == Items.ANCIENT_DEBRIS }),
+    WOOD({ (it as? BlockItem)?.block?.defaultState?.material in woodMaterials || it in additionalWood }),
+
     BLOCKS({ it is BlockItem });
 
     companion object {
@@ -173,6 +196,77 @@ enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : Categoris
             Items.DETECTOR_RAIL,
             Items.POWERED_RAIL,
             Items.TNT_MINECART
+        )
+
+        private val resources = setOf(
+            // normal
+            Items.IRON_INGOT,
+            Items.GOLD_INGOT,
+            Items.NETHERITE_INGOT,
+            Items.DIAMOND,
+            Items.REDSTONE,
+            Items.COAL,
+            Items.CHARCOAL,
+            Items.NETHERITE_SCRAP,
+            Items.LAPIS_LAZULI,
+
+            // blocks
+            Items.IRON_BLOCK,
+            Items.GOLD_BLOCK,
+            Items.NETHERITE_BLOCK,
+            Items.DIAMOND_BLOCK,
+            Items.REDSTONE_BLOCK,
+            Items.COAL_BLOCK,
+            // Items.CHARCOAL_BLOCK, oh wait that doesnt exist
+            Items.LAPIS_BLOCK,
+
+            // nuggets
+            Items.IRON_NUGGET,
+            Items.GOLD_NUGGET,
+            // Items.NETHERITE_NUGGET, oh wait that doesnt exist either
+        )
+
+        private val mobDrops = setOf(
+            Items.ROTTEN_FLESH,
+            Items.GUNPOWDER,
+            Items.BONE,
+            Items.STRING,
+            Items.SPIDER_EYE,
+            Items.BLAZE_ROD,
+            Items.SLIME_BALL,
+            Items.SHULKER_SHELL,
+            Items.ARROW,
+            Items.BOW,
+            Items.CROSSBOW,
+            Items.ENDER_PEARL,
+            Items.GOLD_NUGGET,
+            Items.MAGMA_CREAM,
+
+            Items.CHICKEN,
+            Items.BEEF,
+            Items.PORKCHOP,
+            Items.MUTTON,
+            Items.SALMON,
+            Items.RABBIT,
+            Items.COD,
+            Items.TROPICAL_FISH,
+
+            // these are dropped by witches
+            Items.GLASS_BOTTLE,
+            Items.REDSTONE,
+            Items.GLOWSTONE_DUST
+        )
+
+        private val additionalWood = setOf(
+            itemPredicate { item(Items.WARPED_FUNGUS) },
+            itemPredicate { item(Items.CRIMSON_FUNGUS) },
+            itemPredicate { item(Items.STICK) },
+            itemPredicate { tag(ItemTags.SAPLINGS) }
+        )
+
+        private val woodMaterials = setOf(
+            Material.WOOD,
+            Material.NETHER_WOOD
         )
     }
 
