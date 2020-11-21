@@ -238,6 +238,18 @@ enum class ItemCategory(override val belongsFunc: (Item) -> Boolean) : Categoris
             Items.ARROW,
             Items.BOW,
             Items.CROSSBOW,
+            Items.ENDER_PEARL,
+            Items.GOLD_NUGGET,
+            Items.MAGMA_CREAM,
+
+            Items.CHICKEN,
+            Items.BEEF,
+            Items.PORKCHOP,
+            Items.MUTTON,
+            Items.SALMON,
+            Items.RABBIT,
+            Items.COD,
+            Items.TROPICAL_FISH,
 
             // these are dropped by witches
             Items.GLASS_BOTTLE,
