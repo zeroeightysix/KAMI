@@ -11,8 +11,10 @@ import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.item.SwordItem
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.RaycastContext
@@ -48,6 +50,9 @@ object Aura : Module() {
         max = 3.0, /* TODO: Remove when kotlin bug fixed */
         step = java.lang.Double.MIN_VALUE
     ) Int = 3
+
+    @Setting(name = "Only use Weapon")
+    private var onlyUseWeapon = false
 
     @Setting(name = "32k Switch")
     private var switchTo32k = true
@@ -120,11 +125,17 @@ object Aura : Module() {
         return false
     }
 
+    private fun checkWeapon(stack: ItemStack): Boolean {
+        return (stack.item is AxeItem || stack.item is SwordItem)
+    }
+
     private fun attack(player: ClientPlayerEntity, e: Entity, onlyUse32k: Boolean) {
         var holding32k = false
+        var holdingWeapon = false
         if (player.activeItem?.let { checkSharpness(it) }!!) {
             holding32k = true
         }
+        holdingWeapon = checkWeapon(player.mainHandStack)
         if (switchTo32k && !holding32k) {
             var newSlot = -1
             for (i in 0..8) {
@@ -142,7 +153,7 @@ object Aura : Module() {
                 holding32k = true
             }
         }
-        if (onlyUse32k && !holding32k) {
+        if ((onlyUseWeapon && !holdingWeapon) || (onlyUse32k && !holding32k)) {
             return
         }
         mc.interactionManager?.attackEntity(
