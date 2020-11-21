@@ -23,7 +23,7 @@ object AutoEat : Module() {
     @Setting(comment = "If the amount of free hunger points goes above this, AutoEat activates")
     @SettingVisibility.Method("shouldUseCustomThreshold")
     // there is absolutely no reason for this to be a double but i can't use an Int
-    private var threshold: @Setting.Constrain.Range(min = 0.0, max = 20.0, step = 1.0) Double = 5.0
+    private var threshold: @Setting.Constrain.Range(min = 0.0, max = 20.0, step = 1.0) Int = 5
 
     @Setting
     private var priority = Priority.HUNGER_RESTORED
@@ -34,7 +34,7 @@ object AutoEat : Module() {
 
     private fun isValid(stack: ItemStack, food: Int): Boolean {
         val restored = if (useCustomThreshold)
-            threshold.roundToInt()
+            threshold
         else
             stack.item?.foodComponent?.hunger ?: 0
 
