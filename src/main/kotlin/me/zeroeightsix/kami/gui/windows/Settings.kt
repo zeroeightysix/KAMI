@@ -44,6 +44,9 @@ object Settings {
     @Setting
     var commandPrefix = '.'
 
+    @Setting
+    var openChatWhenCommandPrefixPressed = true
+
     // Behaviour
     @Setting
     var modifiersEnabled = false
@@ -110,6 +113,12 @@ object Settings {
                         charButton("Command prefix", ::commandPrefix)
                         sameLine()
                         demoDebugInformations.helpMarker("The character used to denote KAMI commands.")
+
+                        boolSetting(
+                            "Open chat when command prefix pressed",
+                            ::openChatWhenCommandPrefixPressed,
+                            "Opens the chat with the command prefix already inserted when the command prefix is pressed ingame."
+                        )
 
                         boolSetting(
                             "Keybind modifiers",

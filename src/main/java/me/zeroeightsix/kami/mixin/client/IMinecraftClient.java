@@ -17,6 +17,9 @@ public interface IMinecraftClient {
     @Invoker
     void callDoItemUse();
 
+    @Invoker
+    void callOpenChatScreen(String text);
+
     @Accessor
     static int getCurrentFps() {
         throw new UnsupportedOperationException("Untransformed mixin!");
