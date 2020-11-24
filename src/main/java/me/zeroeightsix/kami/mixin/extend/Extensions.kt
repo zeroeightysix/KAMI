@@ -8,6 +8,8 @@ import me.zeroeightsix.kami.mixin.client.IGameRenderer
 import me.zeroeightsix.kami.mixin.client.IInputUtilType
 import me.zeroeightsix.kami.mixin.client.IMatrix4f
 import me.zeroeightsix.kami.mixin.client.IMatrixStack
+import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.input.Input
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.GameRenderer
@@ -18,6 +20,8 @@ import net.minecraft.util.math.Vec3d
 import java.util.Deque
 
 // TODO: These could be extension properties
+
+fun MinecraftClient.openChatScreen(text: String) = (this as IMinecraftClient).callOpenChatScreen(text)
 
 fun InputUtil.Type.getMap(): Int2ObjectMap<InputUtil.Key> = (this as IInputUtilType).map
 

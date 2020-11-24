@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.BindEvent;
+import me.zeroeightsix.kami.event.CharTypedEvent;
 import net.minecraft.client.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +19,27 @@ public class MixinKeyboard {
         if (event.isCancelled()) {
             info.cancel();
         }
+    }
+
+    @Inject(method = "onChar", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"), cancellable = true)
+    public void onOneChar(long window, int i, int j, CallbackInfo ci) {
+        boolean consumed = false;
+        if (Character.charCount(i) == 1)
+            consumed = publishCharEvent((char) i);
+        else {
+            for (char c : Character.toChars(i)) {
+                consumed = consumed || publishCharEvent(c);
+            }
+        }
+
+        if (consumed)
+            ci.cancel();
+    }
+
+    private static boolean publishCharEvent(char c) {
+        CharTypedEvent event = new CharTypedEvent(c);
+        KamiMod.EVENT_BUS.post(event);
+        return event.isCancelled();
     }
 
 }

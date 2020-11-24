@@ -51,6 +51,8 @@ class BindEvent(val key: Int, val scancode: Int, val i: Int) : KamiEvent() {
     val ingame = mc.currentScreen == null
 }
 
+class CharTypedEvent(val char: Char) : KamiEvent()
+
 class CameraHurtEvent(val tickDelta: Float) : KamiEvent()
 
 class CanBeControlledEvent(val entity: Entity, var canBeSteered: Boolean?) : KamiEvent()
