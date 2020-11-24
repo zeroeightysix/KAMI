@@ -11,6 +11,7 @@ import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
+import me.zero.alpine.listener.Listener as AlpineListener
 
 open class FullFeature(
     override var name: String = "No name",
@@ -29,7 +30,7 @@ open class FullFeature(
         }
 
     @EventHandler
-    val bindListener = me.zero.alpine.listener.Listener(
+    val bindListener = AlpineListener(
         EventHook<BindEvent> {
             // If this is a repeat event (they key was held down long enough for it to start repeating), ignore it.
             if (it.i == 2) return@EventHook
