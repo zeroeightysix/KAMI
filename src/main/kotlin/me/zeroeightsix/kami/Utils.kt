@@ -235,6 +235,8 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     }
 }
 
+inline fun VertexConsumer.vertex(vec: Vec3d) = this.vertex(vec.x, vec.y, vec.z)
+
 fun VertexConsumer.colour(colour: Colour) = this.color(colour.r, colour.g, colour.b, colour.a)
 
 fun <K, V> MutableMap<K, V>.put(p: Pair<K, V>) {
