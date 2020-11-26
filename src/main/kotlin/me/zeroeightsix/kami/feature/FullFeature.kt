@@ -1,3 +1,5 @@
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
 package me.zeroeightsix.kami.feature
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
@@ -12,6 +14,7 @@ import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
 import me.zero.alpine.listener.Listener as AlpineListener
+import java.lang.Boolean as JavaBoolean
 
 open class FullFeature(
     override var name: String = "No name",
@@ -65,10 +68,9 @@ open class FullFeature(
             }
         }
 
-    // do not listen to intellij
-    // it lies
     @Listener("Enabled")
-    private fun enabledChanged(old: java.lang.Boolean, new: java.lang.Boolean) {
+    private fun enabledChanged(old: JavaBoolean?, new: JavaBoolean?) {
+        @Suppress("ReplaceCallWithBinaryOperator")
         if (old != null && new != null && !old.equals(new)) {
             if (new.booleanValue()) {
                 handleEnabled()
