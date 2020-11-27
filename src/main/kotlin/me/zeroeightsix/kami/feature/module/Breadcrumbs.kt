@@ -67,8 +67,7 @@ object Breadcrumbs : Module() {
                 it.close()
             }
             buffers.clear()
-
-            nextPositions()
+            positions.clear()
         }
     }
 
