@@ -90,6 +90,8 @@ object Breadcrumbs : Module() {
 
     @EventHandler
     val renderListener = AlpineListener({ event: RenderEvent.World ->
+        if (!enabled) return@AlpineListener
+
         val tessellator = Tessellator.getInstance()
         val builder: BufferBuilder = tessellator.buffer
 
