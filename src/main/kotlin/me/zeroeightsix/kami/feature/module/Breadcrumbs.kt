@@ -100,13 +100,14 @@ object Breadcrumbs : Module() {
             event.matrixStack.translate(-camera.x, -camera.y, -camera.z)
 
             if (positions.size >= BUFFER_SIZE) {
+                @Suppress("NAME_SHADOWING")
+                val builder = BufferBuilder(positions.size)
                 val buffer = VertexBuffer(VertexFormats.POSITION)
                 drawLines(builder)
                 builder.end()
                 buffer.upload(builder)
 
                 buffers.add(buffer)
-
                 nextPositions()
             } else {
                 // deprecated push/pop because tesselator/bufferbuilder don't support translations, so we get the camera translation from this
