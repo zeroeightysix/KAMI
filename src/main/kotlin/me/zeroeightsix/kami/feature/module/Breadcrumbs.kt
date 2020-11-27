@@ -42,6 +42,9 @@ object Breadcrumbs : Module() {
     @Setting
     var colour = Colour(1f, 0.86f, 0.2f, 0.2f)
 
+    @Setting(comment = "The minimal distance between points")
+    var fineness: @Setting.Constrain.Range(min = 0.1, max = 10.0, step = 0.1) Double = 0.1
+
     private val drawMode: Int
         get() = if (dashedLine) GL11.GL_LINES else GL11.GL_LINE_STRIP
 
@@ -81,7 +84,7 @@ object Breadcrumbs : Module() {
     @EventHandler
     val tickListener = AlpineListener({ event: TickEvent.InGame ->
         val pos = event.player.pos
-        if (positions.lastOrNull()?.squaredDistanceTo(pos)?.let { it < 0.1 * 0.1 } == true) return@AlpineListener
+        if (positions.lastOrNull()?.squaredDistanceTo(pos)?.let { it < fineness * fineness } == true) return@AlpineListener
         positions.add(pos)
     })
 
