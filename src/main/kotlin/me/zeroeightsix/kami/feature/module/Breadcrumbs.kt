@@ -58,7 +58,7 @@ object Breadcrumbs : Module() {
 
     @Listener("TrackWhenDisabled")
     fun onTrackWhenDisabledChanged(old: JavaBoolean?, new: JavaBoolean?) {
-        alwaysListening = !trackWhenDisabled
+        alwaysListening = new!!.booleanValue()
     }
 
     override fun onDisable() {
