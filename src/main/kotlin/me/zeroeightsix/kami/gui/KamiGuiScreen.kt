@@ -16,33 +16,9 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.glfw.GLFW
 
-object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
+object KamiGuiScreen : InteractableScreen(text(null, "Kami GUI")) {
 
     val colourIndices = Col.values().map { it.i }
-
-    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        val returned = super.keyPressed(keyCode, scanCode, modifiers)
-        if (!returned) {
-            ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_PRESS, modifiers)
-        }
-        return returned
-    }
-
-    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        val returned = super.keyReleased(keyCode, scanCode, modifiers)
-        if (!returned) {
-            ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_RELEASE, modifiers)
-        }
-        return returned
-    }
-
-    override fun charTyped(chr: Char, keyCode: Int): Boolean {
-        val returned = super.charTyped(chr, keyCode)
-        if (!returned) {
-            ImplGlfw.charCallback(chr.toInt())
-        }
-        return returned
-    }
 
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(matrices, mouseX, mouseY, delta)
@@ -88,15 +64,5 @@ object KamiGuiScreen : Screen(text(null, "Kami GUI")) {
         EnabledWidgets.widgets.removeAll {
             it.open && it.showWindow(limitY)
         }
-    }
-
-    override fun onClose() {
-        ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
-        super.onClose()
-    }
-
-    override fun init() {
-        super.init()
-        ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse
     }
 }
