@@ -4,21 +4,15 @@ import com.mojang.brigadier.CommandDispatcher
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.Col
+import imgui.ImGui
 import imgui.TreeNodeFlag
-import imgui.api.childWindows
-import imgui.api.columns
-import imgui.api.contentRegion
-import imgui.api.cursorLayout
-import imgui.api.itemWidgetsUtilities
-import imgui.api.widgetsMain
-import imgui.api.widgetsText
-import imgui.api.widgetsTrees
-import imgui.api.windowsUtilities
-import imgui.dsl
+import imgui.dsl.child
+import imgui.dsl.window
+import imgui.dsl.withStyleColor
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
-import me.zeroeightsix.kami.gui.InteractableScreen
+import me.zeroeightsix.kami.gui.ImGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.text
@@ -120,18 +114,7 @@ object NbtCommand : Command() {
 class NbtScreen(
     var tag: Tag,
     val defaultColor: Vec4 = Vec4(1f, 1f, 1f, 1f)
-) : InteractableScreen(text(null, "Kami NBT")),
-    widgetsText,
-    widgetsMain,
-    widgetsTrees,
-    contentRegion,
-    childWindows,
-    windowsUtilities,
-    itemWidgetsUtilities,
-    columns,
-    cursorLayout
-// this comment is here to prevent intelli'ntJ from formatting this against the kotlin conventions
-{
+) : ImGuiScreen(text(null, "Kami NBT")) {
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(matrices, mouseX, mouseY, delta)
 
@@ -140,19 +123,19 @@ class NbtScreen(
         }
     }
 
-    operator fun invoke() {
-        dsl.window("NBT") {
+    operator fun invoke() = with(ImGui) {
+        window("NBT") {
             if (button("Copy", Vec2(windowContentRegionWidth, 0)))
                 copyTagToClipboard(tag)
-            beginChild("##nbtPane", border = true)
-            columns(2)
-            showTree("NBT", tag)
-            columns(1)
-            endChild()
+            child("##nbtPane", border = true) {
+                columns(2)
+                showTree("NBT", tag)
+                columns()
+            }
         }
     }
 
-    private fun showTree(tagName: String, tag: Tag, appendix: Int = 0) {
+    private fun showTree(tagName: String, tag: Tag, appendix: Int = 0): Unit = with(ImGui) {
         alignTextToFramePadding()
         var curApp = appendix
         if (treeNodeEx("$tagName##$curApp", TreeNodeFlag.NoTreePushOnOpen.i)) {
@@ -166,7 +149,7 @@ class NbtScreen(
                             if (tagIsDeep(it))
                                 showTree(key, it, ++curApp)
                             else
-                                dsl.withStyleColor(Col.Text, tagColor(it)) {
+                                withStyleColor(Col.Text, tagColor(it)) {
                                     nbtLabelText(key, it.asString())
                                 }
                         }
@@ -176,7 +159,7 @@ class NbtScreen(
                         if (tagIsDeep(t))
                             showTree("[array entry]", t, ++curApp)
                         else
-                            dsl.withStyleColor(Col.Text, tagColor(t)) {
+                            withStyleColor(Col.Text, tagColor(t)) {
                                 nbtLabelText("[array entry]", t.asString())
                             }
                 }
@@ -210,7 +193,7 @@ class NbtScreen(
         else -> defaultColor
     }
 
-    private fun nbtLabelText(k: String, v: String) {
+    private fun nbtLabelText(k: String, v: String) = with(ImGui) {
         bullet()
         text(k)
         nextColumn()

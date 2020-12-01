@@ -2,21 +2,16 @@ package me.zeroeightsix.kami.gui
 
 import glm_.vec4.Vec4
 import imgui.Col
-import imgui.ConfigFlag
 import imgui.ImGui
-import imgui.impl.glfw.ImplGlfw
-import imgui.wo
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.util.text
-import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
-import org.lwjgl.glfw.GLFW
 
-object KamiGuiScreen : InteractableScreen(text(null, "Kami GUI")) {
+object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
 
     val colourIndices = Col.values().map { it.i }
 

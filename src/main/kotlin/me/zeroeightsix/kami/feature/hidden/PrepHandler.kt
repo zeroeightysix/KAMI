@@ -13,8 +13,7 @@ import me.zeroeightsix.kami.event.RenderGuiEvent
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
-import me.zeroeightsix.kami.gui.InteractableScreen
-import me.zeroeightsix.kami.gui.KamiGuiScreen
+import me.zeroeightsix.kami.gui.ImGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud.renderHud
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.Settings.rainbowBrightness
@@ -65,7 +64,7 @@ object PrepHandler : Feature, Listenable {
     var hudEventListener =
         Listener(
             EventHook<RenderGuiEvent> {
-                if (Wrapper.getMinecraft().currentScreen !is InteractableScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
+                if (Wrapper.getMinecraft().currentScreen !is ImGuiScreen && (Settings.hudWithDebug || !Wrapper.getMinecraft().options.debugEnabled)) {
                     renderHud(it.matrixStack)
                 }
             },

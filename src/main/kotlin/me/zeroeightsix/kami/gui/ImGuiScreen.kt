@@ -12,7 +12,7 @@ import org.lwjgl.glfw.GLFW
  * class for a screen for which input should be handled.
  * includes callback handlers
  */
-abstract class InteractableScreen(title: Text) : Screen(title) {
+abstract class ImGuiScreen(title: Text) : Screen(title) {
 
     override fun onClose() {
         ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
