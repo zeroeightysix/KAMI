@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import glm_.vec2.Vec2
 import glm_.vec4.Vec4
 import imgui.Col
@@ -24,15 +25,16 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.text.LiteralText
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 
 object NbtCommand : Command() {
     var screen = NbtScreen(CompoundTag())
     var open = true
+
+    private val FAILED_EXCEPTION =
+        DynamicCommandExceptionType { LiteralText(it.toString()) }
 
     // this is required, as the chat closes all screens when a command is entered,
     // so the screen needs to be opened a tick later
@@ -54,14 +56,12 @@ object NbtCommand : Command() {
                         HitResult.Type.BLOCK -> {
                             val entity = mc.world?.getBlockEntity(BlockPos(target.pos))
                             if (entity == null) {
-                                Error.NO_BLOCK_ENTITY.send(it.source)
-                                null
+                                throw FAILED_EXCEPTION.create("This Block is not a BlockEntity!")
                             } else entity.toTag(CompoundTag())
                         }
                         HitResult.Type.ENTITY -> mc.targetedEntity?.toTag(CompoundTag())
                         else -> {
-                            Error.NO_TARGET.send(it.source)
-                            null
+                            throw FAILED_EXCEPTION.create("No Target found!")
                         }
                     }
 
@@ -81,11 +81,10 @@ object NbtCommand : Command() {
                 does {
                     val stack = mc.player?.mainHandStack
                     if (stack?.isEmpty == true) {
-                        Error.NO_ITEM.send(it.source)
-                        return@does 1
+                        throw FAILED_EXCEPTION.create("You must hold an item!")
                     } else {
                         val tag = stack?.tag
-                            ?: run { Error.NO_ITEM_NBT.send(it.source); return@does 1 }
+                            ?: run { throw FAILED_EXCEPTION.create("The item you are holding has no NBT!") }
                         open(tag)
                     }
                     0
@@ -98,27 +97,16 @@ object NbtCommand : Command() {
         screen.tag = tag
         KamiMod.EVENT_BUS.subscribe(opener)
     }
-
-    private enum class Error(val message: Text) {
-        NO_TARGET(text(Formatting.RED) { +"No Target found!" }),
-        NO_BLOCK_ENTITY(text(Formatting.RED) { +"This Block is not a BlockEntity!" }),
-        NO_ITEM(text(Formatting.RED) { +"You must hold an item!" }),
-        NO_ITEM_NBT(text(Formatting.RED) { +"The item you are holding has no NBT!" });
-
-        fun send(source: CommandSource) {
-            source replyWith message as MutableText
-        }
-    }
 }
 
 class NbtScreen(
     var tag: Tag,
-    val defaultColor: Vec4 = Vec4(1f, 1f, 1f, 1f)
+    private val defaultColor: Vec4 = Vec4(1f, 1f, 1f, 1f)
 ) : ImGuiScreen(text(null, "Kami NBT")) {
-    override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(matrices, mouseX, mouseY, delta)
 
-        KamiHud.frame(matrices!!) {
+        KamiHud.frame(matrices) {
             this()
         }
     }
