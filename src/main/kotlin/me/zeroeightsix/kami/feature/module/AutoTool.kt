@@ -55,10 +55,8 @@ object AutoTool : Module() {
             if (stack != null) {
                 if (stack.isEmpty) continue
             }
-            // this does not send the selected slot to the server
-            // we do this in order to make calcBlockBreakingDelta use the correct slot
-            equip(i, false)
-            // this function is not actually deprecated. mojang just doesn't know what deprecated means
+            equip(i, updateServer = false)
+            @Suppress("DEPRECATION")
             val delta = blockState.block.calcBlockBreakingDelta(blockState, mc.player, mc.world, blockPos)
             if (delta > max) {
                 max = delta
@@ -69,7 +67,7 @@ object AutoTool : Module() {
             equip(bestSlot)
         else
             // if something went wrong, we will reset the selected slot to avoid desyncs
-            previousSlot?.let { equip(it, false) }
+            previousSlot?.let { equip(it, updateServer = false) }
     }
 
     fun equipBestWeapon() {
@@ -113,8 +111,7 @@ object AutoTool : Module() {
     }
 
     enum class PreferredWeapon(val item: Class<out Item>, val damage: (ItemStack) -> Float?) {
-        SWORD(SwordItem::class.java, { (it.item as? SwordItem)?.attackDamage }), AXE(
-            AxeItem::class.java,
-            { (it.item as? AxeItem)?.attackDamage })
+        SWORD(SwordItem::class.java, { (it.item as? SwordItem)?.attackDamage }),
+        AXE(AxeItem::class.java, { (it.item as? AxeItem)?.attackDamage })
     }
 }
