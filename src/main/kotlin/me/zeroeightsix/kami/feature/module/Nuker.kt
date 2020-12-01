@@ -64,7 +64,7 @@ object Nuker : Module() {
             val state = it.world.getBlockState(block)
 
             if (selectTool)
-                AutoTool.equipBestTool(state)
+                AutoTool.equipBestTool(state, block)
 
             if (progress == 0.0)
                 mine(block, true)
