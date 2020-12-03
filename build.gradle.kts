@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName")
+
 import Build_gradle.IncludeMethod.INCLUDE
 import Build_gradle.IncludeMethod.NOT
 import Build_gradle.IncludeMethod.SHADOW
@@ -120,6 +122,10 @@ dependencies {
 }
 
 tasks {
+    java {
+        withSourcesJar()
+    }
+
     withType(JavaCompile::class) {
         options.encoding = "UTF-8"
     }
@@ -146,11 +152,16 @@ tasks {
 
     shadowJar {
         configurations = listOf(project.configurations.shadow.get())
-        archiveClassifier.set("shadow")
 
         exclude("/fonts/*")
 
         minimize()
+    }
+
+    build {
+        doLast {
+            shadowJar.get().archiveFile.get().asFile.delete()
+        }
     }
 }
 
