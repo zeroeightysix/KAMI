@@ -58,6 +58,7 @@ dependencies {
     val unsigned_version: String by project
     val gli_version: String by project
     val gln_version: String by project
+    val cobalt_version: String by project
 
     fun depend(method: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
         implementation(dependencyNotation = notation, dependencyConfiguration = action)
@@ -87,6 +88,7 @@ dependencies {
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    depend(INCLUDE, "com.github.SquidDev:Cobalt:$cobalt_version")
 
     depend(SHADOW, "com.github.kotlin-graphics:kotlin-unsigned:$unsigned_version")
     depend(SHADOW, "com.github.kotlin-graphics:kool:$kool_version")
