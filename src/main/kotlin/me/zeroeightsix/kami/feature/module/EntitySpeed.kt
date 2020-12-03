@@ -73,9 +73,14 @@ object EntitySpeed : Module() {
         val back = mc.options.keyBack.isPressed
         val jump = mc.options.keyJump.isPressed
 
-        if (!forward && !left && !right && !back) return
+        // make sure boat doesn't sink
+        if (entity is BoatEntity && !(forward && back) && flight) {
+            EntityUtil.updateVelocityY(entity, 0.025)
+        }
 
-        if (!flight || entity !is BoatEntity) {
+        if (!(forward || left || right || back || jump)) return
+
+        if (!flight) {
             EntityUtil.updateVelocityY(entity, -0.4)
         } else {
             if (jump) {
@@ -90,10 +95,6 @@ object EntitySpeed : Module() {
         }
         if (entity is HorseEntity) {
             entity.yaw = mc.player?.yaw!!
-        }
-        // make sure boat doesn't sink
-        else if (entity is BoatEntity && !(forward && back)) {
-            EntityUtil.updateVelocityY(entity, 0.0)
         }
     }
 
