@@ -1,31 +1,41 @@
 package me.zeroeightsix.kami.gui.windows
 
+import glm_.vec2.Vec2
 import imgui.ImGui
 import imgui.dsl.button
 import imgui.dsl.window
-import me.zeroeightsix.kami.filterNonNull
+import me.zeroeightsix.kami.gui.inputText
 import me.zeroeightsix.kami.gui.inputTextMultiline
 import me.zeroeightsix.kami.gui.withId
 
 object Macros {
 
-    private val macros = mutableListOf<Macro>(
-        // Macro("print(\"Hello world!\")")
-    )
+    private var newMacroName = ""
+    private var open = false
+
+    private const val TEMPLATE = """function main()
+  print("hello world!")
+end
+
+main()"""
+    private val macros = mutableListOf<Macro>()
 
     operator fun invoke() = with(ImGui) {
-        if (macros.isEmpty()) {
-            text("No macros yet! Create one?")
-        } else {
-            text("Create new macro")
-        }
+        text("Create macro")
         sameLine()
-
+        setNextItemWidth(200f)
+        inputText("Name", ::newMacroName)
+        sameLine()
         button("+") {
-            macros += Macro("Macro")
+            macros += Macro(newMacroName)
         }
 
         separator()
+
+        if (macros.isEmpty()) {
+            textDisabled("No macros yet.")
+            return@with
+        }
 
         macros.removeIf {
             withId(it) {
@@ -41,16 +51,19 @@ object Macros {
             }
         }
 
-        macros.stream().map { it.editor }.filterNonNull().forEach {
+        macros.forEach {
+            val editor = it.editor ?: return@forEach
             withId(it) {
-                window("Macro editor") {
-                    inputTextMultiline("input", it::text, windowContentRegionMax)
+                open = true
+                window("Editing `${it.name}`", ::open) {
+                    inputTextMultiline("input", editor::text, Vec2(-Float.MIN_VALUE, textLineHeight * 16f))
                 }
+                if (!open) it.editor = null
             }
         }
     }
 
-    private data class Macro(val name: String, val source: String = "", var editor: Editor? = null) {
+    private data class Macro(val name: String, val source: String = TEMPLATE, var editor: Editor? = null) {
         data class Editor(var text: String)
     }
 
