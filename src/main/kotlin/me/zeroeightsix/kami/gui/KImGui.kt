@@ -68,6 +68,24 @@ fun inputText(label: String, text: KMutableProperty0<String>, flags: ItemFlags =
 }
 
 /**
+ * [ImGui.inputTextMultiline] wired to work with a static reference to [String]
+ */
+fun inputTextMultiline(label: String, text: KMutableProperty0<String>, size: Vec2, flags: ItemFlags = 0): Boolean {
+    assert(flags hasnt InputTextFlag.CallbackResize)
+    return ImGui.inputTextMultiline(
+        label,
+        map.computeIfAbsent(text) { it().let { it.toByteArray(it.toByteArray().size + 1) } },
+        size,
+        flags or InputTextFlag.CallbackResize,
+        strResizeCallback,
+        text
+    ).also { updated ->
+        if (updated)
+            map[text]?.cStr?.let { text(it) }
+    }
+}
+
+/**
  * A button for entry of a single character. It will breathe while active to indicate that the button is consuming inputs.
  *
  * @return `true` if `char` was updated
@@ -127,4 +145,11 @@ fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? 
     }
 
     return false
+}
+
+inline fun<T> withId(id: Any, block: () -> T): T {
+    ImGui.pushID(id)
+    val ret = block()
+    ImGui.popID()
+    return ret
 }

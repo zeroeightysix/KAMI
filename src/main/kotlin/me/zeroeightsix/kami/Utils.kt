@@ -266,3 +266,4 @@ operator fun Iterable<ItemPredicate>.contains(i: Item) = i.defaultStack in this
 fun itemPredicate(applyFun: ItemPredicate.Builder.() -> Unit) =
     ItemPredicate.Builder.create().apply(applyFun).build()
 
+fun <T> Stream<T?>.filterNonNull() = filter { it != null }.map { it!! }

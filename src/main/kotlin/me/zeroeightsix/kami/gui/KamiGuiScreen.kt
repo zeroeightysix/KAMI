@@ -5,6 +5,7 @@ import imgui.Col
 import imgui.ImGui
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
+import me.zeroeightsix.kami.gui.windows.Macros
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
@@ -49,6 +50,8 @@ object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
         Modules()
         // Draw the settings
         Settings()
+        // Macro list & editor(s)
+        Macros()
 
         if (!EnabledWidgets.hideAll) {
             showWidgets()
