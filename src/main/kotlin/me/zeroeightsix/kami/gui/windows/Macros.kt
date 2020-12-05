@@ -57,11 +57,12 @@ main()"""
         macros.forEach {
             val editor = it.editor ?: return@forEach
             withId(it) {
-                open = true
-                window("Editing `${it.name}`", ::open) {
-                    inputTextMultiline("input", editor::text, Vec2(-Float.MIN_VALUE, textLineHeight * 16f))
+                val open = booleanArrayOf(true)
+                if (begin("Editing `${it.name}`", open, flags = WindowFlag.MenuBar.i)) {
+                    inputTextMultiline("input", editor::text, Vec2(-Float.MIN_VALUE, -Float.MIN_VALUE))
+                    end()
                 }
-                if (!open) it.editor = null
+                if (!open[0]) it.editor = null
             }
         }
     }
