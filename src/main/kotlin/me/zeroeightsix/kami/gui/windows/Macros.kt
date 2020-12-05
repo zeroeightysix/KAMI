@@ -2,6 +2,7 @@ package me.zeroeightsix.kami.gui.windows
 
 import glm_.vec2.Vec2
 import imgui.ImGui
+import imgui.WindowFlag
 import imgui.dsl.button
 import imgui.dsl.window
 import me.zeroeightsix.kami.gui.inputText
@@ -21,33 +22,35 @@ main()"""
     private val macros = mutableListOf<Macro>()
 
     operator fun invoke() = with(ImGui) {
-        text("Create macro")
-        sameLine()
-        setNextItemWidth(200f)
-        inputText("Name", ::newMacroName)
-        sameLine()
-        button("+") {
-            macros += Macro(newMacroName)
-        }
+        window("Macros", ::open) {
+            text("Create macro")
+            sameLine()
+            setNextItemWidth(200f)
+            inputText("Name", ::newMacroName)
+            sameLine()
+            button("+") {
+                macros += Macro(newMacroName)
+            }
 
-        separator()
+            separator()
 
-        if (macros.isEmpty()) {
-            textDisabled("No macros yet.")
-            return@with
-        }
+            if (macros.isEmpty()) {
+                textDisabled("No macros yet.")
+                return@with
+            }
 
-        macros.removeIf {
-            withId(it) {
-                button(">") // TODO: Actual run button
-                sameLine()
-                text(it.name)
-                sameLine()
-                button("Edit") {
-                    it.editor = Macro.Editor(it.source)
+            macros.removeIf {
+                withId(it) {
+                    button(">") // TODO: Actual run button
+                    sameLine()
+                    text(it.name)
+                    sameLine()
+                    button("Edit") {
+                        it.editor = Macro.Editor(it.source)
+                    }
+                    sameLine()
+                    button("Delete")
                 }
-                sameLine()
-                button("Delete")
             }
         }
 
