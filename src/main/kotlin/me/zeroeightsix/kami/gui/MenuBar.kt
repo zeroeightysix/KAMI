@@ -8,6 +8,7 @@ import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.VoidContextMenu
+import me.zeroeightsix.kami.gui.windows.Macros
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 
@@ -28,6 +29,9 @@ object View {
         }
         menuItem("Module window editor", "", selected = ModuleWindowsEditor.open) {
             ModuleWindowsEditor.open = !ModuleWindowsEditor.open
+        }
+        menuItem("Macros", selected = Macros.open) {
+            Macros.open = !Macros.open
         }
         if (Settings.demoWindowVisible) {
             menuItem("Demo window", "", selected = demoWindowVisible) {
