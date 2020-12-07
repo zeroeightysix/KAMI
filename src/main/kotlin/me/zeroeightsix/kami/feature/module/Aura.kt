@@ -55,6 +55,9 @@ object Aura : Module() {
     @Setting(name = "Only use 32k")
     var onlyUse32k: Boolean = false
 
+    @Setting(name = "Ignore nametagged")
+    var filterNametags = true
+
     private var waitCounter = 0
 
     @Suppress("UNUSED")
@@ -90,7 +93,8 @@ object Aura : Module() {
                 if (living.health <= 0 ||
                     (waitMode == WaitMode.DYNAMIC && entity.hurtTime != 0) ||
                     (player.distanceTo(entity) > hitRange) ||
-                    (!ignoreWalls && !player.canSee(entity) && !canEntityFeetBeSeen(player, entity))
+                    (!ignoreWalls && !player.canSee(entity) && !canEntityFeetBeSeen(player, entity)) ||
+                    (filterNametags && entity.hasCustomName())
                 ) {
                     return@forEach
                 }
