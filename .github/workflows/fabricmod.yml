@@ -26,10 +26,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-
-      # Runs a single command using the runners shell
-      - name: Build using gradle
-        run: ./gradlew build
       
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -39,6 +35,10 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
+
+      # Runs a single command using the runners shell
+      - name: Build using gradle
+        run: ./gradlew build
 
       - uses: actions/upload-artifact@v2
         with:
