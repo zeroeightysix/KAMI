@@ -43,9 +43,11 @@ object AutoGG : Module() {
 
     @EventHandler
     var listener = Listener({ event: PacketEvent.Receive ->
-        if (event.packet is GameMessageS2CPacket && event.packet.senderUuid == emptyUuid) {
+        if (lastUpdate + updateLimit <= System.currentTimeMillis() &&
+            event.packet is GameMessageS2CPacket &&
+            event.packet.senderUuid == emptyUuid
+        ) {
             val chatMessage = event.packet.message.string
-            if (lastUpdate + updateLimit <= System.currentTimeMillis()) {
                 triggers.forEach { trigger ->
                     if (chatMessage.contains(trigger)) {
                         mc.player?.sendChatMessage(ggMessage.toString())
