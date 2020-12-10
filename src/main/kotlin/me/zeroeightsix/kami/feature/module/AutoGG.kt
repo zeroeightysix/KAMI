@@ -16,7 +16,7 @@ object AutoGG : Module() {
     @Setting
     var ggMessage = CompiledText(mutableListOf())
 
-    private const val updateLimit: Long = 2000L // 2 Seconds
+    private const val updateLimit: Long = 2000 // 2 Seconds
     private var lastUpdate: Long = 0L
 
     private val triggers = listOf(
