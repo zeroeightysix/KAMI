@@ -6,6 +6,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PacketEvent
 import me.zeroeightsix.kami.gui.text.CompiledText
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
+import java.util.UUID
 
 @Module.Info(
     name = "AutoGG",
@@ -16,8 +17,9 @@ object AutoGG : Module() {
     @Setting
     var ggMessage = CompiledText(mutableListOf())
 
-    private const val updateLimit: Long = 2000 // 2 Seconds
+    private const val updateLimit: Long = 2000L // 2 Seconds
     private var lastUpdate: Long = 0L
+    private final val emptyUuid = UUID.fromString("00000000-0000-0000-0000-000000000000")
 
     private val triggers = listOf(
         "1st Killer - ",
@@ -41,12 +43,14 @@ object AutoGG : Module() {
 
     @EventHandler
     var listener = Listener({ event: PacketEvent.Receive ->
-        if (event.packet is GameMessageS2CPacket && event.packet.senderUuid.toString() == "00000000-0000-0000-0000-000000000000") {
+        if (event.packet is GameMessageS2CPacket && event.packet.senderUuid == emptyUuid) {
             val chatMessage = event.packet.message.string
-            triggers.forEach { trigger ->
-                if (chatMessage.contains(trigger) && (lastUpdate + updateLimit <= System.currentTimeMillis())) {
-                    mc.player?.sendChatMessage(ggMessage.toString())
-                    lastUpdate = System.currentTimeMillis()
+            if (lastUpdate + updateLimit <= System.currentTimeMillis()) {
+                triggers.forEach { trigger ->
+                    if (chatMessage.contains(trigger)) {
+                        mc.player?.sendChatMessage(ggMessage.toString())
+                        lastUpdate = System.currentTimeMillis()
+                    }
                 }
             }
         }
