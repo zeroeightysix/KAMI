@@ -17,7 +17,7 @@ object AutoGG : Module() {
     @Setting
     var ggMessage = CompiledText(mutableListOf())
 
-    private const val updateLimit: Long = 2000L // 2 Seconds
+    private const val updateLimit: Long = 7000L // 2 Seconds
     private var lastUpdate: Long = 0L
     private final val emptyUuid = UUID(0, 0) // Nil UUID
 
