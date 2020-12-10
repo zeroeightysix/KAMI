@@ -15,9 +15,13 @@ import java.util.UUID
 )
 object AutoGG : Module() {
     @Setting
-    var ggMessage = CompiledText(mutableListOf())
+    var ggMessage = CompiledText(
+        mutableListOf(
+            CompiledText.LiteralPart("gg")
+        )
+    )
 
-    private const val updateLimit: Long = 7000L // 2 Seconds
+    private const val updateLimit: Long = 7000 // 7 Seconds
     private var lastUpdate: Long = 0L
     private final val emptyUuid = UUID(0, 0) // Nil UUID
 
