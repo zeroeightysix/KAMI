@@ -52,7 +52,6 @@ object AutoGG : Module() {
                 mc.player?.sendChatMessage(ggMessage.toString())
                 lastUpdate = System.currentTimeMillis()
             }
-            }
         }
     })
 }
