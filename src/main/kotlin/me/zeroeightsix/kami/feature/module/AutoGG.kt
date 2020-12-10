@@ -19,7 +19,7 @@ object AutoGG : Module() {
 
     private const val updateLimit: Long = 2000L // 2 Seconds
     private var lastUpdate: Long = 0L
-    private final val emptyUuid = UUID.fromString("00000000-0000-0000-0000-000000000000")
+    private final val emptyUuid = UUID(0, 0) // Nil UUID
 
     private val triggers = listOf(
         "1st Killer - ",
