@@ -48,12 +48,10 @@ object AutoGG : Module() {
             event.packet.senderUuid == emptyUuid
         ) {
             val chatMessage = event.packet.message.string
-                triggers.forEach { trigger ->
-                    if (chatMessage.contains(trigger)) {
-                        mc.player?.sendChatMessage(ggMessage.toString())
-                        lastUpdate = System.currentTimeMillis()
-                    }
-                }
+            if (triggers.any { chatMessage.contains(it, ignoreCase = false) }) {
+                mc.player?.sendChatMessage(ggMessage.toString())
+                lastUpdate = System.currentTimeMillis()
+            }
             }
         }
     })
