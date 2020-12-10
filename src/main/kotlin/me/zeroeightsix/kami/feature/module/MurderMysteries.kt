@@ -51,19 +51,20 @@ object MurderMysteries : Module() {
     private var lastUpdate: Long = 0L
 
     private val innocentItemsList = listOf(
-        Items.CARROT,
-        Items.BONE,
-        Items.CARROT_ON_A_STICK,
-        Items.GOLDEN_CARROT,
         Items.BLAZE_ROD,
-        Items.SPONGE,
+        Items.BONE,
+        Items.CARROT,
+        Items.CARROT_ON_A_STICK,
         Items.COBWEB,
-        Items.FEATHER,
-        Items.STICK,
-        Items.SALMON,
-        Items.COOKED_SALMON,
         Items.COD,
         Items.COOKED_COD,
+        Items.COOKED_SALMON,
+        Items.FEATHER,
+        Items.GOLDEN_CARROT,
+        Items.PRISMARINE_SHARD,
+        Items.SALMON,
+        Items.SPONGE,
+        Items.STICK,
         Items.TROPICAL_FISH
     )
     private val detectiveItemsList = listOf(
