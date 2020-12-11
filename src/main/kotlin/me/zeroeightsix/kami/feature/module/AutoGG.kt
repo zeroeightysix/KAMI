@@ -46,7 +46,7 @@ object AutoGG : Module() {
     )
 
     @EventHandler
-    var listener = Listener({ event: PacketEvent.Receive ->
+    private val listener = Listener({ event: PacketEvent.Receive ->
         if (lastUpdate + updateLimit <= System.currentTimeMillis() &&
             event.packet is GameMessageS2CPacket &&
             event.packet.senderUuid == emptyUuid
