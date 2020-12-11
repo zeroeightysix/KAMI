@@ -68,9 +68,9 @@ object MurderMysteries : Module() {
         Items.TROPICAL_FISH
     )
     private val detectiveItemsList = listOf(
+        Items.ARROW,
         Items.BOW,
-        Items.SNOWBALL,
-        Items.ARROW
+        Items.SNOWBALL
     )
 
     @EventHandler
@@ -106,7 +106,7 @@ object MurderMysteries : Module() {
                             },
                             false
                         )
-                        if (announceMode) player.sendChatMessage("${otherPlayer.displayName.string} is the murderer! They have  ${itemStack.item.name.string}!")
+                        if (announceMode) player.sendChatMessage("${otherPlayer.displayName.string} is the murderer! They have ${itemStack.item.name.string}.")
                     }
 
                     // Check for items the detective or innocent players could use to stop them murderer
