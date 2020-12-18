@@ -10,6 +10,7 @@ import ladysnake.satin.api.managed.ManagedShaderEffect
 import ladysnake.satin.api.managed.ShaderEffectManager
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.conditionalWrap
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.target.BlockCategory
@@ -20,6 +21,7 @@ import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.OutlineVertexConsumerProvider
 import net.minecraft.util.Identifier
+import kotlin.reflect.KProperty
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener as FiberListener
 
 /**
@@ -28,8 +30,18 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener as FiberList
 @Module.Info(name = "ESP", description = "Draws outlines around targeted entities, blocks, or block entities", category = Module.Category.RENDER)
 object ESP : Module() {
 
-    var outlineShader: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
-    val outlineFramebuffer: ManagedFramebuffer = outlineShader.getTarget("final")
+    @Setting
+    var blurred = false
+
+    val outlineShader: ManagedShaderEffect by object {
+        val sharp: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
+        val blur: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_blur_outline.json"))
+
+        operator fun getValue(thisRef: Any?, prop: KProperty<*>): ManagedShaderEffect =
+            if (blurred) blur else sharp
+    }
+    val outlineFramebuffer: ManagedFramebuffer
+        get() = outlineShader.getTarget("final")
 
     // Lazy so the init happens when everything is set up; otherwise entityVertexConsumers will be null
     val entityOutlineVertexConsumerProvider by lazy {
