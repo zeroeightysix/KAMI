@@ -8,14 +8,23 @@ import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.gui.wizard.Wizard
+import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.text
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 
 object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
 
-    val colourIndices = Col.values().map { it.i }
+    var parent: Screen? = null
+    private val colourIndices = Col.values().map { it.i }
 
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+        if (parent != null) {
+            // If we have a screen to return to, draw the background.
+            // Usually parent will be nonnull if the GUI was opened from e.g. the title menu, so it would have no
+            // background if this render doesn't happen.
+            this.renderBackground(matrices)
+        }
         super.render(matrices, mouseX, mouseY, delta)
 
         KamiHud.frame(matrices!!) {
@@ -53,6 +62,10 @@ object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
         if (!EnabledWidgets.hideAll) {
             showWidgets()
         }
+    }
+
+    override fun onClose() {
+        mc.openScreen(this.parent)
     }
 
     fun showWidgets(limitY: Boolean = true) {

@@ -12,6 +12,7 @@ import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.gui.KamiGuiScreen
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
@@ -27,7 +28,8 @@ object ClickGui : Feature, Listenable, HasBind {
     val bindListener = Listener(
         EventHook<BindEvent> {
             bind.update(it.key, it.scancode, it.pressed)
-            if (bind.isDown && it.ingame) {
+            if (bind.isDown && (it.ingame || Settings.openGuiAnywhere)) {
+                KamiGuiScreen.parent = mc.currentScreen
                 mc.openScreen(KamiGuiScreen)
             }
         }

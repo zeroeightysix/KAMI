@@ -60,6 +60,9 @@ object Settings {
     @Setting
     var hideModuleDescriptions = false
 
+    @Setting
+    var openGuiAnywhere = false
+
     // Appearance
     @Setting
     var font: Int = 0
@@ -113,6 +116,12 @@ object Settings {
                         charButton("Command prefix", ::commandPrefix)
                         sameLine()
                         demoDebugInformations.helpMarker("The character used to denote KAMI commands.")
+
+                        boolSetting(
+                            "Open the KAMI GUI anywhere",
+                            ::openGuiAnywhere,
+                            "Allow the GUI to be opened on any screen, using the same keybind as ingame."
+                        )
 
                         boolSetting(
                             "Open chat when command prefix pressed",
