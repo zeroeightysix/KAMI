@@ -1,33 +1,23 @@
-package me.zeroeightsix.kami.util
+package me.zeroeightsix.kami.feature.hidden
 
-import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.PacketEvent.Receive
+import me.zeroeightsix.kami.feature.Feature
+import me.zeroeightsix.kami.feature.FindFeature
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket
 import net.minecraft.util.math.MathHelper
 import java.util.Arrays
 
-object LagCompensator : Listenable {
+@FindFeature
+object TickSpeedMeter : Listenable, Feature {
+    override var name = "TPS meter"
+    override var hidden = true
+
     private val tickRates = FloatArray(20)
     private var nextIndex = 0
     private var timeLastTimeUpdate: Long = 0
-
-    @EventHandler
-    var packetEventListener = Listener(
-        { event: Receive ->
-            if (event.packet is WorldTimeUpdateS2CPacket) {
-                onTimeUpdate()
-            }
-        }
-    )
-
-    fun reset() {
-        nextIndex = 0
-        timeLastTimeUpdate = -1L
-        Arrays.fill(tickRates, 0.0f)
-    }
 
     val tickRate: Float
         get() {
@@ -42,7 +32,13 @@ object LagCompensator : Listenable {
             return MathHelper.clamp(sumTickRates / numTicks, 0.0f, 20.0f)
         }
 
-    fun onTimeUpdate() {
+    fun reset() {
+        nextIndex = 0
+        timeLastTimeUpdate = -1L
+        Arrays.fill(tickRates, 0.0f)
+    }
+
+    private fun onTimeUpdate() {
         if (timeLastTimeUpdate != -1L) {
             val timeElapsed = (System.currentTimeMillis() - timeLastTimeUpdate).toFloat() / 1000.0f
             tickRates[nextIndex % tickRates.size] = MathHelper.clamp(20.0f / timeElapsed, 0.0f, 20.0f)
@@ -51,8 +47,12 @@ object LagCompensator : Listenable {
         timeLastTimeUpdate = System.currentTimeMillis()
     }
 
-    init {
-        KamiMod.EVENT_BUS.subscribe(this)
+    override fun initListening() {
+        KamiMod.EVENT_BUS.subscribe(Listener<Receive>({ event ->
+            if (event.packet is WorldTimeUpdateS2CPacket) {
+                onTimeUpdate()
+            }
+        }))
         reset()
     }
 }

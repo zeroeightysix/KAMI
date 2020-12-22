@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.PlayerAttackBlockEvent;
 import me.zeroeightsix.kami.feature.module.player.TpsSync;
-import me.zeroeightsix.kami.util.LagCompensator;
+import me.zeroeightsix.kami.feature.hidden.TickSpeedMeter;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,7 +27,7 @@ public class MixinClientPlayerInteractionManager {
 
     @Redirect(method = "updateBlockBreakingProgress", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;calcBlockBreakingDelta(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)F"))
     public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView view, BlockPos pos) {
-        return state.calcBlockBreakingDelta(player, view, pos) * (TpsSync.isSync() ? (LagCompensator.INSTANCE.getTickRate() / 20f) : 1);
+        return state.calcBlockBreakingDelta(player, view, pos) * (TpsSync.isSync() ? (TickSpeedMeter.INSTANCE.getTickRate() / 20f) : 1);
     }
 
 }

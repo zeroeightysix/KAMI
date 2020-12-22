@@ -8,7 +8,7 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.put
 import me.zeroeightsix.kami.replaceAll
-import me.zeroeightsix.kami.util.LagCompensator
+import me.zeroeightsix.kami.feature.hidden.TickSpeedMeter
 import me.zeroeightsix.kami.util.modified
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
@@ -73,7 +73,7 @@ object VarMap {
         "dimensional_z" numeric { scaleDimensional(mc.player?.pos?.z ?: 0.0) },
         "yaw" numeric { MathHelper.wrapDegrees(mc.player?.yaw?.toDouble() ?: 0.0) },
         "pitch" numeric { mc.player?.pitch?.toDouble() ?: 0.0 },
-        "tps" numeric { LagCompensator.tickRate.toDouble() },
+        "tps" numeric { TickSpeedMeter.tickRate.toDouble() },
         "fps" numeric { IMinecraftClient.getCurrentFps().toDouble() },
         // Minecraft's fps is 'frames in last second', while imgui calculates an average over the last 120 frames.
         // This varies more, but it provides a new value every frame, thus perfect for graphs.
