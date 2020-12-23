@@ -4,7 +4,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
-import me.zeroeightsix.kami.feature.module.Scaffold.eyesPos
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.InstrumentMap
@@ -23,22 +22,18 @@ import net.minecraft.block.enums.Instrument
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import java.io.File
 import java.util.ArrayList
 import java.util.TreeMap
-import kotlin.math.atan2
-import kotlin.math.sqrt
 
 @Module.Info(
     name = "Notebot",
     category = Module.Category.MISC,
-    description = "music but real"
+    description = "Plays music from a mid file on noteblocks"
 )
 object Notebot : Module() {
     @Setting
@@ -91,7 +86,7 @@ object Notebot : Module() {
                     if (world.getBlockState(BlockPos(pos))?.block == Blocks.NOTE_BLOCK) {
                         val noteBlock = world.getBlockState(BlockPos(pos))
                         snackbarMessage(
-                            player, ""+noteBlock.get(INSTRUMENT) + "[" + noteBlock.get(NOTE) + "]"
+                            player, "" + noteBlock.get(INSTRUMENT) + "[" + noteBlock.get(NOTE) + "]"
                         )
                         map.add(noteBlock.get(INSTRUMENT), noteBlock.get(NOTE), BlockPos(pos))
                     }
@@ -122,8 +117,8 @@ object Notebot : Module() {
         var blockPosArr: ArrayList<BlockPos?> = ArrayList()
         notes.forEach { n ->
             channelsArray = arrayOf(ChannelZero, ChannelOne, ChannelTwo, ChannelThree, ChannelFour)
-            val enum = channelsArray[Math.abs(n.track % (channelsArray.size - 1))]
-            snackbarMessage(player, "" + enum)
+            val enum = channelsArray[Math.floorMod(n.track % (channelsArray.size - 1), 0)]
+            snackbarMessage(player, enum.toString())
             blockPosArr.add(map.get(enum)[if (enum == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
         }
         playBlock(blockPosArr, player, world)
