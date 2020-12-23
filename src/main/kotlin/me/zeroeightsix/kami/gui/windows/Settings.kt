@@ -87,7 +87,7 @@ object Settings {
 
     // Other
     @Setting
-    var demoWindowVisible = false
+    var demoWindowInView = false
 
     @Setting
     var hudWithDebug = false
@@ -215,7 +215,7 @@ object Settings {
                     tabItem("Other") {
                         boolSetting(
                             "Show demo window in 'View'",
-                            ::demoWindowVisible,
+                            ::demoWindowInView,
                             "Allows the demo window to be shown through the 'View' submenu of the main menu bar"
                         )
                         boolSetting(

@@ -10,6 +10,7 @@ import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.VoidContextMenu
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
+import kotlin.reflect.KMutableProperty0
 
 @FindSettings(settingsRoot = "view")
 object View {
@@ -17,23 +18,19 @@ object View {
     var modulesOpen = true
 
     @Setting
+    var consoleOpen = false
+
+    @Setting
     var demoWindowVisible = false
 
     operator fun invoke() = menu("View") {
-        menuItem("Settings", "", selected = Settings.settingsWindowOpen) {
-            Settings.settingsWindowOpen = !Settings.settingsWindowOpen
-        }
-        menuItem("Modules", "", selected = modulesOpen) {
-            modulesOpen = !modulesOpen
-        }
-        menuItem("Module window editor", "", selected = ModuleWindowsEditor.open) {
-            ModuleWindowsEditor.open = !ModuleWindowsEditor.open
-        }
-        if (Settings.demoWindowVisible) {
-            menuItem("Demo window", "", selected = demoWindowVisible) {
-                demoWindowVisible = !demoWindowVisible
-            }
-        }
+        fun toggleWindow(title: String, setting: KMutableProperty0<Boolean>, shortcut: String = "") =
+            menuItem(title, shortcut, selected = setting()) { setting.set(!setting()) }
+
+        toggleWindow("Settings", Settings::settingsWindowOpen)
+        toggleWindow("Modules", ::modulesOpen)
+        toggleWindow("Module window editor", ModuleWindowsEditor::open)
+        if (Settings.demoWindowInView) toggleWindow("Demo window", ::demoWindowVisible)
     }
 }
 
