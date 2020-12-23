@@ -9,10 +9,8 @@ import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.util.InstrumentMap
 import me.zeroeightsix.kami.util.MidiParser
 import me.zeroeightsix.kami.util.Note
-import me.zeroeightsix.kami.util.Viewblock.faceVectorPacketInstant
 import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.Wrapper
-import me.zeroeightsix.kami.util.asVec3d
 import me.zeroeightsix.kami.util.plus
 import me.zeroeightsix.kami.util.text
 import net.minecraft.block.Blocks
@@ -132,9 +130,14 @@ object Notebot : Module() {
         if (blockPosTracks.isNotEmpty()) {
             blockPosTracks.forEach { blockPos ->
                 if (blockPos != null) {
-                    faceVectorPacketInstant(player, blockPos.asVec3d, mc)
-                    getIrreplaceableNeighbour(world, blockPos)?.let { (_, side) ->
-                        tap(blockPos, side)
+                    getIrreplaceableNeighbour(world, blockPos)?.let { (_, direction) ->
+                        mc.networkHandler?.sendPacket(
+                            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction)
+                        )
+                        mc.networkHandler?.sendPacket(
+                            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, direction)
+                        )
+                        player.swingHand(Hand.MAIN_HAND)
                         (mc as IMinecraftClient).setItemUseCooldown(4)
                     }
                 }
@@ -143,21 +146,5 @@ object Notebot : Module() {
     }
 }
 
-private fun tap(block: BlockPos, direction: Direction) {
-    mc.networkHandler?.sendPacket(
-        PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK,
-            block,
-            direction
-        )
-    )
-    mc.networkHandler?.sendPacket(
-        PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK,
-            block,
-            direction
-        )
-    )
-    Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
-}
+
 
