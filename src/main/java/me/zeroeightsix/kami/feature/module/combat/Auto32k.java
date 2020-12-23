@@ -179,7 +179,7 @@ public class Auto32k extends Module {
 
         int range = (int) Math.ceil(placeRange);
 
-        CrystalAura crystalAura = CrystalAura.INSTANCE;
+        //CrystalAura crystalAura = CrystalAura.INSTANCE;
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
         List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
 
