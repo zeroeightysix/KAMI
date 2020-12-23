@@ -3,6 +3,11 @@ package me.zeroeightsix.kami.util;
 public class Note {
     int note;
     int track;
+    static String[] keys = new String[]{
+            "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F",
+            "F#2", "G2", "G#2", "A2", "A#2", "B2", "C2", "C#2", "D2", "D#2", "E2", "F2",
+            "F#3"
+    };
 
     public Note(int note, int track) {
         this.note = note;
@@ -27,11 +32,6 @@ public class Note {
     }
 
     public static String getKey(int note) {
-        String[] keys = new String[]{
-                "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F",
-                "F#2", "G2", "G#2", "A2", "A#2", "B2", "C2", "C#2", "D2", "D#2", "E2", "F2",
-                "F#3"
-        };
         return keys[getNotebotKey(note)];
     }
 
