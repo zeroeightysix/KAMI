@@ -115,7 +115,8 @@ object Notebot : Module() {
         val blockPosArr: ArrayList<BlockPos?> = ArrayList()
         notes.forEach { n ->
             channelsArray = arrayOf(ChannelZero, ChannelOne, ChannelTwo, ChannelThree, ChannelFour)
-            val enum = channelsArray[Math.floorMod(1+(n.track % (channelsArray.size - 1)), 1)-1]
+            val number = (n.track % (channelsArray.size - 1))
+            val enum = channelsArray[if (number < 0) 0 else number]
             snackbarMessage(player, enum.toString())
             blockPosArr.add(map[enum][if (enum == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
         }
