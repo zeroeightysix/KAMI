@@ -31,7 +31,7 @@ import java.util.TreeMap
 @Module.Info(
     name = "Notebot",
     category = Module.Category.MISC,
-    description = "Plays music from a mid file on noteblocks"
+    description = "Plays music with Noteblocks; put songs as .mid files in .mincraft/songs"
 )
 object Notebot : Module() {
     @Setting
@@ -112,12 +112,12 @@ object Notebot : Module() {
     })
 
     private fun playNotes(notes: ArrayList<Note>, player: ClientPlayerEntity, world: ClientWorld) {
-        var blockPosArr: ArrayList<BlockPos?> = ArrayList()
+        val blockPosArr: ArrayList<BlockPos?> = ArrayList()
         notes.forEach { n ->
             channelsArray = arrayOf(ChannelZero, ChannelOne, ChannelTwo, ChannelThree, ChannelFour)
-            val enum = channelsArray[Math.floorMod(n.track % (channelsArray.size - 1), 0)]
+            val enum = channelsArray[Math.floorMod(1+(n.track % (channelsArray.size - 1)), 1)-1]
             snackbarMessage(player, enum.toString())
-            blockPosArr.add(map.get(enum)[if (enum == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
+            blockPosArr.add(map[enum][if (enum == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
         }
         playBlock(blockPosArr, player, world)
     }
