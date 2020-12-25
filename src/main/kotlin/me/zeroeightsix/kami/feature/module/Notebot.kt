@@ -64,7 +64,7 @@ object Notebot : Module() {
     private var elapsed: Long = 0L
 
     private var noteSequence: TreeMap<Long, ArrayList<Note>> = TreeMap()
-    var map: InstrumentMap = InstrumentMap()
+    var instrumentMap = InstrumentMap()
 
     enum class NotebotMode {
         DISCOVER,
@@ -146,5 +146,4 @@ object Notebot : Module() {
         }
     }
 }
-
 
