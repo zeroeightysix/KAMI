@@ -5,9 +5,7 @@ import net.minecraft.util.math.BlockPos
 import java.util.EnumMap
 
 class InstrumentMap {
-    private val instruments = EnumMap<Instrument, Array<BlockPos?>>(
-        Instrument::class.java
-    )
+    private val instruments = EnumMap<Instrument, Array<BlockPos?>>(Instrument::class.java)
 
     operator fun get(instrument: Instrument): Array<BlockPos?> {
         return instruments.getOrPut(instrument) { arrayOfNulls(25) }

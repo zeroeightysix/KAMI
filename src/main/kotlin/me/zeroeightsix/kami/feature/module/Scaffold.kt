@@ -39,8 +39,6 @@ object Scaffold : Module() {
         Blocks.TRAPPED_CHEST
     )
 
-
-
     @EventHandler
     private val updateListener = Listener<InGame>({ it ->
         val player = it.player
@@ -132,9 +130,6 @@ object Scaffold : Module() {
     fun getBlock(pos: BlockPos?): Block {
         return getState(pos).block
     }
-
-
-
 
     val ClientPlayerEntity.eyesPos: Vec3d
         get() = Vec3d(x, y + getEyeHeight(pose), z)

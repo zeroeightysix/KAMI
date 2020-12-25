@@ -5,6 +5,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import me.zeroeightsix.kami.mixin.extend.setCooldown
 import me.zeroeightsix.kami.util.InstrumentMap
 import me.zeroeightsix.kami.util.MidiParser
 import me.zeroeightsix.kami.util.Note
@@ -134,7 +135,8 @@ object Notebot : Module() {
                             PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, direction)
                         )
                         player.swingHand(Hand.MAIN_HAND)
-                        (mc as IMinecraftClient).setItemUseCooldown(4)
+
+                        mc.setCooldown(4)
                     }
                 }
             }

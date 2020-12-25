@@ -12,31 +12,29 @@ import javax.sound.midi.Sequence
 import javax.sound.midi.ShortMessage
 
 object MidiParser {
-    const val SET_TEMPO = 0x51
-    const val TIME_SIGNATURE = 0x58
-    const val PITCH_CHANGE = 0xC0
-    const val QUARTER_NOTE_IN_MICROSECONDS = 0x07A120
+    private const val SET_TEMPO = 0x51
+    private const val TIME_SIGNATURE = 0x58
+    private const val PITCH_CHANGE = 0xC0
+    private const val QUARTER_NOTE_IN_MICROSECONDS = 0x07A120
 
     /**
      * Takes a midi file as a string, parses it, and returns what notes play at times in a Map.
      *
-     * @param filename - Midi File
-     * @return - Notes that play at what time
-     * @throws InvalidMidiDataException - If the File is corrupt
-     * @throws IOException              - If the file isn't found
+     * @param filename The path to the file to load, relative to the current working directory.
+     * @return A sorted [Map] with times for keys and respective notes for values.
+     * @throws InvalidMidiDataException If the file data was invalid from the perspective of the MIDI specification.
+     * @throws IOException              If an IO exception occurred.
      */
     @Throws(InvalidMidiDataException::class, IOException::class)
-    fun parse(filename: String?, maxChannels: Int): TreeMap<Long, ArrayList<Note>> {
+    fun parse(filename: String, maxChannels: Int): TreeMap<Long, ArrayList<Note>> {
         try {
-
             val file = File(filename)
             var sequence: Sequence? = MidiSystem.getSequence(file)
             val channelList = ArrayList<Int>()
-            var channelPrograms = IntArray(30)
             var maxStamp: Long = 0
             val noteSequence = TreeMap<Long, ArrayList<Note>>()
-            val resolution = sequence!!.getResolution().toDouble()
-            for (track in sequence.getTracks()) {
+            val resolution = sequence!!.resolution.toDouble()
+            for (track in sequence.tracks) {
                 for (i in 0 until track.size()) {
                     val event = track[i]
                     val types = getTypes(event)
@@ -49,7 +47,7 @@ object MidiParser {
                             val channel = shortMessage.channel
                             val time =
                                 (tick * (QUARTER_NOTE_IN_MICROSECONDS.toDouble() / resolution) / 1000.0 + 0.5).toLong()
-                            maxStamp = Math.max(time, maxStamp)
+                            maxStamp = time.coerceAtLeast(maxStamp)
                             if (!noteSequence.containsKey(time)) noteSequence[time] = ArrayList()
                             if (channelList.size <= maxChannels && !channelList.contains(channel)) channelList.add(
                                 channel
@@ -61,7 +59,7 @@ object MidiParser {
             }
             return noteSequence
         } catch (e: Exception) {
-            return TreeMap<Long, ArrayList<Note>>()
+            throw e
         }
     }
 
@@ -69,7 +67,7 @@ object MidiParser {
         val returnValue = arrayOfNulls<MidiEventType>(3)
         if (event.message is ShortMessage) {
             val shortMessage = event.message as ShortMessage
-            if (shortMessage.status >= PITCH_CHANGE && shortMessage.status <= 0xCF) returnValue[0] =
+            if (shortMessage.status in PITCH_CHANGE..0xCF) returnValue[0] =
                 MidiEventType.PITCH_CHANGE
             if (shortMessage.command == ShortMessage.NOTE_ON) returnValue[1] = MidiEventType.NOTE_ON
         }
@@ -83,6 +81,6 @@ object MidiParser {
     }
 }
 
-internal enum class MidiEventType {
+private enum class MidiEventType {
     NOTE_ON, TIME_SIGNATURE, SET_TEMPO, PITCH_CHANGE
 }
