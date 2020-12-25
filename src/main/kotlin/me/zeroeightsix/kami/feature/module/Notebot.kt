@@ -37,7 +37,7 @@ object Notebot : Module() {
     @Setting
     var mode = NotebotMode.DISCOVER
 
-    @Setting(comment = "Name of .mid file in the songs folder of your .minecraft")
+    @Setting(comment = "Name of MIDI file in the songs folder of your .minecraft directory")
     var songName = "tetris_theme.mid"
 
     @Setting
@@ -146,6 +146,5 @@ object Notebot : Module() {
         }
     }
 }
-
 
 
