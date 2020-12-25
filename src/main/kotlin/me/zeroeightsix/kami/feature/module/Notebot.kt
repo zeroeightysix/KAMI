@@ -111,7 +111,7 @@ object Notebot : Module() {
         }
     })
 
-    private fun playNotes(notes: ArrayList<Note>, player: ClientPlayerEntity, world: ClientWorld) {
+    private fun playNotes(notes: List<Note>, player: ClientPlayerEntity, world: World) {
         val blockPosArr: ArrayList<BlockPos?> = ArrayList()
         notes.forEach { n ->
             channelsArray = arrayOf(ChannelZero, ChannelOne, ChannelTwo, ChannelThree, ChannelFour)
