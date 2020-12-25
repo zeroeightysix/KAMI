@@ -95,7 +95,7 @@ object Notebot : Module() {
                 if (noteSequence.isEmpty())
                     snackbarMessage(player, "Song not found: " + "songs" + File.separator + songName)
                 else
-                    snackbarMessage(player, "Song Found: " + "songs" + File.separator + songName)
+                    snackbarMessage(player, "Song found: songs${File.seperator}$songName")
                 lastNote = System.currentTimeMillis()
                 elapsed = 0
             }
@@ -146,4 +146,3 @@ object Notebot : Module() {
         }
     }
 }
-
