@@ -60,7 +60,7 @@ object Wizard {
             text("%s", "GUI is visible in the background")
             popStyleColor()
 
-            KamiGuiScreen() // Show the full GUI
+            KamiGuiScreen.renderGui() // Show the full GUI
         },
         {
             text("How do you want your module windows to be set up?")

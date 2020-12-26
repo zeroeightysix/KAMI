@@ -13,10 +13,46 @@ import me.zeroeightsix.kami.util.text
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 
-object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
+class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null, "Kami GUI")) {
+    companion object {
+        private val colourIndices = Col.values().map { it.i }
 
-    var parent: Screen? = null
-    private val colourIndices = Col.values().map { it.i }
+        fun renderGui() {
+            if (Settings.rainbowMode) {
+                Themes.Variants.values()[Settings.styleIdx].applyStyle(false)
+                val colors = ImGui.style.colors
+                colourIndices.forEach { idx ->
+                    val col = colors[idx]
+                    val buf = FloatArray(3)
+                    ImGui.colorConvertRGBtoHSV(col.toVec3().toFloatArray(), buf)
+                    buf[0] = PrepHandler.getRainbowHue(buf[0].toDouble()).toFloat()
+                    ImGui.colorConvertHSVtoRGB(buf, buf)
+                    colors[idx] = Vec4(buf[0], buf[1], buf[2], col[3])
+                }
+            }
+
+            // Draw the main menu bar.
+            MenuBar()
+            // Debug window (theme, demo window)
+            if (View.demoWindowVisible) {
+                ImGui.showDemoWindow(View::demoWindowVisible)
+            }
+            // Draw all module windows
+            Modules()
+            // Draw the settings
+            Settings()
+
+            if (!EnabledWidgets.hideAll) {
+                showWidgets()
+            }
+        }
+
+        fun showWidgets(limitY: Boolean = true) {
+            EnabledWidgets.widgets.removeAll {
+                it.open && it.showWindow(limitY)
+            }
+        }
+    }
 
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
         if (parent != null) {
@@ -30,47 +66,11 @@ object KamiGuiScreen : ImGuiScreen(text(null, "Kami GUI")) {
         KamiHud.frame(matrices!!) {
             if (Wizard()) return@frame
 
-            this()
-        }
-    }
-
-    operator fun invoke() {
-        if (Settings.rainbowMode) {
-            Themes.Variants.values()[Settings.styleIdx].applyStyle(false)
-            val colors = ImGui.style.colors
-            colourIndices.forEach { idx ->
-                val col = colors[idx]
-                val buf = FloatArray(3)
-                ImGui.colorConvertRGBtoHSV(col.toVec3().toFloatArray(), buf)
-                buf[0] = PrepHandler.getRainbowHue(buf[0].toDouble()).toFloat()
-                ImGui.colorConvertHSVtoRGB(buf, buf)
-                colors[idx] = Vec4(buf[0], buf[1], buf[2], col[3])
-            }
-        }
-
-        // Draw the main menu bar.
-        MenuBar()
-        // Debug window (theme, demo window)
-        if (View.demoWindowVisible) {
-            ImGui.showDemoWindow(View::demoWindowVisible)
-        }
-        // Draw all module windows
-        Modules()
-        // Draw the settings
-        Settings()
-
-        if (!EnabledWidgets.hideAll) {
-            showWidgets()
+            renderGui()
         }
     }
 
     override fun onClose() {
         mc.openScreen(this.parent)
-    }
-
-    fun showWidgets(limitY: Boolean = true) {
-        EnabledWidgets.widgets.removeAll {
-            it.open && it.showWindow(limitY)
-        }
     }
 }
