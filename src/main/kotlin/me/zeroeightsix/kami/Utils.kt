@@ -26,6 +26,11 @@ import me.zeroeightsix.kami.util.Friends
 import me.zeroeightsix.kami.util.minus
 import me.zeroeightsix.kami.util.plus
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.Element
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.ingame.*
+import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
@@ -205,7 +210,41 @@ fun Entity.getInterpolatedPos(tickDelta: Float = mc.tickDelta): Vec3d {
     return prev + (pos - prev) * tickDelta.toDouble()
 }
 
-// / Rendering
+// / Minecraft
+
+/**
+ * Whether or not this [Element] is actively consuming keypresses.
+ *
+ * In effect, only `true` if `this` is a [TextFieldWidget] and [TextFieldWidget.isActive]
+ */
+val Element.expectingInput: Boolean
+    get() = this is TextFieldWidget && this.isActive
+
+/**
+ * Whether or not this [RecipeBookWidget] is open and the player is not in spectator
+ */
+val RecipeBookWidget.expectingInput: Boolean
+    // This check 'should' also cover whether or not the search field is active,
+    // but, said field is private and is not worth an accessor.
+    get() = this.isOpen && !(mc.player?.isSpectator == true)
+
+/**
+ * Whether or not this [Screen] is expecting input.
+ *
+ * This returns true if
+ * * The screen is an sign editing screen, or,
+ * * The screen is a book editing screen, or,
+ * * The screen is the creative inventory screen, or,
+ * * The screen is a furnace or crafting screen with a recipe book that is expecting input, or,
+ * * The focused element of this screen is expecting input
+ */
+val Screen.expectingInput: Boolean
+    get() = this is SignEditScreen ||
+            this is BookEditScreen ||
+            this is CreativeInventoryScreen ||
+            (this is AbstractFurnaceScreen<*> && this.recipeBook.expectingInput) ||
+            (this is CraftingScreen && this.recipeBookWidget.expectingInput) ||
+            this.focused?.expectingInput == true
 
 data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
