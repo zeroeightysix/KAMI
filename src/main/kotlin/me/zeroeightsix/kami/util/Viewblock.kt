@@ -33,7 +33,7 @@ object Viewblock {
 
     @JvmStatic
     fun faceVectorPacketInstant(player: ClientPlayerEntity, vec: Vec3d, mc: MinecraftClient) {
-        val rotations = Viewblock.getNeededRotations(player, vec)
+        val rotations = getNeededRotations(player, vec)
         mc.networkHandler!!.sendPacket(
             PlayerMoveC2SPacket.LookOnly(
                 rotations[0],

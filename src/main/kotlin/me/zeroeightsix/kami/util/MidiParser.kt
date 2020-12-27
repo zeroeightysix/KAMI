@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.util
 
+import net.minecraft.block.enums.Instrument
 import java.io.File
 import java.io.IOException
 import java.util.ArrayList
@@ -26,11 +27,11 @@ object MidiParser {
      * @throws IOException              If an IO exception occurred.
      */
     @Throws(InvalidMidiDataException::class, IOException::class)
-    fun parse(filename: String, maxChannels: Int): TreeMap<Long, ArrayList<Note>> {
+    fun parse(filename: String): Pair<TreeMap<Long, ArrayList<Note>>, TreeMap<Int, Instrument>> {
         try {
             val file = File(filename)
             var sequence: Sequence? = MidiSystem.getSequence(file)
-            val channelList = ArrayList<Int>()
+            val channelList = TreeMap<Int, Instrument>()
             var maxStamp: Long = 0
             val noteSequence = TreeMap<Long, ArrayList<Note>>()
             val resolution = sequence!!.resolution.toDouble()
@@ -49,17 +50,17 @@ object MidiParser {
                                 (tick * (QUARTER_NOTE_IN_MICROSECONDS.toDouble() / resolution) / 1000.0 + 0.5).toLong()
                             maxStamp = time.coerceAtLeast(maxStamp)
                             if (!noteSequence.containsKey(time)) noteSequence[time] = ArrayList()
-                            if (channelList.size <= maxChannels && !channelList.contains(channel)) channelList.add(
-                                channel
-                            )
-                            noteSequence[time]!!.add(Note(note, channelList.indexOf(channel)))
+                            if (/*channelList.size <= maxChannels && */!channelList.keys.contains(channel))
+                                channelList.put(channel, Instrument.HAT)
+                            noteSequence[time]!!.add(Note(note, channelList.keys.indexOf(channel)))
                         }
                     }
                 }
             }
-            return noteSequence
+
+            return noteSequence to channelList
         } catch (e: Exception) {
-            throw e
+            return TreeMap<Long, ArrayList<Note>>() to TreeMap<Int, Instrument>()
         }
     }
 
