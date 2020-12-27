@@ -12,6 +12,6 @@ class InstrumentMap {
     }
 
     fun add(instrument: Instrument, note: Int, pos: BlockPos?) {
-        instruments.getOrPut(instrument) { arrayOfNulls(25) }[note] = pos
+        this[instrument][note] = pos
     }
 }

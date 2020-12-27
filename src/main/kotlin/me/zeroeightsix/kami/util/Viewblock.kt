@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.World
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
@@ -44,7 +45,7 @@ object Viewblock {
     }
 
     @JvmStatic
-    fun getIrreplaceableNeighbour(world: ClientWorld, blockPos: BlockPos?): Pair<BlockPos, Direction>? {
+    fun getIrreplaceableNeighbour(world: World, blockPos: BlockPos?): Pair<BlockPos, Direction>? {
         if (blockPos == null) return blockPos
         for (side in Direction.values()) {
             val neighbour = blockPos.offset(side)

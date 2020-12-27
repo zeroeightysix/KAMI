@@ -50,8 +50,8 @@ object MidiParser {
                                 (tick * (QUARTER_NOTE_IN_MICROSECONDS.toDouble() / resolution) / 1000.0 + 0.5).toLong()
                             maxStamp = time.coerceAtLeast(maxStamp)
                             if (!noteSequence.containsKey(time)) noteSequence[time] = ArrayList()
-                            if (/*channelList.size <= maxChannels && */!channelList.keys.contains(channel))
-                                channelList.put(channel, Instrument.HAT)
+                            if (channelList.size <= 5 && !channelList.keys.contains(channel))
+                                channelList[channel] = Instrument.HAT
                             noteSequence[time]!!.add(Note(note, channelList.keys.indexOf(channel)))
                         }
                     }
@@ -60,7 +60,7 @@ object MidiParser {
 
             return noteSequence to channelList
         } catch (e: Exception) {
-            return TreeMap<Long, ArrayList<Note>>() to TreeMap<Int, Instrument>()
+            throw e
         }
     }
 
