@@ -29,8 +29,7 @@ object MidiParser {
     @Throws(InvalidMidiDataException::class, IOException::class)
     fun parse(filename: String): Pair<TreeMap<Long, ArrayList<Note>>, TreeMap<Int, Instrument>> {
         try {
-            val file = File(filename)
-            var sequence: Sequence? = MidiSystem.getSequence(file)
+            val sequence: Sequence? = MidiSystem.getSequence(File(filename))
             val channelList = TreeMap<Int, Instrument>()
             var maxStamp: Long = 0
             val noteSequence = TreeMap<Long, ArrayList<Note>>()
