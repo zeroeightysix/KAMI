@@ -1,15 +1,12 @@
 package me.zeroeightsix.kami
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import glm_.vec4.Vec4
 import imgui.ImGui
 import imgui.StyleVar
-import imgui.dsl
 import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
-import me.zeroeightsix.kami.feature.module.Notebot
 import me.zeroeightsix.kami.mixin.client.`IMatrixStack$Entry`
 import me.zeroeightsix.kami.mixin.extend.a00
 import me.zeroeightsix.kami.mixin.extend.a01
@@ -81,6 +78,7 @@ fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () ->
     during()
     if (this) after()
 }
+
 fun wrapDisabled(conditional: Boolean, during: () -> Unit) {
     conditional.conditionalWrap(
         {
@@ -94,6 +92,7 @@ fun wrapDisabled(conditional: Boolean, during: () -> Unit) {
         }
     )
 }
+
 fun String.splitFirst(char: Char): Pair<String, String> {
     val index = this.indexOf(char)
     return Pair(this.substring(0, index), this.substring(index + 1))
@@ -322,4 +321,3 @@ operator fun Iterable<ItemPredicate>.contains(i: Item) = i.defaultStack in this
 // unfortunately can't add static extensions
 fun itemPredicate(applyFun: ItemPredicate.Builder.() -> Unit) =
     ItemPredicate.Builder.create().apply(applyFun).build()
-
