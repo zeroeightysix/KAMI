@@ -127,10 +127,6 @@ run/
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 .idea/*
-!.idea/codeStyles
-
-# Explicitly whitelist code style
-!.idea/codeStyles/**
 
 # Building
 classes
