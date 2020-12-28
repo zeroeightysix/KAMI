@@ -123,12 +123,12 @@ object Notebot : Module() {
                     channelMap = parsed.second
                     duration = parsed.first.lastKey()
                 }
-                displayActionbar(it, "§bLoaded song $path")
+                displayActionbar(it, "Loaded song $path")
                 elapsed = 0
             } catch (e: IOException) {
-                displayActionbar(it, "§4Sound not found $path")
+                displayActionbar(it, "Sound not found $path")
             } catch (e: InvalidMidiDataException) {
-                displayActionbar(it, "§4Invalid MIDI Data: $path")
+                displayActionbar(it, "Invalid MIDI Data: $path")
             }
         }
     }
@@ -150,7 +150,7 @@ object Notebot : Module() {
             } else {
                 // Pause song
                 playingSong = false
-                displayActionbar(player, "§4You are in creative mode and cannot play music.")
+                displayActionbar(player, "You are in creative mode and cannot play music.")
             }
         }
     })
@@ -198,7 +198,7 @@ object Notebot : Module() {
                     playingSong = false
                     displayActionbar(
                         player,
-                        "§4You are not in range to play this block. §fCoordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]"
+                        "You are not in range to play this block. Coordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]"
                     )
                 }
             }
@@ -208,7 +208,7 @@ object Notebot : Module() {
     private fun updateSongProgress(player: ClientPlayerEntity, elapsed: Long, duration: Long) {
         val songbarLength = 32
         val elapsedSection = if (duration < 1) songbarLength - 1 else (elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(1))
-        val unplayedSection = (songbarLength - (elapsedSection + 1))
+        val unplayedSection = songbarLength - (elapsedSection + 1)
         player.sendMessage(
             text {
                 +"$songName: ${elapsed / 1000}s "
