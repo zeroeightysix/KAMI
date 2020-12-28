@@ -321,3 +321,6 @@ operator fun Iterable<ItemPredicate>.contains(i: Item) = i.defaultStack in this
 // unfortunately can't add static extensions
 fun itemPredicate(applyFun: ItemPredicate.Builder.() -> Unit) =
     ItemPredicate.Builder.create().apply(applyFun).build()
+
+// i dont condone python but this is really cool
+operator fun String.times(factor: Int) = this.repeat(factor)
