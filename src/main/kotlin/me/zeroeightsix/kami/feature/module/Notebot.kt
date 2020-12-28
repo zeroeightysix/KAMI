@@ -187,6 +187,7 @@ object Notebot : Module() {
     }
 
     private fun updateSongProgress(player: ClientPlayerEntity, elapsed: Long, duration: Long) {
+        if (!playingSong) return
         val songbarLength = 32
         val elapsedSection = if (duration < 1) songbarLength - 1 else elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(1)
         val unplayedSection = songbarLength - (elapsedSection + 1)
