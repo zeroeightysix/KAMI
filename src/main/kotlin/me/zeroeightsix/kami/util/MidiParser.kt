@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.util
 
-import net.minecraft.block.enums.Instrument
 import java.io.File
 import java.io.IOException
 import java.util.ArrayList
@@ -11,6 +10,7 @@ import javax.sound.midi.MidiEvent
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.Sequence
 import javax.sound.midi.ShortMessage
+import net.minecraft.block.enums.Instrument
 
 object MidiParser {
     private const val SET_TEMPO = 0x51
@@ -73,6 +73,38 @@ object MidiParser {
                 MidiEventType.TIME_SIGNATURE
         }
         return returnValue
+    }
+}
+
+class Note(var note: Int, var track: Int) {
+    val notebotNote: Int
+        get() = getNotebotKey(note)
+
+    override fun toString(): String {
+        return getKey(note) + "[" + track + "]"
+    }
+
+    companion object {
+        private var keys = arrayOf(
+            "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F",
+            "F#2", "G2", "G#2", "A2", "A#2", "B2", "C2", "C#2", "D2", "D#2", "E2", "F2",
+            "F#3"
+        )
+
+        fun getKey(note: Int): String {
+            return keys[getNotebotKey(note)]
+        }
+
+        private fun getNotebotKey(note: Int): Int {
+            /**
+             * "MIDI NOTES"
+             * "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+             * "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+             * "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3"
+             */
+            val k = (note - 6) % 24
+            return if (k < 0) 24 + k else k
+        }
     }
 }
 

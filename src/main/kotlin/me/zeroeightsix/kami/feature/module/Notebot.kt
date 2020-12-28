@@ -15,6 +15,7 @@ import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.util.InstrumentMap
 import me.zeroeightsix.kami.util.MidiParser
+import me.zeroeightsix.kami.util.Note
 import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.plus
 import me.zeroeightsix.kami.util.text
@@ -161,9 +162,7 @@ object Notebot : Module() {
                 arrayOf(channelZero, channelOne, channelTwo, channelThree, channelFour)
             val number = n.track % (channelsArray.size - 1)
             val instrument = channelsArray[if (number < 0) 0 else number]
-            blockPosArr.add(
-                instrumentMap[instrument][if (instrument == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote]
-            )
+            blockPosArr.add(instrumentMap[instrument][if (instrument == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
         }
         playBlocks(blockPosArr, player, world)
     }
@@ -171,36 +170,17 @@ object Notebot : Module() {
     private fun playBlocks(blockPosTracks: List<BlockPos?>, player: ClientPlayerEntity, world: World) {
         blockPosTracks.asSequence().filterNotNull().forEach { blockPos ->
             getIrreplaceableNeighbour(world, blockPos)?.let { (_, direction) ->
-                if (player.pos.isInRange(
-                        Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble(), blockPos.z.toDouble()),
-                        6.0
-                    )
-                ) {
+                if (player.pos.isInRange(Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble(), blockPos.z.toDouble()), 6.0)) {
                     mc.networkHandler?.let {
-                        it.sendPacket(
-                            PlayerActionC2SPacket(
-                                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK,
-                                blockPos,
-                                direction
-                            )
-                        )
-                        it.sendPacket(
-                            PlayerActionC2SPacket(
-                                PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK,
-                                blockPos,
-                                direction
-                            )
-                        )
+                        it.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction))
+                        it.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, direction))
                     }
                     player.swingHand(Hand.MAIN_HAND)
                     mc.itemUseCooldown = 4
                 } else {
                     // Pause song
                     playingSong = false
-                    displayActionbar(
-                        player,
-                        "You are not in range to play this block. Coordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]" // ktlint-disable max-line-length
-                    )
+                    displayActionbar(player, "You are not in range to play this block. Coordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]")
                 }
             }
         }
@@ -208,12 +188,7 @@ object Notebot : Module() {
 
     private fun updateSongProgress(player: ClientPlayerEntity, elapsed: Long, duration: Long) {
         val songbarLength = 32
-        val elapsedSection =
-            if (duration < 1) songbarLength - 1 else (
-                elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(
-                    1
-                )
-                )
+        val elapsedSection = if (duration < 1) songbarLength - 1 else elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(1)
         val unplayedSection = songbarLength - (elapsedSection + 1)
         player.sendMessage(
             text {
@@ -229,37 +204,5 @@ object Notebot : Module() {
 
     private fun displayActionbar(player: ClientPlayerEntity, t: String) {
         player.sendMessage(text { +t }, true)
-    }
-}
-
-class Note(var note: Int, var track: Int) {
-    val notebotNote: Int
-        get() = getNotebotKey(note)
-
-    override fun toString(): String {
-        return getKey(note) + "[" + track + "]"
-    }
-
-    companion object {
-        private var keys = arrayOf(
-            "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F",
-            "F#2", "G2", "G#2", "A2", "A#2", "B2", "C2", "C#2", "D2", "D#2", "E2", "F2",
-            "F#3"
-        )
-
-        fun getKey(note: Int): String {
-            return keys[getNotebotKey(note)]
-        }
-
-        private fun getNotebotKey(note: Int): Int {
-            /**
-             * "MIDI NOTES"
-             * "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
-             * "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
-             * "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3"
-             */
-            val k = (note - 6) % 24
-            return if (k < 0) 24 + k else k
-        }
     }
 }
