@@ -39,6 +39,10 @@ fun Input.update(from: Input) = (this as ExtendedInput).update(from)
 
 fun GameRenderer.setRenderHand(renderHand: Boolean) = (this as IGameRenderer).setRenderHand(renderHand)
 
+var MinecraftClient.itemUseCooldown: Int
+    get() = (this as IMinecraftClient).itemUseCooldown
+    set(value) = (this as IMinecraftClient).setItemUseCooldown(value)
+
 val Matrix4f.a00
     get() = (this as IMatrix4f).a00
 val Matrix4f.a01

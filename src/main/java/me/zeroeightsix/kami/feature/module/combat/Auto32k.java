@@ -11,6 +11,7 @@ import me.zeroeightsix.kami.feature.module.Module;
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient;
 import me.zeroeightsix.kami.util.Friends;
 import me.zeroeightsix.kami.util.ShulkerBoxCommon;
+import me.zeroeightsix.kami.util.Viewblock;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -37,7 +38,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static me.zeroeightsix.kami.feature.module.Scaffold.faceVectorPacketInstant;
 
 @Module.Info(name = "Auto32k", category = Module.Category.COMBAT, description = "Do not use with any AntiGhostBlock Mod!")
 public class Auto32k extends Module {
@@ -179,6 +179,7 @@ public class Auto32k extends Module {
 
         int range = (int) Math.ceil(placeRange);
 
+        //CrystalAura crystalAura = CrystalAura.INSTANCE;
         //List<BlockPos> placeTargetList = crystalAura.getSphere(getPlayerPos(), range, range, false, true, 0);
         List<BlockPos> placeTargetList = new ArrayList<>(); // TODO
 
@@ -362,7 +363,7 @@ public class Auto32k extends Module {
                 isSneaking = true;
             }
 
-            faceVectorPacketInstant(player, hitVec);
+            Viewblock.faceVectorPacketInstant(player, hitVec, mc);
             mc.interactionManager.interactBlock(mc.player, mc.world, Hand.MAIN_HAND, new BlockHitResult(hitVec, side2, neighbor, false));
             mc.player.swingHand(Hand.MAIN_HAND);
             ((IMinecraftClient) mc).setItemUseCooldown(4);

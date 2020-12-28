@@ -11,6 +11,9 @@ public interface IMinecraftClient {
     @Accessor
     void setItemUseCooldown(int itemUseCooldown);
 
+    @Accessor
+    int getItemUseCooldown();
+
     @Invoker
     void callDoAttack();
 

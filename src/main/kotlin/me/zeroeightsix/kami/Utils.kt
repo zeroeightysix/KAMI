@@ -1,6 +1,9 @@
 package me.zeroeightsix.kami
 
 import glm_.vec4.Vec4
+import imgui.ImGui
+import imgui.StyleVar
+import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
@@ -74,6 +77,20 @@ fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () ->
     if (this) before()
     during()
     if (this) after()
+}
+
+fun wrapDisabled(conditional: Boolean, during: () -> Unit) {
+    conditional.conditionalWrap(
+        {
+            ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
+            ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
+        },
+        during,
+        {
+            ImGui.popItemFlag()
+            ImGui.popStyleVar()
+        }
+    )
 }
 
 fun String.splitFirst(char: Char): Pair<String, String> {
@@ -305,3 +322,5 @@ operator fun Iterable<ItemPredicate>.contains(i: Item) = i.defaultStack in this
 fun itemPredicate(applyFun: ItemPredicate.Builder.() -> Unit) =
     ItemPredicate.Builder.create().apply(applyFun).build()
 
+// i dont condone python but this is really cool
+operator fun String.times(factor: Int) = this.repeat(factor)

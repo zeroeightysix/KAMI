@@ -5,6 +5,9 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import me.zeroeightsix.kami.mixin.extend.itemUseCooldown
+import me.zeroeightsix.kami.util.Viewblock
+import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.Wrapper
 import me.zeroeightsix.kami.util.asVec
 import me.zeroeightsix.kami.util.asVec3d
@@ -36,14 +39,6 @@ object Scaffold : Module() {
         Blocks.CHEST,
         Blocks.TRAPPED_CHEST
     )
-
-    private fun getIrreplaceableNeighbour(world: ClientWorld, blockPos: BlockPos): Pair<BlockPos, Direction>? {
-        for (side in Direction.values()) {
-            val neighbour = blockPos.offset(side)
-            if (world.getBlockState(neighbour)?.material?.isReplaceable == false) return neighbour to side.opposite
-        }
-        return null
-    }
 
     @EventHandler
     private val updateListener = Listener<InGame>({ it ->
@@ -126,7 +121,7 @@ object Scaffold : Module() {
             BlockHitResult(solid.asVec + 0.5 + side.vector.asVec3d / 2.0, side, solid, false)
         )
         Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
-        (mc as IMinecraftClient).setItemUseCooldown(4)
+        mc.itemUseCooldown = 4
     }
 
     fun getState(pos: BlockPos?): BlockState {
@@ -135,34 +130,6 @@ object Scaffold : Module() {
 
     fun getBlock(pos: BlockPos?): Block {
         return getState(pos).block
-    }
-
-    @JvmStatic
-    fun faceVectorPacketInstant(player: ClientPlayerEntity, vec: Vec3d) {
-        val rotations = getNeededRotations2(player, vec)
-        mc.networkHandler!!.sendPacket(
-            LookOnly(
-                rotations[0],
-                rotations[1],
-                Wrapper.getPlayer().isOnGround
-            )
-        )
-    }
-
-    private fun getNeededRotations2(player: ClientPlayerEntity, vec: Vec3d): FloatArray {
-        val eyesPos = player.eyesPos
-        val diffX = vec.x - eyesPos.x
-        val diffY = vec.y - eyesPos.y
-        val diffZ = vec.z - eyesPos.z
-        val diffXZ = sqrt(diffX * diffX + diffZ * diffZ)
-        val yaw = Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f
-        val pitch = (-Math.toDegrees(atan2(diffY, diffXZ))).toFloat()
-        return floatArrayOf(
-            Wrapper.getPlayer().yaw +
-                MathHelper.wrapDegrees(yaw - Wrapper.getPlayer().yaw),
-            Wrapper.getPlayer().pitch + MathHelper
-                .wrapDegrees(pitch - Wrapper.getPlayer().pitch)
-        )
     }
 
     val ClientPlayerEntity.eyesPos: Vec3d
