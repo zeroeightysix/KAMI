@@ -2,6 +2,11 @@ package me.zeroeightsix.kami.feature.module
 
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import java.io.File
+import java.io.IOException
+import java.util.ArrayList
+import java.util.TreeMap
+import javax.sound.midi.InvalidMidiDataException
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
@@ -10,7 +15,6 @@ import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.util.InstrumentMap
 import me.zeroeightsix.kami.util.MidiParser
-import me.zeroeightsix.kami.util.Note
 import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.plus
 import me.zeroeightsix.kami.util.text
@@ -26,11 +30,6 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import java.io.File
-import java.io.IOException
-import java.util.ArrayList
-import java.util.TreeMap
-import javax.sound.midi.InvalidMidiDataException
 
 @Module.Info(
     name = "Notebot",
@@ -162,7 +161,9 @@ object Notebot : Module() {
                 arrayOf(channelZero, channelOne, channelTwo, channelThree, channelFour)
             val number = n.track % (channelsArray.size - 1)
             val instrument = channelsArray[if (number < 0) 0 else number]
-            blockPosArr.add(instrumentMap[instrument][if (instrument == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
+            blockPosArr.add(
+                instrumentMap[instrument][if (instrument == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote]
+            )
         }
         playBlocks(blockPosArr, player, world)
     }
@@ -198,7 +199,7 @@ object Notebot : Module() {
                     playingSong = false
                     displayActionbar(
                         player,
-                        "You are not in range to play this block. Coordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]"
+                        "You are not in range to play this block. Coordinates: [${blockPos.x}, ${blockPos.y}, ${blockPos.z}]" // ktlint-disable max-line-length
                     )
                 }
             }
@@ -207,7 +208,12 @@ object Notebot : Module() {
 
     private fun updateSongProgress(player: ClientPlayerEntity, elapsed: Long, duration: Long) {
         val songbarLength = 32
-        val elapsedSection = if (duration < 1) songbarLength - 1 else (elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(1))
+        val elapsedSection =
+            if (duration < 1) songbarLength - 1 else (
+                elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(
+                    1
+                )
+                )
         val unplayedSection = songbarLength - (elapsedSection + 1)
         player.sendMessage(
             text {
@@ -223,5 +229,37 @@ object Notebot : Module() {
 
     private fun displayActionbar(player: ClientPlayerEntity, t: String) {
         player.sendMessage(text { +t }, true)
+    }
+}
+
+class Note(var note: Int, var track: Int) {
+    val notebotNote: Int
+        get() = getNotebotKey(note)
+
+    override fun toString(): String {
+        return getKey(note) + "[" + track + "]"
+    }
+
+    companion object {
+        private var keys = arrayOf(
+            "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F",
+            "F#2", "G2", "G#2", "A2", "A#2", "B2", "C2", "C#2", "D2", "D#2", "E2", "F2",
+            "F#3"
+        )
+
+        fun getKey(note: Int): String {
+            return keys[getNotebotKey(note)]
+        }
+
+        private fun getNotebotKey(note: Int): Int {
+            /**
+             * "MIDI NOTES"
+             * "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+             * "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+             * "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3"
+             */
+            val k = (note - 6) % 24
+            return if (k < 0) 24 + k else k
+        }
     }
 }
