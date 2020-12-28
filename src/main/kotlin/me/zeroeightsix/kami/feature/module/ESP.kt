@@ -19,6 +19,7 @@ import me.zeroeightsix.kami.target.BlockEntitySupplier
 import me.zeroeightsix.kami.target.BlockSupplier
 import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
+import me.zeroeightsix.kami.wrapDisabled
 import net.minecraft.client.render.OutlineVertexConsumerProvider
 import net.minecraft.util.Identifier
 import kotlin.reflect.KProperty
@@ -27,15 +28,21 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener as FiberList
 /**
  * @see me.zeroeightsix.kami.mixin.client.MixinWorldRenderer
  */
-@Module.Info(name = "ESP", description = "Draws outlines around targeted entities, blocks, or block entities", category = Module.Category.RENDER)
+@Module.Info(
+    name = "ESP",
+    description = "Draws outlines around targeted entities, blocks, or block entities",
+    category = Module.Category.RENDER
+)
 object ESP : Module() {
 
     @Setting
     var blurred = false
 
     val outlineShader: ManagedShaderEffect by object {
-        val sharp: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
-        val blur: ManagedShaderEffect = ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_blur_outline.json"))
+        val sharp: ManagedShaderEffect =
+            ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_sharp_outline.json"))
+        val blur: ManagedShaderEffect =
+            ShaderEffectManager.getInstance().manage(Identifier("kami", "shaders/post/entity_blur_outline.json"))
 
         operator fun getValue(thisRef: Any?, prop: KProperty<*>): ManagedShaderEffect =
             if (blurred) blur else sharp
@@ -64,7 +71,8 @@ object ESP : Module() {
         mapOf()
     )
 
-    @Transient var blocksChanged = false
+    @Transient
+    var blocksChanged = false
 
     @Setting(name = "Blocks")
     @ImGuiExtra.Post("applyBlocksImGui")
@@ -84,22 +92,12 @@ object ESP : Module() {
 
     @Suppress("unused")
     fun applyBlocksImGui() {
-        (!blocksChanged).conditionalWrap(
-            {
-                ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
-                ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
-            },
-            {
-                dsl.button("Reload") {
-                    blocksChanged = false
-                    mc.worldRenderer?.reload()
-                }
-            },
-            {
-                ImGui.popItemFlag()
-                ImGui.popStyleVar()
+        wrapDisabled(!blocksChanged) {
+            dsl.button("Reload") {
+                blocksChanged = false
+                mc.worldRenderer?.reload()
             }
-        )
+        }
     }
 
     override fun onEnable() {

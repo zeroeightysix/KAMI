@@ -1,13 +1,9 @@
 package me.zeroeightsix.kami.feature.module
 
-import imgui.ImGui
-import imgui.StyleVar
 import imgui.dsl
-import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.mixin.extend.itemUseCooldown
 import me.zeroeightsix.kami.setting.ImGuiExtra
@@ -17,6 +13,7 @@ import me.zeroeightsix.kami.util.Note
 import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.plus
 import me.zeroeightsix.kami.util.text
+import me.zeroeightsix.kami.wrapDisabled
 import net.minecraft.block.Blocks
 import net.minecraft.block.NoteBlock.INSTRUMENT
 import net.minecraft.block.NoteBlock.NOTE
@@ -28,6 +25,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import java.io.File
+import java.io.IOException
 import java.util.ArrayList
 import java.util.TreeMap
 
@@ -38,7 +36,7 @@ import java.util.TreeMap
 )
 object Notebot : Module() {
 
-    private var lastNote: Long = 0L
+    private var firstNote: Long = 0L
     private var elapsed: Long = 0L
     var playingSong = false
 
@@ -71,68 +69,38 @@ object Notebot : Module() {
     var songName = "tetris_theme.mid"
 
     fun renderButtons() {
-        dsl.button("Discover") {
-            discoverSong()
-        }
-        dsl.button("Load") {
-            loadSong()
-        }
-
-        ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
-        ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
-
-        ImGui.popItemFlag()
-        ImGui.popStyleVar()
+        dsl.button("Discover") { discoverSong() }
+        dsl.button("Load") { loadSong() }
         playButton()
         pauseButton()
     }
 
     private fun playButton() {
-        (playingSong).conditionalWrap(
-            {
-                ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
-                ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
-            },
-            {
-                dsl.button("Play") {
-                    playingSong = true
-                }
-            },
-            {
-                ImGui.popItemFlag()
-                ImGui.popStyleVar()
+        wrapDisabled(playingSong) {
+            dsl.button("Play") {
+                firstNote = System.currentTimeMillis() - elapsed
+                playingSong = true
             }
-        )
+        }
     }
+
     private fun pauseButton() {
-        (!playingSong).conditionalWrap(
-            {
-                ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
-                ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
-            },
-            {
-                dsl.button("Pause") {
-                    playingSong = false
-                }
-            },
-            {
-                ImGui.popItemFlag()
-                ImGui.popStyleVar()
+        wrapDisabled(!playingSong) {
+            dsl.button("Pause") {
+                playingSong = false
             }
-        )
+        }
     }
 
     private fun discoverSong() {
-        mc.player?.let {
-            for (x in -4..4) {
-                for (y in -4..4) {
-                    for (z in -4..4) {
-                        val pos = it.pos?.plus(Vec3d(x.toDouble(), y.toDouble(), z.toDouble())) ?: break
-                        if (it.world.getBlockState(BlockPos(pos))?.block == Blocks.NOTE_BLOCK) {
-                            val noteBlock = it.world.getBlockState(BlockPos(pos))
-                            displayActionbar(it, "" + noteBlock.get(INSTRUMENT) + "[" + noteBlock.get(NOTE) + "]")
-                            instrumentMap.add(noteBlock.get(INSTRUMENT), noteBlock.get(NOTE), BlockPos(pos))
-                        }
+        val player = mc.player ?: return
+        for (x in -4..4) {
+            for (y in -4..4) {
+                for (z in -4..4) {
+                    val pos = player.pos?.plus(Vec3d(x.toDouble(), y.toDouble(), z.toDouble())) ?: break
+                    if (player.world.getBlockState(BlockPos(pos))?.block == Blocks.NOTE_BLOCK) {
+                        val noteBlock = player.world.getBlockState(BlockPos(pos))
+                        instrumentMap.add(noteBlock.get(INSTRUMENT), noteBlock.get(NOTE), BlockPos(pos))
                     }
                 }
             }
@@ -147,11 +115,13 @@ object Notebot : Module() {
                     noteSequence = it.first
                     channelMap = it.second
                 }
-                displayActionbar(it, "Loaded song ${File.separator}$songName")
-                lastNote = System.currentTimeMillis()
+                displayActionbar(it, "Loaded song songs${File.separator}$songName")
                 elapsed = 0
             } catch (e: Exception) {
-                displayActionbar(it, "Sound not found ${File.separator}$songName")
+                if (e is IOException)
+                    displayActionbar(it, "Sound not found songs${File.separator}$songName")
+                else
+                    displayActionbar(it, "Invalid MIDI Date: songs${File.separator}$songName")
             }
         }
     }
@@ -160,46 +130,43 @@ object Notebot : Module() {
     val listener = Listener<TickEvent.InGame>({
         if (playingSong) {
             val player = it.player
-            val world = it.world
             if (!player.isCreative) {
                 while (noteSequence.isNotEmpty() && noteSequence.firstKey() <= elapsed) {
-                    playNotes(noteSequence.pollFirstEntry().value, player, world)
+                    playNotes(noteSequence.pollFirstEntry().value, player, it.world)
                 }
-                if (noteSequence.isEmpty()) playingSong = false
-                elapsed += System.currentTimeMillis() - lastNote
+                if (noteSequence.isEmpty()) {
+                    displayActionbar(player, "Finished playing song.")
+                    playingSong = false
+                }
+                elapsed = System.currentTimeMillis() - firstNote
             } else displayActionbar(player, "You are in creative mode and cannot play music.")
         }
-        lastNote = System.currentTimeMillis()
     })
 
     private fun playNotes(notes: List<Note>, player: ClientPlayerEntity, world: World) {
-        val blockPosArr: ArrayList<BlockPos?> = ArrayList()
+        val blockPosArr = mutableListOf<BlockPos?>()
         notes.forEach { n ->
             val channelsArray: Array<Instrument> =
                 arrayOf(channelZero, channelOne, channelTwo, channelThree, channelFour)
-            val number = (n.track % (channelsArray.size - 1))
-            val enum = channelsArray[if (number < 0) 0 else number]
-            displayActionbar(player, enum.toString())
-            blockPosArr.add(instrumentMap[enum][if (enum == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
+            val number = n.track % (channelsArray.size - 1)
+            val instrument = channelsArray[if (number < 0) 0 else number]
+            blockPosArr.add(instrumentMap[instrument][if (instrument == Instrument.HAT && hatAlwaysAsFSharp) 0 else n.notebotNote])
         }
         playBlock(blockPosArr, player, world)
     }
 
-    private fun playBlock(blockPosTracks: ArrayList<BlockPos?>, player: ClientPlayerEntity, world: World) {
-        if (blockPosTracks.isNotEmpty()) {
-            blockPosTracks.forEach { blockPos ->
-                if (blockPos != null) {
-                    getIrreplaceableNeighbour(world, blockPos)?.let { (_, direction) ->
-                        mc.networkHandler?.sendPacket(
-                            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction)
-                        )
-                        mc.networkHandler?.sendPacket(
-                            PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, direction)
-                        )
-                        player.swingHand(Hand.MAIN_HAND)
-
-                        mc.itemUseCooldown = 4
+    private fun playBlock(blockPosTracks: List<BlockPos?>, player: ClientPlayerEntity, world: World) {
+        blockPosTracks.asSequence().filterNotNull().forEach { blockPos ->
+            getIrreplaceableNeighbour(world, blockPos)?.let { (_, direction) ->
+                if (player.pos.isInRange(Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble(), blockPos.z.toDouble()), 6.0)) {
+                    mc.networkHandler?.let {
+                        it.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, direction))
+                        it.sendPacket(PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, direction))
                     }
+                    player.swingHand(Hand.MAIN_HAND)
+                    mc.itemUseCooldown = 4
+                } else {
+                    displayActionbar(player, "You are not in range to play this block.")
                 }
             }
         }
@@ -209,4 +176,3 @@ object Notebot : Module() {
         player.sendMessage(text { +t }, true)
     }
 }
-

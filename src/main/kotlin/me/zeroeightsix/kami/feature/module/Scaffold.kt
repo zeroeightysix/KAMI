@@ -5,6 +5,7 @@ import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.InGame
 import me.zeroeightsix.kami.getInterpolatedPos
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import me.zeroeightsix.kami.mixin.extend.itemUseCooldown
 import me.zeroeightsix.kami.util.Viewblock
 import me.zeroeightsix.kami.util.Viewblock.getIrreplaceableNeighbour
 import me.zeroeightsix.kami.util.Wrapper
@@ -120,7 +121,7 @@ object Scaffold : Module() {
             BlockHitResult(solid.asVec + 0.5 + side.vector.asVec3d / 2.0, side, solid, false)
         )
         Wrapper.getPlayer().swingHand(Hand.MAIN_HAND)
-        (mc as IMinecraftClient).setItemUseCooldown(4)
+        mc.itemUseCooldown = 4
     }
 
     fun getState(pos: BlockPos?): BlockState {

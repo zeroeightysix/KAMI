@@ -28,39 +28,34 @@ object MidiParser {
      */
     @Throws(InvalidMidiDataException::class, IOException::class)
     fun parse(filename: String): Pair<TreeMap<Long, ArrayList<Note>>, TreeMap<Int, Instrument>> {
-        try {
-            val sequence: Sequence? = MidiSystem.getSequence(File(filename))
-            val channelList = TreeMap<Int, Instrument>()
-            var maxStamp: Long = 0
-            val noteSequence = TreeMap<Long, ArrayList<Note>>()
-            val resolution = sequence!!.resolution.toDouble()
-            for (track in sequence.tracks) {
-                for (i in 0 until track.size()) {
-                    val event = track[i]
-                    val types = getTypes(event)
-                    for (eventType in types) {
-                        val shortMessage =
-                            if (event.message is ShortMessage) event.message as ShortMessage else ShortMessage()
-                        if (eventType == MidiEventType.NOTE_ON) {
-                            val note = shortMessage.data1 % 36
-                            val tick = event.tick
-                            val channel = shortMessage.channel
-                            val time =
-                                (tick * (QUARTER_NOTE_IN_MICROSECONDS.toDouble() / resolution) / 1000.0 + 0.5).toLong()
-                            maxStamp = time.coerceAtLeast(maxStamp)
-                            if (!noteSequence.containsKey(time)) noteSequence[time] = ArrayList()
-                            if (channelList.size <= 5 && !channelList.keys.contains(channel))
-                                channelList[channel] = Instrument.HAT
-                            noteSequence[time]!!.add(Note(note, channelList.keys.indexOf(channel)))
-                        }
+        val sequence: Sequence? = MidiSystem.getSequence(File(filename))
+        val channelList = TreeMap<Int, Instrument>()
+        var maxStamp: Long = 0
+        val noteSequence = TreeMap<Long, ArrayList<Note>>()
+        val resolution = sequence!!.resolution.toDouble()
+        for (track in sequence.tracks) {
+            for (i in 0 until track.size()) {
+                val event = track[i]
+                val types = getTypes(event)
+                for (eventType in types) {
+                    val shortMessage =
+                        if (event.message is ShortMessage) event.message as ShortMessage else ShortMessage()
+                    if (eventType == MidiEventType.NOTE_ON) {
+                        val note = shortMessage.data1 % 36
+                        val tick = event.tick
+                        val channel = shortMessage.channel
+                        val time =
+                            (tick * (QUARTER_NOTE_IN_MICROSECONDS.toDouble() / resolution) / 1000.0 + 0.5).toLong()
+                        maxStamp = time.coerceAtLeast(maxStamp)
+                        if (!noteSequence.containsKey(time)) noteSequence[time] = ArrayList()
+                        if (channelList.size <= 5 && !channelList.keys.contains(channel))
+                            channelList[channel] = Instrument.HAT
+                        noteSequence[time]!!.add(Note(note, channelList.keys.indexOf(channel)))
                     }
                 }
             }
-
-            return noteSequence to channelList
-        } catch (e: Exception) {
-            throw e
         }
+        return noteSequence to channelList
     }
 
     private fun getTypes(event: MidiEvent): Array<MidiEventType?> {
