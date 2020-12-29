@@ -66,6 +66,7 @@
     "MixinRenderPlayer",
     "MixinRenderTickCounter",
     "MixinStriderEntity",
-    "MixinWorldRenderer"
+    "MixinWorldRenderer",
+    "MixinClientPlayNetworkHandler"
   ]
 }
