@@ -190,7 +190,7 @@ object Notebot : Module() {
         if (!playingSong) return
         val songbarLength = 32
         val elapsedSection = if (duration < 1) songbarLength - 1 else elapsed.toInt() / (duration.toInt() / songbarLength).coerceAtLeast(1)
-        val unplayedSection = songbarLength - (elapsedSection + 1)
+        val unplayedSection = (songbarLength - (elapsedSection + 1)).coerceAtLeast(0)
         player.sendMessage(
             text {
                 +"$songName: ${elapsed / 1000}s "
