@@ -39,6 +39,7 @@
     "MixinClientConnection",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
+    "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinComeCommand",
     "MixinCommandSuggestor",
