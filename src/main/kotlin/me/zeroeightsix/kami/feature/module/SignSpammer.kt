@@ -7,7 +7,9 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
     category = Module.Category.MISC,
     description = "Automatically fills newly placed signs"
 )
-// implementation in MixinClientPlayNetworkHandler
+/**
+ * @see me.zeroeightsix.kami.mixin.client.MixinClientPlayNetworkHandler
+ */
 object SignSpammer : Module() {
     @Setting
     var line1 = ""

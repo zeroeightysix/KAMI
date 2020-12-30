@@ -39,6 +39,7 @@
     "MixinClientConnection",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
+    "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinComeCommand",
     "MixinCommandSuggestor",
@@ -66,7 +67,6 @@
     "MixinRenderPlayer",
     "MixinRenderTickCounter",
     "MixinStriderEntity",
-    "MixinWorldRenderer",
-    "MixinClientPlayNetworkHandler"
+    "MixinWorldRenderer"
   ]
 }
