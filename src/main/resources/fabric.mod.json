@@ -37,6 +37,6 @@
     "minecraft": "1.16.4"
   },
   "suggests": {
-    "fabritone": ">=1.6.2"
+    "baritone": ">=1.6.1"
   }
 }
