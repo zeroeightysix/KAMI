@@ -26,7 +26,16 @@ object BaritoneIntegration {
     val recentControlProcess
         get() = BaritoneAPI.getProvider().primaryBaritone.pathingControlManager.mostRecentInControl().kotlin
 
-    private val baritoneSettings by lazy {
+    val prefix: String?
+        get() = if (present) BaritoneAPI.getSettings().prefix.value else null
+
+    val settings
+        get() = if (present) BaritoneAPI.getSettings() else null
+
+    val primary
+        get() = if (present) BaritoneAPI.getProvider().primaryBaritone else null
+
+    private val dslBaritoneSettings by lazy {
         BaritoneAPI.getSettings().allSettings.mapNotNull { setting ->
             val name = setting.name
             val type = setting.type as? Class<*> ?: return@mapNotNull null
@@ -74,11 +83,11 @@ object BaritoneIntegration {
                         resetScroll = true
                         val filter = filter.cStr
                         if (filter.isNotEmpty()) {
-                            baritoneSettings.sortByDescending {
+                            dslBaritoneSettings.sortByDescending {
                                 FuzzySearch.partialRatio(filter.toLowerCase(), it.first.toLowerCase())
                             }
                         } else {
-                            baritoneSettings.sortBy { it.first }
+                            dslBaritoneSettings.sortBy { it.first }
                         }
                     }
                     dsl.child(
@@ -89,7 +98,7 @@ object BaritoneIntegration {
                         if (resetScroll) {
                             ImGui.currentWindow.scroll = Vec2(0, 0)
                         }
-                        baritoneSettings.forEach { (_, displayer) ->
+                        dslBaritoneSettings.forEach { (_, displayer) ->
                             displayer()
                         }
                     }
