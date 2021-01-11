@@ -39,13 +39,15 @@ To ask for help, join the [Discord](http://discord.gg/9hvwgeg).
 
 ## Downloading
 
-Note: You need to be logged into GitHub to do this. If you don't want to login, [build](#building) your own jar. 
+Note: You need to be logged into GitHub to do this. If you don't want to login, [build](#building) your own jar, or download the latest from [releases](https://github.com/zeroeightysix/KAMI/releases/latest). 
 
 1. Go to the [Actions](https://github.com/zeroeightysix/KAMI/actions) tab
 2. Click on the latest action
-3. Click on "KAMI mod jar"
+3. Click on "KAMI Artifacts archive"
 4. Extract downloaded zip file
 5. [Install](#installing)
+
+If you get a 404 error after following step 3, you're not logged in to GitHub.
 
 <details>
  <summary>Images</summary>
