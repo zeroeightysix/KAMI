@@ -116,6 +116,14 @@ public class MixinRebuildTask {
             }
         }
 
+        random.setSeed(seed);
+
+        List<BakedQuad> list2 = bakedModel.getQuads(blockState, null, random);
+        if (!list2.isEmpty()) {
+            renderQuadsFlatUnlit(manager, blockRenderView, blockState, blockPos, -1, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumer, list2);
+            ret = true;
+        }
+
         return ret;
     }
 
