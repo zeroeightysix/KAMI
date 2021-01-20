@@ -11,6 +11,7 @@ import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.block.Block
 import net.minecraft.block.Fertilizable
 import net.minecraft.block.Material
+import net.minecraft.block.NetherPortalBlock
 import net.minecraft.block.OreBlock
 import net.minecraft.block.SlabBlock
 import net.minecraft.block.Waterloggable
@@ -127,6 +128,7 @@ enum class BlockEntityCategory(
 enum class BlockCategory(override val belongsFunc: (Block) -> Boolean) : CategorisedTargetProvider<Block> {
     NONE({ false }),
     ORES({ it is OreBlock }),
+    NETHER_PORTAL({ it is NetherPortalBlock }),
     SLABS({ it is SlabBlock }),
     FERTILIZABLE({ it is Fertilizable }),
     WATERLOGGABLE({ it is Waterloggable });
