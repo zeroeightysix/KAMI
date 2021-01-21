@@ -82,11 +82,13 @@ dependencies {
     includedModImpl("net.fabricmc.fabric-api:fabric-api-base:0.1.3+12a8474cfa")
     includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
     includedModImpl("com.github.Ladysnake:Satin:1.5.0")
+    
+    // 1.16.4+ has not added any additional functionality and 1.16.3 Fabritone will work on newer versions.
     modImplementation("com.gitlab.CDAGaming:fabritone:fabric~1.16.3-SNAPSHOT") {
         exclude(group = "org.lwjgl.lwjgl")
-        exclude(group= "net.java.jinput")
-        exclude(group= "net.sf.jopt-simple")
-        exclude(group= "org.ow2.asm")
+        exclude(group = "net.java.jinput")
+        exclude(group = "net.sf.jopt-simple")
+        exclude(group = "org.ow2.asm")
     }
 
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
