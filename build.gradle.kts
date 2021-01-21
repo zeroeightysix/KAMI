@@ -12,13 +12,13 @@ val maven_group: String by project
 plugins {
     id("fabric-loom")
     id("maven-publish")
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
     kotlin("jvm")
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 version = "$minecraft_version-$mod_version"
@@ -82,7 +82,12 @@ dependencies {
     includedModImpl("net.fabricmc.fabric-api:fabric-api-base:0.1.3+12a8474cfa")
     includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
     includedModImpl("com.github.Ladysnake:Satin:1.5.0")
-    modImplementation("com.gitlab.CDAGaming:fabritone:fabritone~1.16.x-Fabric-SNAPSHOT")
+    modImplementation("com.gitlab.CDAGaming:fabritone:fabric~1.16.3-SNAPSHOT") {
+        exclude(group = "org.lwjgl.lwjgl")
+        exclude(group= "net.java.jinput")
+        exclude(group= "net.sf.jopt-simple")
+        exclude(group= "org.ow2.asm")
+    }
 
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
@@ -132,7 +137,7 @@ tasks {
 
     withType(KotlinCompile::class) {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
         }
     }
 
