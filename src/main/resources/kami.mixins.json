@@ -1,6 +1,6 @@
 {
   "required": true,
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_11",
   "package": "me.zeroeightsix.kami.mixin.client",
   "client": [
     "IBackedConfigLeaf",

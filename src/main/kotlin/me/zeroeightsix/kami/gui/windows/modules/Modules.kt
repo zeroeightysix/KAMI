@@ -7,7 +7,7 @@ import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.openPopupContextItem
+import imgui.ImGui.openPopupOnItemClick
 import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
@@ -97,7 +97,7 @@ object Modules {
             if (selectable(module.name, module.enabled)) {
                 module.enabled = !module.enabled
             }
-            openPopupContextItem("module-settings-${module.name}", MouseButton.Right.i)
+            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right.i)
             popup("module-settings-${module.name}") {
                 showModuleSettings(module)
             }
