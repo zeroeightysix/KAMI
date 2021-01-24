@@ -1,10 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
-import com.mojang.blaze3d.platform.GlStateManager.disableDepthTest
-import com.mojang.blaze3d.platform.GlStateManager.disableTexture
-import com.mojang.blaze3d.platform.GlStateManager.enableDepthTest
-import com.mojang.blaze3d.platform.GlStateManager.enableTexture
-import com.mojang.blaze3d.platform.GlStateManager.lineWidth
+import com.mojang.blaze3d.platform.GlStateManager
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
@@ -18,7 +14,7 @@ import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 
 @Module.Info(
     name = "Tracers",
@@ -38,8 +34,15 @@ object Tracers : Module() {
     @Setting
     private var range = 200.0
 
+    @Setting
+    private var thickness: @Setting.Constrain.Range(
+        min = 0.1,
+        max = 8.0,
+        step = 0.1
+    ) Float = 1.5f
+
     @EventHandler
-    val worldListener = Listener<RenderEvent.World>({ event ->
+    private val worldListener = Listener<RenderEvent.World>({ event ->
         val player = mc.player ?: return@Listener
 
         val camera: Camera = mc.gameRenderer.camera
@@ -49,16 +52,19 @@ object Tracers : Module() {
         val cY = camera.pos.y
         val cZ = camera.pos.z
 
-        lineWidth(0.5f)
-        disableTexture()
-        disableDepthTest()
+        GlStateManager.lineWidth(thickness)
+        GlStateManager.disableTexture()
+        GlStateManager.disableDepthTest()
+
+        glDisable(GL_LINE_SMOOTH)
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
         noBobbingCamera(event.matrixStack) {
             val eyes: Vec3d = Vec3d(0.0, 0.0, 0.1)
                 .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
                 .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
 
-            bufferBuilder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR)
+            bufferBuilder.begin(GL_LINES, VertexFormats.POSITION_COLOR)
 
             targets.targets
                 .filter { (entity, _) -> player.distanceTo(entity) < range }
@@ -78,8 +84,11 @@ object Tracers : Module() {
             tessellator.draw()
         }
 
-        enableTexture()
-        enableDepthTest()
-        lineWidth(1.0f)
+        GlStateManager.lineWidth(1.0f)
+        GlStateManager.enableTexture()
+        GlStateManager.enableDepthTest()
+
+        glDisable(GL_LINE_SMOOTH)
+        glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
     })
 }
