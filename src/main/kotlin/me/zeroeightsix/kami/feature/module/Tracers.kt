@@ -36,9 +36,9 @@ object Tracers : Module() {
 
     @Setting
     private var thickness: @Setting.Constrain.Range(
-    min = 0.1,
-    max = 8.0,
-    step = 0.1
+        min = 0.1,
+        max = 8.0,
+        step = 0.1
     ) Float = 1.5f
 
     @EventHandler
