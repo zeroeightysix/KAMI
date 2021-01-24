@@ -47,6 +47,8 @@ object KamiHud {
             ImGui.io.fonts.addFontFromMemoryTTF(chars, sizePixels, fontCfg, arrayOf())
         }
 
+        imgui.DEBUG = false
+
         val window = GlfwWindow.from(mc.window.handle)
         window.makeContextCurrent()
         context = Context()
