@@ -270,7 +270,7 @@ private fun showModuleSettings(module: Module) {
 
     if (!Settings.hideModuleDescriptions) {
         ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        ImGui.text("%s", module.description)
+        ImGui.text(module.description)
         ImGui.popStyleColor()
     }
 

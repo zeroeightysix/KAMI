@@ -17,13 +17,11 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tempSet
 import me.zeroeightsix.kami.tryOrNull
-import me.zeroeightsix.kami.util.Wrapper
 import net.minecraft.client.util.math.MatrixStack
 import uno.glfw.GlfwWindow
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Stack
+import java.util.*
 
 object KamiHud {
 

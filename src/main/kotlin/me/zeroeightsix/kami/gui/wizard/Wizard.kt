@@ -57,7 +57,7 @@ object Wizard {
             Settings.showFontSelector("Font###kami-settings-font-selector")
 
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-            text("%s", "GUI is visible in the background")
+            text("GUI is visible in the background")
             popStyleColor()
 
             KamiGuiScreen.renderGui() // Show the full GUI
@@ -75,11 +75,8 @@ object Wizard {
             }
 
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-            textWrapped(
-                "%s",
-                "The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor."
-            )
-            textWrapped("%s", "The module window editor may be accessed through the `View` menu in the top menu bar.")
+            textWrapped("The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor.")
+            textWrapped("The module window editor may be accessed through the `View` menu in the top menu bar.")
             popStyleColor()
         },
         {
@@ -111,19 +108,21 @@ object Wizard {
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
             val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
             text(
-                "%s-click to toggle, %s-click to open settings.",
-                if (leftToggle) {
-                    "Left"
-                } else {
-                    "Right"
-                },
-                if (!leftToggle) {
-                    "left"
-                } else {
-                    "right"
-                }
+                "${
+                    if (leftToggle) {
+                        "Left"
+                    } else {
+                        "Right"
+                    }
+                }-click to toggle, ${
+                    if (!leftToggle) {
+                        "left"
+                    } else {
+                        "right"
+                    }
+                }-click to open settings.",
             )
-            text("%s", "Try it out:")
+            text("Try it out:")
             popStyleColor()
 
             Modules.module(Aura, Modules.ModuleWindow("", Aura), "")
@@ -139,15 +138,15 @@ object Wizard {
             separator()
 
             pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-            text("%s", "Assuming 'K' is bound to Aura,")
-            text("%s", "And 'CTRL+Q' is bound to Brightness,")
+            text("Assuming 'K' is bound to Aura,")
+            text("And 'CTRL+Q' is bound to Brightness,")
             dummy(Vec2(10))
             val not = if (Settings.modifiersEnabled) " NOT " else " "
-            text("%s", "Pressing K WILL toggle Aura.")
-            text("%s", "Pressing SHIFT+K WILL${not}toggle Aura.")
+            text("Pressing K WILL toggle Aura.")
+            text("Pressing SHIFT+K WILL${not}toggle Aura.")
             dummy(Vec2(10))
-            text("%s", "Pressing CTRL+Q WILL toggle Brightness.")
-            text("%s", "Pressing Q WILL${not}toggle Brightness.")
+            text("Pressing CTRL+Q WILL toggle Brightness.")
+            text("Pressing Q WILL${not}toggle Brightness.")
             popStyleColor()
 
             separator()
