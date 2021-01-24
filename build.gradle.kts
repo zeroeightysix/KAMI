@@ -57,13 +57,6 @@ dependencies {
     val yarn_mappings: String by project
     val loader_version: String by project
     val fiber_version: String by project
-    val kg_version: String by project
-    val glm_version: String by project
-    val uno_version: String by project
-    val kool_version: String by project
-    val unsigned_version: String by project
-    val gli_version: String by project
-    val gln_version: String by project
     val imgui_version: String by project
 
     fun depend(includeMethod: IncludeMethod = NOT, notation: String, dependencyMethod: DependencyMethod = IMPLEMENTATION, action: ExternalModuleDependency.() -> Unit = {}) {
@@ -107,17 +100,8 @@ dependencies {
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
-    depend(SHADOW, "com.github.kotlin-graphics:kotlin-unsigned:$unsigned_version")
-    depend(SHADOW, "com.github.kotlin-graphics:kool:$kool_version")
     depend(SHADOW, "org.reflections:reflections:0.9.11")
     depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
-    depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version") {
-        exclude(group = "org.lwjgl")
-    }
-    depend(SHADOW, "com.github.kotlin-graphics:glm:$glm_version")
-    depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version") {
-        exclude(group = "org.lwjgl")
-    }
     depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
 
     // imgui
@@ -132,22 +116,6 @@ dependencies {
 
     // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
-
-    // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
-    // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.
-    listOf(
-        "org.javassist:javassist:3.21.0-GA",
-        "net.jodah:typetools:0.5.0",
-        "org.jetbrains:annotations:13.0",
-        "com.github.kotlin-graphics:gln:$gln_version",
-        "com.github.kotlin-graphics:gli:$gli_version",
-        "com.github.kotlin-graphics.imgui:core:$kg_version",
-        "com.github.kotlin-graphics.imgui:glfw:$kg_version",
-        "com.github.kotlin-graphics.imgui:gl:$kg_version",
-        "com.github.kotlin-graphics.uno-sdk:core:$uno_version"
-    ).forEach {
-        shadow(it)
-    }
 }
 
 tasks {
