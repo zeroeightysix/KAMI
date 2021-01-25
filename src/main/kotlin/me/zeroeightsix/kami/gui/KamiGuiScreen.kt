@@ -1,9 +1,10 @@
 package me.zeroeightsix.kami.gui
 
-import glm_.vec4.Vec4
-import imgui.Col
 import imgui.ImGui
+import imgui.flag.ImGuiCol
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
+import me.zeroeightsix.kami.gui.ImguiDSL.colors
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImBool
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
@@ -15,27 +16,30 @@ import net.minecraft.client.util.math.MatrixStack
 
 class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null, "Kami GUI")) {
     companion object {
-        private val colourIndices = Col.values().map { it.i }
+        private val colourIndices = (0..ImGuiCol.COUNT).toList()
 
         fun renderGui() {
             if (Settings.rainbowMode) {
                 Themes.Variants.values()[Settings.styleIdx].applyStyle(false)
-                val colors = ImGui.style.colors
+                val colours = ImGui.getStyle().colors
                 colourIndices.forEach { idx ->
-                    val col = colors[idx]
+                    val col = colours[idx]
                     val buf = FloatArray(3)
-                    ImGui.colorConvertRGBtoHSV(col.toVec3().toFloatArray(), buf)
+                    ImGui.colorConvertRGBtoHSV(floatArrayOf(col[0], col[1], col[2]), buf)
                     buf[0] = PrepHandler.getRainbowHue(buf[0].toDouble()).toFloat()
                     ImGui.colorConvertHSVtoRGB(buf, buf)
-                    colors[idx] = Vec4(buf[0], buf[1], buf[2], col[3])
+                    colours[idx] = floatArrayOf(buf[0], buf[1], buf[2], col[3])
                 }
+                ImGui.getStyle().colors = colours
             }
 
             // Draw the main menu bar.
             MenuBar()
             // Debug window (theme, demo window)
             if (View.demoWindowVisible) {
-                ImGui.showDemoWindow(View::demoWindowVisible)
+                wrapImBool(View::demoWindowVisible) {
+                    ImGui.showDemoWindow(it)
+                }
             }
             // Draw all module windows
             Modules()
@@ -63,7 +67,7 @@ class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null,
         }
         super.render(matrices, mouseX, mouseY, delta)
 
-        KamiHud.frame(matrices!!) {
+        KamiImgui.frame(matrices!!) {
             if (Wizard()) return@frame
 
             renderGui()

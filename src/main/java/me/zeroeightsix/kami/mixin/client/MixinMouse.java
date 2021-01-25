@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.mixin.client;
 
 import me.zeroeightsix.kami.gui.KamiHud;
+import me.zeroeightsix.kami.gui.KamiImgui;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +15,7 @@ public class MixinMouse {
     @Inject(method = "onMouseScroll", at = @At("HEAD"))
     private void onMouseScroll(long window, double d, double e, CallbackInfo info) {
         if (window == Wrapper.getMinecraft().getWindow().getHandle()) {
-            KamiHud.INSTANCE.mouseScroll(d, e);
+            KamiImgui.INSTANCE.mouseScroll(d, e);
         }
     }
 

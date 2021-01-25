@@ -1,16 +1,11 @@
 package me.zeroeightsix.kami.feature.module
 
-import imgui.ImGui
-import imgui.StyleVar
-import imgui.dsl
-import imgui.internal.sections.ItemFlag
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import ladysnake.satin.api.managed.ManagedFramebuffer
 import ladysnake.satin.api.managed.ManagedShaderEffect
 import ladysnake.satin.api.managed.ShaderEffectManager
 import me.zeroeightsix.kami.Colour
-import me.zeroeightsix.kami.conditionalWrap
-import me.zeroeightsix.kami.gui.windows.Settings
+import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.target.BlockCategory
@@ -93,7 +88,7 @@ object ESP : Module() {
     @Suppress("unused")
     fun applyBlocksImGui() {
         wrapDisabled(!blocksChanged) {
-            dsl.button("Reload") {
+            button("Reload") {
                 blocksChanged = false
                 mc.worldRenderer?.reload()
             }
@@ -110,5 +105,4 @@ object ESP : Module() {
 
     @GenerateType
     class ESPTarget(var solid: Boolean = true, var outline: Boolean = false, var outlineColour: Colour = Colour.WHITE)
-
 }

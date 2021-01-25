@@ -3,12 +3,12 @@ package me.zeroeightsix.kami.gui.text
 import imgui.ImGui
 import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.feature.hidden.TickSpeedMeter
 import me.zeroeightsix.kami.gui.widgets.modulesVariable
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
 import me.zeroeightsix.kami.put
 import me.zeroeightsix.kami.replaceAll
-import me.zeroeightsix.kami.feature.hidden.TickSpeedMeter
 import me.zeroeightsix.kami.util.modified
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
@@ -77,7 +77,7 @@ object VarMap {
         "fps" numeric { IMinecraftClient.getCurrentFps().toDouble() },
         // Minecraft's fps is 'frames in last second', while imgui calculates an average over the last 120 frames.
         // This varies more, but it provides a new value every frame, thus perfect for graphs.
-        "fps_fast" numeric { ImGui.io.framerate.toDouble() },
+        "fps_fast" numeric { ImGui.getIO().framerate.toDouble() },
         "ping" numeric {
             mc.player?.let {
                 mc.networkHandler?.getPlayerListEntry(it.uuid)?.latency?.toDouble()
@@ -153,17 +153,19 @@ object VarMap {
     ).apply {
         BaritoneIntegration {
             put("baritone" string { BaritoneIntegration.recentControlProcess?.displayName() ?: "None" })
-            put("baritone_formatted" string {
-                BaritoneIntegration.recentControlProcess?.displayName()
-                    // remove brackets
-                    ?.replaceAll("[]{}".asIterable(), " ")
-                    // add space after comma
-                    ?.replace(",", ", ")
-                    // remove duplicate spaces
-                    ?.replace(Regex("\\s+"), " ")
-                    // remove spaces before commas
-                    ?.replace(" ,", ",") ?: "None"
-            })
+            put(
+                "baritone_formatted" string {
+                    BaritoneIntegration.recentControlProcess?.displayName()
+                        // remove brackets
+                        ?.replaceAll("[]{}".asIterable(), " ")
+                        // add space after comma
+                        ?.replace(",", ", ")
+                        // remove duplicate spaces
+                        ?.replace(Regex("\\s+"), " ")
+                        // remove spaces before commas
+                        ?.replace(" ,", ",") ?: "None"
+                }
+            )
         }
     }
 

@@ -1,9 +1,12 @@
 package me.zeroeightsix.kami
 
-import glm_.vec4.Vec4
 import imgui.ImGui
-import imgui.StyleVar
-import imgui.internal.sections.ItemFlag
+import imgui.ImGui.popStyleVar
+import imgui.ImGui.pushStyleVar
+import imgui.flag.ImGuiStyleVar
+import imgui.internal.ImGui.popItemFlag
+import imgui.internal.ImGui.pushItemFlag
+import imgui.internal.flag.ImGuiItemFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
@@ -31,7 +34,11 @@ import me.zeroeightsix.kami.util.plus
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.screen.ingame.*
+import net.minecraft.client.gui.screen.ingame.AbstractFurnaceScreen
+import net.minecraft.client.gui.screen.ingame.BookEditScreen
+import net.minecraft.client.gui.screen.ingame.CraftingScreen
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
+import net.minecraft.client.gui.screen.ingame.SignEditScreen
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.render.VertexConsumer
@@ -45,7 +52,6 @@ import net.minecraft.util.math.Matrix3f
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
-import unsigned.toUint
 import java.util.Optional
 import java.util.stream.Stream
 import kotlin.reflect.KMutableProperty0
@@ -82,13 +88,13 @@ fun Boolean.conditionalWrap(before: () -> Unit, during: () -> Unit, after: () ->
 fun wrapDisabled(conditional: Boolean, during: () -> Unit) {
     conditional.conditionalWrap(
         {
-            ImGui.pushItemFlag(ItemFlag.Disabled.i, true)
-            ImGui.pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
+            pushItemFlag(ImGuiItemFlags.Disabled, true)
+            pushStyleVar(ImGuiStyleVar.Alpha, ImGui.getStyle().alpha * 0.5f)
         },
         during,
         {
-            ImGui.popItemFlag()
-            ImGui.popStyleVar()
+            popItemFlag()
+            popStyleVar()
         }
     )
 }
@@ -105,8 +111,9 @@ inline fun <T> KMutableProperty0<T>.tempSet(value: T, block: () -> Unit) {
     set(old)
 }
 
+@ExperimentalUnsignedTypes
 val Long.unsignedInt
-    get() = toUint().toInt()
+    get() = toUInt().toInt()
 
 private class UnreachableError : Error()
 
@@ -257,11 +264,11 @@ val RecipeBookWidget.expectingInput: Boolean
  */
 val Screen.expectingInput: Boolean
     get() = this is SignEditScreen ||
-            this is BookEditScreen ||
-            this is CreativeInventoryScreen ||
-            (this is AbstractFurnaceScreen<*> && this.recipeBook.expectingInput) ||
-            (this is CraftingScreen && this.recipeBookWidget.expectingInput) ||
-            this.focused?.expectingInput == true
+        this is BookEditScreen ||
+        this is CreativeInventoryScreen ||
+        (this is AbstractFurnaceScreen<*> && this.recipeBook.expectingInput) ||
+        (this is CraftingScreen && this.recipeBookWidget.expectingInput) ||
+        this.focused?.expectingInput == true
 
 data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
     fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
@@ -273,8 +280,6 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
         return (integers[0] shl 24) or (integers[1] shl 16) or (integers[2] shl 8) or integers[3]
     }
 
-    fun asVec4(): Vec4 = Vec4(r, g, b, a)
-
     companion object {
         fun fromARGB(argb: Int): Colour {
             val a = ((argb shr 24) and 0xFF) / 255f
@@ -283,8 +288,6 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
             val b = (argb and 0xFF) / 255f
             return Colour(a, r, g, b)
         }
-
-        fun fromVec4(colour: Vec4): Colour = Colour(colour.w, colour.x, colour.y, colour.z)
 
         val WHITE = Colour(1f, 1f, 1f, 1f)
         val TRANSPARENT = Colour(0f, 1f, 1f, 1f)

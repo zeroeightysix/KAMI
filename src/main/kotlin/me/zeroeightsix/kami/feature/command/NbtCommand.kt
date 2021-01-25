@@ -2,19 +2,28 @@ package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
-import glm_.vec2.Vec2
-import glm_.vec4.Vec4
-import imgui.Col
-import imgui.ImGui
-import imgui.TreeNodeFlag
-import imgui.dsl.child
-import imgui.dsl.window
-import imgui.dsl.withStyleColor
+import imgui.ImGui.alignTextToFramePadding
+import imgui.ImGui.bullet
+import imgui.ImGui.columns
+import imgui.ImGui.nextColumn
+import imgui.ImGui.separator
+import imgui.ImGui.text
+import imgui.ImGui.textColored
+import imgui.ImGui.treeNodeEx
+import imgui.ImGui.treePop
+import imgui.ImGui.treePush
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiTreeNodeFlags
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
 import me.zeroeightsix.kami.gui.ImGuiScreen
-import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.child
+import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.windowContentRegionWidth
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColor
+import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.text
 import net.minecraft.client.util.math.MatrixStack
@@ -101,20 +110,22 @@ object NbtCommand : Command() {
 
 class NbtScreen(
     var tag: Tag,
-    private val defaultColor: Vec4 = Vec4(1f, 1f, 1f, 1f)
+    private val defaultColor: Int = 0xFFFFFFFF.toInt()
 ) : ImGuiScreen(text(null, "Kami NBT")) {
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         super.render(matrices, mouseX, mouseY, delta)
 
-        KamiHud.frame(matrices) {
+        KamiImgui.frame(matrices) {
             this()
         }
     }
 
-    operator fun invoke() = with(ImGui) {
+    operator fun invoke() {
         window("NBT") {
-            if (button("Copy", Vec2(windowContentRegionWidth, 0)))
+            button("Copy", windowContentRegionWidth, 0f) {
                 copyTagToClipboard(tag)
+            }
+
             child("##nbtPane", border = true) {
                 columns(2)
                 showTree("NBT", tag)
@@ -123,10 +134,10 @@ class NbtScreen(
         }
     }
 
-    private fun showTree(tagName: String, tag: Tag, appendix: Int = 0): Unit = with(ImGui) {
+    private fun showTree(tagName: String, tag: Tag, appendix: Int = 0) {
         alignTextToFramePadding()
         var curApp = appendix
-        if (treeNodeEx("$tagName##$curApp", TreeNodeFlag.NoTreePushOnOpen.i)) {
+        if (treeNodeEx("$tagName##$curApp", ImGuiTreeNodeFlags.NoTreePushOnOpen)) {
             nextColumn()
             nextColumn()
             treePush()
@@ -137,7 +148,7 @@ class NbtScreen(
                             if (tagIsDeep(it))
                                 showTree(key, it, ++curApp)
                             else
-                                withStyleColor(Col.Text, tagColor(it)) {
+                                withStyleColor(ImGuiCol.Text, tagColor(it)) {
                                     nbtLabelText(key, it.asString())
                                 }
                         }
@@ -147,7 +158,7 @@ class NbtScreen(
                         if (tagIsDeep(t))
                             showTree("[array entry]", t, ++curApp)
                         else
-                            withStyleColor(Col.Text, tagColor(t)) {
+                            withStyleColor(ImGuiCol.Text, tagColor(t)) {
                                 nbtLabelText("[array entry]", t.asString())
                             }
                 }
@@ -176,12 +187,12 @@ class NbtScreen(
     }
 
     private fun tagColor(tag: Tag) = when (tag) {
-        is AbstractNumberTag -> Vec4(1f, 1f, 0f, 1f)
-        is StringTag -> Vec4(0f, 1f, 0f, 1f)
+        is AbstractNumberTag -> 0xFFFF00FF.toInt()
+        is StringTag -> 0x00FF00FF.toInt()
         else -> defaultColor
     }
 
-    private fun nbtLabelText(k: String, v: String) = with(ImGui) {
+    private fun nbtLabelText(k: String, v: String) {
         bullet()
         text(k)
         nextColumn()

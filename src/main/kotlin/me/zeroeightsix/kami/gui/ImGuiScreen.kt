@@ -1,9 +1,9 @@
 package me.zeroeightsix.kami.gui
 
-import imgui.ConfigFlag
 import imgui.ImGui
-import imgui.impl.glfw.ImplGlfw
-import imgui.wo
+import imgui.flag.ImGuiConfigFlags
+import me.zeroeightsix.kami.gui.ImguiDSL.without
+import me.zeroeightsix.kami.mc
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
@@ -15,19 +15,19 @@ import org.lwjgl.glfw.GLFW
 abstract class ImGuiScreen(title: Text) : Screen(title) {
 
     override fun onClose() {
-        ImGui.io.configFlags = ImGui.io.configFlags or ConfigFlag.NoMouse.i
+        ImGui.getIO().configFlags = ImGui.getIO().configFlags or ImGuiConfigFlags.NoMouse
         super.onClose()
     }
 
     override fun init() {
         super.init()
-        ImGui.io.configFlags = ImGui.io.configFlags wo ConfigFlag.NoMouse
+        ImGui.getIO().configFlags = ImGui.getIO().configFlags without ImGuiConfigFlags.NoMouse
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
         if (!returned) {
-            ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_PRESS, modifiers)
+            KamiImgui.imguiGlfw.keyCallback(mc.window.handle, keyCode, scanCode, GLFW.GLFW_PRESS, modifiers)
         }
         return returned
     }
@@ -35,7 +35,7 @@ abstract class ImGuiScreen(title: Text) : Screen(title) {
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val returned = super.keyReleased(keyCode, scanCode, modifiers)
         if (!returned) {
-            ImplGlfw.keyCallback(keyCode, scanCode, GLFW.GLFW_RELEASE, modifiers)
+            KamiImgui.imguiGlfw.keyCallback(mc.window.handle, keyCode, scanCode, GLFW.GLFW_RELEASE, modifiers)
         }
         return returned
     }
@@ -43,7 +43,7 @@ abstract class ImGuiScreen(title: Text) : Screen(title) {
     override fun charTyped(chr: Char, keyCode: Int): Boolean {
         val returned = super.charTyped(chr, keyCode)
         if (!returned) {
-            ImplGlfw.charCallback(chr.toInt())
+            KamiImgui.imguiGlfw.charCallback(mc.window.handle, chr.toInt())
         }
         return returned
     }

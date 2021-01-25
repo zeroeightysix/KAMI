@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.feature.module
 
-import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import java.io.File
 import java.io.IOException
@@ -10,6 +9,7 @@ import javax.sound.midi.InvalidMidiDataException
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.mixin.extend.itemUseCooldown
 import me.zeroeightsix.kami.setting.ImGuiExtra
 import me.zeroeightsix.kami.times
@@ -74,15 +74,15 @@ object Notebot : Module() {
 
     @Suppress("unused")
     fun renderButtons() {
-        dsl.button("Discover") { discoverSong() }
-        dsl.button("Load") { loadSong() }
+        button("Discover") { discoverSong() }
+        button("Load") { loadSong() }
         playButton()
         pauseButton()
     }
 
     private fun playButton() {
         wrapDisabled(playingSong) {
-            dsl.button("Play") {
+            button("Play") {
                 firstNote = System.currentTimeMillis() - elapsed
                 playingSong = true
             }
@@ -91,7 +91,7 @@ object Notebot : Module() {
 
     private fun pauseButton() {
         wrapDisabled(!playingSong) {
-            dsl.button("Pause") {
+            button("Pause") {
                 playingSong = false
             }
         }

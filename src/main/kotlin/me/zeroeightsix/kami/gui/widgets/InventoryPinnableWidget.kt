@@ -2,13 +2,15 @@ package me.zeroeightsix.kami.gui.widgets
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import glm_.vec2.Vec2
 import imgui.ImGui
 import imgui.ImGui.calcTextSize
-import imgui.ImGui.currentWindow
 import imgui.ImGui.setNextWindowSize
+import me.zeroeightsix.kami.gui.ImguiDSL
+import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
+import me.zeroeightsix.kami.gui.ImguiDSL.cursorPosX
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import net.minecraft.client.texture.SpriteAtlasTexture
@@ -24,21 +26,22 @@ class InventoryPinnableWidget(
 
     override fun preWindow() {
         val scale = KamiHud.getScale()
-        setNextWindowSize(Vec2(9 * 16 * scale + 4 * scale, 3 * 16 * scale + 4 * scale))
+        setNextWindowSize(9 * 16 * scale + 4 * scale, 3 * 16 * scale + 4 * scale)
     }
 
     override fun fillWindow() {
-        if (mc.currentScreen is KamiGuiScreen) {
+        /*if (mc.currentScreen is KamiGuiScreen) {
             // If the GUI is displayed, don't render the inventory.
             // This is because we can't render minecraft stuff while imgui is rendering (will screw up textures)
             val text = "Inventory overlay"
             val width = calcTextSize(text).x
-            ImGui.cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
+            cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
             ImGui.textDisabled(text)
         } else {
             val rect = ImGui.currentWindow.rect()
+            ImGui.getWindowDrawList().
             ImGui.currentWindow.drawList.addCallback({ _, cmd ->
-                KamiHud.postDraw {
+                KamiImgui.postDraw {
                     val scale = KamiHud.getScale()
 
                     mc.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)
@@ -85,6 +88,7 @@ class InventoryPinnableWidget(
                     RenderSystem.disableRescaleNormal()
                 }
             })
-        }
+        }*/
+        TODO()
     }
 }

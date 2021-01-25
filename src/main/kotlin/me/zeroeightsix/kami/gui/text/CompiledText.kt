@@ -1,21 +1,12 @@
 package me.zeroeightsix.kami.gui.text
 
-import glm_.vec4.Vec4
-import imgui.Col
-import imgui.ColorEditFlag
 import imgui.ImGui
-import imgui.MouseButton
-import imgui.PAYLOAD_TYPE_COLOR_4F
-import imgui.cStr
-import imgui.dsl
-import imgui.dsl.withStyleColor
-import imgui.toByteArray
-import imgui.vec4
+import imgui.flag.ImGuiCol
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
 import me.zeroeightsix.kami.forEachRemainingIndexed
-import uno.kotlin.NUL
+import me.zeroeightsix.kami.gui.ImguiDSL.colors
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -41,7 +32,7 @@ class CompiledText(
 
                 highlight.conditionalWrap(
                     {
-                        ImGui.pushStyleColor(Col.Text, (ImGui.style.colors[Col.Text.i] / 1.2f))
+                        ImGui.pushStyleColor(ImGuiCol.Text, (ImGui.getStyle().colors[ImGuiCol.Text] / 1.2f))
                     },
                     {
                         dsl.button("${part.editLabel}###part-button-$id-$n") {
