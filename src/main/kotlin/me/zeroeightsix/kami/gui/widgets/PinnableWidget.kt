@@ -8,7 +8,7 @@ import imgui.ImGui.end
 import imgui.ImGui.io
 import imgui.ImGui.setNextWindowBgAlpha
 import imgui.ImGui.setNextWindowPos
-import imgui.WindowFlag
+import imgui.ImGuiWindowFlags
 import imgui.api.g
 import imgui.dsl.menu
 import imgui.dsl.menuItem
@@ -61,9 +61,9 @@ abstract class PinnableWidget(
         preWindow()
 
         var flags =
-            WindowFlag.NoDecoration or WindowFlag.NoFocusOnAppearing or WindowFlag.NoNav
-        if (autoResize) flags = flags or WindowFlag.AlwaysAutoResize
-        else if (drawFadedBackground) flags = flags xor WindowFlag.NoResize.i
+            ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoFocusOnAppearing or ImGuiWindowFlags.NoNav
+        if (autoResize) flags = flags or ImGuiWindowFlags.AlwaysAutoResize
+        else if (drawFadedBackground) flags = flags xor ImGuiWindowFlags.NoResize
 
         if (position != Position.CUSTOM) {
             // TODO: Move windows when the main menu bar is shown or when chat is opened
@@ -76,13 +76,13 @@ abstract class PinnableWidget(
             )
             val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
             setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
-            flags = flags or WindowFlag.NoMove
+            flags = flags or ImGuiWindowFlags.NoMove
         }
 
         if (!background) {
             if (drawFadedBackground) {
                 setNextWindowBgAlpha(0.45f)
-            } else flags = flags or WindowFlag.NoBackground
+            } else flags = flags or ImGuiWindowFlags.NoBackground
         }
 
         if (begin(name, ::open, flags)) {

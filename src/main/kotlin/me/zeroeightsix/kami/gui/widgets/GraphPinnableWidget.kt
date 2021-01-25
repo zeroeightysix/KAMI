@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.gui.widgets
 import glm_.vec2.Vec2
 import imgui.Col
 import imgui.ImGui
-import imgui.WindowFlag
+import imgui.ImGuiWindowFlags
 import imgui.dsl
 import imgui.impl.time
 import me.zeroeightsix.kami.Colour
@@ -99,7 +99,7 @@ class GraphPinnableWidget(
     override fun postWindow() {
         // You'd think that `dsl.window` doesn't display the window if edit is false, but it still does. So we just check the value ourselves.
         if (edit && mc.currentScreen is KamiGuiScreen) {
-            dsl.window("Edit $name", ::edit, WindowFlag.AlwaysAutoResize.i) {
+            dsl.window("Edit $name", ::edit, ImGuiWindowFlags.AlwaysAutoResize) {
                 editVarComboIndex = numVarMap.keys.indexOf(this.variable.name)
                 dsl.combo("Variable##$name-graph-var", ::editVarComboIndex, numVarMapComboItems) {
                     numVarMap[numVarMap.keys.toList()[editVarComboIndex]]?.let { it() }?.let {

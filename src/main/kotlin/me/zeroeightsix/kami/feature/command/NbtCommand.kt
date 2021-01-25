@@ -22,7 +22,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.child
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.windowContentRegionWidth
-import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColor
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.text
@@ -148,7 +148,7 @@ class NbtScreen(
                             if (tagIsDeep(it))
                                 showTree(key, it, ++curApp)
                             else
-                                withStyleColor(ImGuiCol.Text, tagColor(it)) {
+                                withStyleColour(ImGuiCol.Text, tagColor(it)) {
                                     nbtLabelText(key, it.asString())
                                 }
                         }
@@ -158,7 +158,7 @@ class NbtScreen(
                         if (tagIsDeep(t))
                             showTree("[array entry]", t, ++curApp)
                         else
-                            withStyleColor(ImGuiCol.Text, tagColor(t)) {
+                            withStyleColour(ImGuiCol.Text, tagColor(t)) {
                                 nbtLabelText("[array entry]", t.asString())
                             }
                 }

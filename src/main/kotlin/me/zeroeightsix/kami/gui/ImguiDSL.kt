@@ -4,25 +4,34 @@ import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
 import imgui.ImGui.button
-import imgui.ImGui.calcTextSize
 import imgui.ImGui.endMenu
+import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
 import imgui.ImGui.menuItem
 import imgui.ImGui.popItemWidth
 import imgui.ImGui.popStyleColor
+import imgui.ImGui.popStyleVar
+import imgui.ImGui.popTextWrapPos
 import imgui.ImGui.pushItemWidth
 import imgui.ImGui.pushStyleColor
+import imgui.ImGui.pushStyleVar
+import imgui.ImGui.pushTextWrapPos
+import imgui.ImGui.textDisabled
+import imgui.ImGui.textUnformatted
 import imgui.ImGuiStyle
 import imgui.ImVec2
 import imgui.flag.ImGuiCol
 import imgui.type.ImBoolean
+import imgui.type.ImInt
 import imgui.type.ImString
 import kotlin.reflect.KMutableProperty0
 
 typealias WindowFlags = Int
 
 object ImguiDSL {
+    const val PAYLOAD_TYPE_COLOR_4F = "_COL4F"
+
     inline fun window(name: String, flags: WindowFlags = 0, block: () -> Unit) =
         window(name, ImBoolean(true), flags, block)
 
@@ -60,8 +69,29 @@ object ImguiDSL {
             ImGui.endChild()
     }
 
+    inline fun checkbox(label: String, bool: KMutableProperty0<Boolean>) = wrapImBool(bool) {
+        checkbox(label, it)
+    }
+
+    inline fun checkbox(label: String, bool: ImBoolean, block: () -> Unit = {}) {
+        if (ImGui.checkbox(label, bool)) {
+            block()
+        }
+    }
+
     inline fun button(label: String, width: Float = 0f, height: Float = 0f, block: () -> Unit) {
         if (button(label, width, height))
+            block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: ImInt,
+        itemsSeparatedByZeros: String,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        if (ImGui.combo(label, currentItem, itemsSeparatedByZeros, heightInItems))
             block()
     }
 
@@ -72,6 +102,16 @@ object ImguiDSL {
             } finally {
                 ImGui.endMainMenuBar()
             }
+    }
+
+    inline fun menuBar(block: () -> Unit) {
+        if (ImGui.beginMenuBar()) {
+            try {
+                block()
+            } finally {
+                ImGui.endMenuBar()
+            }
+        }
     }
 
     inline fun menu(label: String, enabled: Boolean = true, block: () -> Unit) {
@@ -94,6 +134,24 @@ object ImguiDSL {
             block()
     }
 
+    inline fun dragDropSource(flags: Int = 0, block: () -> Unit) {
+        if (ImGui.beginDragDropSource(flags))
+            try {
+                block()
+            } finally {
+                ImGui.endDragDropSource()
+            }
+    }
+
+    inline fun dragDropTarget(block: () -> Unit) {
+        if (ImGui.beginDragDropTarget())
+            try {
+                block()
+            } finally {
+                ImGui.endDragDropTarget()
+            }
+    }
+
     inline fun withItemWidth(itemWidth: Int, block: () -> Unit): Unit =
         withItemWidth(itemWidth.toFloat(), block)
 
@@ -106,22 +164,69 @@ object ImguiDSL {
         }
     }
 
-    inline fun withStyleColor(idx: Int, col: Int, block: () -> Unit) {
+    inline fun withStyleColour(idx: Int, col: Int, block: () -> Unit) {
         pushStyleColor(idx, col)
-        block()
-        popStyleColor()
+        try {
+            block()
+        } finally {
+            popStyleColor()
+        }
     }
 
-    inline fun withStyleColor(idx: Int, red: Float, green: Float, blue: Float, alpha: Float, block: () -> Unit) {
+    inline fun withStyleColour(idx: Int, red: Float, green: Float, blue: Float, alpha: Float, block: () -> Unit) {
         pushStyleColor(idx, red, green, blue, alpha)
-        block()
-        popStyleColor()
+        try {
+            block()
+        } finally {
+            popStyleColor()
+        }
     }
 
-    inline fun withStyleColor(idx: Int, red: Int, green: Int, blue: Int, alpha: Int, block: () -> Unit) {
+    inline fun withStyleColour(idx: Int, red: Int, green: Int, blue: Int, alpha: Int, block: () -> Unit) {
         pushStyleColor(idx, red, green, blue, alpha)
-        block()
-        popStyleColor()
+        try {
+            block()
+        } finally {
+            popStyleColor()
+        }
+    }
+
+    inline fun tooltip(block: () -> Unit) {
+        ImGui.beginTooltip()
+        try {
+            block()
+        } finally {
+            ImGui.endTooltip()
+        }
+    }
+
+    inline fun withStyleVar(styleVar: Int, value: Float, block: () -> Unit) {
+        pushStyleVar(styleVar, value)
+        try {
+            block()
+        } finally {
+            popStyleVar()
+        }
+    }
+
+    inline fun withStyleVar(styleVar: Int, valueX: Float, valueY: Float, block: () -> Unit) {
+        pushStyleVar(styleVar, valueX, valueY)
+        try {
+            block()
+        } finally {
+            popStyleVar()
+        }
+    }
+
+    fun helpMarker(description: String) {
+        textDisabled(description)
+        if (ImGui.isItemHovered()) {
+            tooltip {
+                pushTextWrapPos(getFontSize() * 35f)
+                textUnformatted(description)
+                popTextWrapPos()
+            }
+        }
     }
 
     inline fun calcTextSize(str: String) = calcTextSize(str, ImGui::calcTextSize)
@@ -136,6 +241,26 @@ object ImguiDSL {
         val bool = ImBoolean(property())
         block(bool)
         property.set(bool.get())
+    }
+
+    inline fun wrapImBool(value: Boolean, block: (ImBoolean) -> Unit) {
+        val bool = ImBoolean(value)
+        block(bool)
+    }
+
+    inline fun wrapImInt(property: KMutableProperty0<Int>, block: (ImInt) -> Unit) {
+        val int = ImInt(property())
+        block(int)
+        property.set(int.get())
+    }
+
+    inline fun wrapSingleIntArray(property: KMutableProperty0<Int>, block: (IntArray) -> Unit) {
+        val buf = intArrayOf(property.get())
+        try {
+            block(buf)
+        } finally {
+            property.set(buf[0])
+        }
     }
 
     inline infix fun Int.without(other: Int) = this and other.inv()

@@ -5,7 +5,7 @@ import glm_.vec4.Vec4
 import imgui.Col
 import imgui.ImGui
 import imgui.MouseButton
-import imgui.WindowFlag
+import imgui.ImGuiWindowFlags
 import imgui.cStr
 import imgui.dsl
 import me.zeroeightsix.kami.gui.View
@@ -20,7 +20,7 @@ object VoidContextMenu {
     private var widgetProducer: Pair<String, (String) -> Unit>? = null
 
     operator fun invoke() {
-        dsl.popupContextVoid("kami-void-popup", MouseButton.Right.i) {
+        dsl.popupContextVoid("kami-void-popup", MouseButton.Right) {
             dsl.menuItem("Resize module windows") {
                 Modules.resize = true
             }
@@ -71,7 +71,7 @@ object VoidContextMenu {
 
         widgetProducer?.let { (title, factory) ->
             ImGui.openPopup(title) // Calling this in the menu for some reason doesn't work. So we spam it instead, because ImGui handles this user error!
-            dsl.popupModal(title, extraFlags = WindowFlag.AlwaysAutoResize.i) {
+            dsl.popupModal(title, extraFlags = ImGuiWindowFlags.AlwaysAutoResize) {
                 ImGui.inputText("Title", buffer)
 
                 ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))

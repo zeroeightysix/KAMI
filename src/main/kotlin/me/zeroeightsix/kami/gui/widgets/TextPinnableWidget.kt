@@ -14,7 +14,7 @@ import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowSize
 import imgui.ImGui.style
 import imgui.ImGui.text
-import imgui.WindowFlag
+import imgui.ImGuiWindowFlags
 import imgui.api.demoDebugInformations
 import imgui.dsl.button
 import imgui.dsl.checkbox
@@ -23,6 +23,10 @@ import imgui.dsl.menuItem
 import imgui.dsl.window
 import imgui.dsl.withStyleColor
 import imgui.get
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.text.CompiledText
@@ -259,7 +263,7 @@ open class TextPinnableWidget(
     }
 
     private fun editWindow() {
-        window("Edit $title", ::editWindow, WindowFlag.AlwaysAutoResize.i) {
+        window("Edit $title", ::editWindow, ImGuiWindowFlags.AlwaysAutoResize) {
             if (text.isEmpty()) {
                 button("New line") {
                     text.add(CompiledText())
@@ -298,7 +302,7 @@ open class TextPinnableWidget(
                     // This is to maintain only one selected part across all lines.
                 }
 
-                withStyleColor(Col.Button, ImGui.style.colors[Col.Button.i] * 0.7f) {
+                withStyleColor(Col.Button, ImGui.style.colors[Col.Button] * 0.7f) {
                     sameLine(spacing = 4f)
                     button("-###minus-button-$index") {
                         iterator.remove()
@@ -322,9 +326,9 @@ open class TextPinnableWidget(
 
     override fun fillStyle() {
         super.fillStyle()
-        checkbox("Minecraft font", ::minecraftFont) {}
+        checkbox("Minecraft font", ::minecraftFont)
         sameLine()
-        demoDebugInformations.helpMarker("Only visible when GUI is closed.")
+        helpMarker("Only visible when GUI is closed.")
 
         menu("Alignment") {
             menuItem("Left", "", alignment == Alignment.LEFT) { alignment = Alignment.LEFT }

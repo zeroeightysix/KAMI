@@ -2,7 +2,7 @@ package me.zeroeightsix.kami.target
 
 import imgui.Col
 import imgui.ImGui
-import imgui.TreeNodeFlag
+import imgui.ImGuiTreeNodeFlags
 import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
@@ -234,7 +234,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
 
                 ImGui.run {
                     pushStyleColor(Col.Text, style.colors[Col.TextDisabled])
-                    val settingsOpen = treeNodeEx(name, TreeNodeFlag.NoTreePushOnOpen.i)
+                    val settingsOpen = treeNodeEx(name, ImGuiTreeNodeFlags.NoTreePushOnOpen)
                     popStyleColor()
                     if (!settingsOpen) return@extend null
 

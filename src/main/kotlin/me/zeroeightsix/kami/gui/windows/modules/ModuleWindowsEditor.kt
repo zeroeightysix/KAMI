@@ -13,22 +13,12 @@ import imgui.ImGui.setDragDropPayload
 import imgui.ImGui.setNextItemWidth
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
-import imgui.InputTextFlag
-import imgui.MouseButton
-import imgui.WindowFlag
-import imgui.api.demoDebugInformations
-import imgui.cStr
-import imgui.dsl.button
-import imgui.dsl.child
-import imgui.dsl.dragDropSource
-import imgui.dsl.dragDropTarget
-import imgui.dsl.menu
-import imgui.dsl.menuBar
-import imgui.dsl.menuItem
-import imgui.dsl.popupContextItem
-import imgui.dsl.popupModal
-import imgui.dsl.window
-import imgui.toByteArray
+import imgui.flag.ImGuiWindowFlags
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuBar
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import kotlin.collections.set
 
@@ -43,7 +33,7 @@ object ModuleWindowsEditor {
             window(
                 "Module windows editor",
                 ::open,
-                WindowFlag.MenuBar or WindowFlag.NoScrollbar or WindowFlag.NoScrollWithMouse.i
+                ImGuiWindowFlags.MenuBar or ImGuiWindowFlags.NoScrollbar or ImGuiWindowFlags.NoScrollWithMouse
             ) {
                 menuBar {
                     menu("Edit") {
@@ -97,7 +87,7 @@ object ModuleWindowsEditor {
         }
         if (modalPopup != null)
             openPopup("Rename group")
-        popupModal("Rename group", null, WindowFlag.AlwaysAutoResize.i) {
+        popupModal("Rename group", null, ImGuiWindowFlags.AlwaysAutoResize) {
             modalPopup?.let { it() }
         }
     }
@@ -167,7 +157,7 @@ object ModuleWindowsEditor {
                                 if (ImGui.isWindowAppearing)
                                     ImGui.setKeyboardFocusHere()
                                 val buf = name.toByteArray(ByteArray(name.length + 2))
-                                if (ImGui.inputText("", name, flags = InputTextFlag.EnterReturnsTrue.i)) {
+                                if (ImGui.inputText("", name, flags = ImGuiInputTextFlags.EnterReturnsTrue)) {
                                     name = buf.cStr
                                     rename()
                                 }

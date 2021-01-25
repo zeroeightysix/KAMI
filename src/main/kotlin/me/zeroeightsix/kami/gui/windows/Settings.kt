@@ -16,7 +16,7 @@ import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
 import imgui.ImGui.textWrapped
 import imgui.TabBarFlag
-import imgui.WindowFlag
+import imgui.ImGuiWindowFlags
 import imgui.api.demoDebugInformations
 import imgui.dsl.checkbox
 import imgui.dsl.tabBar
@@ -110,8 +110,8 @@ object Settings {
         }
 
         if (settingsWindowOpen) {
-            window("Settings", ::settingsWindowOpen, flags = WindowFlag.AlwaysAutoResize.i) {
-                tabBar("kami-settings-tabbar", TabBarFlag.None.i) {
+            window("Settings", ::settingsWindowOpen, flags = ImGuiWindowFlags.AlwaysAutoResize) {
+                tabBar("kami-settings-tabbar", TabBarFlag.None) {
                     tabItem("Behaviour") {
                         charButton("Command prefix", ::commandPrefix)
                         sameLine()

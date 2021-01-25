@@ -20,8 +20,8 @@ import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
 import imgui.ImGui.textWrapped
-import imgui.StyleVar
-import imgui.WindowFlag
+import imgui.ImGuiStyleVar
+import imgui.ImGuiWindowFlags
 import imgui.dsl.button
 import imgui.dsl.popupModal
 import imgui.dsl.radioButton
@@ -183,13 +183,13 @@ object Wizard {
             setNextWindowPos(Vec2(io.displaySize.x * 0.5f, io.displaySize.y * 0.5f), Cond.Always, Vec2(0.5f))
             popupModal(
                 "Setup wizard",
-                extraFlags = WindowFlag.AlwaysAutoResize or WindowFlag.NoTitleBar or WindowFlag.NoMove.i
+                extraFlags = ImGuiWindowFlags.AlwaysAutoResize or ImGuiWindowFlags.NoTitleBar or ImGuiWindowFlags.NoMove
             ) {
                 pages[currentPage]()
                 (currentPage == 0).conditionalWrap(
                     {
-                        pushItemFlag(ItemFlag.Disabled.i, true)
-                        pushStyleVar(StyleVar.Alpha, ImGui.style.alpha * 0.5f)
+                        pushItemFlag(ItemFlag.Disabled, true)
+                        pushStyleVar(ImGuiStyleVar.Alpha, ImGui.style.alpha * 0.5f)
                     },
                     {
                         button("Previous", Vec2(100, 0)) {

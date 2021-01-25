@@ -1,14 +1,23 @@
 package me.zeroeightsix.kami.gui.text
 
 import imgui.ImGui
+import imgui.ImVec4
 import imgui.flag.ImGuiCol
+import kotlin.math.abs
+import kotlin.math.floor
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
 import me.zeroeightsix.kami.forEachRemainingIndexed
+import me.zeroeightsix.kami.gui.ImguiDSL.PAYLOAD_TYPE_COLOR_4F
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.colors
-import kotlin.math.abs
-import kotlin.math.floor
+import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImBool
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleIntArray
 
 class CompiledText(
     var parts: MutableList<Part> = mutableListOf()
@@ -35,12 +44,12 @@ class CompiledText(
                         ImGui.pushStyleColor(ImGuiCol.Text, (ImGui.getStyle().colors[ImGuiCol.Text] / 1.2f))
                     },
                     {
-                        dsl.button("${part.editLabel}###part-button-$id-$n") {
+                        button("${part.editLabel}###part-button-$id-$n") {
                             this.selectedPart = part
                         }
 
                         // Set colour if colour dropped on this button
-                        dsl.dragDropTarget {
+                        dragDropTarget {
                             ImGui.acceptDragDropPayload(PAYLOAD_TYPE_COLOR_4F)?.let {
                                 part.colour = it.data!! as Vec4
                             }
@@ -73,7 +82,7 @@ class CompiledText(
                 )
             }
 
-            withStyleColor(Col.Button, ImGui.style.colors[Col.Button.i] * 0.7f) {
+            withStyleColor(Col.Button, ImGui.style.colors[Col.Button] * 0.7f) {
                 dsl.button("+###plus-button-$id") {
                     ImGui.openPopup("plus-popup-$id")
                 }
@@ -133,13 +142,13 @@ class CompiledText(
 
                 when (this.colourMode) {
                     ColourMode.STATIC -> {
-                        if (ImGui.colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar.i)) {
+                        if (ImGui.colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar)) {
                             this.colour = col
                         }
                     }
                     ColourMode.ALTERNATING -> {
                         this.colours.forEachIndexed { i, vec ->
-                            ImGui.colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar.i)
+                            ImGui.colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar)
                         }
 
                         // TODO: Allow colours to be added / removed
@@ -227,7 +236,7 @@ class CompiledText(
         }
 
         // Static colour
-        var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
+        var colour: ImVec4 = ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
             set(value) {
                 field = value
                 argb = colour.toARGB()
@@ -236,8 +245,8 @@ class CompiledText(
 
         // Alternating colour
         var colours = mutableListOf(
-            Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            Vec4(0.5f, 0.5f, 0.5f, 1.0f)
+            ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
+            ImVec4(0.5f, 0.5f, 0.5f, 1.0f)
         )
         val coloursIterator = colours.cyclingIterator()
 
@@ -245,7 +254,7 @@ class CompiledText(
             return if (extraspace) " " else ""
         }
 
-        fun currentColour(): Vec4 {
+        fun currentColour(): ImVec4 {
             return when (colourMode) {
                 ColourMode.STATIC -> colour
                 ColourMode.RAINBOW -> KamiMod.rainbow.vec4
@@ -269,8 +278,8 @@ class CompiledText(
 
             companion object {
                 val listNormal = values().filter { !it.multilineExclusive }
-                    .joinToString("$NUL") { it.name.toLowerCase().capitalize() }
-                val listMultiline = values().joinToString("$NUL") { it.name.toLowerCase().capitalize() }
+                    .joinToString("\u0000") { it.name.toLowerCase().capitalize() }
+                val listMultiline = values().joinToString("\u0000") { it.name.toLowerCase().capitalize() }
             }
         }
 
@@ -303,9 +312,9 @@ class CompiledText(
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()
-            val space = booleanArrayOf(extraspace)
-            if (ImGui.checkbox("Space", space)) {
-                extraspace = space[0]
+            wrapImBool(extraspace) { bool ->
+                checkbox("Space", bool)
+                extraspace = bool.get()
             }
         }
     }
@@ -338,25 +347,32 @@ class CompiledText(
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
             if (editVarComboIndex == -1) editVarComboIndex = variableMap.keys.indexOf(this.variable.name)
-            dsl.combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
-                val selected: String = variableMap.keys.toList()[editVarComboIndex]
-                val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
-                if (v is NumericalVariable) {
-                    v.digits = editDigits
+            wrapImInt(::editVarComboIndex) {
+                combo("Variable", it, variableMap.keys.joinToString(0.toChar().toString())) {
+                    val selected: String = variableMap.keys.toList()[editVarComboIndex]
+                    val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
+                    if (v is NumericalVariable) {
+                        v.digits = editDigits
+                    }
+                    this.variable = v
                 }
-                this.variable = v
             }
+
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()
             val space = booleanArrayOf(extraspace)
-            if (ImGui.checkbox("Space", space)) {
-                extraspace = space[0]
+            wrapImBool(extraspace) {
+                checkbox("Space", it) {
+                    this.extraspace = it.get()
+                }
             }
             when (val variable = variable) {
                 is NumericalVariable -> {
-                    if (ImGui.dragInt("Digits", ::editDigits, vSpeed = 0.1f, vMin = 0, vMax = 8)) {
-                        variable.digits = editDigits
+                    wrapSingleIntArray(::editDigits) {
+                        if (ImGui.dragInt("Digits", it, 0.1f, 0f, 8f)) {
+                            variable.digits = editDigits
+                        }
                     }
                 }
             }

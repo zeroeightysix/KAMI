@@ -1,26 +1,17 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
-import glm_.vec4.Vec4
-import imgui.Col
 import imgui.ImGui
 import imgui.ImGui.acceptDragDropPayload
 import imgui.ImGui.collapsingHeader
-import imgui.ImGui.currentWindow
 import imgui.ImGui.isItemClicked
-import imgui.ImGui.openPopupOnItemClick
 import imgui.ImGui.selectable
-import imgui.ImGui.treeNodeBehaviorIsOpen
 import imgui.ImGui.treeNodeEx
-import imgui.MouseButton
-import imgui.StyleVar
-import imgui.TreeNodeFlag
-import imgui.WindowFlag
-import imgui.dsl
-import imgui.dsl.dragDropTarget
-import imgui.dsl.popup
-import imgui.dsl.window
-import imgui.internal.sections.ItemStatusFlag
-import imgui.or
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiImGuiMouseButton
+import imgui.flag.ImGuiMouseButton
+import imgui.flag.ImGuiStyleVar
+import imgui.flag.ImGuiTreeNodeFlags
+import imgui.flag.ImGuiWindowFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
@@ -29,6 +20,9 @@ import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleVar
 import me.zeroeightsix.kami.gui.View.modulesOpen
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
@@ -40,7 +34,6 @@ import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.set
 
 @FindSettings
 object Modules {
@@ -52,7 +45,7 @@ object Modules {
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
     private val baseFlags =
-        TreeNodeFlag.SpanFullWidth or TreeNodeFlag.OpenOnDoubleClick or TreeNodeFlag.NoTreePushOnOpen
+        ImGuiTreeNodeFlags.SpanFullWidth or ImGuiTreeNodeFlags.OpenOnDoubleClick or ImGuiTreeNodeFlags.NoTreePushOnOpen
 
     /**
      * Returns if this module has detached
@@ -62,7 +55,7 @@ object Modules {
         source: ModuleWindow,
         sourceGroup: String
     ): ModuleWindow? {
-        val nodeFlags = if (!module.enabled) baseFlags else (baseFlags or TreeNodeFlag.Selected)
+        val nodeFlags = if (!module.enabled) baseFlags else (baseFlags or ImGuiTreeNodeFlags.Selected)
         val label = "${module.name}-node"
         var moduleWindow: ModuleWindow? = null
 
@@ -70,13 +63,13 @@ object Modules {
         var clickedRight = false
 
         fun updateClicked() {
-            clickedLeft = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Left else MouseButton.Right)
-            clickedRight = isItemClicked(if (Settings.swapModuleListButtons) MouseButton.Right else MouseButton.Left)
+            clickedLeft = isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Left else ImGuiMouseButton.Right)
+            clickedRight = isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Right else ImGuiMouseButton.Left)
         }
 
         if (!Settings.openSettingsInPopup) {
             // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-            val doubleClicked = ImGui.io.mouseDoubleClicked[0]
+            val doubleClicked = ImGui.getIO().mouseDoubleClickTime
             ImGui.io.mouseDoubleClicked[0] = false
 
             val open = treeNodeEx(label, nodeFlags, module.name)
@@ -97,7 +90,7 @@ object Modules {
             if (selectable(module.name, module.enabled)) {
                 module.enabled = !module.enabled
             }
-            openPopupOnItemClick("module-settings-${module.name}", MouseButton.Right.i)
+            openPopupContextItem("module-settings-${module.name}", ImGuiMouseButton.Right)
             popup("module-settings-${module.name}") {
                 showModuleSettings(module)
             }
@@ -110,7 +103,7 @@ object Modules {
             val open = treeNodeBehaviorIsOpen(id, nodeFlags)
             val window = currentWindow
             window.dc.stateStorage[id] = !open
-            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen.i
+            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
         }
 
         return moduleWindow
@@ -181,7 +174,7 @@ object Modules {
         fun draw(): Boolean {
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 var ret: Boolean = false
-                dsl.withStyleVar(StyleVar.SelectableTextAlign, Settings.moduleAlignment.vecAlignment) {
+                withStyleVar(ImGuiStyleVar.SelectableTextAlign, Settings.moduleAlignment.vecAlignment) {
                     ret = list.removeIf {
                         val moduleWindow = module(it, this, group)
                         moduleWindow?.let {
@@ -195,7 +188,7 @@ object Modules {
             }
 
             val flags = if (resize) {
-                WindowFlag.AlwaysAutoResize.i
+                ImGuiWindowFlags.AlwaysAutoResize
             } else {
                 0
             }
@@ -220,7 +213,7 @@ object Modules {
                                 continue
                             }
 
-                            if (collapsingHeader(group, TreeNodeFlag.SpanFullWidth.i)) {
+                            if (collapsingHeader(group, ImGuiTreeNodeFlags.SpanFullWidth)) {
                                 iterateModules(list, group)
                             }
                         }
@@ -269,9 +262,9 @@ private fun showModuleSettings(module: Module) {
     }
 
     if (!Settings.hideModuleDescriptions) {
-        ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-        ImGui.text(module.description)
-        ImGui.popStyleColor()
+        withStyleColour(ImGuiCol.Text, .7f, .7f, .7f, 1f) {
+            ImGui.text(module.description)
+        }
     }
 
     module.config.flattenedStream().filter {
