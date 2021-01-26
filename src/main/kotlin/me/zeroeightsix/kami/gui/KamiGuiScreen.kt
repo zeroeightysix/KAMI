@@ -16,7 +16,7 @@ import net.minecraft.client.util.math.MatrixStack
 
 class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null, "Kami GUI")) {
     companion object {
-        private val colourIndices = (0..ImGuiCol.COUNT).toList()
+        private val colourIndices = (0 until ImGuiCol.COUNT).toList()
 
         fun renderGui() {
             if (Settings.rainbowMode) {
