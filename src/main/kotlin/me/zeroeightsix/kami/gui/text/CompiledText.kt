@@ -4,7 +4,6 @@ import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiColorEditFlags
 import imgui.flag.ImGuiMouseButton
-import imgui.type.ImInt
 import imgui.type.ImString
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
@@ -146,12 +145,14 @@ class CompiledText(
         ) {
             if (colour) {
                 val col = this.colour.asFloatRGBA()
-                combo(
-                    "Colour mode",
-                    ImInt(editColourComboIndex),
-                    if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
-                ) {
-                    this.colourMode = ColourMode.values()[editColourComboIndex]
+                wrapImInt(::editColourComboIndex) {
+                    combo(
+                        "Colour mode",
+                        it,
+                        if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
+                    ) {
+                        this.colourMode = ColourMode.values()[editColourComboIndex]
+                    }
                 }
 
                 when (this.colourMode) {
