@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
-import imgui.ImGui
 import imgui.ImGui.colorEdit4
 import imgui.ImGui.dragScalar
 import imgui.ImGui.inputText
@@ -31,6 +30,41 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
+import java.io.IOException
+import java.math.BigDecimal
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+import java.util.Collections
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.stream.Collectors
+import java.util.stream.Stream
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.Set
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.filter
+import kotlin.collections.find
+import kotlin.collections.forEach
+import kotlin.collections.groupBy
+import kotlin.collections.iterator
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.mapNotNull
+import kotlin.collections.mapOf
+import kotlin.collections.mapValues
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.toList
+import kotlin.collections.toMap
+import kotlin.collections.toMutableList
+import kotlin.collections.toMutableMap
+import kotlin.math.floor
+import kotlin.math.log10
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.ConfigSaveEvent
@@ -68,41 +102,6 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.command.CommandSource
 import net.minecraft.util.Identifier
 import org.reflections.Reflections
-import java.io.IOException
-import java.math.BigDecimal
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-import java.util.*
-import java.util.function.Consumer
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.Set
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.copyInto
-import kotlin.collections.filter
-import kotlin.collections.find
-import kotlin.collections.forEach
-import kotlin.collections.groupBy
-import kotlin.collections.iterator
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.mapNotNull
-import kotlin.collections.mapOf
-import kotlin.collections.mapValues
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
-import kotlin.collections.set
-import kotlin.collections.toList
-import kotlin.collections.toMap
-import kotlin.collections.toMutableList
-import kotlin.collections.toMutableMap
-import kotlin.math.floor
-import kotlin.math.log10
 
 object KamiConfig {
 
@@ -110,7 +109,7 @@ object KamiConfig {
 
     /** Config types **/
 
-    val unitType = RecordConfigType(RecordSerializableType(mapOf()), Unit::class.java, { Unit }, { mapOf() })
+    val unitType = RecordConfigType(RecordSerializableType(mapOf()), Unit::class.java, { }, { mapOf() })
 
     val mutableListTypeProcessor = ParameterizedTypeProcessor {
         fun <T> makeMutableListType(type: ConfigType<T, *, *>) =
@@ -126,7 +125,8 @@ object KamiConfig {
         makeMutableListType(it[0])
     }
 
-    val identifierType = ConfigTypes.STRING.derive(Identifier::class.java,
+    val identifierType = ConfigTypes.STRING.derive(
+        Identifier::class.java,
         {
             Identifier(it)
         },
@@ -137,7 +137,8 @@ object KamiConfig {
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val entityCategoryType = ConfigTypes.STRING.derive(EntityCategory::class.java,
+    val entityCategoryType = ConfigTypes.STRING.derive(
+        EntityCategory::class.java,
         {
             EntityCategory.valueOf(it)
         },
@@ -145,7 +146,8 @@ object KamiConfig {
             it.name
         }
     )
-    val entitySpecificType = identifierType.derive(EntitySupplier.SpecificEntity::class.java,
+    val entitySpecificType = identifierType.derive(
+        EntitySupplier.SpecificEntity::class.java,
         {
             EntitySupplier.SpecificEntity(it)
         },
@@ -154,7 +156,8 @@ object KamiConfig {
         }
     )
 
-    val blockEntityCategoryType = ConfigTypes.STRING.derive(BlockEntityCategory::class.java,
+    val blockEntityCategoryType = ConfigTypes.STRING.derive(
+        BlockEntityCategory::class.java,
         {
             BlockEntityCategory.valueOf(it)
         },
@@ -162,7 +165,8 @@ object KamiConfig {
             it.name
         }
     )
-    val blockEntitySpecificType = identifierType.derive(BlockEntitySupplier.SpecificBlockEntity::class.java,
+    val blockEntitySpecificType = identifierType.derive(
+        BlockEntitySupplier.SpecificBlockEntity::class.java,
         {
             BlockEntitySupplier.SpecificBlockEntity(it)
         },
@@ -171,7 +175,8 @@ object KamiConfig {
         }
     )
 
-    val blockCategoryType = ConfigTypes.STRING.derive(BlockCategory::class.java,
+    val blockCategoryType = ConfigTypes.STRING.derive(
+        BlockCategory::class.java,
         {
             BlockCategory.valueOf(it)
         },
@@ -179,7 +184,8 @@ object KamiConfig {
             it.name
         }
     )
-    val blockSpecificType = identifierType.derive(BlockSupplier.SpecificBlock::class.java,
+    val blockSpecificType = identifierType.derive(
+        BlockSupplier.SpecificBlock::class.java,
         {
             BlockSupplier.SpecificBlock(it)
         },
@@ -188,7 +194,8 @@ object KamiConfig {
         }
     )
 
-    val itemCategoryType = ConfigTypes.STRING.derive(ItemCategory::class.java,
+    val itemCategoryType = ConfigTypes.STRING.derive(
+        ItemCategory::class.java,
         {
             ItemCategory.valueOf(it)
         },
@@ -196,7 +203,8 @@ object KamiConfig {
             it.name
         }
     )
-    val itemSpecificType = identifierType.derive(ItemSupplier.SpecificItem::class.java,
+    val itemSpecificType = identifierType.derive(
+        ItemSupplier.SpecificItem::class.java,
         {
             ItemSupplier.SpecificItem(it)
         },
@@ -205,12 +213,12 @@ object KamiConfig {
         }
     )
 
-
     fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(
         metaType,
         entityCategoryType,
         entitySpecificType,
-        { EntitySupplier.SpecificEntity() }) { e, s ->
+        { EntitySupplier.SpecificEntity() }
+    ) { e, s ->
         EntitySupplier(e, s)
     }
 
@@ -218,7 +226,8 @@ object KamiConfig {
         metaType,
         blockEntityCategoryType,
         blockEntitySpecificType,
-        { BlockEntitySupplier.SpecificBlockEntity() }) { e, s ->
+        { BlockEntitySupplier.SpecificBlockEntity() }
+    ) { e, s ->
         BlockEntitySupplier(e, s)
     }
 
@@ -670,8 +679,9 @@ object KamiConfig {
                     { name, value ->
                         val index = ImInt(values.indexOf(type.toSerializedType(value)))
                         combo(name, index, values) {
-                            type.toRuntimeType(values[index.get()])
+                            return@extend type.toRuntimeType(values[index.get()])
                         }
+                        null
                     },
                     { _, b ->
                         CommandSource.suggestMatching(values, b)
