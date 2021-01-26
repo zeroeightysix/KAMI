@@ -28,6 +28,7 @@ import imgui.ImGui.pushItemWidth
 import imgui.ImGui.pushStyleColor
 import imgui.ImGui.pushStyleVar
 import imgui.ImGui.pushTextWrapPos
+import imgui.ImGui.radioButton
 import imgui.ImGui.textDisabled
 import imgui.ImGui.textUnformatted
 import imgui.ImGuiStyle
@@ -233,6 +234,16 @@ object ImguiDSL {
             } finally {
                 endPopup()
             }
+        }
+    }
+
+    inline fun radioButton(
+        label: String,
+        active: Boolean,
+        block: () -> Unit
+    ) {
+        if (radioButton(label, active)) {
+            block()
         }
     }
 
