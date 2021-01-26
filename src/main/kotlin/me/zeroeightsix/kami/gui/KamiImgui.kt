@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui
 
+import com.google.common.io.ByteStreams
 import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
@@ -9,30 +10,31 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
+import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.opengl.GL
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Stack
 
 object KamiImgui {
 
-    private val imguiGl: ImGuiImplGl3
-    val imguiGlfw: ImGuiImplGlfw
+    val imguiGlfw: ImGuiImplGlfw = ImGuiImplGlfw()
+    private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
 
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
     init {
         fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig) {
-            val bytes = javaClass.getResourceAsStream(filename)?.readAllBytes()
+            val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return)
             ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
         }
 
-        imguiGl = ImGuiImplGl3()
-        imguiGl.init()
         ImGui.createContext()
-
-        imguiGlfw = ImGuiImplGlfw()
         imguiGlfw.init(mc.window.handle, false)
+        imguiGl.init()
+
         val iniFilename = "kami-imgui.ini"
         ImGui.getIO().iniFilename = iniFilename
         tryOrNull {
