@@ -25,7 +25,6 @@ import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
 import me.zeroeightsix.kami.gui.ImguiDSL.tabBar
 import me.zeroeightsix.kami.gui.ImguiDSL.tabItem
 import me.zeroeightsix.kami.gui.ImguiDSL.window
-import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.gui.Themes
@@ -169,7 +168,7 @@ object Settings {
                         showFontSelector("Font###kami-settings-font-selector")
 
                         combo("Theme", ::styleIdx, themes) {
-                            Themes.Variants.values()[styleIdx].applyStyle(true)
+                            Themes.Variants.values()[it.get()].applyStyle(true)
                         }
 
                         KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {

@@ -14,6 +14,7 @@ import imgui.ImGui.button
 import imgui.ImGui.endMenu
 import imgui.ImGui.endPopup
 import imgui.ImGui.endTabBar
+import imgui.ImGui.endTabItem
 import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
@@ -35,13 +36,12 @@ import imgui.ImGuiStyle
 import imgui.ImVec2
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiPopupFlags
-import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImFloat
 import imgui.type.ImInt
 import imgui.type.ImString
-import me.zeroeightsix.kami.Colour
 import kotlin.reflect.KMutableProperty0
+import me.zeroeightsix.kami.Colour
 
 typealias WindowFlags = Int
 
@@ -116,10 +116,10 @@ object ImguiDSL {
         currentItem: ImInt,
         items: Array<String>,
         heightInItems: Int = -1,
-        block: () -> Unit
+        block: (ImInt) -> Unit
     ) {
-        if (ImGui.combo(label, currentItem, items, heightInItems))
-            block()
+        if (ImGui.combo(label, currentItem, items, items.size, heightInItems))
+            block(currentItem)
     }
 
     inline fun combo(
@@ -127,7 +127,7 @@ object ImguiDSL {
         currentItem: ImInt,
         items: Collection<String>,
         heightInItems: Int = -1,
-        block: () -> Unit
+        block: (ImInt) -> Unit
     ) {
         combo(label, currentItem, items.toTypedArray(), heightInItems, block)
     }
@@ -148,10 +148,11 @@ object ImguiDSL {
         currentItem: KMutableProperty0<Int>,
         items: Array<String>,
         heightInItems: Int = -1,
-        block: () -> Unit
+        block: (ImInt) -> Unit
     ) {
-        if (wrapImInt(currentItem) { ImGui.combo(label, it, items, heightInItems) })
-            block()
+        wrapImInt(currentItem) {
+            combo(label, it, items, heightInItems, block)
+        }
     }
 
     inline fun combo(
@@ -159,7 +160,7 @@ object ImguiDSL {
         currentItem: KMutableProperty0<Int>,
         items: Collection<String>,
         heightInItems: Int = -1,
-        block: () -> Unit
+        block: (ImInt) -> Unit
     ) {
         combo(label, currentItem, items.toTypedArray(), heightInItems, block)
     }
@@ -318,7 +319,7 @@ object ImguiDSL {
             try {
                 block()
             } finally {
-                endPopup()
+                endTabItem()
             }
         }
     }
