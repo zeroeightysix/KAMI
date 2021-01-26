@@ -1,13 +1,16 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import glm_.vec2.Vec2
-import glm_.vec4.Vec4
-import imgui.Col
 import imgui.ImGui
-import imgui.MouseButton
-import imgui.ImGuiWindowFlags
-import imgui.cStr
-import imgui.dsl
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiPopupFlags
+import imgui.flag.ImGuiWindowFlags
+import imgui.type.ImString
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupContextVoid
+import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
 import me.zeroeightsix.kami.gui.View
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 
@@ -16,16 +19,16 @@ import me.zeroeightsix.kami.gui.windows.modules.Modules
  */
 object VoidContextMenu {
 
-    private var buffer = ByteArray(128)
+    private var buffer = ImString()
     private var widgetProducer: Pair<String, (String) -> Unit>? = null
 
     operator fun invoke() {
-        dsl.popupContextVoid("kami-void-popup", MouseButton.Right) {
-            dsl.menuItem("Resize module windows") {
+        popupContextVoid("kami-void-popup", ImGuiPopupFlags.MouseButtonRight) {
+            menuItem("Resize module windows") {
                 Modules.resize = true
             }
-            dsl.menu("Create") {
-                dsl.menuItem("Text widget") {
+            menu("Create") {
+                menuItem("Text widget") {
                     widgetProducer = "Create text widget" to { title ->
                         EnabledWidgets.textWidgets.add(
                             TextPinnableWidget(
@@ -35,7 +38,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Player overlay") {
+                menuItem("Player overlay") {
                     widgetProducer = "Create player overlay" to { title ->
                         EnabledWidgets.playerWidgets.add(
                             PlayerPinnableWidget(
@@ -45,7 +48,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Inventory overlay") {
+                menuItem("Inventory overlay") {
                     widgetProducer = "Create inventory overlay" to { title ->
                         EnabledWidgets.inventoryWidgets.add(
                             InventoryPinnableWidget(
@@ -55,7 +58,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Graph") {
+                menuItem("Graph") {
                     widgetProducer = "Create graph" to { title ->
                         EnabledWidgets.graphs.add(
                             GraphPinnableWidget(
@@ -71,19 +74,19 @@ object VoidContextMenu {
 
         widgetProducer?.let { (title, factory) ->
             ImGui.openPopup(title) // Calling this in the menu for some reason doesn't work. So we spam it instead, because ImGui handles this user error!
-            dsl.popupModal(title, extraFlags = ImGuiWindowFlags.AlwaysAutoResize) {
+            popupModal(title, extraFlags = ImGuiWindowFlags.AlwaysAutoResize) {
                 ImGui.inputText("Title", buffer)
 
-                ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-                dsl.button("Cancel", Vec2(100, 0)) {
-                    widgetProducer = null
-                    ImGui.closeCurrentPopup()
+                withStyleColour(ImGuiCol.Text, .7f, .7f, .7f, 1f) {
+                    button("Cancel", 100f, 0f) {
+                        widgetProducer = null
+                        ImGui.closeCurrentPopup()
+                    }
                 }
-                ImGui.popStyleColor()
                 ImGui.sameLine()
-                dsl.button("Create", Vec2(100, 0)) {
-                    val widgetName = buffer.cStr
-                    buffer = ByteArray(128)
+                button("Create", 100f, 0f) {
+                    val widgetName = buffer.get()
+                    buffer.set("")
                     factory(widgetName)
                     widgetProducer = null
                     ImGui.closeCurrentPopup()

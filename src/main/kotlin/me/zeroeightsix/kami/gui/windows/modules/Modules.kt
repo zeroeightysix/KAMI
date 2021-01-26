@@ -7,7 +7,6 @@ import imgui.ImGui.isItemClicked
 import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeEx
 import imgui.flag.ImGuiCol
-import imgui.flag.ImGuiImGuiMouseButton
 import imgui.flag.ImGuiMouseButton
 import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiTreeNodeFlags
@@ -174,7 +173,8 @@ object Modules {
         fun draw(): Boolean {
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
                 var ret: Boolean = false
-                withStyleVar(ImGuiStyleVar.SelectableTextAlign, Settings.moduleAlignment.vecAlignment) {
+                val alignment = Settings.moduleAlignment
+                withStyleVar(ImGuiStyleVar.SelectableTextAlign, alignment.x, alignment.y) {
                     ret = list.removeIf {
                         val moduleWindow = module(it, this, group)
                         moduleWindow?.let {

@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui.widgets
 
+import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
 
@@ -16,11 +17,11 @@ object Information : TextPinnableWidget(
             mutableListOf(
                 CompiledText.VariablePart(VarMap["fps"]!!()),
                 CompiledText.LiteralPart("fps").also {
-                    it.colour = Vec4(1f, 1f, 1f, 0.64f)
+                    it.colour = Colour(0.64f, 1f, 1f, 1f)
                 },
                 CompiledText.VariablePart(VarMap["tps"]!!()),
                 CompiledText.LiteralPart("tps", extraSpace = false).also {
-                    it.colour = Vec4(1f, 1f, 1f, 0.64f)
+                    it.colour = Colour(0.64f, 1f, 1f, 1f)
                 }
             )
         )

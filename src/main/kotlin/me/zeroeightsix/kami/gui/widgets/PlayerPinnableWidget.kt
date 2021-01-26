@@ -1,11 +1,11 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import com.mojang.blaze3d.systems.RenderSystem
-import glm_.vec2.Vec2
 import imgui.ImGui
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
-import me.zeroeightsix.kami.matrix
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import net.minecraft.client.MinecraftClient
@@ -22,7 +22,7 @@ class PlayerPinnableWidget(
     pinned: Boolean = true,
     background: Boolean = false
 ) : PinnableWidget(name, position, open, pinned, background) {
-    var tempSize = size
+    private var tempSize = size
 
     @Transient
     private var height = 0f
@@ -33,47 +33,46 @@ class PlayerPinnableWidget(
             mc.player?.height
                 ?: 1
             ).toFloat() * scale * 1.1f // Extra margin because the player doesn't always fit inside
-        ImGui.setNextWindowSize(Vec2(size * scale, height))
+        ImGui.setNextWindowSize(size * scale, height)
     }
 
     override fun fillWindow() {
         val guiOpen = mc.currentScreen is KamiGuiScreen
 
         if (!guiOpen) {
-            val rect = ImGui.currentWindow.rect()
-            ImGui.currentWindow.drawList.addCallback({ _, cmd ->
-                KamiHud.postDraw {
-                    val player = mc.player ?: return@postDraw
-                    val scale = KamiHud.getScale()
-                    this.drawEntity(
-                        (rect.min.x.toDouble() + rect.width * 0.5f) / scale,
-                        rect.max.y.toDouble() / scale,
-                        if (player.isFallFlying) {
-                            player.height.toDouble() / 2.0
-                        } else 0.0,
-                        this.size,
-                        player,
-                        mc.tickDelta
-                    )
-                }
-            })
+//            KamiHud.postDraw {
+//                val player = mc.player ?: return@postDraw
+//                val scale = KamiHud.getScale()
+//                this.drawEntity(
+//                    (ImGui.getWindowPosX() + ImGui.getWindowWidth() * 0.5f) / scale,
+//                    ImGui.getWindowPosY() + ImGui.getWindowHeight() / scale,
+//                    if (player.isFallFlying) {
+//                        player.height.toDouble() / 2.0
+//                    } else 0.0,
+//                    this.size,
+//                    player,
+//                    mc.tickDelta
+//                )
+//            }
         } else {
             ImGui.setNextItemWidth(-1f)
-            ImGui.vSliderFloat(
-                "Size",
-                Vec2(24, height - ImGui.style.windowPadding.y * 2),
-                vMin = 10f,
-                vMax = 60f,
-                v = ::tempSize,
-                format = "%.0f"
-            )
-            if (!ImGui.isItemActive && tempSize != size) {
+            wrapSingleFloatArray(::tempSize) {
+                ImGui.vSliderFloat(
+                    "Size",
+                    24.0f, height - ImGui.getStyle().windowPaddingX * 2,
+                    it,
+                    10f,
+                    60f,
+                    "%.0f"
+                )
+            }
+            if (!ImGui.isItemActive() && tempSize != size) {
                 size = tempSize
             }
         }
     }
 
-    fun drawEntity(x: Double, y: Double, offsetY: Double = 0.0, scale: Float, livingEntity: LivingEntity, tickDelta: Float) {
+    fun drawEntity(x: Float, y: Float, offsetY: Double = 0.0, scale: Float, livingEntity: LivingEntity, tickDelta: Float) {
         RenderSystem.pushMatrix()
         RenderSystem.translatef(x.toFloat(), y.toFloat(), 1050.0f)
         RenderSystem.scalef(1.0f, 1.0f, -1.0f)

@@ -4,7 +4,9 @@ import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
 import imgui.ImGui.beginPopupContextItem
+import imgui.ImGui.beginPopupContextVoid
 import imgui.ImGui.beginPopupContextWindow
+import imgui.ImGui.beginPopupModal
 import imgui.ImGui.button
 import imgui.ImGui.endMenu
 import imgui.ImGui.endPopup
@@ -173,6 +175,40 @@ object ImguiDSL {
         block: () -> Unit
     ) {
         if (beginPopupContextWindow(strId, popupFlags)) {
+            try {
+                block()
+            } finally {
+                endPopup()
+            }
+        }
+    }
+
+    inline fun popupContextVoid(
+        strId: String = "",
+        popupFlags: Int = ImGuiPopupFlags.MouseButtonRight,
+        block: () -> Unit
+    ) {
+        if (beginPopupContextVoid(strId, popupFlags)) {
+            try {
+                block()
+            } finally {
+                endPopup()
+            }
+        }
+    }
+
+    inline fun popupModal(
+        title: String,
+        pOpen: KMutableProperty0<Boolean>? = null,
+        extraFlags: Int = 0,
+        block: () -> Unit
+    ) {
+        val beginRet = if (pOpen != null) {
+            wrapImBool(pOpen) { beginPopupModal(title, it, extraFlags) }
+        } else {
+            beginPopupModal(title, extraFlags)
+        }
+        if (beginRet) {
             try {
                 block()
             } finally {
@@ -362,7 +398,16 @@ object ImguiDSL {
     }
 
     inline fun wrapSingleIntArray(property: KMutableProperty0<Int>, block: (IntArray) -> Unit) {
-        val buf = intArrayOf(property.get())
+        val buf = intArrayOf(property())
+        try {
+            block(buf)
+        } finally {
+            property.set(buf[0])
+        }
+    }
+
+    inline fun wrapSingleFloatArray(property: KMutableProperty0<Float>, block: (FloatArray) -> Unit) {
+        val buf = floatArrayOf(property())
         try {
             block(buf)
         } finally {
@@ -371,7 +416,7 @@ object ImguiDSL {
     }
 
     inline fun <R> wrapImString(property: KMutableProperty0<String>, block: (ImString) -> R): R {
-        val buf = ImString(property.get())
+        val buf = ImString(property())
         try {
             return block(buf)
         } finally {
