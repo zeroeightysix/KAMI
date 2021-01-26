@@ -29,7 +29,7 @@ object KamiImgui {
     init {
         fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig): ImFont? {
             val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return null)
-            ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
+            return ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
         }
 
         val caps = GL.getCapabilities()
