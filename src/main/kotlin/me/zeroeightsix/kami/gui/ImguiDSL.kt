@@ -448,7 +448,7 @@ object ImguiDSL {
     }
 
     fun helpMarker(description: String) {
-        textDisabled(description)
+        textDisabled("(?)")
         if (ImGui.isItemHovered()) {
             tooltip {
                 pushTextWrapPos(getFontSize() * 35f)
