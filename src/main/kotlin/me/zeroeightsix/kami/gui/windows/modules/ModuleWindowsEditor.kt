@@ -1,23 +1,33 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
 import imgui.ImGui
-import imgui.ImGui.acceptDragDropPayload
-import imgui.ImGui.checkbox
+import imgui.ImGui.acceptDragDropPayloadObject
 import imgui.ImGui.columns
+import imgui.ImGui.inputText
 import imgui.ImGui.nextColumn
 import imgui.ImGui.openPopup
 import imgui.ImGui.sameLine
 import imgui.ImGui.selectable
 import imgui.ImGui.separator
-import imgui.ImGui.setDragDropPayload
+import imgui.ImGui.setDragDropPayloadObject
 import imgui.ImGui.setNextItemWidth
 import imgui.ImGui.text
 import imgui.ImGui.textDisabled
+import imgui.flag.ImGuiInputTextFlags
+import imgui.flag.ImGuiMouseButton
 import imgui.flag.ImGuiWindowFlags
+import imgui.type.ImString
+import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.child
+import me.zeroeightsix.kami.gui.ImguiDSL.dragDropSource
+import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuBar
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupContextItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import kotlin.collections.set
@@ -45,15 +55,15 @@ object ModuleWindowsEditor {
 
                 checkbox("Rearrange modules", ::rearrange)
                 sameLine()
-                demoDebugInformations.helpMarker("While rearranging, you will not be able to move modules between groups or other windows.")
+                helpMarker("While rearranging, you will not be able to move modules between groups or other windows.")
 
                 val windows = Modules.windows
                 columns(windows.size + 1)
                 for (window in windows) {
-                    val buf = window.title.toByteArray(ByteArray(window.title.length + 2))
                     setNextItemWidth(-1f)
-                    if (ImGui.inputText("###${window.hashCode()}-title-input", buf)) {
-                        window.title = buf.cStr
+                    val windowTitle = ImString(window.title)
+                    if (inputText("###${window.hashCode()}-title-input", windowTitle)) {
+                        window.title = windowTitle.get()
                     }
                     nextColumn()
                 }
@@ -66,8 +76,8 @@ object ModuleWindowsEditor {
                         addWindowEditor(window)
                     }
                     dragDropTarget {
-                        acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                            val payload = it.data!! as ModulePayload
+                        acceptDragDropPayloadObject(KAMI_MODULE_PAYLOAD)?.let {
+                            val payload = it as ModulePayload
                             payload.moveTo(window, payload.groupName ?: "Group ${window.groups.size + 1}")
                         }
                     }
@@ -75,8 +85,8 @@ object ModuleWindowsEditor {
                 }
                 child("new-window-child") {}
                 dragDropTarget {
-                    acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                        val payload = it.data!! as ModulePayload
+                    acceptDragDropPayloadObject(KAMI_MODULE_PAYLOAD)?.let {
+                        val payload = it as ModulePayload
                         val window = Modules.ModuleWindow(payload.inventName())
                         windows.add(window)
                         payload.moveTo(window, payload.groupName ?: "Group 1")
@@ -106,7 +116,7 @@ object ModuleWindowsEditor {
                         selectable(module.name)
                         if (!rearrange) {
                             dragDropSource {
-                                setDragDropPayload(
+                                setDragDropPayloadObject(
                                     KAMI_MODULE_PAYLOAD,
                                     ModulePayload(mutableSetOf(module), window)
                                 )
@@ -114,9 +124,9 @@ object ModuleWindowsEditor {
                             }
                         } else {
                             val hovered = ImGui.isItemHovered()
-                            if (ImGui.isItemActive && !hovered) {
+                            if (ImGui.isItemActive() && !hovered) {
                                 val nNext =
-                                    n + if (ImGui.getMouseDragDelta(MouseButton.Left).y < 0f) -1 else 1
+                                    n + if (ImGui.getMouseDragDeltaY(ImGuiMouseButton.Left) < 0f) -1 else 1
                                 if (nNext in group.value.indices) {
                                     group.value[n] = group.value[nNext]
                                     group.value[nNext] = module
@@ -128,15 +138,15 @@ object ModuleWindowsEditor {
                 },
                 always = {
                     dragDropSource {
-                        setDragDropPayload(
+                        setDragDropPayloadObject(
                             KAMI_MODULE_PAYLOAD,
                             ModulePayload(group.value.toMutableSet(), window, group.key)
                         )
                         text("Group: ${group.key}")
                     }
                     dragDropTarget {
-                        acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                            val payload = it.data!! as ModulePayload
+                        acceptDragDropPayloadObject(KAMI_MODULE_PAYLOAD)?.let {
+                            val payload = it as ModulePayload
                             payload.moveTo(window, group.key)
                         }
                     }
@@ -154,11 +164,11 @@ object ModuleWindowsEditor {
                                 }
                                 text("Rename to:")
                                 setNextItemWidth(-1f)
-                                if (ImGui.isWindowAppearing)
+                                if (ImGui.isWindowAppearing())
                                     ImGui.setKeyboardFocusHere()
-                                val buf = name.toByteArray(ByteArray(name.length + 2))
-                                if (ImGui.inputText("", name, flags = ImGuiInputTextFlags.EnterReturnsTrue)) {
-                                    name = buf.cStr
+                                val buf = ImString(name)
+                                if (inputText("", buf, ImGuiInputTextFlags.EnterReturnsTrue)) {
+                                    name = buf.get()
                                     rename()
                                 }
                                 button("Rename") { rename() }

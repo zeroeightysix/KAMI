@@ -164,10 +164,8 @@ object Settings {
                     tabItem("Appearance") {
                         showFontSelector("Font###kami-settings-font-selector")
 
-                        wrapImInt(::styleIdx) {
-                            combo("Theme", it, themes) {
-                                Themes.Variants.values()[styleIdx].applyStyle(true)
-                            }
+                        combo("Theme", ::styleIdx, themes.joinToString("\u0000")) {
+                            Themes.Variants.values()[styleIdx].applyStyle(true)
                         }
 
                         KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {

@@ -3,13 +3,17 @@ package me.zeroeightsix.kami.gui
 import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
+import imgui.ImGui.beginPopup
 import imgui.ImGui.beginPopupContextItem
 import imgui.ImGui.beginPopupContextVoid
 import imgui.ImGui.beginPopupContextWindow
 import imgui.ImGui.beginPopupModal
+import imgui.ImGui.beginTabBar
+import imgui.ImGui.beginTabItem
 import imgui.ImGui.button
 import imgui.ImGui.endMenu
 import imgui.ImGui.endPopup
+import imgui.ImGui.endTabBar
 import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
@@ -30,6 +34,7 @@ import imgui.ImGuiStyle
 import imgui.ImVec2
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiPopupFlags
+import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImFloat
 import imgui.type.ImInt
@@ -155,6 +160,20 @@ object ImguiDSL {
             block()
     }
 
+    inline fun popup(
+        strId: String,
+        popupFlags: Int = 0,
+        block: () -> Unit
+    ) {
+        if (beginPopup(strId, popupFlags)) {
+            try {
+                block()
+            } finally {
+                endPopup()
+            }
+        }
+    }
+
     inline fun popupContextItem(
         strId: String = "",
         popupFlags: Int = ImGuiPopupFlags.MouseButtonRight,
@@ -207,6 +226,40 @@ object ImguiDSL {
             wrapImBool(pOpen) { beginPopupModal(title, it, extraFlags) }
         } else {
             beginPopupModal(title, extraFlags)
+        }
+        if (beginRet) {
+            try {
+                block()
+            } finally {
+                endPopup()
+            }
+        }
+    }
+
+    inline fun tabBar(
+        strId: String,
+        flags: Int = 0,
+        block: () -> Unit
+    ) {
+        if (beginTabBar(strId, flags)) {
+            try {
+                block()
+            } finally {
+                endTabBar()
+            }
+        }
+    }
+
+    inline fun tabItem(
+        label: String,
+        pOpen: KMutableProperty0<Boolean>? = null,
+        flags: Int = 0,
+        block: () -> Unit
+    ) {
+        val beginRet = if (pOpen != null) {
+            wrapImBool(pOpen) { beginTabItem(label, it, flags) }
+        } else {
+            beginTabItem(label, flags)
         }
         if (beginRet) {
             try {

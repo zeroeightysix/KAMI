@@ -1,9 +1,10 @@
 package me.zeroeightsix.kami.gui.windows.modules
 
 import imgui.ImGui
-import imgui.ImGui.acceptDragDropPayload
+import imgui.ImGui.acceptDragDropPayloadObject
 import imgui.ImGui.collapsingHeader
 import imgui.ImGui.isItemClicked
+import imgui.ImGui.openPopupOnItemClick
 import imgui.ImGui.selectable
 import imgui.ImGui.treeNodeEx
 import imgui.flag.ImGuiCol
@@ -19,6 +20,8 @@ import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
+import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.popup
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleVar
@@ -62,19 +65,21 @@ object Modules {
         var clickedRight = false
 
         fun updateClicked() {
-            clickedLeft = isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Left else ImGuiMouseButton.Right)
-            clickedRight = isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Right else ImGuiMouseButton.Left)
+            clickedLeft =
+                isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Left else ImGuiMouseButton.Right)
+            clickedRight =
+                isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Right else ImGuiMouseButton.Left)
         }
 
         if (!Settings.openSettingsInPopup) {
             // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-            val doubleClicked = ImGui.getIO().mouseDoubleClickTime
-            ImGui.io.mouseDoubleClicked[0] = false
+//            val doubleClicked = ImGui.getIO().mouseDoubleClickTime
+//            ImGui.getIO().mouseDoubleClicked[0] = false
 
             val open = treeNodeEx(label, nodeFlags, module.name)
             dragDropTarget {
-                acceptDragDropPayload(KAMI_MODULE_PAYLOAD)?.let {
-                    val payload = it.data!! as ModulePayload
+                acceptDragDropPayloadObject(KAMI_MODULE_PAYLOAD)?.let {
+                    val payload = it as ModulePayload
                     payload.moveTo(source, sourceGroup)
                 }
             }
@@ -83,13 +88,13 @@ object Modules {
                 showModuleSettings(module)
             } else updateClicked()
 
-            // Restore state
-            ImGui.io.mouseDoubleClicked[0] = doubleClicked
+//            // Restore state
+//            ImGui.io.mouseDoubleClicked[0] = doubleClicked
         } else {
             if (selectable(module.name, module.enabled)) {
                 module.enabled = !module.enabled
             }
-            openPopupContextItem("module-settings-${module.name}", ImGuiMouseButton.Right)
+            openPopupOnItemClick("module-settings-${module.name}", ImGuiMouseButton.Right)
             popup("module-settings-${module.name}") {
                 showModuleSettings(module)
             }
@@ -98,11 +103,12 @@ object Modules {
         if (clickedLeft) {
             module.enabled = !module.enabled
         } else if (clickedRight) {
-            val id = currentWindow.getID(label)
-            val open = treeNodeBehaviorIsOpen(id, nodeFlags)
-            val window = currentWindow
-            window.dc.stateStorage[id] = !open
-            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
+//            val id = ImGui.getID(label)
+//            val open = treeNodeB
+//            val open = treeNodeBehaviorIsOpen(id, nodeFlags)
+//            val window = currentWindow
+//            ImGui.getStateStorage().setBool(id, !open)
+//            window.dc.lastItemStatusFlags = window.dc.lastItemStatusFlags or ItemStatusFlag.ToggledOpen
         }
 
         return moduleWindow
