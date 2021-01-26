@@ -9,7 +9,7 @@ object Information : TextPinnableWidget(
         CompiledText(
             mutableListOf(
                 CompiledText.VariablePart(VarMap["client"]!!()),
-                CompiledText.VariablePart(VarMap["version"]!!(), extraspace = false)
+                CompiledText.VariablePart(VarMap["version"]!!(), extraSpace = false)
             )
         ),
         CompiledText(
@@ -19,7 +19,7 @@ object Information : TextPinnableWidget(
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 },
                 CompiledText.VariablePart(VarMap["tps"]!!()),
-                CompiledText.LiteralPart("tps", extraspace = false).also {
+                CompiledText.LiteralPart("tps", extraSpace = false).also {
                     it.colour = Vec4(1f, 1f, 1f, 0.64f)
                 }
             )

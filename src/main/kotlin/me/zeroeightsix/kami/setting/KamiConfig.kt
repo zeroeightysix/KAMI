@@ -345,7 +345,7 @@ object KamiConfig {
                 "underline" to it.underline,
                 "italic" to it.italic,
                 "shadow" to it.shadow,
-                "extraspace" to it.extraspace,
+                "extraspace" to it.extraSpace,
                 "colourMode" to colourModeType.toSerializedType(it.colourMode),
                 "type" to type,
                 "value" to value,

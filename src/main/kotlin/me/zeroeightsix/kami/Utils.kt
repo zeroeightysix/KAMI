@@ -271,9 +271,9 @@ val Screen.expectingInput: Boolean
         this.focused?.expectingInput == true
 
 data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
-    fun asInts() = arrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
+    fun asInts() = intArrayOf((a * 255).toInt(), (r * 255).toInt(), (g * 255).toInt(), (b * 255).toInt())
 
-    fun asFloatRGBA() = arrayOf(r, g, b, a)
+    fun asFloatRGBA() = floatArrayOf(r, g, b, a)
 
     fun asARGB(): Int {
         val integers = asInts()
@@ -287,6 +287,10 @@ data class Colour(val a: Float, val r: Float, val g: Float, val b: Float) {
             val g = ((argb shr 8) and 0xFF) / 255f
             val b = (argb and 0xFF) / 255f
             return Colour(a, r, g, b)
+        }
+
+        fun fromFloatRGBA(rgba: FloatArray): Colour {
+            return Colour(rgba[3], rgba[0], rgba[1], rgba[2])
         }
 
         val WHITE = Colour(1f, 1f, 1f, 1f)

@@ -1,12 +1,11 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import glm_.vec2.Vec2
 import imgui.ImGui
-import imgui.cStr
-import imgui.dsl.button
-import imgui.dsl.child
-import imgui.dsl.menuItem
+import imgui.type.ImString
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.child
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.text.CompiledText
 
 val modulesVariable = object : CompiledText.StringVariable(
@@ -16,16 +15,16 @@ val modulesVariable = object : CompiledText.StringVariable(
         FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
     }
 ) {
-    var filter = ByteArray(128)
+    var filter = ImString()
     override var editLabel: String = "(active modules)"
 
     override fun edit(variableMap: Map<String, () -> CompiledText.Variable>) {
         ImGui.separator()
         ImGui.text("Show the following modules in the list:")
         ImGui.inputText("Filter##active-modules-filter", filter)
-        child("active-modules-show-list", Vec2(ImGui.windowContentRegionWidth, 60)) {
+        child("active-modules-show-list", ImGui.getContentRegionAvailWidth(), 60.0f) {
             FeatureManager.modules.filter {
-                !it.hidden && it.name.toLowerCase().contains(filter.cStr.toLowerCase())
+                !it.hidden && it.name.toLowerCase().contains(filter.get().toLowerCase())
             }.forEach {
                 menuItem(it.name, selected = it.showInActiveModules) {
                     it.showInActiveModules = !it.showInActiveModules
@@ -48,7 +47,7 @@ object ActiveModules : TextPinnableWidget(
     text = mutableListOf(
         CompiledText(
             mutableListOf(
-                CompiledText.VariablePart(modulesVariable, extraspace = false)
+                CompiledText.VariablePart(modulesVariable, extraSpace = false)
             )
         )
     ),
