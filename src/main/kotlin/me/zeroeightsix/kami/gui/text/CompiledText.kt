@@ -151,7 +151,7 @@ class CompiledText(
                         it,
                         if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
                     ) {
-                        this.colourMode = ColourMode.values()[editColourComboIndex]
+                        this.colourMode = ColourMode.values()[it.get()]
                     }
                 }
 
