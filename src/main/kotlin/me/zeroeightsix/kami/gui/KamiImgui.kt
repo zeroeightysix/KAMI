@@ -6,21 +6,22 @@ import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.Stack
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.opengl.GL
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.*
 
 object KamiImgui {
 
     val imguiGlfw: ImGuiImplGlfw = ImGuiImplGlfw()
     private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
+    private const val INI_FILENAME = "kami-imgui.ini"
 
     val fonts = mutableMapOf<String, ImFont>()
     val fontNames = arrayOf("Minecraftia 12px", "Minecraftia 24px", "Default")
@@ -33,25 +34,11 @@ object KamiImgui {
             return ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
         }
 
-        val caps = GL.getCapabilities()
         ImGui.createContext()
-        // TODO: check if this works on macOS properly.
-        val glslVersion = when {
-            caps.OpenGL32 -> {
-                150
-            }
-            caps.OpenGL30 -> { // apparently we might have to skip this one?
-                130
-            }
-            else -> 110
-        }
-        imguiGlfw.init(mc.window.handle, false)
-        imguiGl.init("#version $glslVersion")
 
-        val iniFilename = "kami-imgui.ini"
-        ImGui.getIO().iniFilename = iniFilename
+        ImGui.getIO().iniFilename = INI_FILENAME
         tryOrNull {
-            Files.createFile(Paths.get(iniFilename))
+            Files.createFile(Paths.get(INI_FILENAME))
             "Created imgui .ini file!"
         }?.let { KamiMod.log.info(it) }
 
@@ -92,6 +79,20 @@ object KamiImgui {
         Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
         val defaultFontName = fontNames.getOrElse(Settings.font) { fontNames.first() }
         ImGui.getIO().setFontDefault(fonts[defaultFontName])
+
+        val caps = GL.getCapabilities()
+        // TODO: check if this works on macOS properly.
+        val glslVersion = when {
+            caps.OpenGL32 -> {
+                150
+            }
+            caps.OpenGL30 -> { // apparently we might have to skip this one?
+                130
+            }
+            else -> 110
+        }
+        imguiGlfw.init(mc.window.handle, false)
+        imguiGl.init("#version $glslVersion")
     }
 
     internal fun frame(matrices: MatrixStack, block: () -> Unit) {
