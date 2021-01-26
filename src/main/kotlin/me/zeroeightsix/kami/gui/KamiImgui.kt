@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.gui
 
 import com.google.common.io.ByteStreams
+import imgui.ImFont
 import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
@@ -10,6 +11,7 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
+import org.lwjgl.opengl.GL
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -20,17 +22,30 @@ object KamiImgui {
     private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
 
+    val fonts = mutableListOf<ImFont>()
+
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
     init {
-        fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig) {
-            val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return)
+        fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig): ImFont? {
+            val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return null)
             ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
         }
 
+        val caps = GL.getCapabilities()
         ImGui.createContext()
+        // TODO: check if this works on macOS properly.
+        val glslVersion = when {
+            caps.OpenGL32 -> {
+                150
+            }
+            caps.OpenGL30 -> { // apparently we might have to skip this one?
+                130
+            }
+            else -> 110
+        }
         imguiGlfw.init(mc.window.handle, false)
-        imguiGl.init()
+        imguiGl.init("#version $glslVersion")
 
         val iniFilename = "kami-imgui.ini"
         ImGui.getIO().iniFilename = iniFilename
@@ -53,7 +68,9 @@ object KamiImgui {
 //                pixelSnapH = true
 //                glyphOffset = Vec2(0, -2)
             }
-        )
+        )?.let {
+            fonts.add(it)
+        }
         addKamiFontFromTTF(
             minecraftiaLocation,
             24f,
@@ -62,13 +79,18 @@ object KamiImgui {
 //                pixelSnapH = true
 //                glyphOffset = Vec2(0, -2)
             }
-        )
-        ImGui.getIO().fonts.addFontDefault()
+        )?.let {
+            fonts.add(it)
+        }
+        ImGui.getIO().fonts.addFontDefault()?.let {
+            fonts.add(it)
+        }
         ImGui.getIO().fonts.build() // rebuild the font atlas
+        imguiGl.updateFontsTexture()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
-//        ImGui.getIO().setFontDefault(ImGui.getIO().fonts.)
-//        ImGui.io.fontDefault = ImGui.io.fonts.fonts.getOrElse(Settings.font) { ImGui.io.fonts.fonts.first() }
+        val defaultFont = fonts.getOrElse(Settings.font) { fonts.first() }
+        ImGui.getIO().setFontDefault(defaultFont)
     }
 
     internal fun frame(matrices: MatrixStack, block: () -> Unit) {
