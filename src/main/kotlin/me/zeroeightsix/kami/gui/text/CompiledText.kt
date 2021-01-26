@@ -3,8 +3,6 @@ package me.zeroeightsix.kami.gui.text
 import imgui.ImGui
 import imgui.ImVec4
 import imgui.flag.ImGuiCol
-import kotlin.math.abs
-import kotlin.math.floor
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
@@ -15,6 +13,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.colors
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
 import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.inputText
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImBool
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleIntArray
@@ -304,11 +303,7 @@ class CompiledText(
         }
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
-            val buf =
-                string.toByteArray(ByteArray((((floor((abs((string.length - 4) / 256) + 1).toDouble()))) * 256).toInt()))
-            if (ImGui.inputText("Text", buf)) {
-                string = buf.cStr
-            }
+            inputText("Text", ::string)
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()

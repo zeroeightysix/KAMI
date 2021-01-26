@@ -3,11 +3,14 @@ package me.zeroeightsix.kami.gui
 import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
+import imgui.ImGui.beginPopupContextWindow
 import imgui.ImGui.button
 import imgui.ImGui.endMenu
+import imgui.ImGui.endPopup
 import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
+import imgui.ImGui.inputText
 import imgui.ImGui.menuItem
 import imgui.ImGui.popItemWidth
 import imgui.ImGui.popStyleColor
@@ -22,6 +25,7 @@ import imgui.ImGui.textUnformatted
 import imgui.ImGuiStyle
 import imgui.ImVec2
 import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiPopupFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
 import imgui.type.ImString
@@ -69,8 +73,14 @@ object ImguiDSL {
             ImGui.endChild()
     }
 
-    inline fun checkbox(label: String, bool: KMutableProperty0<Boolean>) = wrapImBool(bool) {
-        checkbox(label, it)
+    inline fun inputText(label: String, value: KMutableProperty0<String>, block: () -> Unit = {}) = wrapImStr(value) {
+        if (inputText(label, it)) {
+            block()
+        }
+    }
+
+    inline fun checkbox(label: String, bool: KMutableProperty0<Boolean>, block: () -> Unit) = wrapImBool(bool) {
+        checkbox(label, it, block)
     }
 
     inline fun checkbox(label: String, bool: ImBoolean, block: () -> Unit = {}) {
@@ -92,6 +102,17 @@ object ImguiDSL {
         block: () -> Unit
     ) {
         if (ImGui.combo(label, currentItem, itemsSeparatedByZeros, heightInItems))
+            block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: ImInt,
+        items: Array<String>,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        if (ImGui.combo(label, currentItem, items, items.size, heightInItems))
             block()
     }
 
@@ -200,6 +221,42 @@ object ImguiDSL {
         }
     }
 
+    inline fun popupContextWindow(strId: String = "", popupFlags: Int = ImGuiPopupFlags.MouseButtonRight, block: () -> Unit) {
+        if (beginPopupContextWindow(strId, popupFlags))
+            try {
+                block()
+            } finally {
+                endPopup()
+            }
+    }
+
+    inline fun tabBar(strId: String, flags: Int = 0, block: () -> Unit) {
+        if (ImGui.beginTabBar(strId, flags))
+            try {
+                block()
+            } finally {
+                ImGui.endTabBar()
+            }
+    }
+
+    inline fun tabItem(label: String, open: KMutableProperty0<Boolean>, flags: Int = 0, block: () -> Unit) = wrapImBool(open) {
+        if (ImGui.beginTabItem(label, it, flags))
+            try {
+                block()
+            } finally {
+                ImGui.endTabItem()
+            }
+    }
+
+    inline fun tabItem(label: String, flags: Int = 0, block: () -> Unit) {
+        if (ImGui.beginTabItem(label, flags))
+            try {
+                block()
+            } finally {
+                ImGui.endTabItem()
+            }
+    }
+
     inline fun withStyleVar(styleVar: Int, value: Float, block: () -> Unit) {
         pushStyleVar(styleVar, value)
         try {
@@ -254,8 +311,32 @@ object ImguiDSL {
         property.set(int.get())
     }
 
+    inline fun wrapImStr(property: KMutableProperty0<String>, block: (ImString) -> Unit) {
+        val str = ImString(property())
+        block(str)
+        property.set(str.get())
+    }
+
     inline fun wrapSingleIntArray(property: KMutableProperty0<Int>, block: (IntArray) -> Unit) {
         val buf = intArrayOf(property.get())
+        try {
+            block(buf)
+        } finally {
+            property.set(buf[0])
+        }
+    }
+
+    inline fun wrapSingleFloatArray(property: KMutableProperty0<Float>, block: (FloatArray) -> Unit) {
+        val buf = floatArrayOf(property.get())
+        try {
+            block(buf)
+        } finally {
+            property.set(buf[0])
+        }
+    }
+
+    inline fun wrapSingleDoubleArray(property: KMutableProperty0<Double>, block: (DoubleArray) -> Unit) {
+        val buf = doubleArrayOf(property.get())
         try {
             block(buf)
         } finally {

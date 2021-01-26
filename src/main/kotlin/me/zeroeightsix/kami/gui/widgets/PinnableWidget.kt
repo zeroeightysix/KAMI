@@ -1,19 +1,17 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import glm_.vec2.Vec2
-import imgui.Cond
 import imgui.ImGui
-import imgui.ImGui.begin
-import imgui.ImGui.end
-import imgui.ImGui.io
+import imgui.ImGui.getFontSize
+import imgui.ImGui.getIO
 import imgui.ImGui.setNextWindowBgAlpha
 import imgui.ImGui.setNextWindowPos
-import imgui.ImGuiWindowFlags
-import imgui.api.g
-import imgui.dsl.menu
-import imgui.dsl.menuItem
-import imgui.dsl.popupContextWindow
-import imgui.or
+import imgui.ImVec2
+import imgui.flag.ImGuiCond
+import imgui.flag.ImGuiWindowFlags
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupContextWindow
+import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.windows.Settings
 
 abstract class PinnableWidget(
@@ -69,13 +67,12 @@ abstract class PinnableWidget(
             // TODO: Move windows when the main menu bar is shown or when chat is opened
             val distance = Settings.borderOffset
             val topDistance =
-                if (limitY) distance.coerceAtLeast(g.nextWindowData.menuBarOffsetMinVal.y + g.fontBaseSize + ImGui.style.framePadding.y + 4) else distance
-            val windowPos = Vec2(
-                if (position.left) distance else io.displaySize[0] - distance,
-                if (position.top) topDistance else io.displaySize[1] - distance
+                if (limitY) distance.coerceAtLeast(getFontSize() + ImGui.getStyle().framePaddingY + 4) else distance
+            val windowPos = ImVec2(
+                if (position.left) distance else getIO().displaySizeX - distance,
+                if (position.top) topDistance else getIO().displaySizeY - distance
             )
-            val windowPosPivot = Vec2(if (position.left) 0 else 1, if (position.top) 0 else 1)
-            setNextWindowPos(windowPos, Cond.Always, windowPosPivot)
+            setNextWindowPos(windowPos.x, windowPos.y, ImGuiCond.Always, if (position.left) 0f else 1f, if (position.top) 0f else 1f)
             flags = flags or ImGuiWindowFlags.NoMove
         }
 
@@ -85,11 +82,9 @@ abstract class PinnableWidget(
             } else flags = flags or ImGuiWindowFlags.NoBackground
         }
 
-        if (begin(name, ::open, flags)) {
+        window(name, ::open, flags) {
             fillWindow()
             if (showWidgetContextMenu()) return true
-
-            end()
         }
 
         postWindow()
@@ -104,7 +99,7 @@ abstract class PinnableWidget(
     protected open fun preWindow() {}
     protected open fun postWindow() {}
 
-    public enum class Position(val top: Boolean, val left: Boolean) {
+    enum class Position(val top: Boolean, val left: Boolean) {
         CUSTOM(false, false), TOP_LEFT(true, true), TOP_RIGHT(true, false), BOTTOM_LEFT(false, true), BOTTOM_RIGHT(false, false)
     }
 }

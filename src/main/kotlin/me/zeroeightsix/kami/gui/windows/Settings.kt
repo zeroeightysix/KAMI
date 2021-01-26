@@ -1,9 +1,5 @@
 package me.zeroeightsix.kami.gui.windows
 
-import glm_.func.common.clamp
-import glm_.vec2.Vec2
-import glm_.vec4.Vec4
-import imgui.ColorEditFlag
 import imgui.ImGui
 import imgui.ImGui.button
 import imgui.ImGui.colorConvertHSVtoRGB
@@ -11,20 +7,23 @@ import imgui.ImGui.colorConvertRGBtoHSV
 import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
 import imgui.ImGui.dummy
-import imgui.ImGui.popID
-import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
 import imgui.ImGui.textWrapped
-import imgui.TabBarFlag
-import imgui.ImGuiWindowFlags
-import imgui.api.demoDebugInformations
-import imgui.dsl.checkbox
-import imgui.dsl.tabBar
-import imgui.dsl.tabItem
-import imgui.dsl.window
+import imgui.flag.ImGuiColorEditFlags
+import imgui.flag.ImGuiTabBarFlags
+import imgui.flag.ImGuiWindowFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import kotlin.reflect.KMutableProperty0
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
+import me.zeroeightsix.kami.gui.ImguiDSL.tabBar
+import me.zeroeightsix.kami.gui.ImguiDSL.tabItem
+import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.charButton
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
@@ -33,7 +32,6 @@ import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
-import kotlin.reflect.KMutableProperty0
 
 @FindSettings
 object Settings {
@@ -95,7 +93,7 @@ object Settings {
     @Setting
     var moduleAlignment = TextPinnableWidget.Alignment.CENTER
 
-    val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }
+    val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }.toTypedArray()
 
     operator fun invoke() {
         fun boolSetting(
@@ -106,16 +104,16 @@ object Settings {
         ) {
             checkbox(label, checked, block)
             sameLine()
-            demoDebugInformations.helpMarker(description)
+            helpMarker(description)
         }
 
         if (settingsWindowOpen) {
             window("Settings", ::settingsWindowOpen, flags = ImGuiWindowFlags.AlwaysAutoResize) {
-                tabBar("kami-settings-tabbar", TabBarFlag.None) {
+                tabBar("kami-settings-tabbar", ImGuiTabBarFlags.None) {
                     tabItem("Behaviour") {
                         charButton("Command prefix", ::commandPrefix)
                         sameLine()
-                        demoDebugInformations.helpMarker("The character used to denote KAMI commands.")
+                        helpMarker("The character used to denote KAMI commands.")
 
                         boolSetting(
                             "Open the KAMI GUI anywhere",
@@ -152,7 +150,7 @@ object Settings {
                             ::hideModuleDescriptions,
                             "Hide module descriptions when its settings are opened."
                         )
-                        dummy(Vec2(0, 5))
+                        dummy(0f, 5f)
                         if (button("Reset module windows")) {
                             Modules.reset()
                         }
@@ -166,10 +164,12 @@ object Settings {
                     tabItem("Appearance") {
                         showFontSelector("Font###kami-settings-font-selector")
 
-                        if (ImGui.combo("Theme", ::styleIdx, themes)) {
-                            Themes.Variants.values()[styleIdx].applyStyle(true)
+                        wrapImInt(::styleIdx) {
+                            combo("Theme", it, themes) {
+                                Themes.Variants.values()[styleIdx].applyStyle(true)
+                            }
                         }
-                        
+
                         KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {
                             this.moduleAlignment = it
                         }
@@ -182,33 +182,34 @@ object Settings {
                             Themes.Variants.values()[styleIdx].applyStyle(false)
                         }
 
-                        dragFloat(
-                            "Border offset",
-                            ::borderOffset,
-                            vSpeed = 0.1f,
-                            vMin = 0f,
-                            vMax = 50f,
-                            format = "%.0f"
-                        )
-
-                        val speed = floatArrayOf(rainbowSpeed.toFloat())
-                        if (dragFloat("Rainbow speed", speed, 0, vSpeed = 0.005f, vMin = 0.05f, vMax = 1f)) {
-                            rainbowSpeed = speed[0].toDouble().clamp(0.0, 1.0)
+                        wrapSingleFloatArray(::borderOffset) {
+                            dragFloat(
+                                "Border offset",
+                                it,
+                                0.1f,
+                                0f,
+                                50f,
+                                "%.0f"
+                            )
                         }
 
-                        val col = Vec4(PrepHandler.getRainbowHue(), rainbowSaturation, rainbowBrightness, 1.0f)
-                        colorConvertHSVtoRGB(col)
+                        val speed = floatArrayOf(rainbowSpeed.toFloat())
+                        if (dragFloat("Rainbow speed", speed, 0.005f, 0.05f, 1f)) {
+                            rainbowSpeed = speed[0].toDouble().coerceIn(0.0, 1.0)
+                        }
+
+                        val col = floatArrayOf(PrepHandler.getRainbowHue().toFloat(), rainbowSaturation, rainbowBrightness, 1.0f)
+                        colorConvertHSVtoRGB(col, col)
                         colorEdit3(
                             "Rainbow colour",
                             col,
-                            ColorEditFlag.DisplayHSV or ColorEditFlag.NoPicker
+                            ImGuiColorEditFlags.DisplayHSV or ImGuiColorEditFlags.NoPicker
                         )
-                        val array = col.array
-                        colorConvertRGBtoHSV(array, array)
-                        rainbowSaturation = array[1]
-                        rainbowBrightness = array[2]
+                        colorConvertRGBtoHSV(col, col)
+                        rainbowSaturation = col[1]
+                        rainbowBrightness = col[2]
 
-                        dummy(Vec2(0, 5))
+                        dummy(0f, 5f)
                         textWrapped("Enabled HUD elements:")
                         EnabledWidgets.enabledButtons()
                     }
@@ -230,16 +231,17 @@ object Settings {
     }
 
     fun showFontSelector(label: String) {
-        val fontCurrent = ImGui.font
-        if (ImGui.beginCombo(label, fontCurrent.debugName)) {
-            ImGui.io.fonts.fonts.forEachIndexed { idx, font ->
-                pushID(font)
-                if (ImGui.selectable(font.debugName, font === fontCurrent)) {
-                    ImGui.io.fontDefault = font
-                    this.font = idx
-                }
-                popID()
-            }
+        val fontCurrent = ImGui.getFont()
+        if (ImGui.beginCombo(label, fontCurrent.toString() /*TODO: names??*/)) {
+            // TODO: how to list fonts?
+//            ImGui.getIO().fonts.fonts.forEachIndexed { idx, font ->
+//                pushID(font)
+//                if (ImGui.selectable(font.debugName, font === fontCurrent)) {
+//                    ImGui.io.fontDefault = font
+//                    this.font = idx
+//                }
+//                popID()
+//            }
             ImGui.endCombo()
         }
     }
