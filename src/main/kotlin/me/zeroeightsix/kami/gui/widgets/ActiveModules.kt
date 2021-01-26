@@ -22,7 +22,7 @@ val modulesVariable = object : CompiledText.StringVariable(
         ImGui.separator()
         ImGui.text("Show the following modules in the list:")
         ImGui.inputText("Filter##active-modules-filter", filter)
-        child("active-modules-show-list", ImGui.getContentRegionAvailWidth(), 60.0f) {
+        child("active-modules-show-list", ImGui.getWindowWidth(), 60.0f) {
             FeatureManager.modules.filter {
                 !it.hidden && it.name.toLowerCase().contains(filter.get().toLowerCase())
             }.forEach {

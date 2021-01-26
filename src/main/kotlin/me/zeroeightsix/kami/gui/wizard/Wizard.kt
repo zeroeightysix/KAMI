@@ -185,8 +185,8 @@ object Wizard {
         if (firstTime) {
             openPopup("Setup wizard")
             setNextWindowPos(
-                ImGui.getWindowWidth() * 0.5f,
-                ImGui.getWindowHeight() * 0.5f,
+                ImGui.getIO().displaySizeX * 0.5f,
+                ImGui.getIO().displaySizeY * 0.5f,
                 ImGuiCond.Always,
                 0.5f,
                 0.5f

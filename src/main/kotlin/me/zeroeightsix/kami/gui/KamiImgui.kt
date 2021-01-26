@@ -10,12 +10,9 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
-import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFWErrorCallback
-import org.lwjgl.opengl.GL
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Stack
+import java.util.*
 
 object KamiImgui {
 
@@ -67,6 +64,7 @@ object KamiImgui {
             }
         )
         ImGui.getIO().fonts.addFontDefault()
+        ImGui.getIO().fonts.build() // rebuild the font atlas
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
 //        ImGui.getIO().setFontDefault(ImGui.getIO().fonts.)
