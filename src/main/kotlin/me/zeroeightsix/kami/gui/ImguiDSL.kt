@@ -4,8 +4,10 @@ import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
 import imgui.ImGui.beginPopupContextItem
+import imgui.ImGui.beginPopupContextWindow
 import imgui.ImGui.button
 import imgui.ImGui.endMenu
+import imgui.ImGui.endPopup
 import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
@@ -24,12 +26,13 @@ import imgui.ImGui.textDisabled
 import imgui.ImGui.textUnformatted
 import imgui.ImGuiStyle
 import imgui.ImVec2
-import imgui.ImVec4
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiPopupFlags
 import imgui.type.ImBoolean
+import imgui.type.ImFloat
 import imgui.type.ImInt
 import imgui.type.ImString
+import me.zeroeightsix.kami.Colour
 import kotlin.reflect.KMutableProperty0
 
 typealias WindowFlags = Int
@@ -74,8 +77,8 @@ object ImguiDSL {
             ImGui.endChild()
     }
 
-    inline fun checkbox(label: String, bool: KMutableProperty0<Boolean>) = wrapImBool(bool) {
-        checkbox(label, it)
+    inline fun checkbox(label: String, bool: KMutableProperty0<Boolean>, block: () -> Unit = {}) = wrapImBool(bool) {
+        checkbox(label, it, block)
     }
 
     inline fun checkbox(label: String, bool: ImBoolean, block: () -> Unit = {}) {
@@ -97,6 +100,17 @@ object ImguiDSL {
         block: () -> Unit
     ) {
         if (ImGui.combo(label, currentItem, itemsSeparatedByZeros, heightInItems))
+            block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: KMutableProperty0<Int>,
+        itemsSeparatedByZeros: String,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        if (wrapImInt(currentItem) { ImGui.combo(label, it, itemsSeparatedByZeros, heightInItems) })
             block()
     }
 
@@ -139,12 +153,30 @@ object ImguiDSL {
             block()
     }
 
-    inline fun popupContextItem(strId: String = "", popupFlags: Int = ImGuiPopupFlags.MouseButtonRight, block: () -> Unit) {
+    inline fun popupContextItem(
+        strId: String = "",
+        popupFlags: Int = ImGuiPopupFlags.MouseButtonRight,
+        block: () -> Unit
+    ) {
         if (beginPopupContextItem(strId, popupFlags)) {
             try {
                 block()
             } finally {
-                ImGui.endPopup()
+                endPopup()
+            }
+        }
+    }
+
+    inline fun popupContextWindow(
+        strId: String = "",
+        popupFlags: Int = ImGuiPopupFlags.MouseButtonRight,
+        block: () -> Unit
+    ) {
+        if (beginPopupContextWindow(strId, popupFlags)) {
+            try {
+                block()
+            } finally {
+                endPopup()
             }
         }
     }
@@ -213,6 +245,10 @@ object ImguiDSL {
         } finally {
             popStyleColor()
         }
+    }
+
+    inline fun withStyleColour(idx: Int, colour: Colour, block: () -> Unit) {
+        withStyleColour(idx, colour.asFloatRGBA(), block)
     }
 
     inline fun withStyleColour(idx: Int, red: Float, green: Float, blue: Float, alpha: Float, block: () -> Unit) {
@@ -288,10 +324,13 @@ object ImguiDSL {
         return dst
     }
 
-    inline fun wrapImBool(property: KMutableProperty0<Boolean>, block: (ImBoolean) -> Unit) {
+    inline fun <R> wrapImBool(property: KMutableProperty0<Boolean>, block: (ImBoolean) -> R): R {
         val bool = ImBoolean(property())
-        block(bool)
-        property.set(bool.get())
+        try {
+            return block(bool)
+        } finally {
+            property.set(bool.get())
+        }
     }
 
     inline fun wrapImBool(value: Boolean, block: (ImBoolean) -> Unit) {
@@ -299,10 +338,27 @@ object ImguiDSL {
         block(bool)
     }
 
-    inline fun wrapImInt(property: KMutableProperty0<Int>, block: (ImInt) -> Unit) {
+    inline fun wrapImFloat(value: Float, block: (ImFloat) -> Unit) {
+        val float = ImFloat(value)
+        block(float)
+    }
+
+    inline fun <R> wrapImFloat(property: KMutableProperty0<Float>, block: (ImFloat) -> R): R {
+        val float = ImFloat(property())
+        try {
+            return block(float)
+        } finally {
+            property.set(float.get())
+        }
+    }
+
+    inline fun <R> wrapImInt(property: KMutableProperty0<Int>, block: (ImInt) -> R): R {
         val int = ImInt(property())
-        block(int)
-        property.set(int.get())
+        try {
+            return block(int)
+        } finally {
+            property.set(int.get())
+        }
     }
 
     inline fun wrapSingleIntArray(property: KMutableProperty0<Int>, block: (IntArray) -> Unit) {
@@ -314,7 +370,7 @@ object ImguiDSL {
         }
     }
 
-    inline fun <T> wrapImString(property: KMutableProperty0<String>, block: (ImString) -> T): T {
+    inline fun <R> wrapImString(property: KMutableProperty0<String>, block: (ImString) -> R): R {
         val buf = ImString(property.get())
         try {
             return block(buf)

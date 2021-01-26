@@ -1,12 +1,19 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import glm_.vec2.Vec2
-import imgui.Col
 import imgui.ImGui
-import imgui.ImGuiWindowFlags
-import imgui.dsl
-import imgui.impl.time
+import imgui.ImGui.dragScalar
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiDataType
+import imgui.flag.ImGuiWindowFlags
 import me.zeroeightsix.kami.Colour
+import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.withItemWidth
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
@@ -14,7 +21,6 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
-import uno.kotlin.NUL
 import kotlin.math.roundToInt
 
 @GenerateType
@@ -47,7 +53,7 @@ class GraphPinnableWidget(
     }
 
     val numVarMapComboItems by lazy {
-        numVarMap.keys.joinToString("$NUL") { it.toLowerCase().capitalize() }
+        numVarMap.keys.joinToString("\u0000") { it.toLowerCase().capitalize() }
     }
 
     var edit = false
@@ -65,8 +71,8 @@ class GraphPinnableWidget(
 
     override fun fillWindow() {
         if (sampleRate != 0f) {
-            if (refreshTime == 0.0) refreshTime = time
-            while (refreshTime < time) {
+            if (refreshTime == 0.0) refreshTime = ImGui.getTime()
+            while (refreshTime < ImGui.getTime()) {
                 this.variable.provideNumber()?.let {
                     samples.add(0, it.toFloat())
                     if (samples.size > capacity)
@@ -75,15 +81,19 @@ class GraphPinnableWidget(
                 }
             }
         }
-        dsl.withStyleColor(Col.PlotLines, linesColour.asVec4()) {
-            dsl.withStyleColor(Col.FrameBg, backgroundColour.asVec4()) {
-                dsl.withItemWidth(-(ImGui.calcTextSize(variable.name).x + ImGui.style.windowPadding.x)) {
+        withStyleColour(ImGuiCol.PlotLines, linesColour) {
+            withStyleColour(ImGuiCol.FrameBg, backgroundColour) {
+                withItemWidth(-(calcTextSize(variable.name).x + ImGui.getStyle().windowPaddingX)) {
                     ImGui.plotLines(
                         variable.name,
-                        { idx -> samples[idx] },
+                        samples.toFloatArray(),
                         samples.size,
-                        scaleMin = if (baseLineZero) 0f else Float.MAX_VALUE,
-                        graphSize = Vec2(0, ImGui.windowHeight - ImGui.style.windowPadding.y * 2)
+                        0,
+                        "",
+                        if (baseLineZero) 0f else Float.MAX_VALUE,
+                        Float.MAX_VALUE,
+                        0.0f,
+                        ImGui.getWindowHeight() - ImGui.getStyle().windowPaddingY * 2
                     )
                 }
             }
@@ -91,7 +101,7 @@ class GraphPinnableWidget(
     }
 
     override fun fillContextMenu() {
-        dsl.menuItem("Edit", selected = edit) {
+        menuItem("Edit", selected = edit) {
             edit = !edit
         }
     }
@@ -99,9 +109,9 @@ class GraphPinnableWidget(
     override fun postWindow() {
         // You'd think that `dsl.window` doesn't display the window if edit is false, but it still does. So we just check the value ourselves.
         if (edit && mc.currentScreen is KamiGuiScreen) {
-            dsl.window("Edit $name", ::edit, ImGuiWindowFlags.AlwaysAutoResize) {
+            window("Edit $name", ::edit, ImGuiWindowFlags.AlwaysAutoResize) {
                 editVarComboIndex = numVarMap.keys.indexOf(this.variable.name)
-                dsl.combo("Variable##$name-graph-var", ::editVarComboIndex, numVarMapComboItems) {
+                combo("Variable##$name-graph-var", ::editVarComboIndex, numVarMapComboItems) {
                     numVarMap[numVarMap.keys.toList()[editVarComboIndex]]?.let { it() }?.let {
                         this.variable = it as CompiledText.NumericalVariable
                         this.samples.clear()
@@ -109,22 +119,28 @@ class GraphPinnableWidget(
                 }
 
                 // We store in variables instead of doing it in the if statement to prevent the conditional from short-circuiting, and not displaying a slider for one frame.
-                val sampleChanged = ImGui.dragFloat(
-                    "Sample rate##$name-graph-sr",
-                    ::sampleRate,
-                    vMin = 0f,
-                    vMax = 60f,
-                    vSpeed = 0.05f,
-                    format = "%.2f Hz"
-                )
-                val secondsChanged = ImGui.dragFloat(
-                    "Capacity##$name-graph-capacity-seconds",
-                    ::seconds,
-                    vMin = 0f,
-                    vMax = 60f * 60f,
-                    vSpeed = 0.05f,
-                    format = "%.0f seconds"
-                )
+                val sampleChanged = wrapImFloat(::sampleRate) {
+                    dragScalar(
+                        "Sample rate##$name-graph-sr",
+                        ImGuiDataType.Float,
+                        it,
+                        0f,
+                        60f,
+                        0.05f,
+                        "%.2f Hz"
+                    )
+                }
+                val secondsChanged = wrapImFloat(::seconds) {
+                    dragScalar(
+                        "Capacity##$name-graph-capacity-seconds",
+                        ImGuiDataType.Float,
+                        it,
+                        0f,
+                        60f * 60f,
+                        0.05f,
+                        "%.0f seconds"
+                    )
+                }
                 if (sampleChanged || secondsChanged) {
                     this.capacity = (seconds * sampleRate).roundToInt()
                     // In case the capacity shrunk, remove those elements
@@ -134,7 +150,7 @@ class GraphPinnableWidget(
                 ImGui.sameLine()
                 ImGui.textDisabled("= $capacity samples")
 
-                ImGui.checkbox("Base at zero", ::baseLineZero)
+                checkbox("Base at zero", ::baseLineZero)
 
                 KamiConfig.colourType.settingInterface?.let { interf ->
                     interf.displayImGui("Line colour", linesColour)?.let { linesColour = it }
