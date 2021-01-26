@@ -17,6 +17,7 @@ import imgui.flag.ImGuiTreeNodeFlags
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.TickEvent
+import me.zeroeightsix.kami.feature.command.NbtCommand.open
 import me.zeroeightsix.kami.gui.ImGuiScreen
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.child
@@ -40,7 +41,7 @@ import net.minecraft.util.math.BlockPos
 
 object NbtCommand : Command() {
     var screen = NbtScreen(CompoundTag())
-    var open = true
+    var open = false
 
     private val FAILED_EXCEPTION =
         DynamicCommandExceptionType { LiteralText(it.toString()) }
@@ -51,6 +52,7 @@ object NbtCommand : Command() {
 
     init {
         opener = Listener({
+            open = true
             mc.openScreen(screen)
             KamiMod.EVENT_BUS.unsubscribe(opener)
         })
@@ -121,7 +123,7 @@ class NbtScreen(
     }
 
     operator fun invoke() {
-        window("NBT") {
+        window("NBT", NbtCommand::open) {
             button("Copy", windowContentRegionWidth, 0f) {
                 copyTagToClipboard(tag)
             }
@@ -131,6 +133,9 @@ class NbtScreen(
                 showTree("NBT", tag)
                 columns()
             }
+        }
+        if (!open) {
+            this.onClose()
         }
     }
 

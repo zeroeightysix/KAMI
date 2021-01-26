@@ -51,7 +51,7 @@ object Wizard {
         },
         {
             text("Please select your preferred theme and font.")
-            combo("Theme", Settings::styleIdx, Settings.themes.joinToString("\u0000")) {
+            combo("Theme", Settings::styleIdx, Settings.themes) {
                 Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
             }
             Settings.showFontSelector("Font###kami-settings-font-selector")

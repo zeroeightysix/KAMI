@@ -53,7 +53,7 @@ class GraphPinnableWidget(
     }
 
     val numVarMapComboItems by lazy {
-        numVarMap.keys.joinToString("\u0000") { it.toLowerCase().capitalize() }
+        numVarMap.keys.map { it.toLowerCase().capitalize() }
     }
 
     var edit = false

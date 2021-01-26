@@ -344,7 +344,6 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                                     // Add the current enum at idx 0
                                     it.add(0, enum)
                                 }.map { it.name.humanReadable } // Map them to human readable names
-                                    .joinToString("\u0000")
 
                                 // Show the combobox for the user to select which enum to **switch** to
                                 val currentItem = ImInt(0)
@@ -399,7 +398,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                         .toMutableList()
                         .also {
                             it.add(0, "Custom")
-                        }.joinToString("\u0000")
+                        }
 
                     combo((if (isColumns) "##" else "") + "New##", currentItem, options) {
                         @Suppress("NAME_SHADOWING") val currentItem = currentItem.get()

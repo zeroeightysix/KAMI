@@ -7,7 +7,10 @@ import imgui.ImGui.colorConvertRGBtoHSV
 import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
 import imgui.ImGui.dummy
+import imgui.ImGui.popID
+import imgui.ImGui.pushID
 import imgui.ImGui.sameLine
+import imgui.ImGui.selectable
 import imgui.ImGui.textWrapped
 import imgui.flag.ImGuiColorEditFlags
 import imgui.flag.ImGuiTabBarFlags
@@ -24,6 +27,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.tabItem
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
+import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.charButton
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
@@ -164,7 +168,7 @@ object Settings {
                     tabItem("Appearance") {
                         showFontSelector("Font###kami-settings-font-selector")
 
-                        combo("Theme", ::styleIdx, themes.joinToString("\u0000")) {
+                        combo("Theme", ::styleIdx, themes) {
                             Themes.Variants.values()[styleIdx].applyStyle(true)
                         }
 
@@ -229,17 +233,16 @@ object Settings {
     }
 
     fun showFontSelector(label: String) {
-        val fontCurrent = ImGui.getFont()
-        if (ImGui.beginCombo(label, fontCurrent.toString() /*TODO: names??*/)) {
-            // TODO: how to list fonts?
-//            ImGui.getIO().fonts.fonts.forEachIndexed { idx, font ->
-//                pushID(font)
-//                if (ImGui.selectable(font.debugName, font === fontCurrent)) {
-//                    ImGui.io.fontDefault = font
-//                    this.font = idx
-//                }
-//                popID()
-//            }
+        val fontCurrent = KamiImgui.fontNames[font]
+        if (ImGui.beginCombo(label, fontCurrent)) {
+            KamiImgui.fontNames.forEachIndexed { idx, fontName ->
+                pushID(fontName)
+                if (selectable(fontName, fontCurrent === fontName)) {
+                    ImGui.getIO().setFontDefault(KamiImgui.fonts[fontName])
+                    this.font = idx
+                }
+                popID()
+            }
             ImGui.endCombo()
         }
     }

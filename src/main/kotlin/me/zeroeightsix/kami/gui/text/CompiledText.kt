@@ -282,8 +282,8 @@ class CompiledText(
 
             companion object {
                 val listNormal = values().filter { !it.multilineExclusive }
-                    .joinToString("\u0000") { it.name.toLowerCase().capitalize() }
-                val listMultiline = values().joinToString("\u0000") { it.name.toLowerCase().capitalize() }
+                    .map { it.name.toLowerCase().capitalize() }
+                val listMultiline = values().map { it.name.toLowerCase().capitalize() }
             }
         }
 

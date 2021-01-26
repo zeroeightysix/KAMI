@@ -22,7 +22,8 @@ object KamiImgui {
     private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
 
-    val fonts = mutableListOf<ImFont>()
+    val fonts = mutableMapOf<String, ImFont>()
+    val fontNames = arrayOf("Minecraftia 12px", "Minecraftia 24px", "Default")
 
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
@@ -69,7 +70,7 @@ object KamiImgui {
 //                glyphOffset = Vec2(0, -2)
             }
         )?.let {
-            fonts.add(it)
+            fonts.put("Minecraftia 12px", it)
         }
         addKamiFontFromTTF(
             minecraftiaLocation,
@@ -80,17 +81,17 @@ object KamiImgui {
 //                glyphOffset = Vec2(0, -2)
             }
         )?.let {
-            fonts.add(it)
+            fonts.put("Minecraftia 24px", it)
         }
         ImGui.getIO().fonts.addFontDefault()?.let {
-            fonts.add(it)
+            fonts.put("Default", it)
         }
         ImGui.getIO().fonts.build() // rebuild the font atlas
         imguiGl.updateFontsTexture()
 
         Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
-        val defaultFont = fonts.getOrElse(Settings.font) { fonts.first() }
-        ImGui.getIO().setFontDefault(defaultFont)
+        val defaultFontName = fontNames.getOrElse(Settings.font) { fontNames.first() }
+        ImGui.getIO().setFontDefault(fonts[defaultFontName])
     }
 
     internal fun frame(matrices: MatrixStack, block: () -> Unit) {

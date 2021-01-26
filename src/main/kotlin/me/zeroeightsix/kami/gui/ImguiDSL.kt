@@ -103,43 +103,65 @@ object ImguiDSL {
     inline fun combo(
         label: String,
         currentItem: ImInt,
-        itemsSeparatedByZeros: String,
+        item: String,
         heightInItems: Int = -1,
         block: () -> Unit
     ) {
-        if (ImGui.combo(label, currentItem, itemsSeparatedByZeros, heightInItems))
+        if (ImGui.combo(label, currentItem, item, heightInItems))
             block()
     }
 
     inline fun combo(
         label: String,
         currentItem: ImInt,
-        items: List<String>,
+        items: Array<String>,
         heightInItems: Int = -1,
         block: () -> Unit
     ) {
-        combo(label, currentItem, items.joinToString("\u0000"), heightInItems, block)
+        if (ImGui.combo(label, currentItem, items, heightInItems))
+            block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: ImInt,
+        items: Collection<String>,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        combo(label, currentItem, items.toTypedArray(), heightInItems, block)
     }
 
     inline fun combo(
         label: String,
         currentItem: KMutableProperty0<Int>,
-        itemsSeparatedByZeros: String,
+        item: String,
         heightInItems: Int = -1,
         block: () -> Unit
     ) {
-        if (wrapImInt(currentItem) { ImGui.combo(label, it, itemsSeparatedByZeros, heightInItems) })
+        if (wrapImInt(currentItem) { ImGui.combo(label, it, item, heightInItems) })
             block()
     }
 
     inline fun combo(
         label: String,
         currentItem: KMutableProperty0<Int>,
-        items: List<String>,
+        items: Array<String>,
         heightInItems: Int = -1,
         block: () -> Unit
     ) {
-        combo(label, currentItem, items.joinToString("\u0000"), heightInItems, block)
+        if (wrapImInt(currentItem) { ImGui.combo(label, it, items, heightInItems) })
+            block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: KMutableProperty0<Int>,
+        items: Collection<String>,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        combo(label, currentItem, items.toTypedArray(), heightInItems, block)
     }
 
     inline fun mainMenuBar(block: () -> Unit) {
