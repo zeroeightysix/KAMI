@@ -48,16 +48,13 @@ typealias WindowFlags = Int
 object ImguiDSL {
     const val PAYLOAD_TYPE_COLOR_4F = "_COL4F"
 
-    inline fun window(name: String, flags: WindowFlags = 0, block: () -> Unit) =
-        window(name, ImBoolean(true), flags, block)
-
     inline fun window(name: String, open: KMutableProperty0<Boolean>, flags: WindowFlags = 0, block: () -> Unit) =
         wrapImBool(open) {
             window(name, it, flags, block)
         }
 
-    inline fun window(name: String, open: ImBoolean, flags: WindowFlags = 0, block: () -> Unit) {
-        if (ImGui.begin(name, open, flags)) // ~open
+    inline fun window(name: String, open: ImBoolean? = null, flags: WindowFlags = 0, block: () -> Unit) {
+        if (if (open != null) { ImGui.begin(name, open, flags) } else { ImGui.begin(name, flags) })
             try {
                 block()
             } finally {
