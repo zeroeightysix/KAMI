@@ -113,6 +113,16 @@ object ImguiDSL {
 
     inline fun combo(
         label: String,
+        currentItem: ImInt,
+        items: List<String>,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        combo(label, currentItem, items.joinToString("\u0000"), heightInItems, block)
+    }
+
+    inline fun combo(
+        label: String,
         currentItem: KMutableProperty0<Int>,
         itemsSeparatedByZeros: String,
         heightInItems: Int = -1,
@@ -120,6 +130,16 @@ object ImguiDSL {
     ) {
         if (wrapImInt(currentItem) { ImGui.combo(label, it, itemsSeparatedByZeros, heightInItems) })
             block()
+    }
+
+    inline fun combo(
+        label: String,
+        currentItem: KMutableProperty0<Int>,
+        items: List<String>,
+        heightInItems: Int = -1,
+        block: () -> Unit
+    ) {
+        combo(label, currentItem, items.joinToString("\u0000"), heightInItems, block)
     }
 
     inline fun mainMenuBar(block: () -> Unit) {
