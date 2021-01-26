@@ -100,7 +100,7 @@ dependencies {
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
-    depend(SHADOW, "org.reflections:reflections:0.9.11")
+    depend(SHADOW, "org.reflections:reflections:0.9.12")
     depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
     depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
 
@@ -110,12 +110,21 @@ dependencies {
         exclude(group = "org.lwjgl")
         exclude(group = "org.lwjgl.lwjgl")
     }
-    arrayOf("linux-x86", "linux-x86", "macos", "windows", "windows-x86").forEach {
+    arrayOf("linux", "linux-x86", "macos", "windows", "windows-x86").forEach {
         depend(INCLUDE, "io.imgui.java:imgui-java-natives-$it:$imgui_version", RUNTIME_ONLY)
     }
 
     // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
+
+    // TODO: javassist is broken with minimize
+    listOf(
+        "org.javassist:javassist:3.21.0-GA",
+        "net.jodah:typetools:0.5.0",
+        "org.jetbrains:annotations:13.0"
+    ).forEach {
+        shadow(it)
+    }
 }
 
 tasks {
