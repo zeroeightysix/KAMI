@@ -10,10 +10,12 @@ import imgui.ImGui.getFontSize
 import imgui.ImGui.getWindowContentRegionMaxX
 import imgui.ImGui.getWindowContentRegionMinX
 import imgui.ImGui.menuItem
+import imgui.ImGui.popID
 import imgui.ImGui.popItemWidth
 import imgui.ImGui.popStyleColor
 import imgui.ImGui.popStyleVar
 import imgui.ImGui.popTextWrapPos
+import imgui.ImGui.pushID
 import imgui.ImGui.pushItemWidth
 import imgui.ImGui.pushStyleColor
 import imgui.ImGui.pushStyleVar
@@ -177,6 +179,33 @@ object ImguiDSL {
         }
     }
 
+    inline fun withId(id: Int, block: () -> Unit) {
+        pushID(id)
+        try {
+            block()
+        } finally {
+            popID()
+        }
+    }
+
+    inline fun withId(id: String, block: () -> Unit) {
+        pushID(id)
+        try {
+            block()
+        } finally {
+            popID()
+        }
+    }
+
+    inline fun <E : Enum<E>> withId(id: E, block: () -> Unit) {
+        pushID(id.ordinal)
+        try {
+            block()
+        } finally {
+            popID()
+        }
+    }
+
     inline fun withStyleColour(idx: Int, col: Int, block: () -> Unit) {
         pushStyleColor(idx, col)
         try {
@@ -188,6 +217,15 @@ object ImguiDSL {
 
     inline fun withStyleColour(idx: Int, red: Float, green: Float, blue: Float, alpha: Float, block: () -> Unit) {
         pushStyleColor(idx, red, green, blue, alpha)
+        try {
+            block()
+        } finally {
+            popStyleColor()
+        }
+    }
+
+    inline fun withStyleColour(idx: Int, colour: FloatArray, block: () -> Unit) {
+        pushStyleColor(idx, colour[0], colour[1], colour[2], colour[3])
         try {
             block()
         } finally {
@@ -273,6 +311,15 @@ object ImguiDSL {
             block(buf)
         } finally {
             property.set(buf[0])
+        }
+    }
+
+    inline fun <T> wrapImString(property: KMutableProperty0<String>, block: (ImString) -> T): T {
+        val buf = ImString(property.get())
+        try {
+            return block(buf)
+        } finally {
+            property.set(buf.get())
         }
     }
 
