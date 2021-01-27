@@ -1,7 +1,5 @@
 @file:Suppress("LocalVariableName")
 
-import Build_gradle.DependencyMethod.IMPLEMENTATION
-import Build_gradle.DependencyMethod.RUNTIME_ONLY
 import Build_gradle.IncludeMethod.INCLUDE
 import Build_gradle.IncludeMethod.NOT
 import Build_gradle.IncludeMethod.SHADOW
@@ -47,10 +45,6 @@ enum class IncludeMethod {
     NOT, SHADOW, INCLUDE
 }
 
-enum class DependencyMethod {
-    IMPLEMENTATION, RUNTIME_ONLY
-}
-
 dependencies {
     val kotlin_version: String by project
     val minecraft_version: String by project
@@ -59,12 +53,8 @@ dependencies {
     val fiber_version: String by project
     val imgui_version: String by project
 
-    fun depend(includeMethod: IncludeMethod = NOT, notation: String, dependencyMethod: DependencyMethod = IMPLEMENTATION, action: ExternalModuleDependency.() -> Unit = {}) {
-        when (dependencyMethod) {
-            IMPLEMENTATION -> implementation(dependencyNotation = notation, dependencyConfiguration = action)
-            RUNTIME_ONLY -> runtimeOnly(dependencyNotation = notation, dependencyConfiguration = action)
-        }
-
+    fun depend(includeMethod: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
+        implementation(dependencyNotation = notation, dependencyConfiguration = action)
         when (includeMethod) {
             SHADOW -> shadow(dependencyNotation = notation, dependencyConfiguration = action)
             INCLUDE -> include(dependencyNotation = notation, dependencyConfiguration = action)
@@ -96,6 +86,9 @@ dependencies {
         exclude(group = "org.ow2.asm")
     }
 
+    // Needed to fix XRay and others
+    modImplementation("com.github.jellysquid3:sodium-fabric:1.16.x~stable-SNAPSHOT")
+
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
@@ -111,7 +104,7 @@ dependencies {
         exclude(group = "org.lwjgl.lwjgl")
     }
     arrayOf("linux", "linux-x86", "macos", "windows", "windows-x86").forEach {
-        depend(INCLUDE, "io.imgui.java:imgui-java-natives-$it:$imgui_version", RUNTIME_ONLY)
+        depend(SHADOW, "io.imgui.java:imgui-java-natives-$it:$imgui_version")
     }
 
     // Discord RPC
@@ -160,8 +153,6 @@ tasks {
         configurations = listOf(project.configurations.shadow.get())
 
         exclude("/fonts/*")
-
-        minimize()
     }
 
     build {
