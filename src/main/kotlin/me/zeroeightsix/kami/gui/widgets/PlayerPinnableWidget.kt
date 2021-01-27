@@ -2,14 +2,12 @@ package me.zeroeightsix.kami.gui.widgets
 
 import com.mojang.blaze3d.systems.RenderSystem
 import imgui.ImGui
-import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.client.util.math.Vector3f
 import net.minecraft.entity.LivingEntity
@@ -75,18 +73,25 @@ class PlayerPinnableWidget(
         }
     }
 
-    fun drawEntity(x: Float, y: Float, offsetY: Double = 0.0, scale: Float, livingEntity: LivingEntity, tickDelta: Float) {
+    private fun drawEntity(
+        x: Float,
+        y: Float,
+        offsetY: Double = 0.0,
+        scale: Float,
+        livingEntity: LivingEntity,
+        tickDelta: Float
+    ) {
         RenderSystem.pushMatrix()
-        RenderSystem.translatef(x.toFloat(), y.toFloat(), 1050.0f)
+        RenderSystem.translatef(x, y, 1050.0f)
         RenderSystem.scalef(1.0f, 1.0f, -1.0f)
         val matrixStack = MatrixStack()
         matrixStack.translate(0.0, 0.0, 1000.0)
         matrixStack.scale(scale, scale, scale)
         val quaternion = Vector3f.POSITIVE_Z.getDegreesQuaternion(180.0f)
         matrixStack.multiply(quaternion)
-        val entityRenderDispatcher = MinecraftClient.getInstance().entityRenderDispatcher
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         entityRenderDispatcher.setRenderShadows(false)
-        val immediate = MinecraftClient.getInstance().bufferBuilders.entityVertexConsumers
+        val immediate = mc.bufferBuilders.entityVertexConsumers
         RenderSystem.runAsFancy {
             entityRenderDispatcher.render(
                 livingEntity,

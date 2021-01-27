@@ -1,11 +1,7 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
 import imgui.ImGui
-import imgui.ImGui.calcTextSize
 import imgui.ImGui.setNextWindowSize
-import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
 import me.zeroeightsix.kami.gui.ImguiDSL.cursorPosX
 import me.zeroeightsix.kami.gui.KamiGuiScreen
@@ -13,7 +9,6 @@ import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
-import net.minecraft.client.texture.SpriteAtlasTexture
 
 @GenerateType
 class InventoryPinnableWidget(
@@ -30,65 +25,48 @@ class InventoryPinnableWidget(
     }
 
     override fun fillWindow() {
-        /*if (mc.currentScreen is KamiGuiScreen) {
+        val windowPosX = ImGui.getWindowPosX()
+        val windowPosY = ImGui.getWindowPosY()
+        val windowWidth = ImGui.getWindowWidth()
+        if (mc.currentScreen is KamiGuiScreen) {
             // If the GUI is displayed, don't render the inventory.
             // This is because we can't render minecraft stuff while imgui is rendering (will screw up textures)
             val text = "Inventory overlay"
             val width = calcTextSize(text).x
-            cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
+            cursorPosX = (windowWidth - width).coerceAtLeast(0f) * 0.5f
             ImGui.textDisabled(text)
         } else {
-            val rect = ImGui.currentWindow.rect()
-            ImGui.getWindowDrawList().
-            ImGui.currentWindow.drawList.addCallback({ _, cmd ->
-                KamiImgui.postDraw {
-                    val scale = KamiHud.getScale()
+            val scale = KamiHud.getScale()
+            KamiImgui.postDraw {
+                val item = mc.itemRenderer ?: return@postDraw
+                val player = mc.player ?: return@postDraw
 
-                    mc.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)
-                    mc.textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)!!.setFilter(false, false)
-
-                    RenderSystem.enableRescaleNormal()
-                    RenderSystem.enableAlphaTest()
-                    RenderSystem.defaultAlphaFunc()
-                    RenderSystem.enableBlend()
-                    RenderSystem.blendFunc(
-                        GlStateManager.SrcFactor.SRC_ALPHA,
-                        GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA
-                    )
-                    RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f)
-
-                    val item = mc.itemRenderer ?: return@postDraw
-                    val player = mc.player ?: return@postDraw
-
-                    // render inventory
-                    (1..4).forEach { row ->
-                        (0 until 9).forEach { column ->
-                            val slot = row * 9 + column
-                            val stack = player.inventory.getStack(slot)
-                            val isEmpty = stack.isEmpty
-                            if (!isEmpty) {
-                                val x = (rect.min.x.toInt() / scale) + column * 16 + 2
-                                val y = (rect.min.y.toInt() / scale) + (row - 1) * 16 + 2
-                                item.renderInGui(
-                                    stack,
-                                    x,
-                                    y
-                                )
-                                item.renderGuiItemOverlay(
-                                    mc.textRenderer,
-                                    stack,
-                                    x,
-                                    y
-                                )
-                            }
+                val baseX = (windowPosX / scale).toInt()
+                val baseY = (windowPosY / scale).toInt()
+                // render inventory
+                (1..4).forEach { row ->
+                    (0 until 9).forEach { column ->
+                        val slot = row * 9 + column
+                        val stack = player.inventory.getStack(slot)
+                        val isEmpty = stack.isEmpty
+                        if (!isEmpty) {
+                            val x = baseX + column * 16 + 2
+                            val y = baseY + (row - 1) * 16 + 2
+                            item.renderInGui(
+                                stack,
+                                x,
+                                y
+                            )
+                            item.renderGuiItemOverlay(
+                                mc.textRenderer,
+                                stack,
+                                x,
+                                y
+                            )
                         }
                     }
-
-                    RenderSystem.disableAlphaTest()
-                    RenderSystem.disableRescaleNormal()
                 }
-            })
-        }*/
-        TODO()
+            }
+        }
     }
 }

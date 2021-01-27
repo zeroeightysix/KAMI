@@ -6,15 +6,15 @@ import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.Stack
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.opengl.GL
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
 
 object KamiImgui {
 

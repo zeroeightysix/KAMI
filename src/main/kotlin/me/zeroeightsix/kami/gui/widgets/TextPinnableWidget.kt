@@ -5,11 +5,9 @@ import imgui.ImGui.dummy
 import imgui.ImGui.sameLine
 import imgui.ImGui.separator
 import imgui.ImGui.text
-import imgui.ImVec2
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiWindowFlags
-import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
@@ -74,98 +72,98 @@ open class TextPinnableWidget(
         // Otherwise, because it is rendered after imgui, it would always be in the foreground.
         val style = ImGui.getStyle()
         if (minecraftFont && !guiOpen) {
-                // For god knows what reason, rendering minecraft text in here results in fucked textures.
-                // Even if you revert the GL state to exactly what it was before rendering imgui.
-                // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
-            val posX = ImGui.getWindowPosX()
-            val posY = ImGui.getWindowPosY()
-            val width = ImGui.getWindowWidth()
-                KamiImgui.postDraw { matrices ->
-                    val scale = KamiHud.getScale()
-                    val x = (posX + style.windowPaddingX) / scale - 2
-                    var y = (posY + style.windowPaddingY) / scale + 2
+            // For god knows what reason, rendering minecraft text in here results in fucked textures.
+            // Even if you revert the GL state to exactly what it was before rendering imgui.
+            // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
+            val windowPosX = ImGui.getWindowPosX()
+            val windowPosY = ImGui.getWindowPosY()
+            val windowWidth = ImGui.getWindowWidth()
+            KamiImgui.postDraw { matrices ->
+                val scale = KamiHud.getScale()
+                val x = (windowPosX + style.windowPaddingX) / scale - 2
+                var y = (windowPosY + style.windowPaddingY) / scale + 2
 
-                    for (triplets in immediateText) {
-                        fun calcFullWidth() = triplets.map { it.third.x }.sum()
+                for (triplets in immediateText) {
+                    fun calcFullWidth() = triplets.map { it.third.x }.sum()
 
-                        var xOffset = when (alignment) {
-                            Alignment.LEFT -> 0f
-                            Alignment.CENTER -> ((width - calcFullWidth()) * 0.5f - style.windowPaddingX) / scale
-                            Alignment.RIGHT -> ((width - calcFullWidth()) - style.windowPaddingY * 2) / scale
-                        }
+                    var xOffset = when (alignment) {
+                        Alignment.LEFT -> 0f
+                        Alignment.CENTER -> ((windowWidth - calcFullWidth()) * 0.5f - style.windowPaddingX) / scale
+                        Alignment.RIGHT -> ((windowWidth - calcFullWidth()) - style.windowPaddingY * 2) / scale
+                    }
 
-                        for ((part, str, _) in triplets) {
-                            if (part.multiline) {
-                                val codes = part.codes
-                                var lastWidth = 0f
-                                str.split("\n").let { lines ->
-                                    when (ordering) {
-                                        Ordering.ORIGINAL -> lines
-                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { mc.textRenderer.getWidth(it) }
-                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending {
-                                            mc.textRenderer.getWidth(
-                                                it
-                                            )
-                                        }
+                    for ((part, str, _) in triplets) {
+                        if (part.multiline) {
+                            val codes = part.codes
+                            var lastWidth = 0f
+                            str.split("\n").let { lines ->
+                                when (ordering) {
+                                    Ordering.ORIGINAL -> lines
+                                    Ordering.WIDTH_ASCENDING -> lines.sortedBy { mc.textRenderer.getWidth(it) }
+                                    Ordering.WIDTH_DESCENDING -> lines.sortedByDescending {
+                                        mc.textRenderer.getWidth(
+                                            it
+                                        )
                                     }
-                                }.forEach {
-                                    val localXOffset = when (alignment) {
-                                        Alignment.LEFT -> xOffset
-                                        Alignment.CENTER -> {
-                                            ((width - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPaddingX) / scale
-                                        }
-                                        Alignment.RIGHT -> {
-                                            (width - style.windowPaddingX * 2) / scale - mc.textRenderer.getWidth(
-                                                it
-                                            )
-                                        }
-                                    }
-                                    val width = if (part.shadow)
-                                        mc.textRenderer.drawWithShadow(
-                                            matrices,
-                                            codes + it,
-                                            x + localXOffset,
-                                            y,
-                                            part.currentColourARGB()
-                                        ) - (x + localXOffset)
-                                    else
-                                        mc.textRenderer.draw(
-                                            matrices,
-                                            codes + it,
-                                            x + localXOffset,
-                                            y,
-                                            part.currentColourARGB()
-                                        ) - (x + localXOffset)
-                                    lastWidth = width
-                                    y += mc.textRenderer.fontHeight + 3
                                 }
-                                xOffset += lastWidth - 1
-                                y -= mc.textRenderer.fontHeight + 3
-                                part.resetMultilinePattern()
-                            } else {
-                                val strCodes = part.codes + str
+                            }.forEach {
+                                val localXOffset = when (alignment) {
+                                    Alignment.LEFT -> xOffset
+                                    Alignment.CENTER -> {
+                                        ((windowWidth - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPaddingX) / scale
+                                    }
+                                    Alignment.RIGHT -> {
+                                        (windowWidth - style.windowPaddingX * 2) / scale - mc.textRenderer.getWidth(
+                                            it
+                                        )
+                                    }
+                                }
                                 val width = if (part.shadow)
                                     mc.textRenderer.drawWithShadow(
                                         matrices,
-                                        strCodes,
-                                        x + xOffset,
+                                        codes + it,
+                                        x + localXOffset,
                                         y,
                                         part.currentColourARGB()
-                                    ) - (x + xOffset)
+                                    ) - (x + localXOffset)
                                 else
                                     mc.textRenderer.draw(
                                         matrices,
-                                        strCodes,
-                                        x + xOffset,
+                                        codes + it,
+                                        x + localXOffset,
                                         y,
                                         part.currentColourARGB()
-                                    ) - (x + xOffset)
-                                xOffset += width - 1
+                                    ) - (x + localXOffset)
+                                lastWidth = width
+                                y += mc.textRenderer.fontHeight + 3
                             }
+                            xOffset += lastWidth - 1
+                            y -= mc.textRenderer.fontHeight + 3
+                            part.resetMultilinePattern()
+                        } else {
+                            val strCodes = part.codes + str
+                            val width = if (part.shadow)
+                                mc.textRenderer.drawWithShadow(
+                                    matrices,
+                                    strCodes,
+                                    x + xOffset,
+                                    y,
+                                    part.currentColourARGB()
+                                ) - (x + xOffset)
+                            else
+                                mc.textRenderer.draw(
+                                    matrices,
+                                    strCodes,
+                                    x + xOffset,
+                                    y,
+                                    part.currentColourARGB()
+                                ) - (x + xOffset)
+                            xOffset += width - 1
                         }
-                        y += mc.textRenderer.fontHeight + 5
                     }
+                    y += mc.textRenderer.fontHeight + 5
                 }
+            }
         } else {
             var empty = guiOpen
             for (triplets in immediateText) {
@@ -299,7 +297,13 @@ open class TextPinnableWidget(
                 }
 
                 val colour = ImGui.getStyle().colors[ImGuiCol.Button]
-                withStyleColour(ImGuiCol.Button, colour[0] * 0.7f, colour[1] * 0.7f, colour[2] * 0.7f, colour[3] * 0.7f) {
+                withStyleColour(
+                    ImGuiCol.Button,
+                    colour[0] * 0.7f,
+                    colour[1] * 0.7f,
+                    colour[2] * 0.7f,
+                    colour[3] * 0.7f
+                ) {
                     sameLine(0f, 4f)
                     button("-###minus-button-$index") {
                         iterator.remove()
@@ -349,7 +353,7 @@ open class TextPinnableWidget(
     @GenerateType
     enum class Alignment(val x: Float) {
         LEFT(0f), CENTER(0.5f), RIGHT(1f);
-        
+
         val y = 0.5f
     }
 

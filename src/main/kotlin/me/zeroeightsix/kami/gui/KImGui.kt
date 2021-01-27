@@ -61,5 +61,6 @@ fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? 
 //        clearActiveID()
 //        return true
 //    }
-    TODO() // not so easy - looks like the bindings don't quite expose the internals?
+  //  TODO() // not so easy - looks like the bindings don't quite expose the internals?
+    return false
 }
