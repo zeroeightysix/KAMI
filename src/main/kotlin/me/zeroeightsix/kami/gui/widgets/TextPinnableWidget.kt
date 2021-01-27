@@ -4,20 +4,31 @@ import imgui.ImGui
 import imgui.ImGui.dummy
 import imgui.ImGui.sameLine
 import imgui.ImGui.separator
+import imgui.ImGui.text
+import imgui.ImVec2
 import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiWindowFlags
+import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.colors
+import me.zeroeightsix.kami.gui.ImguiDSL.cursorPosX
 import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.windowContentRegionWidth
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleVar
+import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
+import me.zeroeightsix.kami.sumByFloat
 import me.zeroeightsix.kami.util.ResettableLazy
 import net.minecraft.util.math.Vec2f
 
@@ -45,7 +56,7 @@ open class TextPinnableWidget(
                 val (w, h) = if (part.multiline) {
                     val lines = str.split("\n")
                     (
-                        lines.map { slice -> mc.textRenderer.getWidth(slice) }.max()
+                        lines.map { slice -> mc.textRenderer.getWidth(slice) }.maxOrNull()
                             ?: 0
                         ) to lines.size * (fontHeight - 2) // multiline strings have less spacing between new lines
                 } else {
@@ -58,193 +69,193 @@ open class TextPinnableWidget(
     private val immediateText by immediateTextDelegate
 
     override fun fillWindow() {
-//        val guiOpen = mc.currentScreen is KamiGuiScreen
+        val guiOpen = mc.currentScreen is KamiGuiScreen
         // Because of the way minecraft text is rendered, we don't display it when the GUI is open.
         // Otherwise, because it is rendered after imgui, it would always be in the foreground.
-//        if (minecraftFont && !guiOpen) {
-//            val rect = currentWindow.rect()
-//            currentWindow.drawList.addCallback({ _, cmd ->
-//                // For god knows what reason, rendering minecraft text in here results in fucked textures.
-//                // Even if you revert the GL state to exactly what it was before rendering imgui.
-//                // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
-//                KamiHud.postDraw { matrices ->
-//                    val scale = KamiHud.getScale()
-//                    val x = (cmd.clipRect.x + style.windowPadding.x) / scale - 2
-//                    var y = (cmd.clipRect.y + style.windowPadding.y) / scale + 2
-//
-//                    for (triplets in immediateText) {
-//                        fun calcFullWidth() = triplets.map { it.third.x }.sum()
-//
-//                        var xOffset = when (alignment) {
-//                            Alignment.LEFT -> 0f
-//                            Alignment.CENTER -> ((rect.width - calcFullWidth()) * 0.5f - style.windowPadding.x) / scale
-//                            Alignment.RIGHT -> ((rect.width - calcFullWidth()) - style.windowPadding.x * 2) / scale
-//                        }
-//
-//                        for ((part, str, _) in triplets) {
-//                            if (part.multiline) {
-//                                val codes = part.codes
-//                                var lastWidth = 0f
-//                                str.split("\n").let { lines ->
-//                                    when (ordering) {
-//                                        Ordering.ORIGINAL -> lines
-//                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { mc.textRenderer.getWidth(it) }
-//                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending {
-//                                            mc.textRenderer.getWidth(
-//                                                it
-//                                            )
-//                                        }
-//                                    }
-//                                }.forEach {
-//                                    val localXOffset = when (alignment) {
-//                                        Alignment.LEFT -> xOffset
-//                                        Alignment.CENTER -> {
-//                                            ((rect.width - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPadding.x) / scale
-//                                        }
-//                                        Alignment.RIGHT -> {
-//                                            (rect.width - style.windowPadding.x * 2) / scale - mc.textRenderer.getWidth(
-//                                                it
-//                                            )
-//                                        }
-//                                    }
-//                                    val width = if (part.shadow)
-//                                        mc.textRenderer.drawWithShadow(
-//                                            matrices,
-//                                            codes + it,
-//                                            x + localXOffset,
-//                                            y,
-//                                            part.currentColourARGB()
-//                                        ) - (x + localXOffset)
-//                                    else
-//                                        mc.textRenderer.draw(
-//                                            matrices,
-//                                            codes + it,
-//                                            x + localXOffset,
-//                                            y,
-//                                            part.currentColourARGB()
-//                                        ) - (x + localXOffset)
-//                                    lastWidth = width
-//                                    y += mc.textRenderer.fontHeight + 3
-//                                }
-//                                xOffset += lastWidth - 1
-//                                y -= mc.te`xtRenderer.fontHeight + 3
-//                                part.resetMultilinePattern()
-//                            } else {
-//                                val strCodes = part.codes + str
-//                                val width = if (part.shadow)
-//                                    mc.textRenderer.drawWithShadow(
-//                                        matrices,
-//                                        strCodes,
-//                                        x + xOffset,
-//                                        y,
-//                                        part.currentColourARGB()
-//                                    ) - (x + xOffset)
-//                                else
-//                                    mc.textRenderer.draw(
-//                                        matrices,
-//                                        strCodes,
-//                                        x + xOffset,
-//                                        y,
-//                                        part.currentColourARGB()
-//                                    ) - (x + xOffset)
-//                                xOffset += width - 1
-//                            }
-//                        }
-//                        y += mc.textRenderer.fontHeight + 5
-//                    }
-//                }
-//            })
-//        } else {
-//            var empty = guiOpen
-//            for (triplets in immediateText) {
-//                var same = false
-//
-//                fun calcFullWidth() = triplets.map { calcTextSize(it.second).x }.sum()
-//
-//                fun align(width: Float = calcFullWidth()) = when (alignment) {
-//                    Alignment.LEFT -> Unit
-//                    Alignment.CENTER -> cursorPosX = (currentWindow.innerRect.width - width).coerceAtLeast(0f) * 0.5f
-//                    Alignment.RIGHT ->
-//                        cursorPosX =
-//                            (currentWindow.workRect.width - width).coerceAtLeast(0f) + style.windowPadding.x
-//                }
-//
-//                for ((part, str, _) in triplets) {
-//                    val notBlank = str.isNotBlank()
-//                    if (empty && notBlank) empty =
-//                        false // We've reached a part that had content: no need to display the 'empty' message
-//
-//                    if (notBlank) {
-//                        // Sets the text colour to the current part's colour
-//                        pushStyleColor(Col.Text, part.currentColour())
-//
-//                        // If this isn't the first part in the line, make sure it is rendered on the same line
-//                        if (same) sameLine(spacing = 0f)
-//                        else {
-//                            // Because we're beginning a new line, we need to also align that line.
-//                            align()
-//                            // Mark that the next part has to be on the same line
-//                            same = true
-//                        }
-//
-//                        // We need a different rendering strategy for **aligned** multiline strings.
-//                        // imgui doesn't support them, so we need to align each line ourselves
-//                        // imgui CAN handle the 'left' alignment (as it is the only alignment)
-//                        if (part.multiline && alignment !== Alignment.LEFT) {
-//                            // As long as we're rendering the multiline string, we don't want any spacing between the lines.
-//                            style.itemSpacing::y.tempSet(0f) {
-//                                // manually align each line
-//                                str.split("\n").let { lines ->
-//                                    when (ordering) {
-//                                        Ordering.ORIGINAL -> lines
-//                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { calcTextSize(it).x }
-//                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending { calcTextSize(it).x }
-//                                    }
-//                                }.forEach {
-//                                    align(calcTextSize(it).x)
-//                                    text(it)
-//                                }
-//                            }
-//                        } else {
-//                            text(str) // Render the string of this part
-//                        }
-//
-//                        popStyleColor() // Remove the text colour (styles are stacked, instead of state-based!)
-//                    }
-//
-//                    if (part.multiline) part.resetMultilinePattern()
-//                }
-//            }
-//            if (empty) {
-//                pushStyleColor(Col.Text, ImGui.style.colors[Col.TextDisabled])
-//                text("$title (empty)")
-//                popStyleColor()
-//            }
-//        }
+        val style = ImGui.getStyle()
+        if (minecraftFont && !guiOpen) {
+                // For god knows what reason, rendering minecraft text in here results in fucked textures.
+                // Even if you revert the GL state to exactly what it was before rendering imgui.
+                // So we just toss the text we want to render onto a stack, and we'll draw it after imgui's done.
+            val posX = ImGui.getWindowPosX()
+            val posY = ImGui.getWindowPosY()
+            val width = ImGui.getWindowWidth()
+                KamiImgui.postDraw { matrices ->
+                    val scale = KamiHud.getScale()
+                    val x = (posX + style.windowPaddingX) / scale - 2
+                    var y = (posY + style.windowPaddingY) / scale + 2
+
+                    for (triplets in immediateText) {
+                        fun calcFullWidth() = triplets.map { it.third.x }.sum()
+
+                        var xOffset = when (alignment) {
+                            Alignment.LEFT -> 0f
+                            Alignment.CENTER -> ((width - calcFullWidth()) * 0.5f - style.windowPaddingX) / scale
+                            Alignment.RIGHT -> ((width - calcFullWidth()) - style.windowPaddingY * 2) / scale
+                        }
+
+                        for ((part, str, _) in triplets) {
+                            if (part.multiline) {
+                                val codes = part.codes
+                                var lastWidth = 0f
+                                str.split("\n").let { lines ->
+                                    when (ordering) {
+                                        Ordering.ORIGINAL -> lines
+                                        Ordering.WIDTH_ASCENDING -> lines.sortedBy { mc.textRenderer.getWidth(it) }
+                                        Ordering.WIDTH_DESCENDING -> lines.sortedByDescending {
+                                            mc.textRenderer.getWidth(
+                                                it
+                                            )
+                                        }
+                                    }
+                                }.forEach {
+                                    val localXOffset = when (alignment) {
+                                        Alignment.LEFT -> xOffset
+                                        Alignment.CENTER -> {
+                                            ((width - mc.textRenderer.getWidth(it)) * 0.5f - style.windowPaddingX) / scale
+                                        }
+                                        Alignment.RIGHT -> {
+                                            (width - style.windowPaddingX * 2) / scale - mc.textRenderer.getWidth(
+                                                it
+                                            )
+                                        }
+                                    }
+                                    val width = if (part.shadow)
+                                        mc.textRenderer.drawWithShadow(
+                                            matrices,
+                                            codes + it,
+                                            x + localXOffset,
+                                            y,
+                                            part.currentColourARGB()
+                                        ) - (x + localXOffset)
+                                    else
+                                        mc.textRenderer.draw(
+                                            matrices,
+                                            codes + it,
+                                            x + localXOffset,
+                                            y,
+                                            part.currentColourARGB()
+                                        ) - (x + localXOffset)
+                                    lastWidth = width
+                                    y += mc.textRenderer.fontHeight + 3
+                                }
+                                xOffset += lastWidth - 1
+                                y -= mc.textRenderer.fontHeight + 3
+                                part.resetMultilinePattern()
+                            } else {
+                                val strCodes = part.codes + str
+                                val width = if (part.shadow)
+                                    mc.textRenderer.drawWithShadow(
+                                        matrices,
+                                        strCodes,
+                                        x + xOffset,
+                                        y,
+                                        part.currentColourARGB()
+                                    ) - (x + xOffset)
+                                else
+                                    mc.textRenderer.draw(
+                                        matrices,
+                                        strCodes,
+                                        x + xOffset,
+                                        y,
+                                        part.currentColourARGB()
+                                    ) - (x + xOffset)
+                                xOffset += width - 1
+                            }
+                        }
+                        y += mc.textRenderer.fontHeight + 5
+                    }
+                }
+        } else {
+            var empty = guiOpen
+            for (triplets in immediateText) {
+                var same = false
+
+                fun calcFullWidth() = triplets.map { calcTextSize(it.second).x }.sum()
+
+                fun align(width: Float = calcFullWidth()) = when (alignment) {
+                    Alignment.LEFT -> Unit
+                    Alignment.CENTER -> cursorPosX = (windowContentRegionWidth - width).coerceAtLeast(0f) * 0.5f
+                    Alignment.RIGHT ->
+                        cursorPosX =
+                            (windowContentRegionWidth - width).coerceAtLeast(0f) + style.windowPaddingX
+                }
+
+                for ((part, str, _) in triplets) {
+                    val notBlank = str.isNotBlank()
+                    if (empty && notBlank) empty =
+                        false // We've reached a part that had content: no need to display the 'empty' message
+
+                    if (notBlank) {
+                        // Sets the text colour to the current part's colour
+                        withStyleColour(ImGuiCol.Text, part.currentColour()) {
+                            // If this isn't the first part in the line, make sure it is rendered on the same line
+                            if (same) sameLine()
+                            else {
+                                // Because we're beginning a new line, we need to also align that line.
+                                align()
+                                // Mark that the next part has to be on the same line
+                                same = true
+                            }
+
+                            // We need a different rendering strategy for **aligned** multiline strings.
+                            // imgui doesn't support them, so we need to align each line ourselves
+                            // imgui CAN handle the 'left' alignment (as it is the only alignment)
+                            if (part.multiline && alignment !== Alignment.LEFT) {
+                                // As long as we're rendering the multiline string, we don't want any spacing between the lines.
+                                withStyleVar(ImGuiStyleVar.ItemSpacing, 0f, 0f) {
+                                    // manually align each line
+                                    str.split("\n").let { lines ->
+                                        when (ordering) {
+                                            Ordering.ORIGINAL -> lines
+                                            Ordering.WIDTH_ASCENDING -> lines.sortedBy { calcTextSize(it).x }
+                                            Ordering.WIDTH_DESCENDING -> lines.sortedByDescending { calcTextSize(it).x }
+                                        }
+                                    }.forEach {
+                                        align(calcTextSize(it).x)
+                                        text(it)
+                                    }
+                                }
+                            } else {
+                                text(str) // Render the string of this part
+                            }
+                        }
+                    }
+
+                    if (part.multiline) part.resetMultilinePattern()
+                }
+            }
+            if (empty) {
+                withStyleColour(ImGuiCol.Text, ImGuiCol.TextDisabled) {
+                    text("$title (empty)")
+                }
+            }
+        }
     }
 
     override fun preWindow() {
-//        val guiOpen = mc.currentScreen is KamiGuiScreen
-//
-//        if (guiOpen && editWindow) {
-//            editWindow()
-//        }
-//
-//        if (minecraftFont && !guiOpen && text.isNotEmpty()) {
-//            val width = (
-//                immediateText.map {
-//                    it.sumByFloat { it.third.x }
-//                }.max() ?: 0f
-//                ) + style.windowPadding.x * 2
-//            val height = immediateText.mapNotNull {
-//                it.map { it.third.y }.max()
-//            }.sum() + style.windowPadding.y * 2
-//            setNextWindowSize(Vec2(width, height))
-//        }
+        val guiOpen = mc.currentScreen is KamiGuiScreen
+
+        if (guiOpen && editWindow) {
+            editWindow()
+        }
+
+        if (minecraftFont && !guiOpen && text.isNotEmpty()) {
+            val style = ImGui.getStyle()
+            val width = (
+                immediateText.map {
+                    it.sumByFloat { it.third.x }
+                }.maxOrNull() ?: 0f
+                ) + style.windowPaddingX * 2
+            val height = immediateText.mapNotNull {
+                it.map { it.third.y }.maxOrNull()
+            }.sum() + style.windowPaddingY * 2
+            ImGui.setNextWindowSize(width, height)
+        }
     }
 
     override fun postWindow() {
-//        immediateTextDelegate.invalidate()
+        immediateTextDelegate.invalidate()
     }
 
     private fun editWindow() {

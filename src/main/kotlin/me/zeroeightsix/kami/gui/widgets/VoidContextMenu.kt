@@ -85,7 +85,7 @@ object VoidContextMenu {
                 }
                 ImGui.sameLine()
                 button("Create", 100f, 0f) {
-                    val widgetName = buffer.get()
+                    val widgetName = buffer.get() ?: ""
                     buffer.set("")
                     factory(widgetName)
                     widgetProducer = null

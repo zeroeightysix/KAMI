@@ -6,6 +6,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import net.minecraft.client.MinecraftClient
@@ -40,20 +41,22 @@ class PlayerPinnableWidget(
         val guiOpen = mc.currentScreen is KamiGuiScreen
 
         if (!guiOpen) {
-//            KamiHud.postDraw {
-//                val player = mc.player ?: return@postDraw
-//                val scale = KamiHud.getScale()
-//                this.drawEntity(
-//                    (ImGui.getWindowPosX() + ImGui.getWindowWidth() * 0.5f) / scale,
-//                    ImGui.getWindowPosY() + ImGui.getWindowHeight() / scale,
-//                    if (player.isFallFlying) {
-//                        player.height.toDouble() / 2.0
-//                    } else 0.0,
-//                    this.size,
-//                    player,
-//                    mc.tickDelta
-//                )
-//            }
+            val posX = ImGui.getWindowPosX() + (ImGui.getWindowWidth() * 0.5f)
+            val posY = ImGui.getWindowPosY() + ImGui.getWindowHeight()
+            KamiImgui.postDraw {
+                val player = mc.player ?: return@postDraw
+                val scale = KamiHud.getScale()
+                this.drawEntity(
+                    posX / scale,
+                    posY / scale,
+                    if (player.isFallFlying) {
+                        player.height.toDouble() / 2.0
+                    } else 0.0,
+                    this.size,
+                    player,
+                    mc.tickDelta
+                )
+            }
         } else {
             ImGui.setNextItemWidth(-1f)
             wrapSingleFloatArray(::tempSize) {
