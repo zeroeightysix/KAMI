@@ -350,15 +350,13 @@ class CompiledText(
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
             if (editVarComboIndex == -1) editVarComboIndex = variableMap.keys.indexOf(this.variable.name)
-            wrapImInt(::editVarComboIndex) {
-                combo("Variable", it, variableMap.keys.joinToString(0.toChar().toString())) {
-                    val selected: String = variableMap.keys.toList()[editVarComboIndex]
-                    val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
-                    if (v is NumericalVariable) {
-                        v.digits = editDigits
-                    }
-                    this.variable = v
+            combo("Variable", ::editVarComboIndex, variableMap.keys) {
+                val selected: String = variableMap.keys.toList()[it.get()]
+                val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
+                if (v is NumericalVariable) {
+                    v.digits = editDigits
                 }
+                this.variable = v
             }
 
             ImGui.sameLine()
