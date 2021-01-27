@@ -1,66 +1,54 @@
 package me.zeroeightsix.kami.gui
 
 import imgui.ImGui
+import imgui.flag.ImGuiCol
 import kotlin.reflect.KMutableProperty0
+import me.zeroeightsix.kami.gui.ImguiDSL.addFrame
+import me.zeroeightsix.kami.gui.ImguiDSL.colour
+import me.zeroeightsix.kami.gui.ImguiDSL.get
+import me.zeroeightsix.kami.gui.ImguiDSL.plus
 
 /**
  * A button for entry of a single character. It will breathe while active to indicate that the button is consuming inputs.
  *
  * @return `true` if `char` was updated
  */
-fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? = "Press a key"): Boolean {
-//    var v by char
-//    val window = currentWindow
-//    if (window.skipItems) return false
-//
-//    val id = window.getID(strId)
-//    val isActive = g.activeId == id
-//    val label = if (isActive && pressText != null) {
-//        pressText
-//    } else strId
-//    val labelSize = calcTextSize(label, hideTextAfterDoubleHash = true)
-//
-//    val squareSz = frameHeight
-//    val pos = Vec2(window.dc.cursorPos)
-//    val totalBb = Rect(
-//        pos,
-//        pos + Vec2(
-//            squareSz + if (labelSize.x > 0f) style.itemInnerSpacing.x + labelSize.x else 0f,
-//            labelSize.y + style.framePadding.y * 2f
-//        )
-//    )
-//    itemSize(totalBb, style.framePadding.y)
-//
-//    if (!itemAdd(totalBb, id))
-//        return false
-//
-//    val (pressed, hovered, held) = buttonBehavior(totalBb, id)
-//    if (pressed) {
-//        setActiveID(id, window)
-//    }
-//
-//    val keyBb = Rect(pos, pos + squareSz)
-//    renderNavHighlight(totalBb, id)
-//    val col = if (held && hovered) Col.FrameBgActive else if (hovered) Col.FrameBgHovered else Col.FrameBg
-//    ImGui.renderFrame(keyBb.min, keyBb.max, col.u32, true, style.frameRounding)
-//
-//    if (labelSize.x > 0f)
-//        renderText(Vec2(keyBb.max.x + style.itemInnerSpacing.x, keyBb.min.y + style.framePadding.y), label)
-//
-//    val key = v.toString()
-//    val keySize = calcTextSize(key)
-//    renderText(Vec2(keyBb.min.x + (squareSz - keySize.x) * 0.5f, keyBb.min.y + style.framePadding.y), key)
-//
-//    if (isActive && io.inputQueueCharacters.isNotEmpty()) {
-//        // Remove the first character from the queue, which we consume.
-//        val c = io.inputQueueCharacters.removeAt(0)
-//        v = c
-//        markItemEdited(id)
-//
-//        // No longer active after consuming input
-//        clearActiveID()
-//        return true
-//    }
-  //  TODO() // not so easy - looks like the bindings don't quite expose the internals?
-    return false
+fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? = "Press a key") {
+    var value by char
+    val frameHeight = ImGui.getFrameHeight()
+    val framePaddingY = ImGui.getStyle().framePaddingY
+    val drawList = ImGui.getWindowDrawList()
+
+    ImguiDSL.withId(strId) {
+        val cursorPos = ImguiDSL.cursorPos
+        val (x, y) = ImguiDSL.windowPos + cursorPos
+        val (cX, cY) = cursorPos
+        ImGui.text(value.toString())
+        var hovered = ImGui.isItemHovered()
+        ImguiDSL.cursorPos = cursorPos
+
+        ImguiDSL.invisibleButton(value.toString(), frameHeight, frameHeight) {}
+
+        hovered = hovered || ImGui.isItemHovered()
+        drawList.addFrame(
+            x,
+            y,
+            x + frameHeight,
+            y + frameHeight,
+            (if (hovered) ImGui.getStyle()[ImGuiCol.FrameBgHovered] else ImGui.getStyle()[ImGuiCol.FrameBg]).colour
+        )
+
+        ImGui.sameLine(0f, ImGui.getStyle().itemInnerSpacingX)
+        ImguiDSL.cursorPosY += framePaddingY
+        ImGui.text(if (hovered) pressText else strId)
+        ImguiDSL.cursorPosY -= -framePaddingY
+
+        if (hovered) {
+            ImGui.captureKeyboardFromApp()
+
+            val c = KamiImgui.charQueue.removeFirstOrNull() ?: return@withId
+
+            value = c.first
+        }
+    }
 }
