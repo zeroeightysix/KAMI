@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.gui
 
+import imgui.ImDrawList
 import imgui.ImGui
 import imgui.ImGui.beginChild
 import imgui.ImGui.beginMenu
@@ -11,6 +12,7 @@ import imgui.ImGui.beginPopupModal
 import imgui.ImGui.beginTabBar
 import imgui.ImGui.beginTabItem
 import imgui.ImGui.button
+import imgui.ImGui.colorConvertFloat4ToU32
 import imgui.ImGui.endMenu
 import imgui.ImGui.endPopup
 import imgui.ImGui.endTabBar
@@ -34,8 +36,11 @@ import imgui.ImGui.textDisabled
 import imgui.ImGui.textUnformatted
 import imgui.ImGuiStyle
 import imgui.ImVec2
+import imgui.ImVec4
+import imgui.flag.ImDrawCornerFlags
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiPopupFlags
+import imgui.flag.ImGuiTableRowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImFloat
 import imgui.type.ImInt
@@ -94,6 +99,11 @@ object ImguiDSL {
 
     inline fun button(label: String, width: Float = 0f, height: Float = 0f, block: () -> Unit) {
         if (button(label, width, height))
+            block()
+    }
+
+    inline fun invisibleButton(label: String, width: Float, height: Float, flags: Int = 0, block: () -> Unit) {
+        if (ImGui.invisibleButton(label, width, height, flags))
             block()
     }
 
@@ -528,6 +538,23 @@ object ImguiDSL {
         }
     }
 
+    fun ImDrawList.addFrame(
+        minX: Float,
+        minY: Float,
+        maxX: Float,
+        maxY: Float,
+        col: Int,
+        border: Boolean = true,
+        rounding: Float = ImGui.getStyle().frameRounding
+    ) {
+        addRectFilled(minX, minY, maxX, maxY, col, rounding)
+        val borderSize = ImGui.getStyle().frameBorderSize
+        if (border && borderSize > 0) {
+            addRect(minX + 1f, minY + 1f, maxX + 1f, maxY + 1f, ImGui.getStyle()[ImGuiCol.BorderShadow].colour, rounding, ImDrawCornerFlags.All, borderSize)
+            addRect(minX, minY, maxX, maxY, ImGui.getStyle()[ImGuiCol.Border].colour, rounding, ImDrawCornerFlags.All, borderSize)
+        }
+    }
+
     inline infix fun Int.without(other: Int) = this and other.inv()
 
     val String.imgui: ImString
@@ -535,6 +562,15 @@ object ImguiDSL {
 
     val windowContentRegionWidth: Float
         get() = getWindowContentRegionMaxX() - getWindowContentRegionMinX()
+
+    val windowPosX: Float
+        get() = ImGui.getWindowPosX()
+
+    val windowPosY: Float
+        get() = ImGui.getWindowPosY()
+
+    val windowPos: Pair<Float, Float>
+        get() = windowPosX to windowPosY
 
     var cursorPosX: Float
         get() = ImGui.getCursorPosX()
@@ -544,6 +580,21 @@ object ImguiDSL {
         get() = ImGui.getCursorPosY()
         set(value) = ImGui.setCursorPosY(value)
 
+    var cursorPos: Pair<Float, Float>
+        get() = cursorPosX to cursorPosY
+        set(value) {
+            ImGui.setCursorPos(value.first, value.second)
+        }
+
+    operator fun ImGuiStyle?.get(colour: Int): ImVec4 {
+        val dst = ImVec4()
+        this!!.getColor(colour, dst)
+        return dst
+    }
+
+    val ImVec4.colour: Int
+        get() = colorConvertFloat4ToU32(this.x, this.y, this.z, this.w)
+
     var ImGuiStyle.colors: Array<FloatArray>
         get() {
             val buf = Array(ImGuiCol.COUNT) { FloatArray(4) }
@@ -551,4 +602,7 @@ object ImguiDSL {
             return buf
         }
         set(value) = this.setColors(value)
+
+    operator fun Pair<Float, Float>.plus(other: Pair<Float, Float>) =
+        (this.first + other.first) to (this.second + other.second)
 }
