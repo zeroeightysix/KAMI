@@ -44,6 +44,7 @@ abstract class ImGuiScreen(title: Text) : Screen(title) {
         val returned = super.charTyped(chr, keyCode)
         if (!returned) {
             KamiImgui.imguiGlfw.charCallback(mc.window.handle, chr.toInt())
+            KamiImgui.charQueue.add(chr to keyCode)
         }
         return returned
     }

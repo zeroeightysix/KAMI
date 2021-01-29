@@ -6,18 +6,22 @@ import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.Stack
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.opengl.GL
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.*
 
 object KamiImgui {
 
+    // Because the imgui bindings don't expose the internal char queue, we store the chars passed to imgui in here.
+    // Anything pasted in by the clipboard will not appear in this queue.
+    // It is cleared after each `frame` call.
+    val charQueue = mutableListOf<Pair<Char, Int/*keycode*/>>()
     val imguiGlfw: ImGuiImplGlfw = ImGuiImplGlfw()
     private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
@@ -110,6 +114,7 @@ object KamiImgui {
                     it(matrices)
                 }
             }
+            charQueue.clear()
         }
     }
 

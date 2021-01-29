@@ -59,6 +59,8 @@ class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null,
     }
 
     override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+        super.render(matrices, mouseX, mouseY, delta)
+
         if (parent != null) {
             // If we have a screen to return to, draw the background.
             // Usually parent will be nonnull if the GUI was opened from e.g. the title menu, so it would have no
