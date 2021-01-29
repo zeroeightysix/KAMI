@@ -1,12 +1,13 @@
 package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import java.util.UUID
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.PacketEvent
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.text.CompiledText
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
-import java.util.UUID
 
 @Module.Info(
     name = "AutoGG",
@@ -17,7 +18,7 @@ object AutoGG : Module() {
     @Setting
     var ggMessage = CompiledText(
         mutableListOf(
-            CompiledText.LiteralPart("gg")
+            CompiledText.LiteralPart("gg".imgui)
         )
     )
 

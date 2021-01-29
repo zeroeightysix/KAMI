@@ -16,6 +16,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.colors
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
 import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.ImguiDSL.popupContextItem
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
@@ -107,7 +108,7 @@ class CompiledText(
                             dirty = true
                         }
                     }
-                    menuItem("Text") { addPart(LiteralPart("Text")) }
+                    menuItem("Text") { addPart(LiteralPart("Text".imgui)) }
                     menuItem("Variable") { addPart(VariablePart(VarMap["none"]!!())) }
                     plusButtonExtra()
                 }
@@ -291,7 +292,7 @@ class CompiledText(
     }
 
     class LiteralPart(
-        var string: String,
+        var string: ImString,
         obfuscated: Boolean = false,
         bold: Boolean = false,
         strike: Boolean = false,
@@ -304,14 +305,12 @@ class CompiledText(
         override val multiline = false
 
         override fun toString(): String {
-            return string + super.toString()
+            return string.get() + super.toString()
         }
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
-            val buf = ImString(string)
-            if (ImGui.inputText("Text", buf)) {
-                string = buf.get()
-            }
+            ImGui.inputText("Text", string)
+
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()

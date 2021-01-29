@@ -77,6 +77,7 @@ import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
@@ -341,7 +342,7 @@ object KamiConfig {
 
             val part = when (type) {
                 "literal" -> CompiledText.LiteralPart(
-                    value,
+                    value.imgui,
                     obfuscated,
                     bold,
                     strike,
@@ -364,7 +365,7 @@ object KamiConfig {
                     extraSpace
                 )
                 else -> CompiledText.LiteralPart(
-                    "Invalid part",
+                    "Invalid part".imgui,
                     obfuscated,
                     bold,
                     strike,
@@ -380,7 +381,7 @@ object KamiConfig {
         },
         {
             val (type, value) = when (it) {
-                is CompiledText.LiteralPart -> "literal" to it.string
+                is CompiledText.LiteralPart -> "literal" to it.string.get()
                 is CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
                 else -> throw IllegalStateException("Unknown part type")
             }

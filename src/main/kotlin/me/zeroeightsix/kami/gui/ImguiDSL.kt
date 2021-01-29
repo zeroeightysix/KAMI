@@ -558,7 +558,10 @@ object ImguiDSL {
     inline infix fun Int.without(other: Int) = this and other.inv()
 
     val String.imgui: ImString
-        get() = ImString(this)
+        get() = ImString(this).also {
+            it.inputData.isResizable = true
+            it.inputData.resizeFactor = 2
+        }
 
     val windowContentRegionWidth: Float
         get() = getWindowContentRegionMaxX() - getWindowContentRegionMinX()
