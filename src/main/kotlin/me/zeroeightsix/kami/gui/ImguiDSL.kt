@@ -40,7 +40,6 @@ import imgui.ImVec4
 import imgui.flag.ImDrawCornerFlags
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiPopupFlags
-import imgui.flag.ImGuiTableRowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImFloat
 import imgui.type.ImInt
