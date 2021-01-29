@@ -18,11 +18,15 @@ object CustomChat : Module() {
     @Setting(name = "Custom suffix", comment = "Whether or not to use the default KAMI suffix, or the custom one.")
     private var customSuffix = false
 
+    @Setting(name = "uwuify", comment = "uwuify the chat message")
+    private var uwu = false
+
     @Setting(name = "Suffix")
     @SettingVisibility.Method("ifCustomSuffix")
     private var suffix = " | KAMI"
 
     fun ifCustomSuffix() = customSuffix
+    fun uwuify(t: String): String = t.replace('r', 'w').replace('R', 'W').replace('l', 'w').replace('L', 'W').replace("th", "d").replace("Th", "D").replace("tH", "d").replace("TH", "D")
 
     private const val KAMI_SUFFIX = " \u23D0 \u1D0B\u1D00\u1D0D\u026A"
 
@@ -31,6 +35,7 @@ object CustomChat : Module() {
         if (event.packet is ChatMessageC2SPacket) {
             var s = (event.packet as IChatMessageC2SPacket).chatMessage
             if (s.startsWith("/") && !commands) return@Listener
+            s = if (uwu) uwuify(s) else s
             s += if (customSuffix) suffix else KAMI_SUFFIX
             if (s.length >= 256) s = s.substring(0, 256)
             (event.packet as IChatMessageC2SPacket).chatMessage = s
