@@ -370,7 +370,7 @@ class CompiledText(
                 is NumericalVariable -> {
                     wrapSingleIntArray(::editDigits) {
                         if (ImGui.dragInt("Digits", it, 0.1f, 0f, 8f)) {
-                            variable.digits = editDigits
+                            variable.digits = it[0]
                         }
                     }
                 }
