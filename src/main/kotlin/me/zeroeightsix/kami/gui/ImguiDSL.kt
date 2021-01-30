@@ -529,7 +529,7 @@ object ImguiDSL {
     }
 
     inline fun <R> wrapImString(property: KMutableProperty0<String>, block: (ImString) -> R): R {
-        val buf = ImString(property())
+        val buf = property.get().imgui
         try {
             return block(buf)
         } finally {
