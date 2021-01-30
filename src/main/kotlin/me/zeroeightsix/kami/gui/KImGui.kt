@@ -5,6 +5,7 @@ import imgui.flag.ImGuiCol
 import kotlin.reflect.KMutableProperty0
 import me.zeroeightsix.kami.gui.ImguiDSL.addFrame
 import me.zeroeightsix.kami.gui.ImguiDSL.colour
+import me.zeroeightsix.kami.gui.ImguiDSL.cursorPosX
 import me.zeroeightsix.kami.gui.ImguiDSL.get
 import me.zeroeightsix.kami.gui.ImguiDSL.plus
 
@@ -22,7 +23,7 @@ fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? 
     ImguiDSL.withId(strId) {
         val cursorPos = ImguiDSL.cursorPos
         val (x, y) = ImguiDSL.windowPos + cursorPos
-        val (cX, cY) = cursorPos
+        cursorPosX += (frameHeight - ImguiDSL.calcTextSize(value.toString()).x) / 2f
         ImGui.text(value.toString())
         var hovered = ImGui.isItemHovered()
         ImguiDSL.cursorPos = cursorPos
@@ -39,9 +40,9 @@ fun charButton(strId: String, char: KMutableProperty0<Char>, pressText: String? 
         )
 
         ImGui.sameLine(0f, ImGui.getStyle().itemInnerSpacingX)
-        ImguiDSL.cursorPosY += framePaddingY
+        ImguiDSL.cursorPosY += (framePaddingY / 2f)
         ImGui.text(if (hovered) pressText else strId)
-        ImguiDSL.cursorPosY -= -framePaddingY
+        ImguiDSL.cursorPosY -= (framePaddingY / 2f)
 
         if (hovered) {
             ImGui.captureKeyboardFromApp()
