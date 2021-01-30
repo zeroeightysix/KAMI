@@ -95,6 +95,10 @@ object KamiImgui {
             }
             else -> 110
         }
+
+        ImGui.getIO().addConfigFlags(1 shl 6) // 1<<6 should be the DockingEnable flag
+        // for some reason it doesn't seem to be public anywhere in the bindings so we have to hardcode it.
+
         imguiGlfw.init(mc.window.handle, false)
         imguiGl.init("#version $glslVersion")
     }
