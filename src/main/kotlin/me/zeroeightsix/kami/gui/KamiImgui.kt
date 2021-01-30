@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams
 import imgui.ImFont
 import imgui.ImFontConfig
 import imgui.ImGui
+import imgui.flag.ImGuiConfigFlags
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import java.nio.file.Files
@@ -96,8 +97,7 @@ object KamiImgui {
             else -> 110
         }
 
-        ImGui.getIO().addConfigFlags(1 shl 6) // 1<<6 should be the DockingEnable flag
-        // for some reason it doesn't seem to be public anywhere in the bindings so we have to hardcode it.
+        ImGui.getIO().addConfigFlags(ImGuiConfigFlags.DockingEnable)
 
         imguiGlfw.init(mc.window.handle, false)
         imguiGl.init("#version $glslVersion")
