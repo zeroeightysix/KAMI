@@ -56,9 +56,9 @@ object KamiImgui {
             minecraftiaLocation,
             12f,
             fontCfg {
-//                oversample put 1
-//                pixelSnapH = true
-//                glyphOffset = Vec2(0, -2)
+                oversampleH = 1
+                oversampleV = 1
+                pixelSnapH = true
             }
         )?.let {
             fonts.put("Minecraftia 12px", it)
@@ -67,9 +67,9 @@ object KamiImgui {
             minecraftiaLocation,
             24f,
             fontCfg {
-//                oversample put 1
-//                pixelSnapH = true
-//                glyphOffset = Vec2(0, -2)
+                oversampleH = 1
+                oversampleV = 1
+                pixelSnapH = true
             }
         )?.let {
             fonts.put("Minecraftia 24px", it)
