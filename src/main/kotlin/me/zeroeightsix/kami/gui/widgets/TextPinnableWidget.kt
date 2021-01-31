@@ -12,7 +12,9 @@ import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.colors
+import me.zeroeightsix.kami.gui.ImguiDSL.colour
 import me.zeroeightsix.kami.gui.ImguiDSL.cursorPosX
+import me.zeroeightsix.kami.gui.ImguiDSL.get
 import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
@@ -224,7 +226,7 @@ open class TextPinnableWidget(
                 }
             }
             if (empty) {
-                withStyleColour(ImGuiCol.Text, ImGuiCol.TextDisabled) {
+                withStyleColour(ImGuiCol.Text, ImGui.getStyle()[ImGuiCol.TextDisabled].colour) {
                     text("$title (empty)")
                 }
             }
