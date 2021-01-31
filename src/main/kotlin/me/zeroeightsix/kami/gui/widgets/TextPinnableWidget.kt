@@ -188,7 +188,7 @@ open class TextPinnableWidget(
                         // Sets the text colour to the current part's colour
                         withStyleColour(ImGuiCol.Text, part.currentColour()) {
                             // If this isn't the first part in the line, make sure it is rendered on the same line
-                            if (same) sameLine()
+                            if (same) sameLine(0f, 0f)
                             else {
                                 // Because we're beginning a new line, we need to also align that line.
                                 align()
