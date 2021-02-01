@@ -46,7 +46,6 @@ public class MixinClientConnection {
     @Inject(method = "exceptionCaught", at = @At("HEAD"), cancellable = true)
     private void exceptionCaught(ChannelHandlerContext context, Throwable throwable, CallbackInfo ci) {
         if (throwable instanceof IOException && NoPacketKick.INSTANCE.getEnabled()) ci.cancel();
-        return;
     }
 
 }
