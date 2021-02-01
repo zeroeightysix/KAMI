@@ -16,21 +16,22 @@ import imgui.ImGui.textDisabled
 import imgui.flag.ImGuiInputTextFlags
 import imgui.flag.ImGuiMouseButton
 import imgui.flag.ImGuiWindowFlags
-import imgui.type.ImString
+import kotlin.collections.set
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.child
 import me.zeroeightsix.kami.gui.ImguiDSL.dragDropSource
 import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
 import me.zeroeightsix.kami.gui.ImguiDSL.helpMarker
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuBar
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.ImguiDSL.popupContextItem
 import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
 import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImString
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
-import kotlin.collections.set
 
 object ModuleWindowsEditor {
 
@@ -61,9 +62,8 @@ object ModuleWindowsEditor {
                 columns(windows.size + 1)
                 for (window in windows) {
                     setNextItemWidth(-1f)
-                    val windowTitle = ImString(window.title)
-                    if (inputText("###${window.hashCode()}-title-input", windowTitle)) {
-                        window.title = windowTitle.get()
+                    wrapImString(window::title) {
+                        inputText("###${window.hashCode()}-title-input", it)
                     }
                     nextColumn()
                 }
@@ -166,7 +166,7 @@ object ModuleWindowsEditor {
                                 setNextItemWidth(-1f)
                                 if (ImGui.isWindowAppearing())
                                     ImGui.setKeyboardFocusHere()
-                                val buf = ImString(name)
+                                val buf = name.imgui
                                 if (inputText("", buf, ImGuiInputTextFlags.EnterReturnsTrue)) {
                                     name = buf.get()
                                     rename()
