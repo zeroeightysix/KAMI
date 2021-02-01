@@ -5,6 +5,7 @@ import imgui.ImGui.dragScalar
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiDataType
 import imgui.flag.ImGuiWindowFlags
+import kotlin.math.roundToInt
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.gui.ImguiDSL.calcTextSize
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
@@ -21,7 +22,6 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
-import kotlin.math.roundToInt
 
 @GenerateType
 class GraphPinnableWidget(
@@ -53,7 +53,7 @@ class GraphPinnableWidget(
     }
 
     val numVarMapComboItems by lazy {
-        numVarMap.keys.map { it.toLowerCase().capitalize() }
+        numVarMap.keys.map { it.toLowerCase() }
     }
 
     var edit = false
@@ -112,7 +112,7 @@ class GraphPinnableWidget(
             window("Edit $name", ::edit, ImGuiWindowFlags.AlwaysAutoResize) {
                 editVarComboIndex = numVarMap.keys.indexOf(this.variable.name)
                 combo("Variable##$name-graph-var", ::editVarComboIndex, numVarMapComboItems) {
-                    numVarMap[numVarMap.keys.toList()[editVarComboIndex]]?.let { it() }?.let {
+                    numVarMap[numVarMap.keys.toList()[it.get()]]?.let { it() }?.let {
                         this.variable = it as CompiledText.NumericalVariable
                         this.samples.clear()
                     }
