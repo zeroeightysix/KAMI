@@ -2,11 +2,9 @@ package me.zeroeightsix.kami
 
 import baritone.api.BaritoneAPI
 import imgui.ImGui
-import imgui.flag.ImGuiWindowFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import me.xdrop.fuzzywuzzy.FuzzySearch
-import me.zeroeightsix.kami.gui.ImguiDSL.child
 import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
@@ -69,7 +67,7 @@ object BaritoneIntegration {
             }
 
             if (settingsOpen) {
-                window("Baritone settings", ::settingsOpen, flags = ImGuiWindowFlags.AlwaysAutoResize) {
+                window("Baritone settings", ::settingsOpen) {
                     var resetScroll = false
                     if (ImGui.inputText("Filter##baritone-settings-filter", filter)) {
                         // If the user searched something, reset their scroll to the top left.
@@ -84,18 +82,12 @@ object BaritoneIntegration {
                             baritoneSettings.sortBy { it.first }
                         }
                     }
-                    child(
-                        "baritone-settings-settings",
-                        0f, 450f,
-                        extraFlags = ImGuiWindowFlags.AlwaysHorizontalScrollbar
-                    ) {
-                        if (resetScroll) {
-                            ImGui.setScrollX(0f)
-                            ImGui.setScrollY(0f)
-                        }
-                        baritoneSettings.forEach { (_, displayer) ->
-                            displayer()
-                        }
+                    if (resetScroll) {
+                        ImGui.setScrollX(0f)
+                        ImGui.setScrollY(0f)
+                    }
+                    baritoneSettings.forEach { (_, displayer) ->
+                        displayer()
                     }
                 }
             }
