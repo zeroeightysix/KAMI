@@ -126,7 +126,7 @@ object Wizard {
             text("Try it out:")
             popStyleColor()
 
-            Modules.module(Aura, Modules.ModuleWindow("", Aura), "")
+            Modules.module(Aura, Modules.ModuleWindow("", Aura), "", Settings.moduleAlignment)
 
             separator()
         },

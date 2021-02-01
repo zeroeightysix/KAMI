@@ -16,6 +16,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.FiberId
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.impl.fiber.annotation.BackedConfigLeaf
+import kotlin.collections.component1
+import kotlin.collections.component2
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Module
@@ -26,6 +28,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
 import me.zeroeightsix.kami.gui.ImguiDSL.withStyleVar
 import me.zeroeightsix.kami.gui.View.modulesOpen
+import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.kotlin
@@ -34,8 +37,6 @@ import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
 import me.zeroeightsix.kami.setting.runnerType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @FindSettings
 object Modules {
@@ -55,7 +56,8 @@ object Modules {
     fun module(
         module: Module,
         source: ModuleWindow,
-        sourceGroup: String
+        sourceGroup: String,
+        alignment: TextPinnableWidget.Alignment
     ): ModuleWindow? {
         val nodeFlags = if (!module.enabled) baseFlags else (baseFlags or ImGuiTreeNodeFlags.Selected)
         val label = "${module.name}-node"
@@ -91,8 +93,10 @@ object Modules {
 //            // Restore state
 //            ImGui.io.mouseDoubleClicked[0] = doubleClicked
         } else {
-            if (selectable(module.name, module.enabled)) {
-                module.enabled = !module.enabled
+            withStyleVar(ImGuiStyleVar.SelectableTextAlign, alignment.x, alignment.y) {
+                if (selectable(module.name, module.enabled)) {
+                    module.enabled = !module.enabled
+                }
             }
             openPopupOnItemClick("module-settings-${module.name}", ImGuiMouseButton.Right)
             popup("module-settings-${module.name}") {
@@ -178,19 +182,15 @@ object Modules {
 
         fun draw(): Boolean {
             fun iterateModules(list: MutableList<Module>, group: String): Boolean {
-                var ret: Boolean = false
                 val alignment = Settings.moduleAlignment
-                withStyleVar(ImGuiStyleVar.SelectableTextAlign, alignment.x, alignment.y) {
-                    ret = list.removeIf {
-                        val moduleWindow = module(it, this, group)
-                        moduleWindow?.let {
-                            newWindows.add(moduleWindow)
-                            return@removeIf true
-                        }
-                        return@removeIf false
+                return list.removeIf {
+                    val moduleWindow = module(it, this, group, alignment)
+                    moduleWindow?.let {
+                        newWindows.add(moduleWindow)
+                        return@removeIf true
                     }
+                    return@removeIf false
                 }
-                return ret
             }
 
             val flags = if (resize) {
