@@ -19,6 +19,8 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
+import java.util.Arrays
+import java.util.stream.Collectors
 import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
@@ -46,8 +48,6 @@ import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import java.util.*
-import java.util.stream.Collectors
 
 val String.humanReadable
     get() = this.replace('_', ' ').toLowerCase().capitalize()
@@ -60,9 +60,12 @@ abstract class TargetSupplier<T, M, E, S : TargetSupplier.SpecificTarget<T>>(
     val specificTargets: Map<S, M>
 ) where E : Enum<E>, E : CategorisedTargetProvider<T> {
     init {
-        Listener<TickEvent.InGame>({
-            this.invalidate()
-        }, EventPriority.HIGHEST + 1).also {
+        Listener<TickEvent.InGame>(
+            {
+                this.invalidate()
+            },
+            EventPriority.HIGHEST + 1
+        ).also {
             KamiMod.EVENT_BUS.subscribe(it)
         }
     }
@@ -320,7 +323,6 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                             .collect(Collectors.toSet()).toTypedArray()
 
                     run {
-
                         var dirty = false
 
                         @Suppress("NAME_SHADOWING") val enumMap = enumTargets.mapNotNull { (enum, meta) ->
@@ -419,9 +421,9 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                             }
                         }
                     }
+                    columns()
                 }
                 separator()
-
 
                 if (dirtyEnumMap != null || dirtySpecMap != null) {
                     factory(dirtyEnumMap ?: supplier.enumTargets, dirtySpecMap ?: supplier.specificTargets)
