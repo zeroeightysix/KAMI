@@ -56,7 +56,8 @@ class CompiledText(
                         )
                     },
                     {
-                        button("${part.editLabel}###part-button-$id-$n") {
+                        val buttonLabel = "${part.editLabel}###part-button-$id-$n"
+                        button(buttonLabel) {
                             this.selectedPart = part
                         }
 
@@ -78,7 +79,7 @@ class CompiledText(
                             }
                         }
 
-                        popupContextItem {
+                        popupContextItem(buttonLabel) {
                             menuItem("Remove") {
                                 // Remove this part from the list
                                 iterator.remove()
