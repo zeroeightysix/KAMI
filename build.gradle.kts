@@ -86,9 +86,6 @@ dependencies {
         exclude(group = "org.ow2.asm")
     }
 
-    // Needed to fix XRay and others
-    modImplementation("com.github.jellysquid3:sodium-fabric:1.16.x~stable-SNAPSHOT")
-
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
