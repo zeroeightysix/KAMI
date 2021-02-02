@@ -181,16 +181,7 @@ object Settings {
                             Themes.Variants.values()[styleIdx].applyStyle(false)
                         }
 
-                        wrapSingleFloatArray(::borderOffset) {
-                            dragFloat(
-                                "Border offset",
-                                it,
-                                0.1f,
-                                0f,
-                                50f,
-                                "%.0f"
-                            )
-                        }
+                        showBorderOffsetSlider()
 
                         val speed = floatArrayOf(rainbowSpeed.toFloat())
                         if (dragFloat("Rainbow speed", speed, 0.005f, 0.05f, 1f)) {
@@ -226,6 +217,19 @@ object Settings {
                     }
                 }
             }
+        }
+    }
+
+    fun showBorderOffsetSlider(label: String = "Border offset") {
+        wrapSingleFloatArray(::borderOffset) {
+            dragFloat(
+                label,
+                it,
+                0.1f,
+                0f,
+                50f,
+                "%.0f"
+            )
         }
     }
 

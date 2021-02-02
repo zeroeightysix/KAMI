@@ -15,7 +15,6 @@ import imgui.ImGui.text
 import imgui.ImGui.textWrapped
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
-import imgui.flag.ImGuiDataType
 import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiWindowFlags
 import imgui.internal.ImGui.popItemFlag
@@ -29,7 +28,6 @@ import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
 import me.zeroeightsix.kami.gui.ImguiDSL.radioButton
-import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
@@ -156,17 +154,7 @@ object Wizard {
         },
         {
             text("How far from the edge should HUD elements be rendered?")
-            wrapImFloat(Settings.borderOffset) {
-                ImGui.dragScalar(
-                    "Border offset",
-                    ImGuiDataType.Float,
-                    it,
-                    0.1f,
-                    0f,
-                    50f,
-                    "%.0f"
-                )
-            }
+            Settings.showBorderOffsetSlider()
             separator()
             text("Which elements should be shown in the HUD?")
             EnabledWidgets.enabledButtons()
