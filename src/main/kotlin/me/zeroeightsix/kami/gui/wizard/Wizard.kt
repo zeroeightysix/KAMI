@@ -25,13 +25,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Aura
+import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
-import me.zeroeightsix.kami.gui.ImguiDSL.combo
 import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
 import me.zeroeightsix.kami.gui.ImguiDSL.radioButton
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.KamiGuiScreen
-import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
@@ -51,10 +50,8 @@ object Wizard {
         },
         {
             text("Please select your preferred theme and font.")
-            combo("Theme", Settings::styleIdx, Settings.themes) {
-                Themes.Variants.values()[Settings.styleIdx].applyStyle(true)
-            }
-            Settings.showFontSelector("Font###kami-settings-font-selector")
+            Settings.showThemeSelector()
+            Settings.showFontSelector()
 
             pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
             text("GUI is visible in the background")
@@ -86,10 +83,12 @@ object Wizard {
 
             separator()
 
-            checkbox("In a popup", Settings.openSettingsInPopup)
-//            if (checkbox("Embedded in the modules window", BooleanArray(1) { !Settings.openSettingsInPopup })) {
-//                Settings.openSettingsInPopup = false
-//            }
+            radioButton("In a popup", Settings.openSettingsInPopup) {
+                Settings.openSettingsInPopup = true
+            }
+            radioButton("Embedded in the modules window", !Settings.openSettingsInPopup) {
+                Settings.openSettingsInPopup = false
+            }
 
             if (!Settings.openSettingsInPopup) {
                 separator()
@@ -99,10 +98,12 @@ object Wizard {
 
                 separator()
 
-                checkbox("Left-click to toggle modules", Settings.swapModuleListButtons)
-//                if (checkbox("Right-click to toggle modules", BooleanArray(1) { !Settings.swapModuleListButtons })) {
-//                    Settings.swapModuleListButtons = false
-//                }
+                radioButton("Left-click to toggle modules", Settings.swapModuleListButtons) {
+                    Settings.swapModuleListButtons = true
+                }
+                radioButton("Right-click to toggle modules", !Settings.swapModuleListButtons) {
+                    Settings.swapModuleListButtons = false
+                }
             }
 
             separator()
@@ -110,18 +111,19 @@ object Wizard {
             pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
             val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
             text(
-                "%s-click to toggle, %s-click to open settings.".format(
-                    if (leftToggle) {
-                        "Left"
-                    } else {
-                        "Right"
-                    },
-                    if (!leftToggle) {
-                        "left"
-                    } else {
-                        "right"
-                    }
-                )
+                "${
+                if (leftToggle) {
+                    "Left"
+                } else {
+                    "Right"
+                }
+                }-click to toggle, ${
+                if (!leftToggle) {
+                    "left"
+                } else {
+                    "right"
+                }
+                }-click to open settings."
             )
             text("Try it out:")
             popStyleColor()
@@ -134,7 +136,7 @@ object Wizard {
             text("Should KAMI enable usage of modifier keys in binds?")
             text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
             textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
-            checkbox("Enable modifier keys", Settings.modifiersEnabled)
+            ImguiDSL.checkbox("Enable modifier keys", Settings::modifiersEnabled)
 
             separator()
 

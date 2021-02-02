@@ -165,11 +165,9 @@ object Settings {
                         }
                     }
                     tabItem("Appearance") {
-                        showFontSelector("Font###kami-settings-font-selector")
+                        showFontSelector()
 
-                        combo("Theme", ::styleIdx, themes) {
-                            Themes.Variants.values()[it.get()].applyStyle(true)
-                        }
+                        showThemeSelector()
 
                         KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {
                             this.moduleAlignment = it
@@ -231,7 +229,13 @@ object Settings {
         }
     }
 
-    fun showFontSelector(label: String) {
+    fun showThemeSelector(label: String = "Theme") {
+        combo(label, ::styleIdx, themes) {
+            Themes.Variants.values()[it.get()].applyStyle(true)
+        }
+    }
+
+    fun showFontSelector(label: String = "Font###kami-settings-font-selector") {
         val fontCurrent = KamiImgui.fontNames[font]
         if (ImGui.beginCombo(label, fontCurrent)) {
             KamiImgui.fontNames.forEachIndexed { idx, fontName ->
