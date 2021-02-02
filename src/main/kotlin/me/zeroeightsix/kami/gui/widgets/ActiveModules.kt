@@ -1,10 +1,10 @@
 package me.zeroeightsix.kami.gui.widgets
 
 import imgui.ImGui
-import imgui.type.ImString
 import me.zeroeightsix.kami.feature.FeatureManager
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.child
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.text.CompiledText
 
@@ -15,7 +15,7 @@ val modulesVariable = object : CompiledText.StringVariable(
         FeatureManager.modules.filter { it.enabled && it.showInActiveModules }.joinToString("\n") { it.name }
     }
 ) {
-    var filter = ImString()
+    var filter = "".imgui
     override var editLabel: String = "(active modules)"
 
     override fun edit(variableMap: Map<String, () -> CompiledText.Variable>) {
