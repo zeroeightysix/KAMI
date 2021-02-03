@@ -1,4 +1,4 @@
-@file:Suppress("LocalVariableName")
+@file:Suppress("LocalVariableName", "PropertyName")
 
 import Build_gradle.IncludeMethod.INCLUDE
 import Build_gradle.IncludeMethod.NOT
@@ -17,8 +17,8 @@ plugins {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 version = "$minecraft_version-$mod_version"
@@ -128,7 +128,7 @@ tasks {
 
     withType(KotlinCompile::class) {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "1.8"
         }
     }
 
