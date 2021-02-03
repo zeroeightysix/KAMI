@@ -13,7 +13,7 @@ import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.gui.KamiGuiScreen
- import me.zeroeightsix.kami.gui.KamiHud
+import me.zeroeightsix.kami.gui.KamiHud
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.Bind
@@ -30,7 +30,7 @@ object ClickGui : Feature, Listenable, HasBind {
     val bindListener = Listener(
         EventHook<BindEvent> {
             bind.update(it.key, it.scancode, it.pressed)
-            if (bind.isDown && (it.ingame || (Settings.openGuiAnywhere && mc.currentScreen?.expectingInput != true))) {
+            if (bind.isDown && (it.ingame || (Settings.openGuiAnywhere && mc.currentScreen?.expectingInput != true && mc.currentScreen !is KamiGuiScreen))) {
                 KamiHud // In case imgui was not yet initialised, it gets initialised here. (Kotlin `init` block)
                 mc.openScreen(KamiGuiScreen(mc.currentScreen))
                 it.cancel()

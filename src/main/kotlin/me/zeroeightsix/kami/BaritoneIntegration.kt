@@ -1,14 +1,15 @@
 package me.zeroeightsix.kami
 
 import baritone.api.BaritoneAPI
-import glm_.vec2.Vec2
 import imgui.ImGui
-import imgui.WindowFlag
-import imgui.cStr
-import imgui.dsl
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigTypes
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.window
+import me.zeroeightsix.kami.gui.ImguiDSL.withItemWidth
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.settingInterface
 
@@ -45,7 +46,7 @@ object BaritoneIntegration {
             KamiConfig.installBaseExtension(configType)
 
             name to {
-                dsl.withItemWidth(120) {
+                withItemWidth(120) {
                     configType.settingInterface?.displayImGui(name, setting.value)?.let {
                         setting.value = it
                     }
@@ -55,24 +56,24 @@ object BaritoneIntegration {
     }
 
     private var settingsOpen = false
-    private var filter = ByteArray(128)
+    private var filter = "".imgui
 
     fun menu() {
         this {
-            dsl.menu("Baritone") {
-                dsl.menuItem("Settings", selected = settingsOpen) {
+            menu("Baritone") {
+                menuItem("Settings", selected = settingsOpen) {
                     settingsOpen = !settingsOpen
                 }
             }
 
             if (settingsOpen) {
-                dsl.window("Baritone settings", ::settingsOpen, flags = WindowFlag.AlwaysAutoResize.i) {
+                window("Baritone settings", ::settingsOpen) {
                     var resetScroll = false
                     if (ImGui.inputText("Filter##baritone-settings-filter", filter)) {
                         // If the user searched something, reset their scroll to the top left.
                         // This way the most relevant search result will always be visible.
                         resetScroll = true
-                        val filter = filter.cStr
+                        val filter = filter.get()
                         if (filter.isNotEmpty()) {
                             baritoneSettings.sortByDescending {
                                 FuzzySearch.partialRatio(filter.toLowerCase(), it.first.toLowerCase())
@@ -81,17 +82,12 @@ object BaritoneIntegration {
                             baritoneSettings.sortBy { it.first }
                         }
                     }
-                    dsl.child(
-                        "baritone-settings-settings",
-                        size = Vec2(0, 450),
-                        extraFlags = WindowFlag.AlwaysHorizontalScrollbar.i
-                    ) {
-                        if (resetScroll) {
-                            ImGui.currentWindow.scroll = Vec2(0, 0)
-                        }
-                        baritoneSettings.forEach { (_, displayer) ->
-                            displayer()
-                        }
+                    if (resetScroll) {
+                        ImGui.setScrollX(0f)
+                        ImGui.setScrollY(0f)
+                    }
+                    baritoneSettings.forEach { (_, displayer) ->
+                        displayer()
                     }
                 }
             }

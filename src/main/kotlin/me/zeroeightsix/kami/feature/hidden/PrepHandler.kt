@@ -6,6 +6,7 @@ import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
+import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.DisplaySizeChangedEvent
 import me.zeroeightsix.kami.event.RenderEvent
@@ -53,10 +54,12 @@ object PrepHandler : Feature, Listenable {
             displayHeight = mc.window.height
         }
         val hue = getRainbowHue()
-        KamiMod.rainbow = Color.HSBtoRGB(
-            hue.toFloat(),
-            rainbowSaturation,
-            rainbowBrightness
+        KamiMod.rainbow = Colour.fromARGB(
+            Color.HSBtoRGB(
+                hue.toFloat(),
+                rainbowSaturation,
+                rainbowBrightness
+            )
         )
     }
 

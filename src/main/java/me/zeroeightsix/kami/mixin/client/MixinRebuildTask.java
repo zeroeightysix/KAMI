@@ -65,7 +65,7 @@ public class MixinRebuildTask {
             if (iChunkData.getInitializedLayers().add(outlineLayer)) {
                 outlineBuilder.begin(GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
             }
-            Integer[] outlineColour = target.getOutlineColour().asInts();
+            int[] outlineColour = target.getOutlineColour().asInts();
             OutlineVertexConsumer outlineVertexConsumer = new OutlineVertexConsumer(
                 outlineBuilder,
                 outlineColour[1],

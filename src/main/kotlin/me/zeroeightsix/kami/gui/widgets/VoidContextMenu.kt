@@ -1,31 +1,37 @@
 package me.zeroeightsix.kami.gui.widgets
 
-import glm_.vec2.Vec2
-import glm_.vec4.Vec4
-import imgui.Col
 import imgui.ImGui
-import imgui.MouseButton
-import imgui.WindowFlag
-import imgui.cStr
-import imgui.dsl
+import imgui.ImGui.text
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiPopupFlags
+import imgui.flag.ImGuiWindowFlags
+import imgui.type.ImString
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupContextVoid
+import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
 import me.zeroeightsix.kami.gui.View
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import java.util.*
 
 /**
  * The context menu that appears when the user right-clicks where there are no imgui windows
  */
 object VoidContextMenu {
 
-    private var buffer = ByteArray(128)
+    private var buffer = ImString()
+    private var errorText = ""
     private var widgetProducer: Pair<String, (String) -> Unit>? = null
 
     operator fun invoke() {
-        dsl.popupContextVoid("kami-void-popup", MouseButton.Right.i) {
-            dsl.menuItem("Resize module windows") {
+        popupContextVoid("kami-void-popup", ImGuiPopupFlags.MouseButtonRight) {
+            menuItem("Resize module windows") {
                 Modules.resize = true
             }
-            dsl.menu("Create") {
-                dsl.menuItem("Text widget") {
+            menu("Create") {
+                menuItem("Text widget") {
                     widgetProducer = "Create text widget" to { title ->
                         EnabledWidgets.textWidgets.add(
                             TextPinnableWidget(
@@ -35,7 +41,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Player overlay") {
+                menuItem("Player overlay") {
                     widgetProducer = "Create player overlay" to { title ->
                         EnabledWidgets.playerWidgets.add(
                             PlayerPinnableWidget(
@@ -45,7 +51,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Inventory overlay") {
+                menuItem("Inventory overlay") {
                     widgetProducer = "Create inventory overlay" to { title ->
                         EnabledWidgets.inventoryWidgets.add(
                             InventoryPinnableWidget(
@@ -55,7 +61,7 @@ object VoidContextMenu {
                         )
                     }
                 }
-                dsl.menuItem("Graph") {
+                menuItem("Graph") {
                     widgetProducer = "Create graph" to { title ->
                         EnabledWidgets.graphs.add(
                             GraphPinnableWidget(
@@ -69,24 +75,45 @@ object VoidContextMenu {
             View()
         }
 
+        val takenNames = EnabledWidgets.widgets.map { it.name }.toSet()
         widgetProducer?.let { (title, factory) ->
             ImGui.openPopup(title) // Calling this in the menu for some reason doesn't work. So we spam it instead, because ImGui handles this user error!
-            dsl.popupModal(title, extraFlags = WindowFlag.AlwaysAutoResize.i) {
+            popupModal(title, extraFlags = ImGuiWindowFlags.AlwaysAutoResize) {
                 ImGui.inputText("Title", buffer)
 
-                ImGui.pushStyleColor(Col.Text, Vec4(.7f, .7f, .7f, 1f))
-                dsl.button("Cancel", Vec2(100, 0)) {
-                    widgetProducer = null
-                    ImGui.closeCurrentPopup()
+                if (errorText.isNotBlank()) {
+                    withStyleColour(ImGuiCol.Text, .7f, .3f, .3f, 1f) {
+                        text(errorText)
+                    }
                 }
-                ImGui.popStyleColor()
+
+                withStyleColour(ImGuiCol.Text, .7f, .7f, .7f, 1f) {
+                    button("Cancel", 100f, 0f) {
+                        errorText = ""
+                        buffer.set("")
+                        widgetProducer = null
+                        ImGui.closeCurrentPopup()
+                    }
+                }
                 ImGui.sameLine()
-                dsl.button("Create", Vec2(100, 0)) {
-                    val widgetName = buffer.cStr
-                    buffer = ByteArray(128)
-                    factory(widgetName)
-                    widgetProducer = null
-                    ImGui.closeCurrentPopup()
+                button("Create", 100f, 0f) {
+                    val widgetName = if (buffer.isEmpty) {
+                        // TODO: imgui doesn't allow null or no title names
+                        // bool ImGui::Begin(const char*, bool*, ImGuiWindowFlags): Assertion `name != __null && name[0] != '\0'' failed.
+                        UUID.randomUUID().toString()
+                    } else {
+                        buffer.get()
+                    }
+
+                    if (!takenNames.contains(widgetName)) {
+                        errorText = ""
+                        buffer.set("")
+                        factory(widgetName)
+                        widgetProducer = null
+                        ImGui.closeCurrentPopup()
+                    } else {
+                        errorText = "Title must be unique!"
+                    }
                 }
             }
         }

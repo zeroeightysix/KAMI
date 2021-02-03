@@ -16,9 +16,10 @@ class KamiMod : ModInitializer {
 
         @JvmStatic
         val log = LogManager.getLogger("KAMI")
+
         @JvmField
         val EVENT_BUS: EventBus = EventManager()
-        var rainbow = 0xFFFFFF // This'll be updated every tick
+        var rainbow = Colour(1.0f, 1.0f, 1.0f, 1.0f) // This will be updated every tick
     }
 
     override fun onInitialize() {

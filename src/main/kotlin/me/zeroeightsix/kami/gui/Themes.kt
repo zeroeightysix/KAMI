@@ -1,10 +1,8 @@
 package me.zeroeightsix.kami.gui
 
-import glm_.vec4.Vec4
-import imgui.Col
 import imgui.ImGui
-import imgui.api.g
-import imgui.internal.lerp
+import imgui.flag.ImGuiCol
+import me.zeroeightsix.kami.gui.ImguiDSL.colors
 
 object Themes {
 
@@ -33,189 +31,190 @@ object Themes {
     }
 
     private fun resetSizes() {
-        ImGui.style.windowRounding = 7f
-        ImGui.style.windowBorderSize = 1f
-        ImGui.style.frameRounding = 0f
-        ImGui.style.grabRounding = 0f
-        ImGui.style.childRounding = 0f
-        ImGui.style.frameBorderSize = 0f
+        with(ImGui.getStyle()) {
+            windowRounding = 7f
+            windowBorderSize = 1f
+            frameRounding = 0f
+            grabRounding = 0f
+            childRounding = 0f
+            frameBorderSize = 0f
+        }
     }
 
     private fun styleColorsAqua(resetSizes: Boolean) {
-        val colors = ImGui.style.colors
-        colors[Col.Text.i] = Vec4(0.80, 0.78, 0.78, 1.00)
-        colors[Col.TextDisabled.i] = Vec4(0.39, 0.39, 0.39, 1.00)
-        colors[Col.WindowBg.i] = Vec4(0.16, 0.16, 0.16, 0.70)
-        colors[Col.ChildBg.i] = Vec4(0.00, 0.00, 0.00, 0.00)
-        colors[Col.PopupBg.i] = Vec4(0.11, 0.11, 0.14, 0.92)
-        colors[Col.Border.i] = Vec4(0.60, 0.87, 0.97, 0.26)
-        colors[Col.BorderShadow.i] = Vec4(0.00, 0.00, 0.00, 0.00)
-        colors[Col.FrameBg.i] = Vec4(0.63, 0.50, 0.50, 0.12)
-        colors[Col.FrameBgHovered.i] = Vec4(0.69, 0.59, 0.59, 0.12)
-        colors[Col.FrameBgActive.i] = Vec4(0.80, 0.71, 0.71, 0.12)
-        colors[Col.TitleBg.i] = Vec4(0.45, 0.85, 0.99, 0.62)
-        colors[Col.TitleBgActive.i] = Vec4(0.25, 0.80, 1.00, 0.62)
-        colors[Col.TitleBgCollapsed.i] = Vec4(0.45, 0.68, 0.78, 0.20)
-        colors[Col.MenuBarBg.i] = Vec4(0.35, 0.54, 0.61, 0.62)
-        colors[Col.ScrollbarBg.i] = Vec4(0.20, 0.30, 0.27, 0.60)
-        colors[Col.ScrollbarGrab.i] = Vec4(0.40, 0.67, 0.80, 0.30)
-        colors[Col.ScrollbarGrabHovered.i] = Vec4(0.40, 0.67, 0.80, 0.40)
-        colors[Col.ScrollbarGrabActive.i] = Vec4(0.39, 0.69, 0.80, 0.60)
-        colors[Col.CheckMark.i] = Vec4(0.90, 0.90, 0.90, 0.50)
-        colors[Col.SliderGrab.i] = Vec4(1.00, 1.00, 1.00, 0.30)
-        colors[Col.SliderGrabActive.i] = Vec4(0.39, 0.76, 0.80, 0.60)
-        colors[Col.Button.i] = Vec4(0.35, 0.54, 0.61, 0.62)
-        colors[Col.ButtonHovered.i] = Vec4(0.43, 0.62, 0.69, 0.62)
-        colors[Col.ButtonActive.i] = Vec4(0.31, 0.64, 0.76, 0.62)
-        colors[Col.Header.i] = Vec4(0.14, 0.53, 0.67, 0.62)
-        colors[Col.HeaderHovered.i] = Vec4(0.20, 0.48, 0.67, 0.62)
-        colors[Col.HeaderActive.i] = Vec4(0.15, 0.51, 0.75, 0.62)
-        colors[Col.Separator.i] = Vec4(0.50, 0.50, 0.50, 0.60)
-        colors[Col.SeparatorHovered.i] = Vec4(0.60, 0.60, 0.70, 1.00)
-        colors[Col.SeparatorActive.i] = Vec4(0.70, 0.70, 0.90, 1.00)
-        colors[Col.ResizeGrip.i] = Vec4(1.00, 1.00, 1.00, 0.16)
-        colors[Col.ResizeGripHovered.i] = Vec4(0.78, 1.00, 1.00, 0.60)
-        colors[Col.ResizeGripActive.i] = Vec4(0.78, 0.97, 1.00, 0.90)
-        colors[Col.Tab.i] = Vec4(0.14, 0.53, 0.67, 0.62)
-        colors[Col.TabHovered.i] = Vec4(0.22, 0.61, 0.75, 0.62)
-        colors[Col.TabActive.i] = Vec4(0.24, 0.72, 0.89, 0.62)
-        colors[Col.TabUnfocused.i] = Vec4(0.10, 0.36, 0.46, 0.62)
-        colors[Col.TabUnfocusedActive.i] = Vec4(0.13, 0.46, 0.58, 0.62)
-        colors[Col.PlotLines.i] = Vec4(1.00, 1.00, 1.00, 1.00)
-        colors[Col.PlotLinesHovered.i] = Vec4(0.90, 0.70, 0.00, 1.00)
-        colors[Col.PlotHistogram.i] = Vec4(0.90, 0.70, 0.00, 1.00)
-        colors[Col.PlotHistogramHovered.i] = Vec4(1.00, 0.60, 0.00, 1.00)
-        colors[Col.TextSelectedBg.i] = Vec4(0.00, 0.60, 1.00, 0.35)
-        colors[Col.DragDropTarget.i] = Vec4(1.00, 1.00, 0.00, 0.90)
-        colors[Col.NavHighlight.i] = Vec4(0.45, 0.45, 0.90, 0.80)
-        colors[Col.NavWindowingHighlight.i] = Vec4(1.00, 1.00, 1.00, 0.70)
-        colors[Col.NavWindowingDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.20)
-        colors[Col.ModalWindowDimBg.i] = Vec4(0.20, 0.20, 0.20, 0.35)
+        val colors = ImGui.getStyle().colors
+        colors[ImGuiCol.Text] = floatArrayOf(0.80f, 0.78f, 0.78f, 1.00f)
+        colors[ImGuiCol.TextDisabled] = floatArrayOf(0.39f, 0.39f, 0.39f, 1.00f)
+        colors[ImGuiCol.WindowBg] = floatArrayOf(0.16f, 0.16f, 0.16f, 0.70f)
+        colors[ImGuiCol.ChildBg] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.00f)
+        colors[ImGuiCol.PopupBg] = floatArrayOf(0.11f, 0.11f, 0.14f, 0.92f)
+        colors[ImGuiCol.Border] = floatArrayOf(0.60f, 0.87f, 0.97f, 0.26f)
+        colors[ImGuiCol.BorderShadow] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.00f)
+        colors[ImGuiCol.FrameBg] = floatArrayOf(0.63f, 0.50f, 0.50f, 0.12f)
+        colors[ImGuiCol.FrameBgHovered] = floatArrayOf(0.69f, 0.59f, 0.59f, 0.12f)
+        colors[ImGuiCol.FrameBgActive] = floatArrayOf(0.80f, 0.71f, 0.71f, 0.12f)
+        colors[ImGuiCol.TitleBg] = floatArrayOf(0.45f, 0.85f, 0.99f, 0.62f)
+        colors[ImGuiCol.TitleBgActive] = floatArrayOf(0.25f, 0.80f, 1.00f, 0.62f)
+        colors[ImGuiCol.TitleBgCollapsed] = floatArrayOf(0.45f, 0.68f, 0.78f, 0.20f)
+        colors[ImGuiCol.MenuBarBg] = floatArrayOf(0.35f, 0.54f, 0.61f, 0.62f)
+        colors[ImGuiCol.ScrollbarBg] = floatArrayOf(0.20f, 0.30f, 0.27f, 0.60f)
+        colors[ImGuiCol.ScrollbarGrab] = floatArrayOf(0.40f, 0.67f, 0.80f, 0.30f)
+        colors[ImGuiCol.ScrollbarGrabHovered] = floatArrayOf(0.40f, 0.67f, 0.80f, 0.40f)
+        colors[ImGuiCol.ScrollbarGrabActive] = floatArrayOf(0.39f, 0.69f, 0.80f, 0.60f)
+        colors[ImGuiCol.CheckMark] = floatArrayOf(0.90f, 0.90f, 0.90f, 0.50f)
+        colors[ImGuiCol.SliderGrab] = floatArrayOf(1.00f, 1.00f, 1.00f, 0.30f)
+        colors[ImGuiCol.SliderGrabActive] = floatArrayOf(0.39f, 0.76f, 0.80f, 0.60f)
+        colors[ImGuiCol.Button] = floatArrayOf(0.35f, 0.54f, 0.61f, 0.62f)
+        colors[ImGuiCol.ButtonHovered] = floatArrayOf(0.43f, 0.62f, 0.69f, 0.62f)
+        colors[ImGuiCol.ButtonActive] = floatArrayOf(0.31f, 0.64f, 0.76f, 0.62f)
+        colors[ImGuiCol.Header] = floatArrayOf(0.14f, 0.53f, 0.67f, 0.62f)
+        colors[ImGuiCol.HeaderHovered] = floatArrayOf(0.20f, 0.48f, 0.67f, 0.62f)
+        colors[ImGuiCol.HeaderActive] = floatArrayOf(0.15f, 0.51f, 0.75f, 0.62f)
+        colors[ImGuiCol.Separator] = floatArrayOf(0.50f, 0.50f, 0.50f, 0.60f)
+        colors[ImGuiCol.SeparatorHovered] = floatArrayOf(0.60f, 0.60f, 0.70f, 1.00f)
+        colors[ImGuiCol.SeparatorActive] = floatArrayOf(0.70f, 0.70f, 0.90f, 1.00f)
+        colors[ImGuiCol.ResizeGrip] = floatArrayOf(1.00f, 1.00f, 1.00f, 0.16f)
+        colors[ImGuiCol.ResizeGripHovered] = floatArrayOf(0.78f, 1.00f, 1.00f, 0.60f)
+        colors[ImGuiCol.ResizeGripActive] = floatArrayOf(0.78f, 0.97f, 1.00f, 0.90f)
+        colors[ImGuiCol.Tab] = floatArrayOf(0.14f, 0.53f, 0.67f, 0.62f)
+        colors[ImGuiCol.TabHovered] = floatArrayOf(0.22f, 0.61f, 0.75f, 0.62f)
+        colors[ImGuiCol.TabActive] = floatArrayOf(0.24f, 0.72f, 0.89f, 0.62f)
+        colors[ImGuiCol.TabUnfocused] = floatArrayOf(0.10f, 0.36f, 0.46f, 0.62f)
+        colors[ImGuiCol.TabUnfocusedActive] = floatArrayOf(0.13f, 0.46f, 0.58f, 0.62f)
+        colors[ImGuiCol.PlotLines] = floatArrayOf(1.00f, 1.00f, 1.00f, 1.00f)
+        colors[ImGuiCol.PlotLinesHovered] = floatArrayOf(0.90f, 0.70f, 0.00f, 1.00f)
+        colors[ImGuiCol.PlotHistogram] = floatArrayOf(0.90f, 0.70f, 0.00f, 1.00f)
+        colors[ImGuiCol.PlotHistogramHovered] = floatArrayOf(1.00f, 0.60f, 0.00f, 1.00f)
+        colors[ImGuiCol.TextSelectedBg] = floatArrayOf(0.00f, 0.60f, 1.00f, 0.35f)
+        colors[ImGuiCol.DragDropTarget] = floatArrayOf(1.00f, 1.00f, 0.00f, 0.90f)
+        colors[ImGuiCol.NavHighlight] = floatArrayOf(0.45f, 0.45f, 0.90f, 0.80f)
+        colors[ImGuiCol.NavWindowingHighlight] = floatArrayOf(1.00f, 1.00f, 1.00f, 0.70f)
+        colors[ImGuiCol.NavWindowingDimBg] = floatArrayOf(0.80f, 0.80f, 0.80f, 0.20f)
+        colors[ImGuiCol.ModalWindowDimBg] = floatArrayOf(0.20f, 0.20f, 0.20f, 0.35f)
 
+        ImGui.getStyle().colors = colors
         if (resetSizes) {
             resetSizes()
-            ImGui.style.windowBorderSize = 0f
+            ImGui.getStyle().windowBorderSize = 0f
         }
     }
 
     private fun styleColorsInferno(resetSizes: Boolean) {
-        val colors = ImGui.style.colors
-        colors[Col.Text.i] = Vec4(1.00, 0.96, 0.96, 1.00)
-        colors[Col.TextDisabled.i] = Vec4(0.50, 0.50, 0.50, 1.00)
-        colors[Col.WindowBg.i] = Vec4(0.08, 0.08, 0.08, 0.94)
-        colors[Col.ChildBg.i] = Vec4(0.00, 0.00, 0.00, 0.00)
-        colors[Col.PopupBg.i] = Vec4(0.08, 0.08, 0.08, 0.94)
-        colors[Col.Border.i] = Vec4(0.48, 0.37, 0.37, 0.28)
-        colors[Col.BorderShadow.i] = Vec4(0.00, 0.00, 0.00, 0.00)
-        colors[Col.FrameBg.i] = Vec4(0.48, 0.18, 0.16, 0.46)
-        colors[Col.FrameBgHovered.i] = Vec4(0.57, 0.31, 0.29, 0.54)
-        colors[Col.FrameBgActive.i] = Vec4(0.64, 0.42, 0.40, 0.54)
-        colors[Col.TitleBg.i] = Vec4(0.00, 0.00, 0.00, 0.90)
-        colors[Col.TitleBgActive.i] = Vec4(0.48, 0.19, 0.16, 0.88)
-        colors[Col.TitleBgCollapsed.i] = Vec4(0.00, 0.00, 0.00, 0.51)
-        colors[Col.MenuBarBg.i] = Vec4(0.14, 0.14, 0.14, 1.00)
-        colors[Col.ScrollbarBg.i] = Vec4(0.02, 0.02, 0.02, 0.53)
-        colors[Col.ScrollbarGrab.i] = Vec4(0.31, 0.31, 0.31, 1.00)
-        colors[Col.ScrollbarGrabHovered.i] = Vec4(0.41, 0.41, 0.41, 1.00)
-        colors[Col.ScrollbarGrabActive.i] = Vec4(0.51, 0.51, 0.51, 1.00)
-        colors[Col.CheckMark.i] = Vec4(0.63, 0.39, 0.34, 1.00)
-        colors[Col.SliderGrab.i] = Vec4(0.63, 0.39, 0.34, 1.00)
-        colors[Col.SliderGrabActive.i] = Vec4(0.73, 0.30, 0.27, 1.00)
-        colors[Col.Button.i] = Vec4(0.54, 0.28, 0.26, 0.54)
-        colors[Col.ButtonHovered.i] = Vec4(0.53, 0.34, 0.33, 0.54)
-        colors[Col.ButtonActive.i] = Vec4(0.54, 0.40, 0.38, 0.54)
-        colors[Col.Header.i] = Vec4(0.65, 0.27, 0.24, 0.54)
-        colors[Col.HeaderHovered.i] = Vec4(0.74, 0.35, 0.32, 0.54)
-        colors[Col.HeaderActive.i] = Vec4(0.66, 0.34, 0.31, 0.54)
-        colors[Col.Separator.i] = Vec4(0.43, 0.43, 0.50, 0.50)
-        colors[Col.SeparatorHovered.i] = Vec4(0.51, 0.37, 0.37, 0.50)
-        colors[Col.SeparatorActive.i] = Vec4(0.57, 0.25, 0.25, 1.00)
-        colors[Col.ResizeGrip.i] = Vec4(0.98, 0.29, 0.26, 0.25)
-        colors[Col.ResizeGripHovered.i] = Vec4(0.98, 0.51, 0.49, 0.25)
-        colors[Col.ResizeGripActive.i] = Vec4(0.75, 0.20, 0.18, 0.25)
-        colors[Col.Tab.i] = Vec4(0.54, 0.28, 0.26, 0.54)
-        colors[Col.TabHovered.i] = Vec4(0.69, 0.33, 0.31, 0.54)
-        colors[Col.TabActive.i] = Vec4(0.63, 0.18, 0.14, 0.54)
-        colors[Col.TabUnfocused.i] = Vec4(0.15, 0.07, 0.07, 0.97)
-        colors[Col.TabUnfocusedActive.i] = Vec4(0.42, 0.14, 0.14, 1.00)
-        colors[Col.PlotLines.i] = Vec4(0.61, 0.61, 0.61, 1.00)
-        colors[Col.PlotLinesHovered.i] = Vec4(1.00, 0.43, 0.35, 1.00)
-        colors[Col.PlotHistogram.i] = Vec4(0.90, 0.70, 0.00, 1.00)
-        colors[Col.PlotHistogramHovered.i] = Vec4(1.00, 0.60, 0.00, 1.00)
-        colors[Col.TextSelectedBg.i] = Vec4(0.98, 0.26, 0.26, 0.35)
-        colors[Col.DragDropTarget.i] = Vec4(1.00, 1.00, 0.00, 0.90)
-        colors[Col.NavHighlight.i] = Vec4(0.26, 0.59, 0.98, 1.00)
-        colors[Col.NavWindowingHighlight.i] = Vec4(1.00, 1.00, 1.00, 0.70)
-        colors[Col.NavWindowingDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.20)
-        colors[Col.ModalWindowDimBg.i] = Vec4(0.80, 0.80, 0.80, 0.35)
+        val colors = ImGui.getStyle().colors
+        colors[ImGuiCol.Text] = floatArrayOf(1.00f, 0.96f, 0.96f, 1.00f)
+        colors[ImGuiCol.TextDisabled] = floatArrayOf(0.50f, 0.50f, 0.50f, 1.00f)
+        colors[ImGuiCol.WindowBg] = floatArrayOf(0.08f, 0.08f, 0.08f, 0.94f)
+        colors[ImGuiCol.ChildBg] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.00f)
+        colors[ImGuiCol.PopupBg] = floatArrayOf(0.08f, 0.08f, 0.08f, 0.94f)
+        colors[ImGuiCol.Border] = floatArrayOf(0.48f, 0.37f, 0.37f, 0.28f)
+        colors[ImGuiCol.BorderShadow] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.00f)
+        colors[ImGuiCol.FrameBg] = floatArrayOf(0.48f, 0.18f, 0.16f, 0.46f)
+        colors[ImGuiCol.FrameBgHovered] = floatArrayOf(0.57f, 0.31f, 0.29f, 0.54f)
+        colors[ImGuiCol.FrameBgActive] = floatArrayOf(0.64f, 0.42f, 0.40f, 0.54f)
+        colors[ImGuiCol.TitleBg] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.90f)
+        colors[ImGuiCol.TitleBgActive] = floatArrayOf(0.48f, 0.19f, 0.16f, 0.88f)
+        colors[ImGuiCol.TitleBgCollapsed] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.51f)
+        colors[ImGuiCol.MenuBarBg] = floatArrayOf(0.14f, 0.14f, 0.14f, 1.00f)
+        colors[ImGuiCol.ScrollbarBg] = floatArrayOf(0.02f, 0.02f, 0.02f, 0.53f)
+        colors[ImGuiCol.ScrollbarGrab] = floatArrayOf(0.31f, 0.31f, 0.31f, 1.00f)
+        colors[ImGuiCol.ScrollbarGrabHovered] = floatArrayOf(0.41f, 0.41f, 0.41f, 1.00f)
+        colors[ImGuiCol.ScrollbarGrabActive] = floatArrayOf(0.51f, 0.51f, 0.51f, 1.00f)
+        colors[ImGuiCol.CheckMark] = floatArrayOf(0.63f, 0.39f, 0.34f, 1.00f)
+        colors[ImGuiCol.SliderGrab] = floatArrayOf(0.63f, 0.39f, 0.34f, 1.00f)
+        colors[ImGuiCol.SliderGrabActive] = floatArrayOf(0.73f, 0.30f, 0.27f, 1.00f)
+        colors[ImGuiCol.Button] = floatArrayOf(0.54f, 0.28f, 0.26f, 0.54f)
+        colors[ImGuiCol.ButtonHovered] = floatArrayOf(0.53f, 0.34f, 0.33f, 0.54f)
+        colors[ImGuiCol.ButtonActive] = floatArrayOf(0.54f, 0.40f, 0.38f, 0.54f)
+        colors[ImGuiCol.Header] = floatArrayOf(0.65f, 0.27f, 0.24f, 0.54f)
+        colors[ImGuiCol.HeaderHovered] = floatArrayOf(0.74f, 0.35f, 0.32f, 0.54f)
+        colors[ImGuiCol.HeaderActive] = floatArrayOf(0.66f, 0.34f, 0.31f, 0.54f)
+        colors[ImGuiCol.Separator] = floatArrayOf(0.43f, 0.43f, 0.50f, 0.50f)
+        colors[ImGuiCol.SeparatorHovered] = floatArrayOf(0.51f, 0.37f, 0.37f, 0.50f)
+        colors[ImGuiCol.SeparatorActive] = floatArrayOf(0.57f, 0.25f, 0.25f, 1.00f)
+        colors[ImGuiCol.ResizeGrip] = floatArrayOf(0.98f, 0.29f, 0.26f, 0.25f)
+        colors[ImGuiCol.ResizeGripHovered] = floatArrayOf(0.98f, 0.51f, 0.49f, 0.25f)
+        colors[ImGuiCol.ResizeGripActive] = floatArrayOf(0.75f, 0.20f, 0.18f, 0.25f)
+        colors[ImGuiCol.Tab] = floatArrayOf(0.54f, 0.28f, 0.26f, 0.54f)
+        colors[ImGuiCol.TabHovered] = floatArrayOf(0.69f, 0.33f, 0.31f, 0.54f)
+        colors[ImGuiCol.TabActive] = floatArrayOf(0.63f, 0.18f, 0.14f, 0.54f)
+        colors[ImGuiCol.TabUnfocused] = floatArrayOf(0.15f, 0.07f, 0.07f, 0.97f)
+        colors[ImGuiCol.TabUnfocusedActive] = floatArrayOf(0.42f, 0.14f, 0.14f, 1.00f)
+        colors[ImGuiCol.PlotLines] = floatArrayOf(0.61f, 0.61f, 0.61f, 1.00f)
+        colors[ImGuiCol.PlotLinesHovered] = floatArrayOf(1.00f, 0.43f, 0.35f, 1.00f)
+        colors[ImGuiCol.PlotHistogram] = floatArrayOf(0.90f, 0.70f, 0.00f, 1.00f)
+        colors[ImGuiCol.PlotHistogramHovered] = floatArrayOf(1.00f, 0.60f, 0.00f, 1.00f)
+        colors[ImGuiCol.TextSelectedBg] = floatArrayOf(0.98f, 0.26f, 0.26f, 0.35f)
+        colors[ImGuiCol.DragDropTarget] = floatArrayOf(1.00f, 1.00f, 0.00f, 0.90f)
+        colors[ImGuiCol.NavHighlight] = floatArrayOf(0.26f, 0.59f, 0.98f, 1.00f)
+        colors[ImGuiCol.NavWindowingHighlight] = floatArrayOf(1.00f, 1.00f, 1.00f, 0.70f)
+        colors[ImGuiCol.NavWindowingDimBg] = floatArrayOf(0.80f, 0.80f, 0.80f, 0.20f)
+        colors[ImGuiCol.ModalWindowDimBg] = floatArrayOf(0.80f, 0.80f, 0.80f, 0.35f)
 
+        ImGui.getStyle().colors = colors
         if (resetSizes) {
             resetSizes()
-            ImGui.style.windowRounding = 9f
-            ImGui.style.frameRounding = 4f
-            ImGui.style.grabRounding = 4f
-            ImGui.style.childRounding = 3f
-            ImGui.style.frameBorderSize = 1f
-        }
-    }
-
-    private fun styleColorsCherry(resetSizes: Boolean) {
-        with(g.style) {
-            colors.clear()
-            for (c in Col.values()) colors += Vec4()
-            // @formatter:off
-            colors[Col.Text](0.86f, 0.93f, 0.89f, 0.78f)
-            colors[Col.TextDisabled](0.86f, 0.93f, 0.89f, 0.28f)
-            colors[Col.WindowBg](0.13f, 0.14f, 0.17f, 1.00f)
-            colors[Col.ChildBg](0.20f, 0.22f, 0.27f, 0.58f)
-            colors[Col.PopupBg](0.20f, 0.22f, 0.27f, 0.9f)
-            colors[Col.Border](0.31f, 0.31f, 1.00f, 0.00f)
-            colors[Col.BorderShadow](0.00f, 0.00f, 0.00f, 0.00f)
-            colors[Col.FrameBg](0.20f, 0.22f, 0.27f, 1.00f)
-            colors[Col.FrameBgHovered](0.46f, 0.12f, 0.30f, 0.78f)
-            colors[Col.FrameBgActive](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.TitleBg](0.23f, 0.20f, 0.27f, 1.00f)
-            colors[Col.TitleBgActive](0.50f, 0.08f, 0.26f, 1.00f)
-            colors[Col.TitleBgCollapsed](0.20f, 0.22f, 0.27f, 0.75f)
-            colors[Col.MenuBarBg](0.20f, 0.22f, 0.27f, 0.47f)
-            colors[Col.ScrollbarBg](0.20f, 0.22f, 0.27f, 1.00f)
-            colors[Col.ScrollbarGrab](0.09f, 0.15f, 0.16f, 1.00f)
-            colors[Col.ScrollbarGrabHovered](0.46f, 0.12f, 0.30f, 0.78f)
-            colors[Col.ScrollbarGrabActive](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.CheckMark](0.71f, 0.22f, 0.27f, 1.00f)
-            colors[Col.SliderGrab](0.47f, 0.77f, 0.83f, 0.14f)
-            colors[Col.SliderGrabActive](0.71f, 0.22f, 0.27f, 1.00f)
-            colors[Col.Button](0.47f, 0.77f, 0.83f, 0.14f)
-            colors[Col.ButtonHovered](0.46f, 0.12f, 0.30f, 0.86f)
-            colors[Col.ButtonActive](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.Header](0.46f, 0.12f, 0.30f, 0.76f)
-            colors[Col.HeaderHovered](0.46f, 0.12f, 0.30f, 0.86f)
-            colors[Col.HeaderActive](0.50f, 0.08f, 0.26f, 1.00f)
-            colors[Col.Separator](0.14f, 0.16f, 0.19f, 1.00f)
-            colors[Col.SeparatorHovered](0.46f, 0.12f, 0.30f, 0.78f)
-            colors[Col.SeparatorActive](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.ResizeGrip](0.47f, 0.77f, 0.83f, 0.04f)
-            colors[Col.ResizeGripHovered](0.46f, 0.12f, 0.30f, 0.78f)
-            colors[Col.ResizeGripActive](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.PlotLines](0.86f, 0.93f, 0.89f, 0.63f)
-            colors[Col.PlotLinesHovered](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.PlotHistogram](0.86f, 0.93f, 0.89f, 0.63f)
-            colors[Col.PlotHistogramHovered](0.46f, 0.12f, 0.30f, 1.00f)
-            colors[Col.TextSelectedBg](0.46f, 0.12f, 0.30f, 0.43f)
-            colors[Col.Tab](colors[Col.Header].lerp(colors[Col.TitleBgActive], 0.90f))
-            colors[Col.TabHovered](colors[Col.HeaderHovered])
-            colors[Col.TabActive](colors[Col.HeaderActive].lerp(colors[Col.TitleBgActive], 0.60f))
-            colors[Col.TabUnfocused](colors[Col.Tab].lerp(colors[Col.TitleBg], 0.80f))
-            colors[Col.TabUnfocusedActive](colors[Col.TabActive].lerp(colors[Col.TitleBg], 0.40f))
-            colors[Col.NavHighlight](colors[Col.HeaderHovered])
-            colors[Col.ModalWindowDimBg](0.00f, 0.00f, 0.00f, 0.32f)
-            // @formatter:on
-
-            if (resetSizes) {
-                resetSizes()
+            with(ImGui.getStyle()) {
+                windowRounding = 9f
+                frameRounding = 4f
+                grabRounding = 4f
+                childRounding = 3f
+                frameBorderSize = 1f
             }
         }
     }
 
-    operator fun <T> ArrayList<T>.get(col: Col): T = get(col.i)
+    private fun styleColorsCherry(resetSizes: Boolean) {
+        val colors = ImGui.getStyle().colors
+        colors[ImGuiCol.Text] = floatArrayOf(0.86f, 0.93f, 0.89f, 0.78f)
+        colors[ImGuiCol.TextDisabled] = floatArrayOf(0.86f, 0.93f, 0.89f, 0.28f)
+        colors[ImGuiCol.WindowBg] = floatArrayOf(0.13f, 0.14f, 0.17f, 1.00f)
+        colors[ImGuiCol.ChildBg] = floatArrayOf(0.20f, 0.22f, 0.27f, 0.58f)
+        colors[ImGuiCol.PopupBg] = floatArrayOf(0.20f, 0.22f, 0.27f, 0.9f)
+        colors[ImGuiCol.Border] = floatArrayOf(0.31f, 0.31f, 1.00f, 0.00f)
+        colors[ImGuiCol.BorderShadow] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.00f)
+        colors[ImGuiCol.FrameBg] = floatArrayOf(0.20f, 0.22f, 0.27f, 1.00f)
+        colors[ImGuiCol.FrameBgHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.78f)
+        colors[ImGuiCol.FrameBgActive] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.TitleBg] = floatArrayOf(0.23f, 0.20f, 0.27f, 1.00f)
+        colors[ImGuiCol.TitleBgActive] = floatArrayOf(0.50f, 0.08f, 0.26f, 1.00f)
+        colors[ImGuiCol.TitleBgCollapsed] = floatArrayOf(0.20f, 0.22f, 0.27f, 0.75f)
+        colors[ImGuiCol.MenuBarBg] = floatArrayOf(0.20f, 0.22f, 0.27f, 0.47f)
+        colors[ImGuiCol.ScrollbarBg] = floatArrayOf(0.20f, 0.22f, 0.27f, 1.00f)
+        colors[ImGuiCol.ScrollbarGrab] = floatArrayOf(0.09f, 0.15f, 0.16f, 1.00f)
+        colors[ImGuiCol.ScrollbarGrabHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.78f)
+        colors[ImGuiCol.ScrollbarGrabActive] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.CheckMark] = floatArrayOf(0.71f, 0.22f, 0.27f, 1.00f)
+        colors[ImGuiCol.SliderGrab] = floatArrayOf(0.47f, 0.77f, 0.83f, 0.14f)
+        colors[ImGuiCol.SliderGrabActive] = floatArrayOf(0.71f, 0.22f, 0.27f, 1.00f)
+        colors[ImGuiCol.Button] = floatArrayOf(0.47f, 0.77f, 0.83f, 0.14f)
+        colors[ImGuiCol.ButtonHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.86f)
+        colors[ImGuiCol.ButtonActive] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.Header] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.76f)
+        colors[ImGuiCol.HeaderHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.86f)
+        colors[ImGuiCol.HeaderActive] = floatArrayOf(0.50f, 0.08f, 0.26f, 1.00f)
+        colors[ImGuiCol.Separator] = floatArrayOf(0.14f, 0.16f, 0.19f, 1.00f)
+        colors[ImGuiCol.SeparatorHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.78f)
+        colors[ImGuiCol.SeparatorActive] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.ResizeGrip] = floatArrayOf(0.47f, 0.77f, 0.83f, 0.04f)
+        colors[ImGuiCol.ResizeGripHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.78f)
+        colors[ImGuiCol.ResizeGripActive] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.PlotLines] = floatArrayOf(0.86f, 0.93f, 0.89f, 0.63f)
+        colors[ImGuiCol.PlotLinesHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.PlotHistogram] = floatArrayOf(0.86f, 0.93f, 0.89f, 0.63f)
+        colors[ImGuiCol.PlotHistogramHovered] = floatArrayOf(0.46f, 0.12f, 0.30f, 1.00f)
+        colors[ImGuiCol.TextSelectedBg] = floatArrayOf(0.46f, 0.12f, 0.30f, 0.43f)
+        colors[ImGuiCol.Tab] = colors[ImGuiCol.TitleBgActive]
+        colors[ImGuiCol.TabHovered] = colors[ImGuiCol.HeaderHovered]
+        colors[ImGuiCol.TabActive] = colors[ImGuiCol.TitleBgActive]
+        colors[ImGuiCol.TabUnfocused] = colors[ImGuiCol.TitleBg]
+        colors[ImGuiCol.TabUnfocusedActive] = colors[ImGuiCol.TitleBg]
+        colors[ImGuiCol.NavHighlight] = colors[ImGuiCol.HeaderHovered]
+        colors[ImGuiCol.ModalWindowDimBg] = floatArrayOf(0.00f, 0.00f, 0.00f, 0.32f)
+        // @formatter:on
+
+        ImGui.getStyle().colors = colors
+        if (resetSizes) {
+            resetSizes()
+        }
+    }
 }

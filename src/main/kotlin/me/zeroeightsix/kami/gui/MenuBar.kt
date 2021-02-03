@@ -1,11 +1,11 @@
 package me.zeroeightsix.kami.gui
 
-import imgui.dsl.mainMenuBar
-import imgui.dsl.menu
-import imgui.dsl.menuItem
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.BaritoneIntegration
 import me.zeroeightsix.kami.feature.FindSettings
+import me.zeroeightsix.kami.gui.ImguiDSL.mainMenuBar
+import me.zeroeightsix.kami.gui.ImguiDSL.menu
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.VoidContextMenu
 import me.zeroeightsix.kami.gui.windows.Settings
@@ -35,7 +35,6 @@ object View {
 }
 
 object MenuBar {
-
     operator fun invoke() = mainMenuBar {
         EnabledWidgets()
         View()

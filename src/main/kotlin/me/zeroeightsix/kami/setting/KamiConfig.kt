@@ -1,12 +1,16 @@
 package me.zeroeightsix.kami.setting
 
 import com.mojang.authlib.GameProfile
-import glm_.asHexString
-import glm_.func.common.floor
-import glm_.vec2.Vec2
-import imgui.ColorEditFlag
-import imgui.ImGui
-import imgui.cStr
+import imgui.ImGui.colorEdit4
+import imgui.ImGui.dragScalar
+import imgui.ImGui.inputText
+import imgui.ImGui.sameLine
+import imgui.ImGui.text
+import imgui.flag.ImGuiColorEditFlags
+import imgui.flag.ImGuiDataType
+import imgui.type.ImBoolean
+import imgui.type.ImInt
+import imgui.type.ImString
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
 import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
@@ -26,6 +30,41 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
+import java.io.IOException
+import java.math.BigDecimal
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+import java.util.Collections
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.stream.Collectors
+import java.util.stream.Stream
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.Set
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.filter
+import kotlin.collections.find
+import kotlin.collections.forEach
+import kotlin.collections.groupBy
+import kotlin.collections.iterator
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.mapNotNull
+import kotlin.collections.mapOf
+import kotlin.collections.mapValues
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.toList
+import kotlin.collections.toMap
+import kotlin.collections.toMutableList
+import kotlin.collections.toMutableMap
+import kotlin.math.floor
+import kotlin.math.log10
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.ConfigSaveEvent
@@ -35,6 +74,11 @@ import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
@@ -59,30 +103,14 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.command.CommandSource
 import net.minecraft.util.Identifier
 import org.reflections.Reflections
-import uno.kotlin.NUL
-import java.io.IOException
-import java.math.BigDecimal
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-import java.util.Collections
-import java.util.UUID
-import java.util.function.Consumer
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import kotlin.math.log10
 
 object KamiConfig {
 
     const val CONFIG_FILENAME = "KAMI_config.json5"
 
-    /** Statically referencable **/
-
-    val strBuffer = ByteArray(512)
-
     /** Config types **/
-    
-    val unitType = RecordConfigType(RecordSerializableType(mapOf()), Unit::class.java, { Unit }, { mapOf() })
+
+    val unitType = RecordConfigType(RecordSerializableType(mapOf()), Unit::class.java, { }, { mapOf() })
 
     val mutableListTypeProcessor = ParameterizedTypeProcessor {
         fun <T> makeMutableListType(type: ConfigType<T, *, *>) =
@@ -98,7 +126,8 @@ object KamiConfig {
         makeMutableListType(it[0])
     }
 
-    val identifierType = ConfigTypes.STRING.derive(Identifier::class.java,
+    val identifierType = ConfigTypes.STRING.derive(
+        Identifier::class.java,
         {
             Identifier(it)
         },
@@ -109,7 +138,8 @@ object KamiConfig {
 
     // This should be done with an enumconfigtype but unfortunately map types only accept string types as keys,
     // maybe should make an issue for this on the fiber repo
-    val entityCategoryType = ConfigTypes.STRING.derive(EntityCategory::class.java,
+    val entityCategoryType = ConfigTypes.STRING.derive(
+        EntityCategory::class.java,
         {
             EntityCategory.valueOf(it)
         },
@@ -117,7 +147,8 @@ object KamiConfig {
             it.name
         }
     )
-    val entitySpecificType = identifierType.derive(EntitySupplier.SpecificEntity::class.java,
+    val entitySpecificType = identifierType.derive(
+        EntitySupplier.SpecificEntity::class.java,
         {
             EntitySupplier.SpecificEntity(it)
         },
@@ -126,7 +157,8 @@ object KamiConfig {
         }
     )
 
-    val blockEntityCategoryType = ConfigTypes.STRING.derive(BlockEntityCategory::class.java,
+    val blockEntityCategoryType = ConfigTypes.STRING.derive(
+        BlockEntityCategory::class.java,
         {
             BlockEntityCategory.valueOf(it)
         },
@@ -134,7 +166,8 @@ object KamiConfig {
             it.name
         }
     )
-    val blockEntitySpecificType = identifierType.derive(BlockEntitySupplier.SpecificBlockEntity::class.java,
+    val blockEntitySpecificType = identifierType.derive(
+        BlockEntitySupplier.SpecificBlockEntity::class.java,
         {
             BlockEntitySupplier.SpecificBlockEntity(it)
         },
@@ -143,7 +176,8 @@ object KamiConfig {
         }
     )
 
-    val blockCategoryType = ConfigTypes.STRING.derive(BlockCategory::class.java,
+    val blockCategoryType = ConfigTypes.STRING.derive(
+        BlockCategory::class.java,
         {
             BlockCategory.valueOf(it)
         },
@@ -151,7 +185,8 @@ object KamiConfig {
             it.name
         }
     )
-    val blockSpecificType = identifierType.derive(BlockSupplier.SpecificBlock::class.java,
+    val blockSpecificType = identifierType.derive(
+        BlockSupplier.SpecificBlock::class.java,
         {
             BlockSupplier.SpecificBlock(it)
         },
@@ -160,7 +195,8 @@ object KamiConfig {
         }
     )
 
-    val itemCategoryType = ConfigTypes.STRING.derive(ItemCategory::class.java,
+    val itemCategoryType = ConfigTypes.STRING.derive(
+        ItemCategory::class.java,
         {
             ItemCategory.valueOf(it)
         },
@@ -168,7 +204,8 @@ object KamiConfig {
             it.name
         }
     )
-    val itemSpecificType = identifierType.derive(ItemSupplier.SpecificItem::class.java,
+    val itemSpecificType = identifierType.derive(
+        ItemSupplier.SpecificItem::class.java,
         {
             ItemSupplier.SpecificItem(it)
         },
@@ -177,23 +214,34 @@ object KamiConfig {
         }
     )
 
-
-    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, entityCategoryType, entitySpecificType, { EntitySupplier.SpecificEntity() }) { e, s ->
+    fun <M, S> createEntityTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(
+        metaType,
+        entityCategoryType,
+        entitySpecificType,
+        { EntitySupplier.SpecificEntity() }
+    ) { e, s ->
         EntitySupplier(e, s)
     }
 
-    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockEntityCategoryType, blockEntitySpecificType, { BlockEntitySupplier.SpecificBlockEntity() }) { e, s ->
+    fun <M, S> createBlockTargetsType(metaType: ConfigType<M, S, *>) = createTargetsType(
+        metaType,
+        blockEntityCategoryType,
+        blockEntitySpecificType,
+        { BlockEntitySupplier.SpecificBlockEntity() }
+    ) { e, s ->
         BlockEntitySupplier(e, s)
     }
 
-    fun <M, S> createBlockType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, blockCategoryType, blockSpecificType, { BlockSupplier.SpecificBlock() }) { e, s ->
-        BlockSupplier(e, s)
-    }
+    fun <M, S> createBlockType(metaType: ConfigType<M, S, *>) =
+        createTargetsType(metaType, blockCategoryType, blockSpecificType, { BlockSupplier.SpecificBlock() }) { e, s ->
+            BlockSupplier(e, s)
+        }
 
-    fun <M, S> createItemType(metaType: ConfigType<M, S, *>) = createTargetsType(metaType, itemCategoryType, itemSpecificType, { ItemSupplier.SpecificItem() }) {e, s ->
-        ItemSupplier(e, s)
-    }
-    
+    fun <M, S> createItemType(metaType: ConfigType<M, S, *>) =
+        createTargetsType(metaType, itemCategoryType, itemSpecificType, { ItemSupplier.SpecificItem() }) { e, s ->
+            ItemSupplier(e, s)
+        }
+
     val entityTargetsTypeProcessor = ParameterizedTypeProcessor<EntitySupplier<*>> {
         createEntityTargetsType(it[0])
     }
@@ -218,26 +266,24 @@ object KamiConfig {
                     Colour.fromARGB((it.toLongOrNull(radix = 16) ?: 0xFFFFFFFF).unsignedInt)
                 },
                 {
-                    it.asARGB().asHexString
+                    Integer.toHexString(it.asARGB())
                 }
             )
             .extend(
                 {
-                    it.asARGB().asHexString
+                    Integer.toHexString(it.asARGB())
                 },
                 {
                     Colour.fromARGB(it.toInt(radix = 16))
                 },
                 { name, colour ->
-                    with(ImGui) {
-                        val floats = colour.asFloatRGBA().toFloatArray()
-                        colorEdit4(
-                            name,
-                            floats,
-                            ColorEditFlag.AlphaBar or ColorEditFlag.NoInputs
-                        ) then {
-                            Colour(floats[3], floats[0], floats[1], floats[2])
-                        }
+                    val floats = colour.asFloatRGBA()
+                    colorEdit4(
+                        name,
+                        floats,
+                        ImGuiColorEditFlags.AlphaBar or ImGuiColorEditFlags.NoInputs
+                    ) then {
+                        Colour.fromFloatRGBA(floats)
                     }
                 }
             )
@@ -287,7 +333,7 @@ object KamiConfig {
             val underline = it["underline"] as Boolean
             val italic = it["italic"] as Boolean
             val shadow = it["shadow"] as Boolean
-            val extraspace = it["extraspace"] as Boolean
+            val extraSpace = it["extraspace"] as Boolean
             val colourMode = colourModeType.toRuntimeType(it["colourMode"] as String)
             val type = it["type"] as String
             val value = it["value"] as String
@@ -296,7 +342,7 @@ object KamiConfig {
 
             val part = when (type) {
                 "literal" -> CompiledText.LiteralPart(
-                    value,
+                    value.imgui,
                     obfuscated,
                     bold,
                     strike,
@@ -304,10 +350,11 @@ object KamiConfig {
                     italic,
                     shadow,
                     colourMode,
-                    extraspace
+                    extraSpace
                 )
                 "variable" -> CompiledText.VariablePart(
-                    variableType.toRuntimeType(value).also { v -> (v as? CompiledText.NumericalVariable)?.digits = digits },
+                    variableType.toRuntimeType(value)
+                        .also { v -> (v as? CompiledText.NumericalVariable)?.digits = digits },
                     obfuscated,
                     bold,
                     strike,
@@ -315,10 +362,10 @@ object KamiConfig {
                     italic,
                     shadow,
                     colourMode,
-                    extraspace
+                    extraSpace
                 )
                 else -> CompiledText.LiteralPart(
-                    "Invalid part",
+                    "Invalid part".imgui,
                     obfuscated,
                     bold,
                     strike,
@@ -326,15 +373,15 @@ object KamiConfig {
                     italic,
                     shadow,
                     colourMode,
-                    extraspace
+                    extraSpace
                 )
             }
-            part.colour = colour.asVec4()
+            part.colour = colour
             part
         },
         {
             val (type, value) = when (it) {
-                is CompiledText.LiteralPart -> "literal" to it.string
+                is CompiledText.LiteralPart -> "literal" to it.string.get()
                 is CompiledText.VariablePart -> "variable" to variableType.toSerializedType(it.variable)
                 else -> throw IllegalStateException("Unknown part type")
             }
@@ -345,12 +392,14 @@ object KamiConfig {
                 "underline" to it.underline,
                 "italic" to it.italic,
                 "shadow" to it.shadow,
-                "extraspace" to it.extraspace,
+                "extraspace" to it.extraSpace,
                 "colourMode" to colourModeType.toSerializedType(it.colourMode),
                 "type" to type,
                 "value" to value,
-                "colour" to colourType.toSerializedType(Colour.fromVec4(it.colour)),
-                "digits" to ConfigTypes.INTEGER.toSerializedType(((it as? CompiledText.VariablePart)?.variable as? CompiledText.NumericalVariable)?.digits ?: 0)
+                "colour" to colourType.toSerializedType(it.colour),
+                "digits" to ConfigTypes.INTEGER.toSerializedType(
+                    ((it as? CompiledText.VariablePart)?.variable as? CompiledText.NumericalVariable)?.digits ?: 0
+                )
             )
         }
     )
@@ -488,12 +537,10 @@ object KamiConfig {
         )
         .extend(
             { _, bind ->
-                with(ImGui) {
-                    text("Bound to $bind") // TODO: Highlight bind in another color?
-                    sameLine(0, -1)
-                    if (button("Bind", Vec2())) { // TODO: Bind popup?
-                        // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-                    }
+                text("Bound to $bind") // TODO: Highlight bind in another color?
+                sameLine(0f, -1f)
+                button("Bind") { // TODO: Bind popup?
+                    // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
                 }
                 null
             },
@@ -549,10 +596,11 @@ object KamiConfig {
                 it.toBoolean()
             },
             { name, bool ->
-                val bArray = booleanArrayOf(bool)
-                if (ImGui.checkbox(name, bArray)) {
-                    bArray[0]
-                } else null
+                val value = ImBoolean(bool)
+                checkbox(name, value) {
+                    return@extend value.get()
+                }
+                null
             },
             { _, b -> CommandSource.suggestMatching(listOf("true", "false"), b) }
         )
@@ -598,16 +646,19 @@ object KamiConfig {
                         val sType = type.serializedType
                         this.float = type.toSerializedType(value).toFloat()
                         val increment = sType.increment?.toFloat() ?: 1.0f
-                        val precision = log10(1f / increment).floor.toInt()
+                        val precision = floor(log10(1f / increment)).toInt()
                         val format = "%.${precision}f"
-                        ImGui.dragFloat(
-                            name,
-                            ::float,
-                            vSpeed = increment,
-                            vMin = sType.minimum?.toFloat() ?: 0f,
-                            vMax = sType.maximum?.toFloat() ?: 0f,
-                            format = format
-                        ).then {
+                        wrapImFloat(::float) {
+                            dragScalar(
+                                name,
+                                ImGuiDataType.Float,
+                                it,
+                                increment,
+                                sType.minimum?.toFloat() ?: 0f,
+                                sType.maximum?.toFloat() ?: 0f,
+                                format
+                            )
+                        }.then {
                             // If the value changed, return it
                             // of course we also need to correct the type again
                             type.toRuntimeType(BigDecimal.valueOf(float.toDouble()))
@@ -627,11 +678,11 @@ object KamiConfig {
                         type.toRuntimeType(it)
                     },
                     { name, value ->
-                        val index = values.indexOf(type.toSerializedType(value))
-                        val array = intArrayOf(index)
-                        ImGui.combo(name, array, values).then {
-                            type.toRuntimeType(values[array[0]])
+                        val index = ImInt(values.indexOf(type.toSerializedType(value)))
+                        combo(name, index, values) {
+                            return@extend type.toRuntimeType(values[index.get()])
                         }
+                        null
                     },
                     { _, b ->
                         CommandSource.suggestMatching(values, b)
@@ -649,10 +700,8 @@ object KamiConfig {
                         it
                     },
                     { name, value ->
-                        val array = type.toSerializedType(value).encodeToByteArray()
-                        array.copyInto(this.strBuffer)
-                        strBuffer[array.size] = NUL.toByte()
-                        if (ImGui.inputText(name, strBuffer)) strBuffer.cStr else null
+                        val buf = ImString(type.toSerializedType(value))
+                        if (inputText(name, buf)) buf.get() else null
                     }
                 )
             }

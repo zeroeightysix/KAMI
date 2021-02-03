@@ -1,23 +1,28 @@
 package me.zeroeightsix.kami.gui.text
 
-import glm_.vec4.Vec4
-import imgui.Col
-import imgui.ColorEditFlag
 import imgui.ImGui
-import imgui.MouseButton
-import imgui.PAYLOAD_TYPE_COLOR_4F
-import imgui.cStr
-import imgui.dsl
-import imgui.dsl.withStyleColor
-import imgui.toByteArray
-import imgui.vec4
+import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiColorEditFlags
+import imgui.flag.ImGuiMouseButton
+import imgui.type.ImString
+import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.cyclingIterator
 import me.zeroeightsix.kami.forEachRemainingIndexed
-import uno.kotlin.NUL
-import kotlin.math.abs
-import kotlin.math.floor
+import me.zeroeightsix.kami.gui.ImguiDSL.PAYLOAD_TYPE_COLOR_4F
+import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
+import me.zeroeightsix.kami.gui.ImguiDSL.colors
+import me.zeroeightsix.kami.gui.ImguiDSL.combo
+import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
+import me.zeroeightsix.kami.gui.ImguiDSL.imgui
+import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.gui.ImguiDSL.popupContextItem
+import me.zeroeightsix.kami.gui.ImguiDSL.withStyleColour
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImBool
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapImInt
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleIntArray
 
 class CompiledText(
     var parts: MutableList<Part> = mutableListOf()
@@ -41,23 +46,32 @@ class CompiledText(
 
                 highlight.conditionalWrap(
                     {
-                        ImGui.pushStyleColor(Col.Text, (ImGui.style.colors[Col.Text.i] / 1.2f))
+                        val color = ImGui.getStyle().colors[ImGuiCol.Text]
+                        ImGui.pushStyleColor(
+                            ImGuiCol.Text,
+                            color[0] / 1.2f,
+                            color[1] / 1.2f,
+                            color[2] / 1.2f,
+                            color[3] / 1.2f
+                        )
                     },
                     {
-                        dsl.button("${part.editLabel}###part-button-$id-$n") {
+                        val buttonLabel = "${part.editLabel}###part-button-$id-$n"
+                        button(buttonLabel) {
                             this.selectedPart = part
                         }
 
                         // Set colour if colour dropped on this button
-                        dsl.dragDropTarget {
+                        dragDropTarget {
                             ImGui.acceptDragDropPayload(PAYLOAD_TYPE_COLOR_4F)?.let {
-                                part.colour = it.data!! as Vec4
+                                part.colour =
+                                    Colour(it[0].toFloat(), it[1].toFloat(), it[2].toFloat(), it[3].toFloat())
                             }
                         }
 
                         // Drag to move item
-                        if (ImGui.isItemActive && !ImGui.isItemHovered()) {
-                            val nNext = n + if (ImGui.getMouseDragDelta(MouseButton.Left).x < 0f) -1 else 1
+                        if (ImGui.isItemActive() && !ImGui.isItemHovered()) {
+                            val nNext = n + if (ImGui.getMouseDragDeltaX(ImGuiMouseButton.Left) < 0f) -1 else 1
                             if (nNext in parts.indices) {
                                 parts[n] = parts[nNext]
                                 parts[nNext] = part
@@ -65,8 +79,8 @@ class CompiledText(
                             }
                         }
 
-                        dsl.popupContextItem {
-                            dsl.menuItem("Remove") {
+                        popupContextItem(buttonLabel) {
+                            menuItem("Remove") {
                                 // Remove this part from the list
                                 iterator.remove()
                                 dirty = true
@@ -82,11 +96,12 @@ class CompiledText(
                 )
             }
 
-            withStyleColor(Col.Button, ImGui.style.colors[Col.Button.i] * 0.7f) {
-                dsl.button("+###plus-button-$id") {
+            val color = ImGui.getStyle().colors[ImGuiCol.Button]
+            withStyleColour(ImGuiCol.Button, color[0] * 0.7f, color[1] * 0.7f, color[2] * 0.7f, color[3] * 0.7f) {
+                button("+###plus-button-$id") {
                     ImGui.openPopup("plus-popup-$id")
                 }
-                dsl.popupContextItem("plus-popup-$id") {
+                popupContextItem("plus-popup-$id") {
                     fun addPart(part: Part) {
                         this.parts = parts.toMutableList().also {
                             it.add(part)
@@ -94,8 +109,8 @@ class CompiledText(
                             dirty = true
                         }
                     }
-                    dsl.menuItem("Text") { addPart(LiteralPart("Text")) }
-                    dsl.menuItem("Variable") { addPart(VariablePart(VarMap["none"]!!())) }
+                    menuItem("Text") { addPart(LiteralPart("Text".imgui)) }
+                    menuItem("Variable") { addPart(VariablePart(VarMap["none"]!!())) }
                     plusButtonExtra()
                 }
             }
@@ -118,7 +133,7 @@ class CompiledText(
         _italic: Boolean = false,
         var shadow: Boolean = true,
         var colourMode: ColourMode = ColourMode.STATIC,
-        var extraspace: Boolean = true
+        var extraSpace: Boolean = true
     ) {
         private var editColourComboIndex = ColourMode.values().indexOf(this.colourMode)
 
@@ -131,24 +146,26 @@ class CompiledText(
             formatting: FormattingEditMode = FormattingEditMode.ABSENT
         ) {
             if (colour) {
-                val col = this.colour
-                dsl.combo(
-                    "Colour mode",
-                    ::editColourComboIndex,
-                    if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
-                ) {
-                    this.colourMode = ColourMode.values()[editColourComboIndex]
+                val col = this.colour.asFloatRGBA()
+                wrapImInt(::editColourComboIndex) {
+                    combo(
+                        "Colour mode",
+                        it,
+                        if (this.multiline) ColourMode.listMultiline else ColourMode.listNormal
+                    ) {
+                        this.colourMode = ColourMode.values()[it.get()]
+                    }
                 }
 
                 when (this.colourMode) {
                     ColourMode.STATIC -> {
-                        if (ImGui.colorEditVec4("Colour", col, flags = ColorEditFlag.AlphaBar.i)) {
-                            this.colour = col
+                        if (ImGui.colorEdit4("Colour", col, ImGuiColorEditFlags.AlphaBar)) {
+                            this.colour = Colour.fromFloatRGBA(col)
                         }
                     }
                     ColourMode.ALTERNATING -> {
                         this.colours.forEachIndexed { i, vec ->
-                            ImGui.colorEditVec4("Colour $i", vec, flags = ColorEditFlag.AlphaBar.i)
+                            ImGui.colorEdit4("Colour $i", vec.asFloatRGBA(), ImGuiColorEditFlags.AlphaBar)
                         }
 
                         // TODO: Allow colours to be added / removed
@@ -165,30 +182,24 @@ class CompiledText(
                     ImGui.textDisabled("Styles disabled")
                     if (ImGui.isItemHovered()) {
                         ImGui.beginTooltip()
-                        ImGui.pushTextWrapPos(ImGui.fontSize * 35f)
-                        ImGui.textEx("Enable minecraft font rendering to enable styles")
+                        ImGui.pushTextWrapPos(ImGui.getFontSize() * 35f)
+                        ImGui.text("Enable minecraft font rendering to enable styles")
                         ImGui.popTextWrapPos()
                         ImGui.endTooltip()
                     }
                 }
                 FormattingEditMode.ENABLED -> {
-                    val shadow = booleanArrayOf(this.shadow)
-                    val bold = booleanArrayOf(this.bold)
-                    val italic = booleanArrayOf(this.italic)
-                    val underline = booleanArrayOf(this.underline)
-                    val strikethrough = booleanArrayOf(this.strike)
-                    val obfuscated = booleanArrayOf(this.obfuscated)
-                    if (ImGui.checkbox("Shadow", shadow)) this.shadow = !this.shadow
+                    if (ImGui.checkbox("Shadow", shadow)) shadow = !shadow
                     ImGui.sameLine()
-                    if (ImGui.checkbox("Bold", bold)) this.bold = !this.bold
+                    if (ImGui.checkbox("Bold", bold)) bold = !bold
                     ImGui.sameLine()
-                    if (ImGui.checkbox("Italic", italic)) this.italic = !this.italic
+                    if (ImGui.checkbox("Italic", italic)) italic = !italic
                     // newline
-                    if (ImGui.checkbox("Underline", underline)) this.underline = !this.underline
+                    if (ImGui.checkbox("Underline", underline)) underline = !underline
                     ImGui.sameLine()
-                    if (ImGui.checkbox("Cross out", strikethrough)) this.strike = !this.strike
+                    if (ImGui.checkbox("Cross out", strike)) strike = !strike
                     ImGui.sameLine()
-                    if (ImGui.checkbox("Obfuscated", obfuscated)) this.obfuscated = !this.obfuscated
+                    if (ImGui.checkbox("Obfuscated", obfuscated)) obfuscated = !obfuscated
                 }
             }
         }
@@ -227,43 +238,38 @@ class CompiledText(
                 codes = toCodes()
             }
 
-        private fun Vec4.toARGB(): Int {
-            val r = (x * 255.0F).toInt()
-            val g = (y * 255.0F).toInt()
-            val b = (z * 255.0F).toInt()
-            val a = (w * 255.0F).toInt()
+        private fun FloatArray.toARGB(): Int {
+            val r = (this[0] * 255.0F).toInt()
+            val g = (this[1] * 255.0F).toInt()
+            val b = (this[2] * 255.0F).toInt()
+            val a = (this[3] * 255.0F).toInt()
             return (a shl 24) or (r shl 16) or (g shl 8) or b
         }
 
         // Static colour
-        var colour: Vec4 = Vec4(1.0f, 1.0f, 1.0f, 1.0f)
-            set(value) {
-                field = value
-                argb = colour.toARGB()
-            }
-        private var argb: Int = this.colour.toARGB()
+        var colour = Colour(1.0f, 1.0f, 1.0f, 1.0f)
 
         // Alternating colour
         var colours = mutableListOf(
-            Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            Vec4(0.5f, 0.5f, 0.5f, 1.0f)
+            Colour(1.0f, 1.0f, 1.0f, 1.0f),
+            Colour(1.0f, 0.5f, 0.5f, 0.5f)
         )
         val coloursIterator = colours.cyclingIterator()
 
         override fun toString(): String {
-            return if (extraspace) " " else ""
+            return if (extraSpace) " " else ""
         }
 
-        fun currentColour(): Vec4 {
+        fun currentColour(): Colour {
             return when (colourMode) {
                 ColourMode.STATIC -> colour
-                ColourMode.RAINBOW -> KamiMod.rainbow.vec4
+                ColourMode.RAINBOW -> KamiMod.rainbow
                 ColourMode.ALTERNATING -> coloursIterator.next()
             }
         }
 
         fun currentColourARGB(): Int {
-            return currentColour().toARGB()
+            return currentColour().asARGB()
         }
 
         /**
@@ -278,8 +284,8 @@ class CompiledText(
 
             companion object {
                 val listNormal = values().filter { !it.multilineExclusive }
-                    .joinToString("$NUL") { it.name.toLowerCase().capitalize() }
-                val listMultiline = values().joinToString("$NUL") { it.name.toLowerCase().capitalize() }
+                    .map { it.name.toLowerCase().capitalize() }
+                val listMultiline = values().map { it.name.toLowerCase().capitalize() }
             }
         }
 
@@ -287,7 +293,7 @@ class CompiledText(
     }
 
     class LiteralPart(
-        var string: String,
+        var string: ImString,
         obfuscated: Boolean = false,
         bold: Boolean = false,
         strike: Boolean = false,
@@ -295,26 +301,23 @@ class CompiledText(
         italic: Boolean = false,
         shadow: Boolean = true,
         colourMode: ColourMode = ColourMode.STATIC,
-        extraspace: Boolean = true
-    ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
+        extraSpace: Boolean = true
+    ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraSpace) {
         override val multiline = false
 
         override fun toString(): String {
-            return string + super.toString()
+            return string.get() + super.toString()
         }
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
-            val buf =
-                string.toByteArray(ByteArray((((floor((abs((string.length - 4) / 256) + 1).toDouble()))) * 256).toInt()))
-            if (ImGui.inputText("Text", buf)) {
-                string = buf.cStr
-            }
+            ImGui.inputText("Text", string)
+
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()
-            val space = booleanArrayOf(extraspace)
-            if (ImGui.checkbox("Space", space)) {
-                extraspace = space[0]
+            wrapImBool(extraSpace) { bool ->
+                checkbox("Space", bool)
+                extraSpace = bool.get()
             }
         }
     }
@@ -328,8 +331,8 @@ class CompiledText(
         italic: Boolean = false,
         shadow: Boolean = true,
         colourMode: ColourMode = ColourMode.STATIC,
-        extraspace: Boolean = true
-    ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraspace) {
+        extraSpace: Boolean = true
+    ) : Part(obfuscated, bold, strike, underline, italic, shadow, colourMode, extraSpace) {
         private var editVarComboIndex = -1
         private var editDigits = if (variable is NumericalVariable) {
             (variable as NumericalVariable).digits
@@ -347,25 +350,29 @@ class CompiledText(
 
         override fun editValue(variableMap: Map<String, () -> Variable>) {
             if (editVarComboIndex == -1) editVarComboIndex = variableMap.keys.indexOf(this.variable.name)
-            dsl.combo("Variable", ::editVarComboIndex, variableMap.keys.joinToString(0.toChar().toString())) {
-                val selected: String = variableMap.keys.toList()[editVarComboIndex]
+            combo("Variable", ::editVarComboIndex, variableMap.keys) {
+                val selected: String = variableMap.keys.toList()[it.get()]
                 val v = (variableMap[selected] ?: error("Invalid item selected")).invoke()
                 if (v is NumericalVariable) {
                     v.digits = editDigits
                 }
                 this.variable = v
             }
+
             ImGui.sameLine()
             ImGui.text("+")
             ImGui.sameLine()
-            val space = booleanArrayOf(extraspace)
-            if (ImGui.checkbox("Space", space)) {
-                extraspace = space[0]
+            wrapImBool(extraSpace) {
+                checkbox("Space", it) {
+                    this.extraSpace = it.get()
+                }
             }
             when (val variable = variable) {
                 is NumericalVariable -> {
-                    if (ImGui.dragInt("Digits", ::editDigits, vSpeed = 0.1f, vMin = 0, vMax = 8)) {
-                        variable.digits = editDigits
+                    wrapSingleIntArray(::editDigits) {
+                        if (ImGui.dragInt("Digits", it, 0.1f, 0f, 8f)) {
+                            variable.digits = it[0]
+                        }
                     }
                 }
             }

@@ -1,4 +1,4 @@
-@file:Suppress("LocalVariableName")
+@file:Suppress("LocalVariableName", "PropertyName")
 
 import Build_gradle.IncludeMethod.INCLUDE
 import Build_gradle.IncludeMethod.NOT
@@ -17,8 +17,8 @@ plugins {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 version = "$minecraft_version-$mod_version"
@@ -51,17 +51,11 @@ dependencies {
     val yarn_mappings: String by project
     val loader_version: String by project
     val fiber_version: String by project
-    val kg_version: String by project
-    val glm_version: String by project
-    val uno_version: String by project
-    val kool_version: String by project
-    val unsigned_version: String by project
-    val gli_version: String by project
-    val gln_version: String by project
+    val imgui_version: String by project
 
-    fun depend(method: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
+    fun depend(includeMethod: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
         implementation(dependencyNotation = notation, dependencyConfiguration = action)
-        when (method) {
+        when (includeMethod) {
             SHADOW -> shadow(dependencyNotation = notation, dependencyConfiguration = action)
             INCLUDE -> include(dependencyNotation = notation, dependencyConfiguration = action)
             else -> {
@@ -82,9 +76,10 @@ dependencies {
     includedModImpl("net.fabricmc.fabric-api:fabric-api-base:0.1.3+12a8474cfa")
     includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
     includedModImpl("com.github.Ladysnake:Satin:1.5.0")
-    
+
     // 1.16.4+ has not added any additional functionality and 1.16.3 Fabritone will work on newer versions.
     modImplementation("com.gitlab.CDAGaming:fabritone:fabric~1.16.3-SNAPSHOT") {
+        exclude(group = "org.lwjgl")
         exclude(group = "org.lwjgl.lwjgl")
         exclude(group = "net.java.jinput")
         exclude(group = "net.sf.jopt-simple")
@@ -95,34 +90,28 @@ dependencies {
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
-    depend(SHADOW, "com.github.kotlin-graphics:kotlin-unsigned:$unsigned_version")
-    depend(SHADOW, "com.github.kotlin-graphics:kool:$kool_version")
-    depend(SHADOW, "org.reflections:reflections:0.9.11")
+    depend(SHADOW, "org.reflections:reflections:0.9.12")
     depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
-    depend(SHADOW, "com.github.kotlin-graphics:imgui:$kg_version") {
-        exclude(group = "org.lwjgl")
-    }
-    depend(SHADOW, "com.github.kotlin-graphics:glm:$glm_version")
-    depend(SHADOW, "com.github.kotlin-graphics:uno-sdk:$uno_version") {
-        exclude(group = "org.lwjgl")
-    }
     depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
+
+    // imgui
+    depend(SHADOW, "io.imgui.java:imgui-java-binding:$imgui_version")
+    depend(SHADOW, "io.imgui.java:imgui-java-lwjgl3:$imgui_version") {
+        exclude(group = "org.lwjgl")
+        exclude(group = "org.lwjgl.lwjgl")
+    }
+    arrayOf("linux", "linux-x86", "macos", "windows", "windows-x86").forEach {
+        depend(SHADOW, "io.imgui.java:imgui-java-natives-$it:$imgui_version")
+    }
 
     // Discord RPC
     depend(SHADOW, "com.github.Vatuu:discord-rpc:1.6.2")
 
-    // We disable shadowing transitive dependencies because imgui pulls in over a hundred of them, many of which we never need.
-    // Unfortunately shadow's `minimize` does not remove these classes, so we manually add the ones we do use.
+    // TODO: javassist is broken with minimize
     listOf(
         "org.javassist:javassist:3.21.0-GA",
         "net.jodah:typetools:0.5.0",
-        "org.jetbrains:annotations:13.0",
-        "com.github.kotlin-graphics:gln:$gln_version",
-        "com.github.kotlin-graphics:gli:$gli_version",
-        "com.github.kotlin-graphics.imgui:core:$kg_version",
-        "com.github.kotlin-graphics.imgui:glfw:$kg_version",
-        "com.github.kotlin-graphics.imgui:gl:$kg_version",
-        "com.github.kotlin-graphics.uno-sdk:core:$uno_version"
+        "org.jetbrains:annotations:13.0"
     ).forEach {
         shadow(it)
     }
@@ -139,7 +128,7 @@ tasks {
 
     withType(KotlinCompile::class) {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "1.8"
         }
     }
 
@@ -161,8 +150,6 @@ tasks {
         configurations = listOf(project.configurations.shadow.get())
 
         exclude("/fonts/*")
-
-        minimize()
     }
 
     build {

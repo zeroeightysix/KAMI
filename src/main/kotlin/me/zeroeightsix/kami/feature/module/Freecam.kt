@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.feature.module
 
-import glm_.func.common.clamp
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
@@ -103,7 +102,7 @@ object Freecam : Module() {
     val updateLookListener = Listener<UpdateLookEvent>({
         yaw += it.deltaX.toFloat() * 0.15f
         pitch += it.deltaY.toFloat() * 0.15f
-        pitch = pitch.clamp(-90f, 90f)
+        pitch = pitch.coerceIn(-90f, 90f)
 
         if (blockInputs) it.cancel()
     })
