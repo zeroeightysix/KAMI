@@ -46,12 +46,18 @@ enum class IncludeMethod {
 }
 
 dependencies {
-    val kotlin_version: String by project
     val minecraft_version: String by project
     val yarn_mappings: String by project
     val loader_version: String by project
+    val api_version: String by project
+    val resource_loader_version: String by project
+    val kotlin_version: String by project
     val fiber_version: String by project
     val imgui_version: String by project
+    val satin_version: String by project
+    val reflections_version: String by project
+    val alpine_version: String by project
+    val fuzzywuzzy_version: String by project
 
     fun depend(includeMethod: IncludeMethod = NOT, notation: String, action: ExternalModuleDependency.() -> Unit = {}) {
         implementation(dependencyNotation = notation, dependencyConfiguration = action)
@@ -73,9 +79,9 @@ dependencies {
     minecraft("com.mojang:minecraft:$minecraft_version")
     mappings("net.fabricmc:yarn:$yarn_mappings")
     modCompile("net.fabricmc:fabric-loader:$loader_version")
-    includedModImpl("net.fabricmc.fabric-api:fabric-api-base:0.1.3+12a8474cfa")
-    includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.2.9+e5d3217f4e")
-    includedModImpl("com.github.Ladysnake:Satin:1.5.0")
+    includedModImpl("net.fabricmc.fabric-api:fabric-api-base:$api_version")
+    includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:$resource_loader_version")
+    includedModImpl("com.github.Ladysnake:Satin:$satin_version")
 
     // 1.16.4+ has not added any additional functionality and 1.16.3 Fabritone will work on newer versions.
     modImplementation("com.gitlab.CDAGaming:fabritone:fabric~1.16.3-SNAPSHOT") {
@@ -90,9 +96,9 @@ dependencies {
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
-    depend(SHADOW, "org.reflections:reflections:0.9.12")
-    depend(SHADOW, "com.github.ZeroMemes:Alpine:1.9")
-    depend(SHADOW, "me.xdrop:fuzzywuzzy:1.3.1")
+    depend(SHADOW, "org.reflections:reflections:$reflections_version")
+    depend(SHADOW, "com.github.ZeroMemes:Alpine:$alpine_version")
+    depend(SHADOW, "me.xdrop:fuzzywuzzy:$fuzzywuzzy_version")
 
     // imgui
     depend(SHADOW, "io.imgui.java:imgui-java-binding:$imgui_version")
