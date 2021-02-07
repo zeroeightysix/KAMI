@@ -5,16 +5,16 @@ package me.zeroeightsix.kami.feature
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Listener
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
+import java.lang.Boolean as JavaBoolean
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
 import me.zero.alpine.listener.Listenable
+import me.zero.alpine.listener.Listener as AlpineListener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.setting.SettingVisibility
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
-import me.zero.alpine.listener.Listener as AlpineListener
-import java.lang.Boolean as JavaBoolean
 
 open class FullFeature(
     override var name: String = "No name",
@@ -48,7 +48,6 @@ open class FullFeature(
     }
 
     @Setting(name = "Bind")
-    @SettingVisibility.Constant(false)
     override var bind = Bind.none()
 
     @Setting

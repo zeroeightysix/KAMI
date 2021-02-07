@@ -14,6 +14,7 @@ import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
+import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.opengl.GL
 
@@ -23,6 +24,7 @@ object KamiImgui {
     // Anything pasted in by the clipboard will not appear in this queue.
     // It is cleared after each `frame` call.
     val charQueue = mutableListOf<Pair<Char, Int/*keycode*/>>()
+    val keyQueue = mutableListOf<Bind.Code>()
     val imguiGlfw: ImGuiImplGlfw = ImGuiImplGlfw()
     private val imguiGl: ImGuiImplGl3 = ImGuiImplGl3()
     private val postDrawStack: Stack<(MatrixStack) -> Unit> = Stack()
@@ -119,6 +121,7 @@ object KamiImgui {
                 }
             }
             charQueue.clear()
+            keyQueue.clear()
         }
     }
 

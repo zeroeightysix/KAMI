@@ -4,7 +4,9 @@ import imgui.ImGui
 import imgui.flag.ImGuiConfigFlags
 import me.zeroeightsix.kami.gui.ImguiDSL.without
 import me.zeroeightsix.kami.mc
+import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
@@ -28,6 +30,8 @@ abstract class ImGuiScreen(title: Text) : Screen(title) {
         val returned = super.keyPressed(keyCode, scanCode, modifiers)
         if (!returned) {
             KamiImgui.imguiGlfw.keyCallback(mc.window.handle, keyCode, scanCode, GLFW.GLFW_PRESS, modifiers)
+
+            KamiImgui.keyQueue.add(Bind.Code(InputUtil.fromKeyCode(keyCode, scanCode)))
         }
         return returned
     }

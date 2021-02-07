@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile
 import imgui.ImGui.colorEdit4
 import imgui.ImGui.dragScalar
 import imgui.ImGui.inputText
-import imgui.ImGui.sameLine
 import imgui.ImGui.text
 import imgui.flag.ImGuiColorEditFlags
 import imgui.flag.ImGuiDataType
@@ -74,11 +73,11 @@ import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.FullFeature
 import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
-import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
 import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
+import me.zeroeightsix.kami.gui.bindButton
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
@@ -536,13 +535,8 @@ object KamiConfig {
             }
         )
         .extend(
-            { _, bind ->
-                text("Bound to $bind") // TODO: Highlight bind in another color?
-                sameLine(0f, -1f)
-                button("Bind") { // TODO: Bind popup?
-                    // Maybe just display "Press a key" instead of the normal "Bound to ...", and wait for a key press.
-                }
-                null
+            { name, bind ->
+                return@extend bindButton(name, bind)
             },
             { _, b ->
                 val range = 0..b.remaining.lastIndexOf('+')
