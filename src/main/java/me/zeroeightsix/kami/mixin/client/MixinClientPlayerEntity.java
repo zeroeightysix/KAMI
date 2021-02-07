@@ -47,12 +47,11 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         }
     }
 
-    @Redirect(method = "updateNausea", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;", ordinal = 0), allow = 1, require = 1)
-    public Screen getCurrentScreen(MinecraftClient client) {
-        Screen screen = client.currentScreen;
+    @Redirect(method = "updateNausea", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;isPauseScreen()Z", ordinal = 0), allow = 1, require = 1)
+    public boolean isPauseScreen(Screen screen) {
         CloseScreenInPortalEvent event = new CloseScreenInPortalEvent(screen);
         KamiMod.EVENT_BUS.post(event);
-        return event.isCancelled() ? null : screen;
+        return event.isCancelled() || screen.isPauseScreen();
     }
 
     @Shadow
