@@ -1,42 +1,37 @@
 {
-  "schemaVersion": 1,
-  "id": "kami",
-  "version": "${version}",
-
-  "name": "KAMI",
-  "description": "KAMI [神]: A minecraft utility mod",
-  "authors": [
-    "zeroeightysix",
-    "blockparole",
-    "S-B99",
-    "HHSGPA",
-    "20kdc",
-    "EmotionalLove",
-    "babbaj",
-    "ZeroMemes",
-    "IronException",
-    "Cuhnt"
-  ],
-  "contact": {
-    "sources": "https://github.com/zeroeightysix/kami/"
-  },
-  "license": "LGPL-3.0",
-  "icon": "assets/kami/kamired_square.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "me.zeroeightsix.kami.KamiMod"
-    ]
-  },
-  "mixins": [
-    "kami.mixins.json"
-  ],
-
-  "depends": {
-    "fabricloader": ">=0.4.0",
-    "minecraft": "1.16.5"
-  },
-  "suggests": {
-    "fabritone": ">=1.6.2"
-  }
+    "schemaVersion": 1,
+    "id": "kami",
+    "version": "${version}",
+    "name": "KAMI",
+    "description": "KAMI [神]: A minecraft utility mod",
+    "authors": [
+        "zeroeightysix",
+        "nopjmp",
+        "l1ving",
+        "humboldt123",
+        "nothub",
+        "LordMZTE",
+        "zfih"
+    ],
+    "contact": {
+        "sources": "https://github.com/zeroeightysix/kami/"
+    },
+    "license": "LGPL-3.0",
+    "icon": "assets/kami/kamired_square.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "me.zeroeightsix.kami.KamiMod"
+        ]
+    },
+    "mixins": [
+        "kami.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.4.0",
+        "minecraft": "1.16.5"
+    },
+    "suggests": {
+        "fabritone": ">=1.6.2"
+    }
 }
