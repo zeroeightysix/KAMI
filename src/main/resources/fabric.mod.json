@@ -34,7 +34,7 @@
 
   "depends": {
     "fabricloader": ">=0.4.0",
-    "minecraft": "1.16.4"
+    "minecraft": "1.16.5"
   },
   "suggests": {
     "fabritone": ">=1.6.2"
