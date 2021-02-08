@@ -2,7 +2,7 @@
 
 package me.zeroeightsix.kami.event
 
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
+import java.util.function.Predicate
 import me.zeroeightsix.kami.mc
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -18,7 +18,6 @@ import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.network.NetworkSide
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket
 import net.minecraft.text.Text
@@ -31,7 +30,6 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
-import java.util.function.Predicate
 
 class AddCollisionBoxToListEvent(
     val block: Block,
@@ -178,5 +176,3 @@ class UpdateLookEvent(
     val deltaX: Double,
     val deltaY: Double
 ) : KamiEvent()
-
-class ConfigSaveEvent(config: ConfigTree?) : KamiEvent()
