@@ -60,43 +60,50 @@ object Wizard {
      * Returns `true` if the wizard was opened
      */
     operator fun invoke(): Boolean {
-        if (firstTime) {
-            openPopup("Setup wizard")
-            setNextWindowPos(
-                ImGui.getIO().displaySizeX * 0.5f,
-                ImGui.getIO().displaySizeY * 0.5f,
-                ImGuiCond.Always,
-                0.5f,
-                0.5f
-            )
-            popupModal(
-                "Setup wizard",
-                extraFlags = ImGuiWindowFlags.AlwaysAutoResize or ImGuiWindowFlags.NoTitleBar or ImGuiWindowFlags.NoMove
-            ) {
-                setupPages[currentPage]()
-                (currentPage == 0).conditionalWrap(
-                    {
-                        pushItemFlag(ImGuiItemFlags.Disabled, true)
-                        pushStyleVar(ImGuiStyleVar.Alpha, ImGui.getStyle().alpha * 0.5f)
-                    },
-                    {
-                        button("Previous", 100f, 0f) {
-                            currentPage--
-                        }
-                    },
-                    {
-                        popItemFlag()
-                        popStyleVar()
-                    }
-                )
-                sameLine()
-                button("Next", 100f, 0f) {
-                    currentPage++
-                }
-            }
+        when {
+            firstTime -> setupPages
+            else -> return false
+        }.let {
+            showWizard(it)
         }
 
-        return firstTime
+        return true
+    }
+
+    private fun showWizard(pages: List<() -> Unit>) {
+        openPopup("Setup wizard")
+        setNextWindowPos(
+            ImGui.getIO().displaySizeX * 0.5f,
+            ImGui.getIO().displaySizeY * 0.5f,
+            ImGuiCond.Always,
+            0.5f,
+            0.5f
+        )
+        popupModal(
+            "Setup wizard",
+            extraFlags = ImGuiWindowFlags.AlwaysAutoResize or ImGuiWindowFlags.NoTitleBar or ImGuiWindowFlags.NoMove
+        ) {
+            pages[currentPage]()
+            (currentPage == 0).conditionalWrap(
+                {
+                    pushItemFlag(ImGuiItemFlags.Disabled, true)
+                    pushStyleVar(ImGuiStyleVar.Alpha, ImGui.getStyle().alpha * 0.5f)
+                },
+                {
+                    button("Previous", 100f, 0f) {
+                        currentPage--
+                    }
+                },
+                {
+                    popItemFlag()
+                    popStyleVar()
+                }
+            )
+            sameLine()
+            button("Next", 100f, 0f) {
+                currentPage++
+            }
+        }
     }
 
     private fun welcomePage() {
