@@ -103,9 +103,7 @@ import net.minecraft.command.CommandSource
 import net.minecraft.util.Identifier
 import org.reflections.Reflections
 
-object KamiConfig {
-
-    const val CONFIG_FILENAME = "KAMI_config.json5"
+object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), JanksonValueSerializer(false)) {
 
     /** Config types **/
 
