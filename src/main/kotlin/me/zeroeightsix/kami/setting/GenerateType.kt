@@ -5,12 +5,12 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.exception.FiberTypeProcessingExc
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.ConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
-import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
 import java.lang.reflect.AnnotatedType
 import java.lang.reflect.Type
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.javaType
+import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.mixin.duck.HasSettingInterface
 
 /**
  * Annotation used to mark that a class may have its ConfigType generated at runtime.
@@ -28,7 +28,7 @@ annotation class GenerateType(val name: String = "") {
 
     companion object {
         var columnMode = false
-        
+
         @ExperimentalStdlibApi
         fun <T : Any> generateType(
             clazz: Class<T>,
@@ -46,7 +46,7 @@ annotation class GenerateType(val name: String = "") {
             // We try to match up constructor parameters to fields in the class.
             // They must have matching names and matching types. If they don't, we throw a tantrum.
             val params = constructor.parameters.mapNotNull {
-                val name = it.name!!
+                @Suppress("NAME_SHADOWING") val name = it.name!!
                 // Find the first class member with the same name as the constructor argument
                 val member = kClass.members.find { member -> member.name == name }
                 if (member == null) {
@@ -59,7 +59,7 @@ annotation class GenerateType(val name: String = "") {
 
                 // Create the config type from the type of the parameter.
                 // I couldn't find a standard way to convert KCallable to an Annotated type, so we use an anonymous object instead
-                val type = supplier.toConfigType(
+                @Suppress("UNCHECKED_CAST") val type = supplier.toConfigType(
                     object : AnnotatedType {
                         override fun <T : Annotation?> getAnnotation(p0: Class<T>): T? =
                             declaredAnnotations.filterIsInstance(p0).firstOrNull()
@@ -89,27 +89,27 @@ annotation class GenerateType(val name: String = "") {
                 },
                 { t ->
                     params.map {
-                        val name = it.key.name!!
+                        @Suppress("NAME_SHADOWING") val name = it.key.name!!
                         val type = it.value.second
                         name to type.toSerializedType(it.value.first.call(t))
                     }.toMap()
                 }
             )
 
-            val interf = object : SettingInterface<T> {
+            val `interface` = object : SettingInterface<T> {
                 override val type: String = name
-                override fun valueToString(value: T): String? = value.toString()
+                override fun valueToString(value: T): String = value.toString()
                 override fun valueFromString(str: String): T? {
                     throw InvalidValueException("This type can not be set from a command.")
                 }
 
-                override fun displayImGui(name: String, t: T): T? {
+                override fun displayImGui(name: String, value: T): T? {
                     var dirty = false
 
                     val next = if (columnMode) {
                         { ImGui.nextColumn() }
                     } else {
-                        { Unit}
+                        { }
                     }
 
                     // Bit of a hack: in column mode, the 'starting' point is expected to be the *second* column. We want labels in the first, so we move to the next column, and hope:
@@ -118,7 +118,7 @@ annotation class GenerateType(val name: String = "") {
                     next()
 
                     params.values.forEach { (member, type) ->
-                        val value = member.call(t) ?: return@forEach // If null, don't display it.
+                        @Suppress("NAME_SHADOWING") val value = member.call(value) ?: return@forEach // If null, don't display it.
                         var label = member.name.capitalize()
                         val id = "$name-${member.name}"
                         if (columnMode) {
@@ -129,18 +129,18 @@ annotation class GenerateType(val name: String = "") {
                         type.settingInterface?.displayImGui("$label##$id", value)
                             ?.let {
                                 if (member is KMutableProperty<*>) {
-                                    member.setter.call(t, it)
+                                    member.setter.call(value, it)
                                     dirty = true
                                 }
                             }
                         next()
                     }
                     next()
-                    return if (dirty) t else null
+                    return if (dirty) value else null
                 }
             }
 
-            (configType as HasSettingInterface<T>).settingInterface = interf
+            (configType as HasSettingInterface<*>).settingInterface = `interface`
 
             return configType
         }

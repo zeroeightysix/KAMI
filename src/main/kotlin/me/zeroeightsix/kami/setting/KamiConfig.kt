@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile
 import imgui.ImGui.colorEdit4
 import imgui.ImGui.dragScalar
 import imgui.ImGui.inputText
-import imgui.ImGui.text
 import imgui.flag.ImGuiColorEditFlags
 import imgui.flag.ImGuiDataType
 import imgui.type.ImBoolean
@@ -12,8 +11,6 @@ import imgui.type.ImInt
 import imgui.type.ImString
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.AnnotatedSettings
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.processor.ParameterizedTypeProcessor
-import io.github.fablabsmc.fablabs.api.fiber.v1.builder.ConfigTreeBuilder
-import io.github.fablabsmc.fablabs.api.fiber.v1.exception.ValueDeserializationException
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.BooleanSerializableType.BOOLEAN
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.RecordSerializableType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.StringSerializableType.DEFAULT_STRING
@@ -28,50 +25,17 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
-import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
-import java.io.IOException
 import java.math.BigDecimal
-import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-import java.util.Collections
 import java.util.UUID
-import java.util.function.Consumer
-import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.Set
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.filter
-import kotlin.collections.find
-import kotlin.collections.forEach
-import kotlin.collections.groupBy
-import kotlin.collections.iterator
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.mapNotNull
-import kotlin.collections.mapOf
-import kotlin.collections.mapValues
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.toList
-import kotlin.collections.toMap
-import kotlin.collections.toMutableList
-import kotlin.collections.toMutableMap
 import kotlin.math.floor
 import kotlin.math.log10
 import me.zeroeightsix.kami.Colour
-import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.FeatureManager
-import me.zeroeightsix.kami.feature.FeatureManager.fullFeatures
-import me.zeroeightsix.kami.feature.FindSettings
-import me.zeroeightsix.kami.feature.FullFeature
-import me.zeroeightsix.kami.feature.HasConfig
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
@@ -97,11 +61,9 @@ import me.zeroeightsix.kami.target.createTargetsType
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.unsignedInt
 import me.zeroeightsix.kami.util.Bind
-import me.zeroeightsix.kami.util.Friends
 import net.minecraft.client.util.InputUtil
 import net.minecraft.command.CommandSource
 import net.minecraft.util.Identifier
-import org.reflections.Reflections
 
 object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), JanksonValueSerializer(false)) {
 
@@ -614,6 +576,30 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
         installBaseExtension(type)
     }
 
+    private val settings = AnnotatedSettings.builder()
+        .collectMembersRecursively()
+        .collectOnlyAnnotatedMembers()
+        .useNamingConvention(ProperCaseConvention)
+        .registerTypeMapping(ArrayList::class.java, mutableListTypeProcessor)
+        .registerTypeMapping(EntitySupplier::class.java, entityTargetsTypeProcessor)
+        .registerTypeMapping(BlockEntitySupplier::class.java, blockEntityTargetsTypeProcessor)
+        .registerTypeMapping(BlockSupplier::class.java, blockTargetsTypeProcessor)
+        .registerTypeMapping(ItemSupplier::class.java, itemTargetsTypeProcessor)
+        .registerTypeMapping(Bind::class.java, bindType)
+        .registerTypeMapping(GameProfile::class.java, profileType)
+        .registerTypeMapping(Colour::class.java, colourType)
+        .registerTypeMapping(Modules.Windows::class.java, windowsType)
+        .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
+        .registerTypeMapping(CompiledText::class.java, compiledTextType)
+        .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
+        .registerTypeMapping(TextPinnableWidget.Alignment::class.java, alignmentType)
+        .registerTypeMapping(Unit::class.java, unitType)
+        .registerSettingProcessor(SettingVisibility.Constant::class.java, ConstantVisibilityAnnotationProcessor)
+        .registerSettingProcessor(SettingVisibility.Method::class.java, MethodVisibilityAnnotationProcessor)
+        .registerSettingProcessor(ImGuiExtra.Pre::class.java, ImGuiExtraPreAnnotationProcessor)
+        .registerSettingProcessor(ImGuiExtra.Post::class.java, ImGuiExtraPostAnnotationProcessor)
+        .build()
+
     var float: Float = 0f
 
     /**
@@ -626,7 +612,7 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
         when (type) {
             // NumberConfigTypes use BigDecimal: we can assume that we can just pass a BigDecimal to this leaf and it'll take it
             is NumberConfigType<*> -> {
-                val type = (type as NumberConfigType<Any>)
+                @Suppress("NAME_SHADOWING") val type = (type as NumberConfigType<Any>)
                 type.extend(
                     {
                         it.toString()
@@ -683,7 +669,7 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
                 )
             }
             is StringConfigType<*> -> {
-                val type = (type as StringConfigType<Any>)
+                @Suppress("NAME_SHADOWING") val type = (type as StringConfigType<Any>)
                 type.extend(
                     {
                         it.toString()
@@ -700,180 +686,9 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
         }
     }
 
-    /** Contructing & (De)serialisation **/
-
-    val config = initAndLoad()
-
-    fun initAndLoad(): ConfigTree? {
-        return try {
-            val config = constructConfiguration()
-            try {
-                loadConfiguration(config)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            KamiMod.log.info("Settings loaded")
-            config
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    /**
-     * Resolves all features annotated by [FindSettings] or affected by the annotation on a superclass.
-     *
-     * @return All found roots, mapped to a set of affected classes
-     * @see FeatureManager.findAnnotatedFeatures
-     */
-    fun findAnnotatedSettings(): Map<String, Set<Class<*>>> {
-        val reflections = Reflections("me.zeroeightsix.kami")
-        return reflections.getTypesAnnotatedWith(FindSettings::class.java).filter {
-            it.isAnnotationPresent(FindSettings::class.java)
-        }.map {
-            val fsAnnot = it.getAnnotation(FindSettings::class.java)!!
-            fsAnnot to if (fsAnnot.findDescendants) {
-                reflections.getSubTypesOf(it)
-            } else {
-                Collections.singleton(it)
-            }
-        }.groupBy {
-            it.first.settingsRoot
-        }.mapValues {
-            it.value.stream().flatMap { it.second.stream() }.collect(Collectors.toSet())
-        }
-    }
-
-    private fun constructConfiguration(): ConfigTree {
-        val settings = AnnotatedSettings.builder()
-            .collectMembersRecursively()
-            .collectOnlyAnnotatedMembers()
-            .useNamingConvention(ProperCaseConvention)
-            .registerTypeMapping(ArrayList::class.java, mutableListTypeProcessor)
-            .registerTypeMapping(EntitySupplier::class.java, entityTargetsTypeProcessor)
-            .registerTypeMapping(BlockEntitySupplier::class.java, blockEntityTargetsTypeProcessor)
-            .registerTypeMapping(BlockSupplier::class.java, blockTargetsTypeProcessor)
-            .registerTypeMapping(ItemSupplier::class.java, itemTargetsTypeProcessor)
-            .registerTypeMapping(Bind::class.java, bindType)
-            .registerTypeMapping(GameProfile::class.java, profileType)
-            .registerTypeMapping(Colour::class.java, colourType)
-            .registerTypeMapping(Modules.Windows::class.java, windowsType)
-            .registerTypeMapping(TextPinnableWidget::class.java, textPinnableWidgetType)
-            .registerTypeMapping(CompiledText::class.java, compiledTextType)
-            .registerTypeMapping(CompiledText.NumericalVariable::class.java, numericalVariableType)
-            .registerTypeMapping(TextPinnableWidget.Alignment::class.java, alignmentType)
-            .registerTypeMapping(Unit::class.java, unitType)
-            .registerSettingProcessor(SettingVisibility.Constant::class.java, ConstantVisibilityAnnotationProcessor)
-            .registerSettingProcessor(SettingVisibility.Method::class.java, MethodVisibilityAnnotationProcessor)
-            .registerSettingProcessor(ImGuiExtra.Pre::class.java, ImGuiExtraPreAnnotationProcessor)
-            .registerSettingProcessor(ImGuiExtra.Post::class.java, ImGuiExtraPostAnnotationProcessor)
-            .build()
-
-        val builder = ConfigTree.builder()
-
-        // TODO: Eventually, when all modules are kotlin objects, we can reasonably assume that they'll have an INSTANCE field.
-        // Then we can just add @FindSettings to the module class and remove this method
-        constructFeaturesConfiguration(builder, settings)
-
-        findAnnotatedSettings().entries.forEach { (root, list) ->
-            val builder = when {
-                root.isEmpty() -> builder
-                else -> builder.fork(root)
-            }
-
-            list.forEach {
-                try {
-                    val instance = it.getDeclaredField("INSTANCE").get(null)
-                    builder.applyFromPojo(instance, settings)
-                } catch (e: NoSuchFieldError) {
-                    println("Couldn't get ${it.simpleName}'s instance, probably not a kotlin object!")
-                    e.printStackTrace()
-                }
-            }
-
-            if (root.isNotEmpty()) {
-                val config = builder.build()
-                list.forEach {
-                    val instance = it.getDeclaredField("INSTANCE").get(null)
-                    if (instance is HasConfig) {
-                        instance.config = config
-                    }
-                }
-            }
-        }
-
-        val built = builder.build()
-
-        val mirror =
-            PropertyMirror.create(friendsType)
-        mirror.mirror(
-            built.lookupLeaf(
-                "Friends",
-                friendsType.serializedType
-            )
-        )
-        Friends.mirror = mirror
-
-        installBaseExtensions(built)
-
-        return built
-    }
-
-    private fun constructFeaturesConfiguration(
-        builder: ConfigTreeBuilder,
-        settings: AnnotatedSettings?
-    ) {
-        val features = builder.fork("features")
-        // only full features because they have names
-        fullFeatures.forEach(
-            Consumer { f: FullFeature ->
-                f.config = features.fork(f.name)
-                    .applyFromPojo(f, settings)
-                    .build()
-            }
-        )
-        features.finishBranch()
-    }
-
-    fun loadConfiguration() = loadConfiguration(this.config)
-
-    @Throws(IOException::class, ValueDeserializationException::class)
-    private fun loadConfiguration(config: ConfigTree?) {
-        config?.let {
-            try {
-                KamiFiberSerialization.deserialize(
-                    config,
-                    Files.newInputStream(
-                        Paths.get(CONFIG_FILENAME),
-                        StandardOpenOption.CREATE_NEW,
-                        StandardOpenOption.READ
-                    ),
-                    JanksonValueSerializer(false)
-                )
-            } catch (e: java.nio.file.NoSuchFileException) {
-                saveConfiguration(config)
-                KamiMod.log.info("KAMI configuration file generated!")
-            } catch (e: Exception) {
-                KamiMod.log.error("Failed to load KAMI configuration file", e)
-            }
-        }
-    }
-
-    @JvmStatic
-    @Throws(IOException::class)
-    fun saveConfiguration() = saveConfiguration(this.config)
-
-    @Throws(IOException::class)
-    private fun saveConfiguration(config: ConfigTree?) {
-        val event = ConfigSaveEvent(config)
-        KamiMod.EVENT_BUS.post(event)
-        if (event.isCancelled) return
-        config?.let {
-            KamiFiberSerialization.serialize(
-                it,
-                Files.newOutputStream(Paths.get(CONFIG_FILENAME)),
-                JanksonValueSerializer(false)
-            )
-        }
+    fun register(serviceName: String, pojo: Any, loadNow: Boolean = true): ConfigBranch {
+        val tree = ConfigTree.builder().applyFromPojo(pojo, this.settings).build()
+        this.register(serviceName, tree, loadNow)
+        return tree
     }
 }
