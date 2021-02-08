@@ -49,13 +49,23 @@ internal class FiberControllerImpl(
 
     override fun loadAll() {
         internalMap.values.forEach {
-            it.load(this.rootPath, this.serializer)
+            try {
+                it.load(this.rootPath, this.serializer)
+            } catch (e: Exception) {
+                // TODO: Store exception per service for the user to see
+                e.printStackTrace()
+            }
         }
     }
 
     override fun saveAll() {
         internalMap.values.forEach {
-            it.save(this.rootPath, this.serializer)
+            try {
+                it.save(this.rootPath, this.serializer)
+            } catch (e: Exception) {
+                // TODO: Store exception per service for the user to see
+                e.printStackTrace()
+            }
         }
     }
 
