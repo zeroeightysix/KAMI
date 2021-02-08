@@ -1,8 +1,8 @@
 package me.zeroeightsix.kami.gui
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import kotlin.reflect.KMutableProperty0
 import me.zeroeightsix.kami.BaritoneIntegration
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.ImguiDSL.mainMenuBar
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
@@ -10,18 +10,20 @@ import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.widgets.VoidContextMenu
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
-import kotlin.reflect.KMutableProperty0
+import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.guiService
 
-@FindSettings(settingsRoot = "view")
 object View {
+
     @Setting
     var modulesOpen = true
 
     @Setting
-    var consoleOpen = false
-
-    @Setting
     var demoWindowVisible = false
+
+    init {
+        KamiConfig.register(guiService("view"), this)
+    }
 
     operator fun invoke() = menu("View") {
         fun toggleWindow(title: String, setting: KMutableProperty0<Boolean>, shortcut: String = "") =

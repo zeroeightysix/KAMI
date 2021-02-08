@@ -1,7 +1,6 @@
 package me.zeroeightsix.kami.gui.wizard
 
 import imgui.ImGui
-import imgui.ImGui.checkbox
 import imgui.ImGui.dummy
 import imgui.ImGui.openPopup
 import imgui.ImGui.popStyleColor
@@ -22,7 +21,6 @@ import imgui.internal.ImGui.pushItemFlag
 import imgui.internal.flag.ImGuiItemFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zeroeightsix.kami.conditionalWrap
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
@@ -32,14 +30,21 @@ import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.widgets.EnabledWidgets
 import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.internalService
 
-@FindSettings
 object Wizard {
 
     @Setting
     var firstTime = true
 
-    val pages = listOf(
+    init {
+        KamiConfig.register(internalService("wizard"), this)
+    }
+
+    private var currentPage = 0
+
+    private val pages = listOf(
         {
             text("Welcome to KAMI!")
             text("This wizard is going to take you through setting up the GUI to your liking.")
@@ -165,8 +170,6 @@ object Wizard {
             firstTime = false
         }
     )
-
-    var currentPage = 0
 
     /**
      * Returns `true` if the wizard was opened

@@ -17,7 +17,6 @@ import imgui.flag.ImGuiTabBarFlags
 import imgui.flag.ImGuiWindowFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import kotlin.reflect.KMutableProperty0
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.hidden.PrepHandler
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
@@ -34,9 +33,9 @@ import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
 import me.zeroeightsix.kami.gui.windows.modules.ModuleWindowsEditor
 import me.zeroeightsix.kami.gui.windows.modules.Modules
 import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.guiService
 import me.zeroeightsix.kami.setting.settingInterface
 
-@FindSettings
 object Settings {
 
     @Setting
@@ -96,7 +95,11 @@ object Settings {
     @Setting
     var moduleAlignment = TextPinnableWidget.Alignment.CENTER
 
-    val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }.toTypedArray()
+    private val themes = Themes.Variants.values().map { it.name.toLowerCase().capitalize() }.toTypedArray()
+
+    init {
+        KamiConfig.register(guiService("gui_settings"), this)
+    }
 
     operator fun invoke() {
         fun boolSetting(
@@ -169,7 +172,10 @@ object Settings {
 
                         showThemeSelector()
 
-                        KamiConfig.alignmentType.settingInterface?.displayImGui("Module alignment", this.moduleAlignment)?.let {
+                        KamiConfig.alignmentType.settingInterface?.displayImGui(
+                            "Module alignment",
+                            this.moduleAlignment
+                        )?.let {
                             this.moduleAlignment = it
                         }
 
@@ -188,7 +194,12 @@ object Settings {
                             rainbowSpeed = speed[0].toDouble().coerceIn(0.0, 1.0)
                         }
 
-                        val col = floatArrayOf(PrepHandler.getRainbowHue().toFloat(), rainbowSaturation, rainbowBrightness, 1.0f)
+                        val col = floatArrayOf(
+                            PrepHandler.getRainbowHue().toFloat(),
+                            rainbowSaturation,
+                            rainbowBrightness,
+                            1.0f
+                        )
                         colorConvertHSVtoRGB(col, col)
                         colorEdit3(
                             "Rainbow colour",

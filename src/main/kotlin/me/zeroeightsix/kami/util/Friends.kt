@@ -3,15 +3,21 @@ package me.zeroeightsix.kami.util
 import com.mojang.authlib.GameProfile
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror
-import me.zeroeightsix.kami.feature.FindSettings
+import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.internalService
 
-@FindSettings
 object Friends {
 
-    lateinit var mirror: PropertyMirror<MutableList<GameProfile>>
+    private var mirror = PropertyMirror.create(KamiConfig.friendsType)
 
     @Setting
     var friends = mutableListOf<GameProfile>()
+
+    init {
+        KamiConfig.register(internalService("friends"), this).run {
+            lookupAndBind("Friends", mirror)
+        }
+    }
 
     @JvmStatic
     fun isFriend(name: String?): Boolean {

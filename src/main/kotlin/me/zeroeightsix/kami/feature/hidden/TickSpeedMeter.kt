@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.hidden
 
+import java.util.Arrays
 import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.KamiMod
@@ -8,7 +9,6 @@ import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket
 import net.minecraft.util.math.MathHelper
-import java.util.Arrays
 
 @FindFeature
 object TickSpeedMeter : Listenable, Feature {
@@ -47,12 +47,15 @@ object TickSpeedMeter : Listenable, Feature {
         timeLastTimeUpdate = System.currentTimeMillis()
     }
 
-    override fun initListening() {
-        KamiMod.EVENT_BUS.subscribe(Listener<Receive>({ event ->
-            if (event.packet is WorldTimeUpdateS2CPacket) {
-                onTimeUpdate()
-            }
-        }))
+    override fun init() {
+        super.init()
+        KamiMod.EVENT_BUS.subscribe(
+            Listener<Receive>({ event ->
+                if (event.packet is WorldTimeUpdateS2CPacket) {
+                    onTimeUpdate()
+                }
+            })
+        )
         reset()
     }
 }

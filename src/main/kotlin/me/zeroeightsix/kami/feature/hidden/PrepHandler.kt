@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.hidden
 
 import com.mojang.blaze3d.platform.GlStateManager
+import java.awt.Color
 import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.EventHook
@@ -24,7 +25,6 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.KamiTessellator
 import me.zeroeightsix.kami.util.Wrapper
 import org.lwjgl.opengl.GL11
-import java.awt.Color
 
 @FindFeature
 object PrepHandler : Feature, Listenable {
@@ -35,7 +35,8 @@ object PrepHandler : Feature, Listenable {
     private var displayWidth = 0
     private var displayHeight = 0
 
-    override fun initListening() {
+    override fun init() {
+        super.init()
         KamiMod.EVENT_BUS.subscribe(this)
     }
 

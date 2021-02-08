@@ -19,7 +19,6 @@ import io.github.fablabsmc.fablabs.impl.fiber.annotation.BackedConfigLeaf
 import kotlin.collections.component1
 import kotlin.collections.component2
 import me.zeroeightsix.kami.feature.FeatureManager
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.flattenedStream
 import me.zeroeightsix.kami.gui.ImguiDSL.dragDropTarget
@@ -33,12 +32,13 @@ import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Payloads.KAMI_MODULE_PAYLOAD
 import me.zeroeightsix.kami.kotlin
 import me.zeroeightsix.kami.mixin.client.IBackedConfigLeaf
+import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.getAnyRuntimeConfigType
+import me.zeroeightsix.kami.setting.guiService
 import me.zeroeightsix.kami.setting.runnerType
 import me.zeroeightsix.kami.setting.settingInterface
 import me.zeroeightsix.kami.setting.visibilityType
 
-@FindSettings
 object Modules {
 
     var resize: Boolean = false
@@ -47,8 +47,12 @@ object Modules {
     @Setting(name = "Windows")
     internal var windows = getDefaultWindows()
     private val newWindows = mutableSetOf<ModuleWindow>()
-    private val baseFlags =
+    private const val baseFlags =
         ImGuiTreeNodeFlags.SpanFullWidth or ImGuiTreeNodeFlags.OpenOnDoubleClick or ImGuiTreeNodeFlags.NoTreePushOnOpen
+
+    init {
+        KamiConfig.register(guiService("modules"), this)
+    }
 
     /**
      * Returns if this module has detached
@@ -61,7 +65,7 @@ object Modules {
     ): ModuleWindow? {
         val nodeFlags = if (!module.enabled) baseFlags else (baseFlags or ImGuiTreeNodeFlags.Selected)
         val label = "${module.name}-node"
-        var moduleWindow: ModuleWindow? = null
+        val moduleWindow: ModuleWindow? = null
 
         var clickedLeft = false
         var clickedRight = false
@@ -261,6 +265,7 @@ private fun showModuleSettings(module: Module) {
         getAttributeValue(FiberId("kami", "im_extra_runner_pre"), runnerType).kotlin?.run()
 
         type.settingInterface?.displayImGui(this.name, value)?.let {
+            @Suppress("NULLABLE_TYPE_PARAMETER_AGAINST_NOT_NULL_TYPE_PARAMETER")
             this.value = type.toSerializedType(it)
         }
 

@@ -14,12 +14,15 @@ object KamiPrefixChat : Feature {
     override var name: String = "Kami prefix chat opener"
     override var hidden: Boolean = true
 
-    override fun initListening() {
-        KamiMod.EVENT_BUS.subscribe(Listener({ event: CharTypedEvent ->
-            if (Settings.openChatWhenCommandPrefixPressed && mc.currentScreen === null && event.char == Settings.commandPrefix) {
-                mc.openChatScreen(event.char.toString())
-                event.cancel()
-            }
-        }))
+    override fun init() {
+        super.init()
+        KamiMod.EVENT_BUS.subscribe(
+            Listener({ event: CharTypedEvent ->
+                if (Settings.openChatWhenCommandPrefixPressed && mc.currentScreen === null && event.char == Settings.commandPrefix) {
+                    mc.openChatScreen(event.char.toString())
+                    event.cancel()
+                }
+            })
+        )
     }
 }

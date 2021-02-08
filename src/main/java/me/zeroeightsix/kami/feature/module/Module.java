@@ -27,7 +27,8 @@ public class Module extends FullFeature {
     }
 
     @Override
-    public void initListening() {
+    public void init() {
+        super.init();
         setAlwaysListening(getAnnotation().alwaysListening());
     }
 
