@@ -27,7 +27,6 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.module.Aura
-import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
@@ -69,6 +68,7 @@ object Wizard {
     private val monoMigrationPages = listOf(
         ::monoMigrationPage,
         ::processMigrationPage,
+        ::migrationSuccessPage,
         {
             monolithicMigrationNeeded = false
             currentPage = 0
@@ -226,7 +226,7 @@ object Wizard {
         text("Should KAMI enable usage of modifier keys in binds?")
         text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
         textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
-        ImguiDSL.checkbox("Enable modifier keys", Settings::modifiersEnabled)
+        checkbox("Enable modifier keys", Settings::modifiersEnabled)
 
         separator()
 
@@ -273,6 +273,7 @@ object Wizard {
         if (MonoMigrationOptions.error == null) {
             try {
                 KamiConfig.loadFromMonolithicConfig()
+                KamiConfig.saveAll()
             } catch (e: Exception) {
                 MonoMigrationOptions.error = e.stackTraceToString()
                 return
@@ -288,6 +289,17 @@ object Wizard {
 
         textWrapped("An error occured while migrating:")
         textDisabled(MonoMigrationOptions.error)
+    }
+
+    private fun migrationSuccessPage() {
+        if (MonoMigrationOptions.error != null) {
+            currentPage++
+            return
+        }
+
+        text("Migration successful!")
+        text("That didn't take very long, did it?")
+        text("Just press next to start enjoying KAMI again.")
     }
 
     private object MonoMigrationOptions {
