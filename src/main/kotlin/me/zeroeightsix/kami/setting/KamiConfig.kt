@@ -20,33 +20,40 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.EnumConfigTy
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.NumberConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.RecordConfigType
 import io.github.fablabsmc.fablabs.api.fiber.v1.schema.type.derived.StringConfigType
+import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.FiberSerialization
 import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerializer
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import java.math.BigDecimal
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 import java.util.stream.Stream
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.io.path.inputStream
 import kotlin.math.floor
 import kotlin.math.log10
 import me.zeroeightsix.kami.Colour
 import me.zeroeightsix.kami.feature.FeatureManager
+import me.zeroeightsix.kami.feature.hidden.ClickGui
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.combo
 import me.zeroeightsix.kami.gui.ImguiDSL.imgui
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapImFloat
+import me.zeroeightsix.kami.gui.View
 import me.zeroeightsix.kami.gui.bindButton
 import me.zeroeightsix.kami.gui.text.CompiledText
 import me.zeroeightsix.kami.gui.text.VarMap
 import me.zeroeightsix.kami.gui.widgets.PinnableWidget
 import me.zeroeightsix.kami.gui.widgets.TextPinnableWidget
+import me.zeroeightsix.kami.gui.windows.Settings
 import me.zeroeightsix.kami.gui.windows.modules.Modules
+import me.zeroeightsix.kami.gui.wizard.Wizard
 import me.zeroeightsix.kami.mixin.extend.getMap
 import me.zeroeightsix.kami.splitFirst
 import me.zeroeightsix.kami.target.BlockCategory
@@ -690,5 +697,23 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
         val tree = ConfigTree.builder().applyFromPojo(pojo, this.settings).build()
         this.register(serviceName, tree, loadNow)
         return tree
+    }
+
+    fun loadFromMonolithicConfig() {
+        val tree = ConfigTree.builder()
+            .fork("features").run {
+                FeatureManager.fullFeatures.forEach {
+                    fork(it.name).applyFromPojo(it, settings).finishBranch()
+                }
+                this
+            }.finishBranch()
+            .fork("Windows").applyFromPojo(Modules, settings).finishBranch()
+            .applyFromPojo(Settings, settings)
+            .applyFromPojo(Wizard, settings)
+            .fork("view").applyFromPojo(View, settings).finishBranch()
+            .fork("clickGui").applyFromPojo(ClickGui, settings).finishBranch()
+            .build()
+
+        FiberSerialization.deserialize(tree, Path.of("KAMI_config.json5").inputStream(), JanksonValueSerializer(false))
     }
 }

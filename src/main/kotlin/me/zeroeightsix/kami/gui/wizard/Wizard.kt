@@ -11,6 +11,7 @@ import imgui.ImGui.sameLine
 import imgui.ImGui.separator
 import imgui.ImGui.setNextWindowPos
 import imgui.ImGui.text
+import imgui.ImGui.textDisabled
 import imgui.ImGui.textWrapped
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
@@ -20,10 +21,15 @@ import imgui.internal.ImGui.popItemFlag
 import imgui.internal.ImGui.pushItemFlag
 import imgui.internal.flag.ImGuiItemFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import java.nio.file.Path
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 import me.zeroeightsix.kami.conditionalWrap
 import me.zeroeightsix.kami.feature.module.Aura
 import me.zeroeightsix.kami.gui.ImguiDSL
 import me.zeroeightsix.kami.gui.ImguiDSL.button
+import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.popupModal
 import me.zeroeightsix.kami.gui.ImguiDSL.radioButton
 import me.zeroeightsix.kami.gui.KamiGuiScreen
@@ -37,6 +43,9 @@ object Wizard {
 
     @Setting
     var firstTime = true
+
+    private var monolithicMigrationNeeded =
+        Path.of("KAMI_config.json5").isRegularFile() && !Path.of("kami", "core").isDirectory()
 
     init {
         KamiConfig.register(internalService("wizard"), this)
@@ -53,6 +62,16 @@ object Wizard {
         ::widgetsPage,
         {
             firstTime = false
+            currentPage = 0
+        }
+    )
+
+    private val monoMigrationPages = listOf(
+        ::monoMigrationPage,
+        ::processMigrationPage,
+        {
+            monolithicMigrationNeeded = false
+            currentPage = 0
         }
     )
 
@@ -61,6 +80,7 @@ object Wizard {
      */
     operator fun invoke(): Boolean {
         when {
+            monolithicMigrationNeeded -> monoMigrationPages
             firstTime -> setupPages
             else -> return false
         }.let {
@@ -71,7 +91,7 @@ object Wizard {
     }
 
     private fun showWizard(pages: List<() -> Unit>) {
-        openPopup("Setup wizard")
+        openPopup("KAMI wizard")
         setNextWindowPos(
             ImGui.getIO().displaySizeX * 0.5f,
             ImGui.getIO().displaySizeY * 0.5f,
@@ -80,7 +100,7 @@ object Wizard {
             0.5f
         )
         popupModal(
-            "Setup wizard",
+            "KAMI wizard",
             extraFlags = ImGuiWindowFlags.AlwaysAutoResize or ImGuiWindowFlags.NoTitleBar or ImGuiWindowFlags.NoMove
         ) {
             pages[currentPage]()
@@ -105,6 +125,8 @@ object Wizard {
             }
         }
     }
+
+    // Setup pages
 
     private fun welcomePage() {
         text("Welcome to KAMI!")
@@ -231,5 +253,45 @@ object Wizard {
         EnabledWidgets.enabledButtons()
         separator()
         KamiGuiScreen.showWidgets(false)
+    }
+
+    // Monolithic config file migration page
+
+    private fun monoMigrationPage() {
+        textWrapped("An old KAMI configuration file is present, and the new configuration directory does not exist yet.")
+        textWrapped("KAMI can automatically migrate this file to the new system for you. Would you like to proceed?")
+
+        dummy(10f, 10f)
+
+        checkbox("Remove old file", MonoMigrationOptions::removeOldFile)
+        button("Don't migrate") {
+            monolithicMigrationNeeded = false
+        }
+    }
+
+    private fun processMigrationPage() {
+        if (MonoMigrationOptions.error == null) {
+            try {
+                KamiConfig.loadFromMonolithicConfig()
+            } catch (e: Exception) {
+                MonoMigrationOptions.error = e.stackTraceToString()
+                return
+            }
+
+            if (MonoMigrationOptions.removeOldFile) {
+                Path.of("KAMI_config.json5").deleteIfExists()
+            }
+
+            currentPage++
+            return
+        }
+
+        textWrapped("An error occured while migrating:")
+        textDisabled(MonoMigrationOptions.error)
+    }
+
+    private object MonoMigrationOptions {
+        var removeOldFile = true
+        var error: String? = null
     }
 }
