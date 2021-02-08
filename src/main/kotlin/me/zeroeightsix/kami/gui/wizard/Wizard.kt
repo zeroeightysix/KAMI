@@ -44,128 +44,13 @@ object Wizard {
 
     private var currentPage = 0
 
-    private val pages = listOf(
-        {
-            text("Welcome to KAMI!")
-            text("This wizard is going to take you through setting up the GUI to your liking.")
-            dummy(10f, 10f)
-            text("Everything set by the wizard can be manually changed later through the Settings menu.")
-        },
-        {
-            text("Please select your preferred theme and font.")
-            Settings.showThemeSelector()
-            Settings.showFontSelector()
-
-            pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
-            text("GUI is visible in the background")
-            popStyleColor()
-
-            KamiGuiScreen.renderGui() // Show the full GUI
-        },
-        {
-            text("How do you want your module windows to be set up?")
-
-            radioButton("Per category", Modules.preferCategoryWindows) {
-                Modules.preferCategoryWindows = true
-                Modules.windows = Modules.getDefaultWindows()
-            }
-            radioButton("Everything in one window", !Modules.preferCategoryWindows) {
-                Modules.preferCategoryWindows = false
-                Modules.windows = Modules.getDefaultWindows()
-            }
-
-            pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
-            textWrapped(
-                "The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor."
-            )
-            textWrapped("The module window editor may be accessed through the `View` menu in the top menu bar.")
-            popStyleColor()
-        },
-        {
-            text("Would you rather have settings appear in a popup, or embedded in the modules window?")
-
-            separator()
-
-            radioButton("In a popup", Settings.openSettingsInPopup) {
-                Settings.openSettingsInPopup = true
-            }
-            radioButton("Embedded in the modules window", !Settings.openSettingsInPopup) {
-                Settings.openSettingsInPopup = false
-            }
-
-            if (!Settings.openSettingsInPopup) {
-                separator()
-
-                text("Would you rather left-click or right-click a module to toggle it?")
-                text("The other button will toggle its settings.")
-
-                separator()
-
-                radioButton("Left-click to toggle modules", Settings.swapModuleListButtons) {
-                    Settings.swapModuleListButtons = true
-                }
-                radioButton("Right-click to toggle modules", !Settings.swapModuleListButtons) {
-                    Settings.swapModuleListButtons = false
-                }
-            }
-
-            separator()
-
-            pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
-            val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
-            text(
-                "${
-                if (leftToggle) {
-                    "Left"
-                } else {
-                    "Right"
-                }
-                }-click to toggle, ${
-                if (!leftToggle) {
-                    "left"
-                } else {
-                    "right"
-                }
-                }-click to open settings."
-            )
-            text("Try it out:")
-            popStyleColor()
-
-            Modules.module(Aura, Modules.ModuleWindow("", Aura), "", Settings.moduleAlignment)
-
-            separator()
-        },
-        {
-            text("Should KAMI enable usage of modifier keys in binds?")
-            text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
-            textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
-            ImguiDSL.checkbox("Enable modifier keys", Settings::modifiersEnabled)
-
-            separator()
-
-            pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
-            text("Assuming 'K' is bound to Aura,")
-            text("And 'CTRL+Q' is bound to Brightness,")
-            dummy(10f, 10f)
-            val not = if (Settings.modifiersEnabled) " NOT " else " "
-            text("Pressing K WILL toggle Aura.")
-            text("Pressing SHIFT+K WILL${not}toggle Aura.")
-            dummy(10f, 10f)
-            text("Pressing CTRL+Q WILL toggle Brightness.")
-            text("Pressing Q WILL${not}toggle Brightness.")
-            popStyleColor()
-
-            separator()
-        },
-        {
-            text("How far from the edge should HUD elements be rendered?")
-            Settings.showBorderOffsetSlider()
-            separator()
-            text("Which elements should be shown in the HUD?")
-            EnabledWidgets.enabledButtons()
-            separator()
-            KamiGuiScreen.showWidgets(false)
-        },
+    private val setupPages = listOf(
+        ::welcomePage,
+        ::appearancePage,
+        ::moduleWindowsPage,
+        ::singleModulePage,
+        ::modifiersPage,
+        ::widgetsPage,
         {
             firstTime = false
         }
@@ -188,7 +73,7 @@ object Wizard {
                 "Setup wizard",
                 extraFlags = ImGuiWindowFlags.AlwaysAutoResize or ImGuiWindowFlags.NoTitleBar or ImGuiWindowFlags.NoMove
             ) {
-                pages[currentPage]()
+                setupPages[currentPage]()
                 (currentPage == 0).conditionalWrap(
                     {
                         pushItemFlag(ImGuiItemFlags.Disabled, true)
@@ -212,5 +97,132 @@ object Wizard {
         }
 
         return firstTime
+    }
+
+    private fun welcomePage() {
+        text("Welcome to KAMI!")
+        text("This wizard is going to take you through setting up the GUI to your liking.")
+        dummy(10f, 10f)
+        text("Everything set by the wizard can be manually changed later through the Settings menu.")
+    }
+
+    private fun appearancePage() {
+        text("Please select your preferred theme and font.")
+        Settings.showThemeSelector()
+        Settings.showFontSelector()
+
+        pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
+        text("GUI is visible in the background")
+        popStyleColor()
+
+        KamiGuiScreen.renderGui() // Show the full GUI
+    }
+
+    private fun moduleWindowsPage() {
+        text("How do you want your module windows to be set up?")
+
+        radioButton("Per category", Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = true
+            Modules.windows = Modules.getDefaultWindows()
+        }
+        radioButton("Everything in one window", !Modules.preferCategoryWindows) {
+            Modules.preferCategoryWindows = false
+            Modules.windows = Modules.getDefaultWindows()
+        }
+
+        pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
+        textWrapped(
+            "The module windows in KAMI are fully customizable. If neither choice appeals to you, you can manually reorganise the module windows through the module window editor."
+        )
+        textWrapped("The module window editor may be accessed through the `View` menu in the top menu bar.")
+        popStyleColor()
+    }
+
+    private fun singleModulePage() {
+        text("Would you rather have settings appear in a popup, or embedded in the modules window?")
+
+        separator()
+
+        radioButton("In a popup", Settings.openSettingsInPopup) {
+            Settings.openSettingsInPopup = true
+        }
+        radioButton("Embedded in the modules window", !Settings.openSettingsInPopup) {
+            Settings.openSettingsInPopup = false
+        }
+
+        if (!Settings.openSettingsInPopup) {
+            separator()
+
+            text("Would you rather left-click or right-click a module to toggle it?")
+            text("The other button will toggle its settings.")
+
+            separator()
+
+            radioButton("Left-click to toggle modules", Settings.swapModuleListButtons) {
+                Settings.swapModuleListButtons = true
+            }
+            radioButton("Right-click to toggle modules", !Settings.swapModuleListButtons) {
+                Settings.swapModuleListButtons = false
+            }
+        }
+
+        separator()
+
+        pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
+        val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
+        text(
+            "${
+            if (leftToggle) {
+                "Left"
+            } else {
+                "Right"
+            }
+            }-click to toggle, ${
+            if (!leftToggle) {
+                "left"
+            } else {
+                "right"
+            }
+            }-click to open settings."
+        )
+        text("Try it out:")
+        popStyleColor()
+
+        Modules.module(Aura, Modules.ModuleWindow("", Aura), "", Settings.moduleAlignment)
+
+        separator()
+    }
+
+    private fun modifiersPage() {
+        text("Should KAMI enable usage of modifier keys in binds?")
+        text("Enabling this will make pressing e.g. 'Q' different from 'CTRL+Q'.")
+        textWrapped("This has the sometimes unintended side effect of e.g. being unable to toggle a module while sneaking, if sneaking is bound to a modifier key.")
+        ImguiDSL.checkbox("Enable modifier keys", Settings::modifiersEnabled)
+
+        separator()
+
+        pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
+        text("Assuming 'K' is bound to Aura,")
+        text("And 'CTRL+Q' is bound to Brightness,")
+        dummy(10f, 10f)
+        val not = if (Settings.modifiersEnabled) " NOT " else " "
+        text("Pressing K WILL toggle Aura.")
+        text("Pressing SHIFT+K WILL${not}toggle Aura.")
+        dummy(10f, 10f)
+        text("Pressing CTRL+Q WILL toggle Brightness.")
+        text("Pressing Q WILL${not}toggle Brightness.")
+        popStyleColor()
+
+        separator()
+    }
+
+    private fun widgetsPage() {
+        text("How far from the edge should HUD elements be rendered?")
+        Settings.showBorderOffsetSlider()
+        separator()
+        text("Which elements should be shown in the HUD?")
+        EnabledWidgets.enabledButtons()
+        separator()
+        KamiGuiScreen.showWidgets(false)
     }
 }
