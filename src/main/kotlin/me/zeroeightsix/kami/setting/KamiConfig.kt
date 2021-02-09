@@ -27,7 +27,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigNode
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree
 import java.math.BigDecimal
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 import java.util.stream.Stream
@@ -413,7 +412,8 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
         {
             val title = it["title"] as String
             val position = positionType.toRuntimeType(it["position"] as String?)
-            val texts = listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
+            @Suppress("UNCHECKED_CAST") val texts =
+                listOfCompiledTextType.toRuntimeType(it["texts"] as List<List<Map<String, Any>>>?)
             val alignment = alignmentType.toRuntimeType(it["alignment"] as String?)
             val ordering = orderingType.toRuntimeType(it["ordering"] as String?)
             TextPinnableWidget(title, texts.toMutableList(), position, alignment, ordering)
@@ -653,7 +653,7 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
                 )
             }
             is EnumConfigType<*> -> {
-                val type = (type as EnumConfigType<Any>)
+                @Suppress("NAME_SHADOWING") val type = (type as EnumConfigType<Any>)
                 val values = type.serializedType.validValues.toList()
                 type.extend(
                     {
@@ -715,6 +715,10 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
             .fork("clickGui").applyFromPojo(ClickGui, settings).finishBranch()
             .build()
 
-        FiberSerialization.deserialize(tree, Path.of("KAMI_config.json5").inputStream(), JanksonValueSerializer(false))
+        FiberSerialization.deserialize(
+            tree,
+            Paths.get("KAMI_config.json5").inputStream(),
+            JanksonValueSerializer(false)
+        )
     }
 }

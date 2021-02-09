@@ -21,7 +21,7 @@ import imgui.internal.ImGui.popItemFlag
 import imgui.internal.ImGui.pushItemFlag
 import imgui.internal.flag.ImGuiItemFlags
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
@@ -44,7 +44,7 @@ object Wizard {
     var firstTime = true
 
     private var monolithicMigrationNeeded =
-        Path.of("KAMI_config.json5").isRegularFile() && !Path.of("kami", "core").isDirectory()
+        Paths.get("KAMI_config.json5").isRegularFile() && !Paths.get("kami", "core").isDirectory()
 
     init {
         KamiConfig.register(internalService("wizard"), this)
@@ -280,7 +280,7 @@ object Wizard {
             }
 
             if (MonoMigrationOptions.removeOldFile) {
-                Path.of("KAMI_config.json5").deleteIfExists()
+                Paths.get("KAMI_config.json5").deleteIfExists()
             }
 
             currentPage++
