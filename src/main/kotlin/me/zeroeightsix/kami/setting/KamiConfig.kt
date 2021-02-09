@@ -695,6 +695,7 @@ object KamiConfig : FiberController by FiberControllerImpl(Paths.get("kami"), Ja
 
     fun register(serviceName: String, pojo: Any, loadNow: Boolean = true): ConfigBranch {
         val tree = ConfigTree.builder().applyFromPojo(pojo, this.settings).build()
+        installBaseExtensions(tree)
         this.register(serviceName, tree, loadNow)
         return tree
     }
