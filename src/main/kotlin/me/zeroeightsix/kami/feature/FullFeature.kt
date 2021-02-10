@@ -12,7 +12,9 @@ import me.zero.alpine.listener.Listenable
 import me.zero.alpine.listener.Listener as AlpineListener
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.event.BindEvent
+import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.SettingVisibility
+import me.zeroeightsix.kami.setting.featuresService
 import me.zeroeightsix.kami.then
 import me.zeroeightsix.kami.util.Bind
 
@@ -21,9 +23,9 @@ open class FullFeature(
     var description: String = "No description",
     _alwaysListening: Boolean = false,
     override var hidden: Boolean = false
-) : Feature, Listenable, HasConfig, HasBind {
+) : Feature, Listenable, HasBind {
 
-    override lateinit var config: ConfigBranch
+    lateinit var config: ConfigBranch
 
     var alwaysListening = _alwaysListening
         set(value) {
@@ -43,12 +45,8 @@ open class FullFeature(
         }
     )
 
-    init {
-        KamiMod.EVENT_BUS.subscribe(bindListener)
-    }
-
     @Setting(name = "Bind")
-    override var bind = Bind.none()
+    override var bind: Bind = Bind.none()
 
     @Setting
     @SettingVisibility.Constant(false)
@@ -77,6 +75,12 @@ open class FullFeature(
                 handleDisabled()
             }
         }
+    }
+
+    override fun init() {
+        super.init()
+        KamiMod.EVENT_BUS.subscribe(bindListener)
+        this.config = KamiConfig.register(featuresService(this.name.decapitalize()), this)
     }
 
     fun enable(): Boolean {

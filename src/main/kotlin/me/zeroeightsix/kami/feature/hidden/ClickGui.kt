@@ -10,7 +10,6 @@ import me.zeroeightsix.kami.event.BindEvent
 import me.zeroeightsix.kami.expectingInput
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.feature.HasBind
 import me.zeroeightsix.kami.gui.KamiGuiScreen
 import me.zeroeightsix.kami.gui.KamiHud
@@ -20,7 +19,6 @@ import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.InputUtil
 
 @FindFeature
-@FindSettings(settingsRoot = "clickGui")
 object ClickGui : Feature, Listenable, HasBind {
 
     @Setting
@@ -41,7 +39,8 @@ object ClickGui : Feature, Listenable, HasBind {
     override var name: String = "ClickGui"
     override var hidden: Boolean = false
 
-    override fun initListening() {
+    override fun init() {
+        super.init()
         KamiMod.EVENT_BUS.subscribe(bindListener)
     }
 }

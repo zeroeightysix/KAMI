@@ -1,11 +1,11 @@
 package me.zeroeightsix.kami.feature
 
+import java.util.Collections
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.feature.command.Command
 import me.zeroeightsix.kami.feature.module.Module
 import me.zeroeightsix.kami.feature.plugin.Plugin
 import org.reflections.Reflections
-import java.util.Collections
 
 object FeatureManager {
 
@@ -77,7 +77,7 @@ object FeatureManager {
         }
 
         features.forEach {
-            it.initListening()
+            it.init()
         }
 
         features.filterIsInstance<Command>().forEach {

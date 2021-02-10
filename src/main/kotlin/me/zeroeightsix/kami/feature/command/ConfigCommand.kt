@@ -2,14 +2,13 @@ package me.zeroeightsix.kami.feature.command
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
+import java.util.function.Function
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.util.text
 import net.minecraft.command.CommandSource
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.GOLD
 import net.minecraft.util.Formatting.YELLOW
-import java.nio.file.Paths
-import java.util.function.Function
 
 object ConfigCommand : Command() {
     private val FAILED_EXCEPTION =
@@ -24,7 +23,7 @@ object ConfigCommand : Command() {
             literal("reload") {
                 does {
                     try {
-                        KamiConfig.loadConfiguration()
+                        KamiConfig.loadAll()
                     } catch (e: Exception) {
                         throw FAILED_EXCEPTION.create(e.message)
                     }
@@ -34,17 +33,16 @@ object ConfigCommand : Command() {
             }
             literal("save") {
                 does {
-                    KamiConfig.saveConfiguration()
+                    KamiConfig.saveAll()
                     it replyWith text(GOLD, "Saved configuration!")
                     0
                 }
             }
             literal("where") {
                 does {
-                    val path = Paths.get(KamiConfig.CONFIG_FILENAME)
                     it replyWith text {
                         +"The configuration file is at "(GOLD)
-                        +path.toAbsolutePath().toString()(YELLOW)
+                        +KamiConfig.rootPath.toAbsolutePath().toString()(YELLOW)
                     }
                     0
                 }

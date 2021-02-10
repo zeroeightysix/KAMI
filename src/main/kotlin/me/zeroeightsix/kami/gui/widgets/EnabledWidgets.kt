@@ -3,30 +3,26 @@ package me.zeroeightsix.kami.gui.widgets
 import com.google.common.collect.Iterables
 import imgui.ImGui.separator
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
-import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listenable
-import me.zero.alpine.listener.Listener
-import me.zeroeightsix.kami.KamiMod
-import me.zeroeightsix.kami.event.ConfigSaveEvent
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
-import me.zeroeightsix.kami.feature.FindSettings
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.setting.KamiConfig
+import me.zeroeightsix.kami.setting.guiService
 
 @FindFeature
-@FindSettings(settingsRoot = "clickGui")
 object EnabledWidgets : Feature, Listenable {
 
     @Setting
     var hideAll: Boolean = false
 
     override var name: String = "EnabledWidgets"
-    override var hidden: Boolean = true
 
+    override var hidden: Boolean = true
     @Setting(name = "Widgets")
-    internal var textWidgets = arrayListOf(
+    internal var textWidgets = mutableListOf(
         Information,
         Coordinates,
         ActiveModules
@@ -43,6 +39,10 @@ object EnabledWidgets : Feature, Listenable {
 
     val widgets
         get() = Iterables.concat(textWidgets, playerWidgets, inventoryWidgets, graphs) as MutableIterable
+
+    override fun init() {
+        KamiConfig.register(guiService("widgets"), this)
+    }
 
     operator fun invoke() = menu("Overlay") {
         checkbox("Hide all", ::hideAll)
@@ -67,15 +67,5 @@ object EnabledWidgets : Feature, Listenable {
                 widget.open = !widget.open
             }
         }
-    }
-
-    @EventHandler
-    val saveListener = Listener<ConfigSaveEvent>({
-        // Changes the instance of widgets, invalidating the fiber serialisation cache, forcing fiber to re-serialise widgets.
-        textWidgets = ArrayList(textWidgets)
-    })
-
-    override fun initListening() {
-        KamiMod.EVENT_BUS.subscribe(saveListener)
     }
 }
