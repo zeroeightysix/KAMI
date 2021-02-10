@@ -93,6 +93,7 @@ dependencies {
     }
 
     depend(INCLUDE, "com.github.fablabsmc:fiber:$fiber_version")
+    depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     depend(INCLUDE, "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
