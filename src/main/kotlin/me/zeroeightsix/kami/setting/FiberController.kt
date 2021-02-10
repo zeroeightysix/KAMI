@@ -87,7 +87,7 @@ internal class FiberControllerImpl(
         fun <A, T> save(root: Path, serializer: ValueSerializer<A, T>) {
             getRelativePath(root).run {
                 parent.createDirectories()
-                outputStream(StandardOpenOption.CREATE).use { stream ->
+                outputStream(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { stream ->
                     FiberSerialization.serialize(tree, stream, serializer)
                 }
             }
