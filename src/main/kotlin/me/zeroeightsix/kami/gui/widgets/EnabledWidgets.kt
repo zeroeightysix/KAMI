@@ -3,12 +3,14 @@ package me.zeroeightsix.kami.gui.widgets
 import com.google.common.collect.Iterables
 import imgui.ImGui.separator
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import me.zero.alpine.listener.Listenable
 import me.zeroeightsix.kami.feature.Feature
 import me.zeroeightsix.kami.feature.FindFeature
 import me.zeroeightsix.kami.gui.ImguiDSL.checkbox
 import me.zeroeightsix.kami.gui.ImguiDSL.menu
 import me.zeroeightsix.kami.gui.ImguiDSL.menuItem
+import me.zeroeightsix.kami.mixin.extend.disableCaching
 import me.zeroeightsix.kami.setting.KamiConfig
 import me.zeroeightsix.kami.setting.guiService
 
@@ -19,10 +21,10 @@ object EnabledWidgets : Feature, Listenable {
     var hideAll: Boolean = false
 
     override var name: String = "EnabledWidgets"
-
     override var hidden: Boolean = true
+
     @Setting(name = "Widgets")
-    internal var textWidgets = mutableListOf(
+    internal var textWidgets = arrayListOf(
         Information,
         Coordinates,
         ActiveModules
@@ -41,7 +43,15 @@ object EnabledWidgets : Feature, Listenable {
         get() = Iterables.concat(textWidgets, playerWidgets, inventoryWidgets, graphs) as MutableIterable
 
     override fun init() {
-        KamiConfig.register(guiService("widgets"), this)
+        KamiConfig.register(guiService("widgets"), this).run {
+            // These settings are of mutable types, which fiber doesn't really like.
+            // We manually disable caching on them -
+            //  otherwise fiber's backed config leaves would think that the value is unchanged,
+            //  even after mutation, as it is still the same object.
+            arrayOf("Widgets", "PlayerOverlays", "InventoryOverlays", "Graphs").forEach {
+                (items.getByName(it) as ConfigLeaf<*>).disableCaching()
+            }
+        }
     }
 
     operator fun invoke() = menu("Overlay") {

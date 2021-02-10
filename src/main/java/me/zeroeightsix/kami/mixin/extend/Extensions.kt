@@ -2,13 +2,17 @@
 
 package me.zeroeightsix.kami.mixin.extend
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.exception.RuntimeFiberException
+import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigLeaf
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
+import java.util.Deque
 import me.zeroeightsix.kami.mixin.client.ICamera
 import me.zeroeightsix.kami.mixin.client.IGameRenderer
 import me.zeroeightsix.kami.mixin.client.IInputUtilType
 import me.zeroeightsix.kami.mixin.client.IMatrix4f
 import me.zeroeightsix.kami.mixin.client.IMatrixStack
 import me.zeroeightsix.kami.mixin.client.IMinecraftClient
+import me.zeroeightsix.kami.mixin.duck.CanDisableCaching
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.input.Input
 import net.minecraft.client.render.Camera
@@ -17,7 +21,6 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3d
-import java.util.Deque
 
 // TODO: These could be extension properties
 
@@ -75,3 +78,10 @@ val Matrix4f.a32
     get() = (this as IMatrix4f).a32
 val Matrix4f.a33
     get() = (this as IMatrix4f).a33
+
+fun <T> ConfigLeaf<T>.disableCaching() {
+    if (this !is CanDisableCaching)
+        throw RuntimeFiberException("Can not disable caching on a config leaf that does not support it")
+
+    this.isCachingDisabled = true
+}
