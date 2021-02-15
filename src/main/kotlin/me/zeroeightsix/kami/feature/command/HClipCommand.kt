@@ -8,14 +8,15 @@ import net.minecraft.util.math.Vec3d
 object HClipCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
         dispatcher register rootLiteral("hclip") {
-            float("blocks") {
+            float("distance") {
                 does { ctx ->
                     mc.player?.let {
                         val direction = Vec3d.fromPolar(0f, it.yaw)
+                        val distance: Float = "distance" from ctx
                         it.updatePosition(
-                            it.x + direction.x * ("blocks".from<Float, CommandSource>(ctx)),
+                            it.x + direction.x * distance,
                             it.y,
-                            it.z + direction.z * ("blocks".from<Float, CommandSource>(ctx))
+                            it.z + direction.z * distance
                         )
                     }
                     0
