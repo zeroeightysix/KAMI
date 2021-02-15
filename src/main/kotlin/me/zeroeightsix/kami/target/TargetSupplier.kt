@@ -296,6 +296,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                             if (!isSingleton && sameLine().run { smallButton("-") }) {
                                 // Return null. `mapNotNull` will omit entries from the map that returned null.
                                 dirty = true
+                                if (nodeOpen) treePop()
                                 return@mapNotNull null
                             }
 
@@ -366,6 +367,7 @@ inline fun <M, B, reified E : Enum<E>, reified S : TargetSupplier.SpecificTarget
                                 if (!isSingleton && sameLine().run { smallButton("-") }) {
                                     // Return null. `mapNotNull` will omit entries from the map that returned null.
                                     dirty = true
+                                    if (nodeOpen) treePop()
                                     return@mapNotNull null
                                 }
 
