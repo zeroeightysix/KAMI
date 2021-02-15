@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.feature.command
 import com.mojang.brigadier.CommandDispatcher
 import me.zeroeightsix.kami.mc
 import net.minecraft.command.CommandSource
-import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3d
 
 object HClipCommand : Command() {
     override fun register(dispatcher: CommandDispatcher<CommandSource>) {
@@ -11,32 +11,12 @@ object HClipCommand : Command() {
             float("blocks") {
                 does { ctx ->
                     mc.player?.let {
-                        when (it.horizontalFacing) {
-                            Direction.NORTH -> {
-                                it.updatePosition(
-                                    it.x,
-                                    it.y,
-                                    it.z - ("blocks".from<Float, CommandSource>(ctx)))
-                            }
-                            Direction.EAST -> {
-                                it.updatePosition(
-                                    it.x + ("blocks".from<Float, CommandSource>(ctx)),
-                                    it.y,
-                                    it.z)
-                            }
-                            Direction.SOUTH -> {
-                                it.updatePosition(
-                                    it.x,
-                                    it.y,
-                                    it.z + ("blocks".from<Float, CommandSource>(ctx)))
-                            }
-                            else -> {
-                                it.updatePosition(
-                                    it.x - ("blocks".from<Float, CommandSource>(ctx)),
-                                    it.y,
-                                    it.z)
-                            }
-                        }
+                        val direction = Vec3d.fromPolar(0f, it.yaw)
+                        it.updatePosition(
+                            it.x + direction.x * ("blocks".from<Float, CommandSource>(ctx)),
+                            it.y,
+                            it.z + direction.z * ("blocks".from<Float, CommandSource>(ctx))
+                        )
                     }
                     0
                 }
