@@ -36,8 +36,10 @@ object KamiImgui {
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
     fun init() {
-        fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig): ImFont? {
-            val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return null)
+        fun loadFontFromResources(filename: String): ByteArray? {
+            return ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return null)
+        }
+        fun addKamiFontFromTTF(bytes: ByteArray, sizePixels: Float, fontCfg: ImFontConfig): ImFont? {
             return ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
         }
 
@@ -55,28 +57,31 @@ object KamiImgui {
             return fontCfg
         }
 
-        addKamiFontFromTTF(
-            minecraftiaLocation,
-            12f,
-            fontCfg {
-                oversampleH = 1
-                oversampleV = 1
-                pixelSnapH = true
+        loadFontFromResources(minecraftiaLocation)?.let { bytes ->
+            addKamiFontFromTTF(
+                bytes,
+                12f,
+                fontCfg {
+                    oversampleH = 1
+                    oversampleV = 1
+                    pixelSnapH = true
+                }
+            )?.let {
+                fonts.put("Minecraftia 12px", it)
             }
-        )?.let {
-            fonts.put("Minecraftia 12px", it)
-        }
-        addKamiFontFromTTF(
-            minecraftiaLocation,
-            24f,
-            fontCfg {
-                oversampleH = 1
-                oversampleV = 1
-                pixelSnapH = true
+            addKamiFontFromTTF(
+                bytes,
+                24f,
+                fontCfg {
+                    oversampleH = 1
+                    oversampleV = 1
+                    pixelSnapH = true
+                }
+            )?.let {
+                fonts.put("Minecraftia 24px", it)
             }
-        )?.let {
-            fonts.put("Minecraftia 24px", it)
         }
+
         ImGui.getIO().fonts.addFontDefault()?.let {
             fonts.put("Default", it)
         }
