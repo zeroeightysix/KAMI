@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.mixin.client;
 import me.zeroeightsix.kami.KamiMod;
 import me.zeroeightsix.kami.event.ScreenEvent;
 import me.zeroeightsix.kami.event.TickEvent;
+import me.zeroeightsix.kami.gui.KamiImgui;
 import me.zeroeightsix.kami.setting.KamiConfig;
 import me.zeroeightsix.kami.util.Wrapper;
 import net.minecraft.client.MinecraftClient;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.Profiler;
+import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,6 +32,12 @@ public class MixinMinecraftClient {
 
     @Shadow
     private Profiler profiler;
+
+    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    public void init(CallbackInfo info) {
+        KamiImgui.INSTANCE.init();
+        LogManager.getLogger("KAMI").info("ImGui initialised.");
+    }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
     public void tick(CallbackInfo info) {

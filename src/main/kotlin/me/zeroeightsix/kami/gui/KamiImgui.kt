@@ -35,7 +35,7 @@ object KamiImgui {
 
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
-    init {
+    fun init() {
         fun addKamiFontFromTTF(filename: String, sizePixels: Float, fontCfg: ImFontConfig): ImFont? {
             val bytes = ByteStreams.toByteArray(javaClass.getResourceAsStream(filename) ?: return null)
             return ImGui.getIO().fonts.addFontFromMemoryTTF(bytes, sizePixels, fontCfg)
