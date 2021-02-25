@@ -92,22 +92,11 @@ object KamiImgui {
         val defaultFontName = fontNames.getOrElse(Settings.font) { fontNames.first() }
         ImGui.getIO().setFontDefault(fonts[defaultFontName])
 
-        val caps = GL.getCapabilities()
-        // TODO: check if this works on macOS properly.
-        val glslVersion = when {
-            caps.OpenGL32 -> {
-                150
-            }
-            caps.OpenGL30 -> { // apparently we might have to skip this one?
-                130
-            }
-            else -> 110
-        }
-
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.DockingEnable)
 
         imguiGlfw.init(mc.window.handle, false)
-        imguiGl.init("#version $glslVersion")
+        // Force 110 shaders since this is what base Minecraft uses to avoid bugs in Intel drivers.
+        imguiGl.init("#version 110")
     }
 
     internal fun frame(matrices: MatrixStack, block: () -> Unit) {
