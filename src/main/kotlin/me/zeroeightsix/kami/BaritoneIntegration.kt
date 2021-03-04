@@ -17,7 +17,7 @@ object BaritoneIntegration {
 
     private val present by lazy {
         try {
-            Class.forName("baritone.Baritone")
+            Class.forName("baritone.api.IBaritone")
             true
         } catch (e: ClassNotFoundException) {
             false
