@@ -33,8 +33,8 @@ object GiveCommand : Command() {
     }
 
     private fun give(itemArgument: ItemStackArgument, count: Int) {
-        if (!mc.player?.isCreative!!) {
-            throw FAILED_EXCEPTION.create("You must be in creative mod to use this command")
+        if (mc.player?.isCreative == false) {
+            throw FAILED_EXCEPTION.create("You must be in creative mode to use this command")
         }
 
         val stack: ItemStack = itemArgument.createStack(count, false)
