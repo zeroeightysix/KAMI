@@ -31,9 +31,10 @@ object KamiImgui {
     private const val INI_FILENAME = "kami-imgui.ini"
 
     val fonts = mutableMapOf<String, ImFont>()
-    val fontNames = arrayOf("Minecraftia 12px", "Minecraftia 24px", "Default")
+    val fontNames = arrayOf("Minecraftia 12px", "Minecraftia 24px", "Among Us 12px", "Among Us 24px", "Default")
 
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
+    private const val amogusLocation = "/assets/kami/Amogus.ttf"
 
     fun init() {
         fun loadFontFromResources(filename: String): ByteArray? {
@@ -79,6 +80,30 @@ object KamiImgui {
                 }
             )?.let {
                 fonts.put("Minecraftia 24px", it)
+            }
+        }
+        loadFontFromResources(amogusLocation)?.let { bytes ->
+            addKamiFontFromTTF(
+                bytes,
+                12f,
+                fontCfg {
+                    oversampleH = 1
+                    oversampleV = 1
+                    pixelSnapH = true
+                }
+            )?.let {
+                fonts.put("Among Us 12px", it)
+            }
+            addKamiFontFromTTF(
+                bytes,
+                24f,
+                fontCfg {
+                    oversampleH = 1
+                    oversampleV = 1
+                    pixelSnapH = true
+                }
+            )?.let {
+                fonts.put("Among Us 24px", it)
             }
         }
 
