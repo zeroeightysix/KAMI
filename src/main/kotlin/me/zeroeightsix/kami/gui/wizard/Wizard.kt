@@ -139,6 +139,7 @@ object Wizard {
         text("Please select your preferred theme and font.")
         Settings.showThemeSelector()
         Settings.showFontSelector()
+        Settings.showFontSizeSlider()
 
         pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
         text("GUI is visible in the background")

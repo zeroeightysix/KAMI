@@ -31,7 +31,7 @@ object KamiImgui {
     private const val INI_FILENAME = "kami-imgui.ini"
 
     val fonts = mutableMapOf<String, ImFont>()
-    val fontNames = arrayOf("Minecraftia 12px", "Minecraftia 24px", "Default")
+    val fontNames = arrayOf("Minecraftia", "Default")
 
     private const val minecraftiaLocation = "/assets/kami/Minecraftia.ttf"
 
@@ -60,25 +60,14 @@ object KamiImgui {
         loadFontFromResources(minecraftiaLocation)?.let { bytes ->
             addKamiFontFromTTF(
                 bytes,
-                12f,
+                Settings.fontSize,
                 fontCfg {
                     oversampleH = 1
                     oversampleV = 1
                     pixelSnapH = true
                 }
             )?.let {
-                fonts.put("Minecraftia 12px", it)
-            }
-            addKamiFontFromTTF(
-                bytes,
-                24f,
-                fontCfg {
-                    oversampleH = 1
-                    oversampleV = 1
-                    pixelSnapH = true
-                }
-            )?.let {
-                fonts.put("Minecraftia 24px", it)
+                fonts.put("Minecraftia", it)
             }
         }
 

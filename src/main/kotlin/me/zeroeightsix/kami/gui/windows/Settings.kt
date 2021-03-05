@@ -6,6 +6,7 @@ import imgui.ImGui.colorConvertHSVtoRGB
 import imgui.ImGui.colorConvertRGBtoHSV
 import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
+import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
 import imgui.ImGui.popID
 import imgui.ImGui.pushID
@@ -25,6 +26,7 @@ import me.zeroeightsix.kami.gui.ImguiDSL.tabBar
 import me.zeroeightsix.kami.gui.ImguiDSL.tabItem
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
+import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleIntArray
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.charButton
@@ -66,6 +68,9 @@ object Settings {
     // Appearance
     @Setting
     var font: Int = 0
+
+    @Setting
+    var fontSize = 12f
 
     @Setting
     var rainbowMode = false
@@ -170,6 +175,8 @@ object Settings {
                     tabItem("Appearance") {
                         showFontSelector()
 
+                        showFontSizeSlider()
+
                         showThemeSelector()
 
                         KamiConfig.alignmentType.settingInterface?.displayImGui(
@@ -237,6 +244,19 @@ object Settings {
                 label,
                 it,
                 0.1f,
+                0f,
+                50f,
+                "%.0f"
+            )
+        }
+    }
+
+    fun showFontSizeSlider(label: String = "Font size") {
+        wrapSingleFloatArray(::fontSize) {
+            dragFloat(
+                label,
+                it,
+                1f,
                 0f,
                 50f,
                 "%.0f"
