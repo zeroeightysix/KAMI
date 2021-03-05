@@ -16,7 +16,6 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.tryOrNull
 import me.zeroeightsix.kami.util.Bind
 import net.minecraft.client.util.math.MatrixStack
-import org.lwjgl.opengl.GL
 
 object KamiImgui {
 

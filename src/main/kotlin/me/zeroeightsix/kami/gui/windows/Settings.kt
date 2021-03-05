@@ -6,7 +6,6 @@ import imgui.ImGui.colorConvertHSVtoRGB
 import imgui.ImGui.colorConvertRGBtoHSV
 import imgui.ImGui.colorEdit3
 import imgui.ImGui.dragFloat
-import imgui.ImGui.dragInt
 import imgui.ImGui.dummy
 import imgui.ImGui.popID
 import imgui.ImGui.pushID
@@ -26,7 +25,6 @@ import me.zeroeightsix.kami.gui.ImguiDSL.tabBar
 import me.zeroeightsix.kami.gui.ImguiDSL.tabItem
 import me.zeroeightsix.kami.gui.ImguiDSL.window
 import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleFloatArray
-import me.zeroeightsix.kami.gui.ImguiDSL.wrapSingleIntArray
 import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.gui.Themes
 import me.zeroeightsix.kami.gui.charButton
