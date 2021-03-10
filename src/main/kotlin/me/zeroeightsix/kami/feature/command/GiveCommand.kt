@@ -33,21 +33,23 @@ object GiveCommand : Command() {
     }
 
     private fun give(itemArgument: ItemStackArgument, count: Int) {
-        if (mc.player?.isCreative == false) {
+        val player = mc.player ?: return
+
+        if (!player.isCreative) {
             throw FAILED_EXCEPTION.create("You must be in creative mode to use this command")
         }
 
         val stack: ItemStack = itemArgument.createStack(count, false)
 
-        if (mc.player?.mainHandStack?.isEmpty == true) {
-            mc.interactionManager?.clickCreativeStack(stack, 36 + mc.player?.inventory?.selectedSlot!!)
+        if (player.mainHandStack?.isEmpty == true) {
+            mc.interactionManager?.clickCreativeStack(stack, 36 + player.inventory?.selectedSlot!!)
         } else {
-            val emptySlot: Int? = mc.player?.inventory?.emptySlot
+            val emptySlot: Int? = player.inventory?.emptySlot
 
             if (emptySlot!! < 9) {
                 mc.interactionManager?.clickCreativeStack(stack, 36 + emptySlot)
             } else {
-                mc.interactionManager?.clickCreativeStack(stack, 36 + mc.player?.inventory?.selectedSlot!!)
+                mc.interactionManager?.clickCreativeStack(stack, 36 + player.inventory?.selectedSlot!!)
             }
         }
     }
