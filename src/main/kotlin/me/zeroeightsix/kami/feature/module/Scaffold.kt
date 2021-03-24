@@ -1,5 +1,6 @@
 package me.zeroeightsix.kami.feature.module
 
+import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.TickEvent.InGame
@@ -34,6 +35,9 @@ import kotlin.math.sqrt
 
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
 object Scaffold : Module() {
+    @Setting(comment = "Allow placing blocks without a supporting block")
+    private var midAir:Boolean = false
+
     private val blackList = listOf(
         Blocks.ENDER_CHEST,
         Blocks.CHEST,
@@ -95,17 +99,22 @@ object Scaffold : Module() {
         val oldSlot = Wrapper.getPlayer().inventory.selectedSlot
         Wrapper.getPlayer().inventory.selectedSlot = newSlot
 
-        // check if we don't have a block adjacent to blockpos
-        getIrreplaceableNeighbour(world, blockPos).let {
-            if (it == null) {
-                for (side in Direction.values()) {
-                    return@let getIrreplaceableNeighbour(world, blockPos.offset(side)) ?: continue
+        // If midAir is on, don't search for a neighbour block, but place the block in mid air
+        if (midAir) {
+            placeBlockScaffold(player, world, blockPos, Direction.DOWN)
+        } else {
+            // check if we don't have a block adjacent to blockpos
+            getIrreplaceableNeighbour(world, blockPos).let {
+                if (it == null) {
+                    for (side in Direction.values()) {
+                        return@let getIrreplaceableNeighbour(world, blockPos.offset(side)) ?: continue
+                    }
                 }
+                it
+            }?.let { (solid, side) ->
+                // place block
+                placeBlockScaffold(player, world, solid, side)
             }
-            it
-        }?.let { (solid, side) ->
-            // place block
-            placeBlockScaffold(player, world, solid, side)
         }
 
         // reset slot
