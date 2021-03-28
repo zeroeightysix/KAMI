@@ -36,7 +36,7 @@ import kotlin.math.sqrt
 @Module.Info(name = "Scaffold", category = Module.Category.PLAYER)
 object Scaffold : Module() {
     @Setting(comment = "Allow placing blocks without a supporting block")
-    private var midAir:Boolean = false
+    private var midAir: Boolean = false
 
     private val blackList = listOf(
         Blocks.ENDER_CHEST,
