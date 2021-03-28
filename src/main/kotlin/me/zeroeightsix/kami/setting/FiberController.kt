@@ -88,7 +88,12 @@ internal class FiberControllerImpl(
             getRelativePath(root).run {
                 parent.createDirectories()
                 outputStream(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { stream ->
-                    FiberSerialization.serialize(tree, stream, serializer)
+                    try {
+                        FiberSerialization.serialize(tree, stream, serializer)
+                    } catch (e: Exception) {
+                        System.err.println("Failed saving config service: $this")
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -97,7 +102,12 @@ internal class FiberControllerImpl(
             getRelativePath(root).run {
                 if (exists())
                     inputStream().use { stream ->
-                        FiberSerialization.deserialize(tree, stream, serializer)
+                        try {
+                            FiberSerialization.deserialize(tree, stream, serializer)
+                        } catch (e: Exception) {
+                            System.err.println("Failed loading config service: $this")
+                            e.printStackTrace()
+                        }
                     }
             }
         }
