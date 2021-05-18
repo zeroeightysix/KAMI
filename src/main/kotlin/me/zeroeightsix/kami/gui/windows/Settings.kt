@@ -52,9 +52,6 @@ object Settings {
     var modifiersEnabled = false
 
     @Setting
-    var openSettingsInPopup = true
-
-    @Setting // only if openSettingsInPopup = false
     var swapModuleListButtons = false
 
     @Setting

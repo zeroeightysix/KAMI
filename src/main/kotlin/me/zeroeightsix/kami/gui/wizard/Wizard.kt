@@ -143,6 +143,8 @@ object Wizard {
         text("GUI is visible in the background")
         popStyleColor()
 
+        // we take this opportunity to autosize the module windows
+        Modules.resize = true
         KamiGuiScreen.renderGui() // Show the full GUI
     }
 
