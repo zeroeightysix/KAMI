@@ -77,35 +77,14 @@ object Modules {
                 isItemClicked(if (Settings.swapModuleListButtons) ImGuiMouseButton.Right else ImGuiMouseButton.Left)
         }
 
-        if (!Settings.openSettingsInPopup) {
-            // We don't want imgui to handle open/closing at all, so we hack out the behaviour
-//            val doubleClicked = ImGui.getIO().mouseDoubleClickTime
-//            ImGui.getIO().mouseDoubleClicked[0] = false
-
-            val open = treeNodeEx(label, nodeFlags, module.name)
-            dragDropTarget {
-                acceptDragDropPayloadObject(KAMI_MODULE_PAYLOAD)?.let {
-                    val payload = it as ModulePayload
-                    payload.moveTo(source, sourceGroup)
-                }
+        withStyleVar(ImGuiStyleVar.SelectableTextAlign, alignment.x, alignment.y) {
+            if (selectable(module.name, module.enabled)) {
+                module.enabled = !module.enabled
             }
-            if (open) {
-                updateClicked()
-                showModuleSettings(module)
-            } else updateClicked()
-
-//            // Restore state
-//            ImGui.io.mouseDoubleClicked[0] = doubleClicked
-        } else {
-            withStyleVar(ImGuiStyleVar.SelectableTextAlign, alignment.x, alignment.y) {
-                if (selectable(module.name, module.enabled)) {
-                    module.enabled = !module.enabled
-                }
-            }
-            openPopupOnItemClick("module-settings-${module.name}", ImGuiMouseButton.Right)
-            popup("module-settings-${module.name}") {
-                showModuleSettings(module)
-            }
+        }
+        openPopupOnItemClick("module-settings-${module.name}", ImGuiMouseButton.Right)
+        popup("module-settings-${module.name}") {
+            showModuleSettings(module)
         }
 
         if (clickedLeft) {

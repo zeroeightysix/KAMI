@@ -139,19 +139,6 @@ object Settings {
                             "Allows the use of keybinds with modifiers: e.g. chaining CTRL, ALT and K."
                         )
                         boolSetting(
-                            "Settings popup",
-                            ::openSettingsInPopup,
-                            "Show module settings in a popup instead of a collapsible"
-                        )
-                        // Swap list buttons only applies to the tree header list
-                        if (!openSettingsInPopup) {
-                            boolSetting(
-                                "Swap list buttons",
-                                ::swapModuleListButtons,
-                                "When enabled, right clicking modules will reveal their settings menu. Left clicking will toggle the module."
-                            )
-                        }
-                        boolSetting(
                             "Hide descriptions",
                             ::hideModuleDescriptions,
                             "Hide module descriptions when its settings are opened."

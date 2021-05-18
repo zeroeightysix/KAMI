@@ -56,7 +56,6 @@ object Wizard {
         ::welcomePage,
         ::appearancePage,
         ::moduleWindowsPage,
-        ::singleModulePage,
         ::modifiersPage,
         ::widgetsPage,
         {
@@ -165,61 +164,6 @@ object Wizard {
         )
         textWrapped("The module window editor may be accessed through the `View` menu in the top menu bar.")
         popStyleColor()
-    }
-
-    private fun singleModulePage() {
-        text("Would you rather have settings appear in a popup, or embedded in the modules window?")
-
-        separator()
-
-        radioButton("In a popup", Settings.openSettingsInPopup) {
-            Settings.openSettingsInPopup = true
-        }
-        radioButton("Embedded in the modules window", !Settings.openSettingsInPopup) {
-            Settings.openSettingsInPopup = false
-        }
-
-        if (!Settings.openSettingsInPopup) {
-            separator()
-
-            text("Would you rather left-click or right-click a module to toggle it?")
-            text("The other button will toggle its settings.")
-
-            separator()
-
-            radioButton("Left-click to toggle modules", Settings.swapModuleListButtons) {
-                Settings.swapModuleListButtons = true
-            }
-            radioButton("Right-click to toggle modules", !Settings.swapModuleListButtons) {
-                Settings.swapModuleListButtons = false
-            }
-        }
-
-        separator()
-
-        pushStyleColor(ImGuiCol.Text, .7f, .7f, .7f, 1f)
-        val leftToggle = Settings.openSettingsInPopup || Settings.swapModuleListButtons
-        text(
-            "${
-            if (leftToggle) {
-                "Left"
-            } else {
-                "Right"
-            }
-            }-click to toggle, ${
-            if (!leftToggle) {
-                "left"
-            } else {
-                "right"
-            }
-            }-click to open settings."
-        )
-        text("Try it out:")
-        popStyleColor()
-
-        Modules.module(Aura, Modules.ModuleWindow("", Aura), "", Settings.moduleAlignment)
-
-        separator()
     }
 
     private fun modifiersPage() {
