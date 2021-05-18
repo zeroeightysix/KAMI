@@ -65,7 +65,7 @@ object Settings {
 
     // Appearance
     @Setting
-    var font: Int = 0
+    var font: Int = 1
 
     @Setting
     var rainbowMode = false
