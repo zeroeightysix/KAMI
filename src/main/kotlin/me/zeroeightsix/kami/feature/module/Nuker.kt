@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.RaycastContext
+import java.util.stream.Stream
 
 @Module.Info(
     name = "Nuker",
@@ -39,6 +40,9 @@ object Nuker : Module() {
 
     @Setting(comment = "Only break blocks that can be instantly broken")
     private var onlyInstant = false
+
+    @Setting(comment = "Only break blocks above your feet")
+    private var flatten = false
 
     private var progress = 0.0
     private var currentBlock: BlockPos? = null
@@ -78,12 +82,18 @@ object Nuker : Module() {
         }
     })
 
-    private fun getBoxCorner(playerPos: Vec3d, range: Double, negative: Boolean = false) =
-        BlockPos(playerPos.add(singleVec(range).run { if (negative) negate() else this }))
+    private fun getValidBlocks(
+        player: ClientPlayerEntity,
+        world: ClientWorld,
+        range: Double,
+        onlyAbove: Boolean
+    ): Stream<BlockPos> {
+        val topRight = BlockPos(player.pos.add(singleVec(range)))
+        val bottomLeft = BlockPos(player.pos.subtract(range, if (onlyAbove) 0.0 else range, range))
 
-    private fun getValidBlocks(player: ClientPlayerEntity, world: ClientWorld, range: Double) =
-        BlockPos.stream(BlockBox(getBoxCorner(player.pos, range), getBoxCorner(player.pos, range, true)))
+        return BlockPos.stream(BlockBox(bottomLeft, topRight))
             .filter { validate(player, world, it, range) }
+    }
 
     /**
      * Mines a block using packets
@@ -102,10 +112,10 @@ object Nuker : Module() {
     }
 
     private fun nextBlock(player: ClientPlayerEntity, world: ClientWorld, range: Double) =
-        getValidBlocks(player, world, range).findFirst().kotlin
+        getValidBlocks(player, world, range, this.flatten).findFirst().kotlin
 
     private fun instantMineBlocks(player: ClientPlayerEntity, world: ClientWorld, range: Double) {
-        getValidBlocks(player, world, range)
+        getValidBlocks(player, world, range, this.flatten)
             .filter { canInstaMine(player, world, it) }
             .forEach { mine(it, true) }
     }
