@@ -3,9 +3,7 @@
 [![Issues](https://img.shields.io/github/issues/zeroeightysix/kami.svg)](https://github.com/zeroeightysix/kami/issues)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](http://discord.gg/9hvwgeg)
 
-## A Minecraft utility mod for anarchy servers.
-
-The Fabric 1.16.5 version is in active development.
+## A 1.16.5 Minecraft utility mod for anarchy servers.
 
 ## Preview
 
