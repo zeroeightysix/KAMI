@@ -72,9 +72,7 @@ object ESP : Module() {
     @Setting(name = "Blocks")
     @ImGuiExtra.Post("applyBlocksImGui")
     var blockTargets = BlockSupplier(
-        mapOf(
-            BlockCategory.ORES to ESPTarget()
-        ),
+        mapOf(),
         mapOf(
             BlockSupplier.SpecificBlock(Identifier("minecraft", "diamond_block")) to ESPTarget(outline = true)
         )
