@@ -65,6 +65,9 @@ object Settings {
     var font: Int = 1
 
     @Setting
+    var fontSize = 12f
+
+    @Setting
     var rainbowMode = false
 
     @Setting
@@ -154,6 +157,8 @@ object Settings {
                     tabItem("Appearance") {
                         showFontSelector()
 
+                        showFontSizeSlider()
+
                         showThemeSelector()
 
                         KamiConfig.alignmentType.settingInterface?.displayImGui(
@@ -221,6 +226,19 @@ object Settings {
                 label,
                 it,
                 0.1f,
+                0f,
+                50f,
+                "%.0f"
+            )
+        }
+    }
+
+    fun showFontSizeSlider(label: String = "Font size") {
+        wrapSingleFloatArray(::fontSize) {
+            dragFloat(
+                label,
+                it,
+                1f,
                 0f,
                 50f,
                 "%.0f"
