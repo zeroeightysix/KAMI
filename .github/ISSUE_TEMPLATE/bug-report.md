@@ -7,6 +7,12 @@ assignees: ''
 
 ---
 
+<!--
+PLEASE KEEP IN MIND THAT THIS IS NOT THE KAMI BLUE ISSUE TRACKER!
+
+KAMI BLUE IS DISCONTINUED. OPENING AN ISSUE HERE WILL NOT FIX THAT.
+-->
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
