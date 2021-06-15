@@ -7,6 +7,12 @@ assignees: ''
 
 ---
 
+<!--
+PLEASE KEEP IN MIND THAT THIS IS NOT THE KAMI BLUE ISSUE TRACKER!
+
+KAMI BLUE IS DISCONTINUED. OPENING AN ISSUE HERE WILL NOT CHANGE THAT.
+-->
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
