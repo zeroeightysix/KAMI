@@ -27,7 +27,7 @@ public class Velocity extends Module {
         if (event.getEra() == KamiEvent.Era.PRE) {
             if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket) {
                 EntityVelocityUpdateS2CPacket velocity = (EntityVelocityUpdateS2CPacket) event.getPacket();
-                if (velocity.getId() == mc.player.getEntityId()) {
+                if (velocity.getId() == mc.player.getId()) {
                     if (horizontal == 0 && vertical == 0) event.cancel();
                     IEntityVelocityUpdateS2CPacket xyz = (IEntityVelocityUpdateS2CPacket) velocity;
                     xyz.setVelocityX((int) (xyz.getVelocityX() * horizontal));
