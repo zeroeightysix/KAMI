@@ -25,6 +25,7 @@ version = "$minecraft_version-$mod_version"
 group = maven_group
 
 repositories {
+    jcenter()
     mavenCentral()
     maven {
         name = "jitpack.io"
