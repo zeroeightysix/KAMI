@@ -63,27 +63,27 @@ object NbtCommand : Command() {
             literal("look") {
                 does {
                     val target = mc.crosshairTarget
-                    val NbtElement = when (target?.type) {
+                    val tag = when (target?.type) {
                         HitResult.Type.BLOCK -> {
                             val entity = mc.world?.getBlockEntity(BlockPos(target.pos))
                             if (entity == null) {
                                 throw FAILED_EXCEPTION.create("This Block is not a BlockEntity!")
-                            } else entity.toNbtElement(NbtCompound())
+                            } else entity.writeNbt(NbtCompound())
                         }
-                        HitResult.Type.ENTITY -> mc.targetedEntity?.toNbtElement(NbtCompound())
+                        HitResult.Type.ENTITY -> mc.targetedEntity?.writeNbt(NbtCompound())
                         else -> {
                             throw FAILED_EXCEPTION.create("No Target found!")
                         }
                     }
 
-                    open(NbtElement ?: return@does 1)
+                    open(tag ?: return@does 1)
                     0
                 }
             }
 
             literal("self") {
                 does {
-                    open(mc.player?.toNbtElement(NbtCompound()) ?: return@does 1)
+                    open(mc.player?.writeNbt(NbtCompound()) ?: return@does 1)
                     0
                 }
             }
@@ -94,9 +94,9 @@ object NbtCommand : Command() {
                     if (stack?.isEmpty == true) {
                         throw FAILED_EXCEPTION.create("You must hold an item!")
                     } else {
-                        val NbtElement = stack?.NbtElement
+                        val tag = stack?.nbt
                             ?: run { throw FAILED_EXCEPTION.create("The item you are holding has no NBT!") }
-                        open(NbtElement)
+                        open(tag)
                     }
                     0
                 }
