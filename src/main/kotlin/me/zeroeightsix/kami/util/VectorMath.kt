@@ -3,7 +3,7 @@ package me.zeroeightsix.kami.util
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.multiplyMatrix
 import me.zeroeightsix.kami.toScreen
-import net.minecraft.client.util.math.Vector4f
+import net.minecraft.util.math.Vector4f
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Position

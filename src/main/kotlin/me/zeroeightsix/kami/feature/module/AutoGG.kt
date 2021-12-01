@@ -50,7 +50,7 @@ object AutoGG : Module() {
     private val listener = Listener({ event: PacketEvent.Receive ->
         if (lastUpdate + updateLimit <= System.currentTimeMillis() &&
             event.packet is GameMessageS2CPacket &&
-            event.packet.senderUuid == emptyUuid
+            event.packet.sender == emptyUuid
         ) {
             val chatMessage = event.packet.message.string
             if (triggers.any { chatMessage.contains(it, ignoreCase = false) }) {

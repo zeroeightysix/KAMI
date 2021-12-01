@@ -57,7 +57,7 @@ object AutoReconnect : Module() {
         var cTime: Long
 
         override fun tick() {
-            if (millis <= 0) mc.openScreen(
+            if (millis <= 0) mc.setScreen(
                 ConnectScreen(
                     parent,
                     mc,

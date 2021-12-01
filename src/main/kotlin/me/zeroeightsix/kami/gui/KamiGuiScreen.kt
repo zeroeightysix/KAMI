@@ -77,6 +77,6 @@ class KamiGuiScreen(private var parent: Screen? = null) : ImGuiScreen(text(null,
     }
 
     override fun onClose() {
-        mc.openScreen(this.parent)
+        mc.setScreen(this.parent)
     }
 }

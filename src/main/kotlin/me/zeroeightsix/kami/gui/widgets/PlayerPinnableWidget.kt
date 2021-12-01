@@ -9,7 +9,7 @@ import me.zeroeightsix.kami.gui.KamiImgui
 import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.setting.GenerateType
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.client.util.math.Vector3f
+import net.minecraft.util.math.Vec3f
 import net.minecraft.entity.LivingEntity
 
 @GenerateType
@@ -87,7 +87,7 @@ class PlayerPinnableWidget(
         val matrixStack = MatrixStack()
         matrixStack.translate(0.0, 0.0, 1000.0)
         matrixStack.scale(scale, scale, scale)
-        val quaternion = Vector3f.POSITIVE_Z.getDegreesQuaternion(180.0f)
+        val quaternion = Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f)
         matrixStack.multiply(quaternion)
         val entityRenderDispatcher = mc.entityRenderDispatcher
         entityRenderDispatcher.setRenderShadows(false)

@@ -89,7 +89,7 @@ object PlayerMovementSpoofer : Feature, Listenable {
                 }
             }
             else -> {
-                mc.networkHandler?.sendPacket(PlayerMoveC2SPacket.LookOnly(yaw, pitch, onGround))
+                mc.networkHandler?.sendPacket(PlayerMoveC2SPacket.LookAndOnGround(yaw, pitch, onGround))
                 if (mode == Mode.INSTANT_SKIPNEXT) {
                     skipNext = true
                 }
@@ -107,7 +107,7 @@ object PlayerMovementSpoofer : Feature, Listenable {
             }
             else -> {
                 mc.networkHandler?.sendPacket(
-                    PlayerMoveC2SPacket.PositionOnly(
+                    PlayerMoveC2SPacket.PositionAndOnGround(
                         position.x,
                         position.y,
                         position.z,
@@ -135,7 +135,7 @@ object PlayerMovementSpoofer : Feature, Listenable {
             }
             else -> {
                 mc.networkHandler?.sendPacket(
-                    PlayerMoveC2SPacket.Both(
+                    PlayerMoveC2SPacket.Full(
                         position.x,
                         position.y,
                         position.z,

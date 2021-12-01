@@ -29,18 +29,18 @@ import me.zeroeightsix.kami.mc
 import me.zeroeightsix.kami.util.text
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.command.CommandSource
-import net.minecraft.nbt.AbstractListTag
-import net.minecraft.nbt.AbstractNumberTag
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.StringTag
-import net.minecraft.nbt.Tag
+import net.minecraft.nbt.AbstractNbtList
+import net.minecraft.nbt.AbstractNbtNumber
+import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtList
+import net.minecraft.nbt.NbtString
+import net.minecraft.nbt.NbtElement
 import net.minecraft.text.LiteralText
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 
 object NbtCommand : Command() {
-    var screen = NbtScreen(CompoundTag())
+    var screen = NbtScreen(NbtCompound())
     var open = false
 
     private val FAILED_EXCEPTION =
@@ -53,7 +53,7 @@ object NbtCommand : Command() {
     init {
         opener = Listener({
             open = true
-            mc.openScreen(screen)
+            mc.setScreen(screen)
             KamiMod.EVENT_BUS.unsubscribe(opener)
         })
     }
@@ -63,27 +63,27 @@ object NbtCommand : Command() {
             literal("look") {
                 does {
                     val target = mc.crosshairTarget
-                    val tag = when (target?.type) {
+                    val NbtElement = when (target?.type) {
                         HitResult.Type.BLOCK -> {
                             val entity = mc.world?.getBlockEntity(BlockPos(target.pos))
                             if (entity == null) {
                                 throw FAILED_EXCEPTION.create("This Block is not a BlockEntity!")
-                            } else entity.toTag(CompoundTag())
+                            } else entity.toNbtElement(NbtCompound())
                         }
-                        HitResult.Type.ENTITY -> mc.targetedEntity?.toTag(CompoundTag())
+                        HitResult.Type.ENTITY -> mc.targetedEntity?.toNbtElement(NbtCompound())
                         else -> {
                             throw FAILED_EXCEPTION.create("No Target found!")
                         }
                     }
 
-                    open(tag ?: return@does 1)
+                    open(NbtElement ?: return@does 1)
                     0
                 }
             }
 
             literal("self") {
                 does {
-                    open(mc.player?.toTag(CompoundTag()) ?: return@does 1)
+                    open(mc.player?.toNbtElement(NbtCompound()) ?: return@does 1)
                     0
                 }
             }
@@ -94,9 +94,9 @@ object NbtCommand : Command() {
                     if (stack?.isEmpty == true) {
                         throw FAILED_EXCEPTION.create("You must hold an item!")
                     } else {
-                        val tag = stack?.tag
+                        val NbtElement = stack?.NbtElement
                             ?: run { throw FAILED_EXCEPTION.create("The item you are holding has no NBT!") }
-                        open(tag)
+                        open(NbtElement)
                     }
                     0
                 }
@@ -104,14 +104,14 @@ object NbtCommand : Command() {
         }
     }
 
-    private fun open(tag: Tag) {
-        screen.tag = tag
+    private fun open(NbtElement: NbtElement) {
+        screen.NbtElement = NbtElement
         KamiMod.EVENT_BUS.subscribe(opener)
     }
 }
 
 class NbtScreen(
-    var tag: Tag,
+    var NbtElement: NbtElement,
     private val defaultColor: Int = 0xFFFFFFFF.toInt()
 ) : ImGuiScreen(text(null, "Kami NBT")) {
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
@@ -125,12 +125,12 @@ class NbtScreen(
     operator fun invoke() {
         window("NBT", NbtCommand::open) {
             button("Copy", windowContentRegionWidth, 0f) {
-                copyTagToClipboard(tag)
+                copyNbtElementToClipboard(NbtElement)
             }
 
             child("##nbtPane", border = true) {
                 columns(2)
-                showTree("NBT", tag)
+                showTree("NBT", NbtElement)
                 columns()
             }
         }
@@ -139,36 +139,36 @@ class NbtScreen(
         }
     }
 
-    private fun showTree(tagName: String, tag: Tag, appendix: Int = 0) {
+    private fun showTree(NbtElementName: String, NbtElement: NbtElement, appendix: Int = 0) {
         alignTextToFramePadding()
         var curApp = appendix
-        if (treeNodeEx("$tagName##$curApp", ImGuiTreeNodeFlags.NoTreePushOnOpen)) {
+        if (treeNodeEx("$NbtElementName##$curApp", ImGuiTreeNodeFlags.NoTreePushOnOpen)) {
             nextColumn()
             nextColumn()
             treePush()
-            when (tag) {
-                is CompoundTag -> {
-                    for (key in tag.keys)
-                        tag[key]?.let {
-                            if (tagIsDeep(it))
+            when (NbtElement) {
+                is NbtCompound -> {
+                    for (key in NbtElement.keys)
+                        NbtElement[key]?.let {
+                            if (NbtElementIsDeep(it))
                                 showTree(key, it, ++curApp)
                             else
-                                withStyleColour(ImGuiCol.Text, tagColor(it)) {
+                                withStyleColour(ImGuiCol.Text, NbtElementColor(it)) {
                                     nbtLabelText(key, it.asString())
                                 }
                         }
                 }
-                is AbstractListTag<*> -> {
-                    for (t in tag)
-                        if (tagIsDeep(t))
+                is AbstractNbtList<*> -> {
+                    for (t in NbtElement)
+                        if (NbtElementIsDeep(t))
                             showTree("[array entry]", t, ++curApp)
                         else
-                            withStyleColour(ImGuiCol.Text, tagColor(t)) {
+                            withStyleColour(ImGuiCol.Text, NbtElementColor(t)) {
                                 nbtLabelText("[array entry]", t.asString())
                             }
                 }
                 else -> {
-                    textColored(tagColor(tag), tag.asString())
+                    textColored(NbtElementColor(NbtElement), NbtElement.asString())
                     separator()
                 }
             }
@@ -178,22 +178,22 @@ class NbtScreen(
         nextColumn()
     }
 
-    private fun tagIsDeep(tag: Tag): Boolean {
-        val test = { t: Tag -> t is CompoundTag || t is ListTag }
-        return when (tag) {
-            is CompoundTag -> tag.keys.size > 1 || tag.keys.map { tag[it]!! }.any(test)
-            is AbstractListTag<*> -> tag.size > 1 || tag.any(test)
+    private fun NbtElementIsDeep(NbtElement: NbtElement): Boolean {
+        val test = { t: NbtElement -> t is NbtCompound || t is NbtList }
+        return when (NbtElement) {
+            is NbtCompound -> NbtElement.keys.size > 1 || NbtElement.keys.map { NbtElement[it]!! }.any(test)
+            is AbstractNbtList<*> -> NbtElement.size > 1 || NbtElement.any(test)
             else -> false
         }
     }
 
-    private fun copyTagToClipboard(tag: Tag) {
-        mc.keyboard.clipboard = tag.asString()
+    private fun copyNbtElementToClipboard(NbtElement: NbtElement) {
+        mc.keyboard.clipboard = NbtElement.asString()
     }
 
-    private fun tagColor(tag: Tag) = when (tag) {
-        is AbstractNumberTag -> 0xFFFF00FF.toInt()
-        is StringTag -> 0x00FF00FF.toInt()
+    private fun NbtElementColor(NbtElement: NbtElement) = when (NbtElement) {
+        is AbstractNbtNumber -> 0xFFFF00FF.toInt()
+        is NbtString -> 0x00FF00FF.toInt()
         else -> defaultColor
     }
 

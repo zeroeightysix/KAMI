@@ -28,7 +28,7 @@ import net.minecraft.client.render.item.ItemRenderer
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.SpriteAtlasTexture
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.client.util.math.Vector4f
+import net.minecraft.util.math.Vector4f
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
@@ -252,7 +252,7 @@ object Nametags : Module() {
                     event.matrixStack.translate(-(equipped.size) / 2.0, 0.0, 0.0)
 
                     equipped.forEach {
-                        val model = item.getHeldItemModel(it, null, null)
+                        val model = item.getHeldItemModel(it, null, null, i)
 
                         val bl: Boolean = !model.isSideLit
                         if (bl) {

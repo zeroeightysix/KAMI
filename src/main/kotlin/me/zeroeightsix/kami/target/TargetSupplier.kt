@@ -171,7 +171,7 @@ class BlockEntitySupplier<M>(
     class SpecificBlockEntity(identifier: Identifier = noneIdentifier) :
         RegistrySpecificTarget<BlockEntity, BlockEntityType<*>>(identifier, Registry.BLOCK_ENTITY_TYPE) {
         override val targets
-            get() = mc.world?.blockEntities?.filter(::belongs)
+            get() = mc.world?.entities?.filterIsInstance<BlockEntity>()?.filter(::belongs)
 
         override fun belongs(target: BlockEntity): Boolean = target.type == this.registryEntry
     }

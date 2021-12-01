@@ -34,7 +34,7 @@ object PeekCommand : Command(), Listenable {
                 if (ShulkerBoxCommon.isShulkerBox(stack?.item)) {
                     val entityBox =
                         ShulkerBoxBlockEntity(((stack?.item as BlockItem).block as ShulkerBoxBlock).color)
-                    val tag = stack.getSubTag("BlockEntityTag")
+                    val tag = stack?.getSubNbt("BlockEntityTag")
                     val state = mc.world?.getBlockState(entityBox.pos)
                     if (tag != null && state != null) {
                         entityBox.fromTag(state, tag)
@@ -65,7 +65,7 @@ object PeekCommand : Command(), Listenable {
                     player?.inventory,
                     sb!!.displayName
                 )
-                mc.openScreen(gui)
+                mc.setScreen(gui)
                 sb = null
             } catch (e: Exception) {
                 player?.sendMessage(

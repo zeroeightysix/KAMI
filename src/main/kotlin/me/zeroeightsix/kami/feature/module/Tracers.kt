@@ -12,6 +12,7 @@ import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
@@ -53,8 +54,8 @@ object Tracers : Module() {
         val cZ = camera.pos.z
 
         GlStateManager.lineWidth(thickness)
-        GlStateManager.disableTexture()
-        GlStateManager.disableDepthTest()
+        GlStateManager._disableTexture()
+        GlStateManager._disableDepthTest()
 
         glDisable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
@@ -64,7 +65,7 @@ object Tracers : Module() {
                 .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
                 .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
 
-            bufferBuilder.begin(GL_LINES, VertexFormats.POSITION_COLOR)
+            bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR)
 
             targets.targets
                 .filter { (entity, _) -> player.distanceTo(entity) < range }
@@ -85,8 +86,8 @@ object Tracers : Module() {
         }
 
         GlStateManager.lineWidth(1.0f)
-        GlStateManager.enableTexture()
-        GlStateManager.enableDepthTest()
+        GlStateManager._enableTexture()
+        GlStateManager._enableDepthTest()
 
         glDisable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
