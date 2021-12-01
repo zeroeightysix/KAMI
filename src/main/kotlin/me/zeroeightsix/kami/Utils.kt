@@ -198,7 +198,7 @@ operator fun Vec3d.times(factor: Double): Vec3d = multiply(factor)
 fun noBobbingCamera(matrixStack: MatrixStack, block: () -> Unit) {
     with(matrixStack) {
         val entry = createIdentityMatrixStackEntry()
-        entry.model.multiply(mc.gameRenderer.getBasicProjectionMatrix(mc.gameRenderer.camera, mc.tickDelta, false))
+        entry.model.multiply(mc.gameRenderer.getBasicProjectionMatrix(mc.gameRenderer.camera, mc.tickDelta, true))
         push(entry)
         mc.gameRenderer.loadProjectionMatrix(entry.model)
 
