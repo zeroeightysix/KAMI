@@ -17,8 +17,10 @@ import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen
 import net.minecraft.item.BlockItem
 import net.minecraft.screen.ShulkerBoxScreenHandler
 import net.minecraft.command.CommandSource
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting.RED
+import net.minecraft.util.math.BlockPos
 
 @Suppress("UNUSED")
 object PeekCommand : Command(), Listenable {
@@ -32,12 +34,12 @@ object PeekCommand : Command(), Listenable {
             does {
                 val stack = mc.player?.inventory?.mainHandStack
                 if (ShulkerBoxCommon.isShulkerBox(stack?.item)) {
-                    val entityBox =
-                        ShulkerBoxBlockEntity(((stack?.item as BlockItem).block as ShulkerBoxBlock).color)
-                    val tag = stack?.getSubNbt("BlockEntityTag")
+                    val shulkerBoxBlock = ((stack?.item as BlockItem).block as ShulkerBoxBlock)
+                    val entityBox = ShulkerBoxBlockEntity(BlockPos(mc.player?.pos),shulkerBoxBlock.stateManager.defaultState)
+                    val tag = stack.getSubNbt("BlockEntityTag")
                     val state = mc.world?.getBlockState(entityBox.pos)
                     if (tag != null && state != null) {
-                        entityBox.fromTag(state, tag)
+                        entityBox.writeNbt(NbtCompound()) // does this work??
                         sb = entityBox
                         KamiMod.EVENT_BUS.subscribe(this@PeekCommand)
                     } else {
@@ -58,17 +60,17 @@ object PeekCommand : Command(), Listenable {
             try {
                 val container = (sb as IShulkerBoxBlockEntity?)!!.invokeCreateScreenHandler(
                     -1,
-                    player?.inventory
+                    player.inventory
                 ) as ShulkerBoxScreenHandler
                 val gui = ShulkerBoxScreen(
                     container,
-                    player?.inventory,
+                    player.inventory,
                     sb!!.displayName
                 )
                 mc.setScreen(gui)
                 sb = null
             } catch (e: Exception) {
-                player?.sendMessage(
+                player.sendMessage(
                     text(RED, "Failed to read shulker box contents."),
                     true
                 )
