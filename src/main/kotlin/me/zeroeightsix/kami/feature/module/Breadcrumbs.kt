@@ -94,7 +94,7 @@ object Breadcrumbs : Module() {
         val tessellator = Tessellator.getInstance()
         val builder: BufferBuilder = tessellator.buffer
 
-        RenderSystem.color4f(colour.r, colour.g, colour.b, colour.a)
+        RenderSystem.setShaderColor(colour.r, colour.g, colour.b, colour.a) // color4f is deprecated and cant find replacement
 
         event.matrixStack.matrix {
             val camera = mc.gameRenderer.camera.pos
@@ -103,7 +103,7 @@ object Breadcrumbs : Module() {
             if (positions.size >= BUFFER_SIZE) {
                 @Suppress("NAME_SHADOWING")
                 val builder = BufferBuilder(positions.size)
-                val buffer = VertexBuffer(VertexFormats.POSITION)
+                val buffer = VertexBuffer()
                 drawLines(builder)
                 builder.end()
                 buffer.upload(builder)
