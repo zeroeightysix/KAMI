@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.module
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
@@ -53,7 +54,7 @@ object Tracers : Module() {
         val cY = camera.pos.y
         val cZ = camera.pos.z
 
-        GlStateManager.lineWidth(thickness)
+        RenderSystem.lineWidth(thickness)
         GlStateManager._disableTexture()
         GlStateManager._disableDepthTest()
 
@@ -85,7 +86,7 @@ object Tracers : Module() {
             tessellator.draw()
         }
 
-        GlStateManager.lineWidth(1.0f)
+        RenderSystem.lineWidth(thickness)
         GlStateManager._enableTexture()
         GlStateManager._enableDepthTest()
 
