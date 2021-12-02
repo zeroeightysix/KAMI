@@ -1,6 +1,5 @@
 package me.zeroeightsix.kami.feature.module
 
-import com.mojang.blaze3d.platform.GlStateManager.lineWidth
 import com.mojang.blaze3d.platform.GlStateManager.rotatef
 import com.mojang.blaze3d.platform.GlStateManager.scaled
 import com.mojang.blaze3d.platform.GlStateManager.translated
@@ -19,6 +18,7 @@ import me.zeroeightsix.kami.noBobbingCamera
 import me.zeroeightsix.kami.times
 import me.zeroeightsix.kami.unreachable
 import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
@@ -95,7 +95,7 @@ object Trajectories : Module() {
             RenderSystem.defaultAlphaFunc()
             RenderSystem.disableTexture()
             RenderSystem.enableDepthTest()
-            lineWidth(0.5F)
+            RenderSystem.lineWidth(0.5F)
 
             noBobbingCamera(matrices) {
                 mc.world?.entities
@@ -174,7 +174,7 @@ object Trajectories : Module() {
                             Vec3d(0.0, 0.0, 0.0)
                         }
 
-                        buffer.begin(GL11.GL_LINE_STRIP, VertexFormats.POSITION_COLOR)
+                        buffer.begin(VertexFormat.DrawMode.LINE_STRIP, VertexFormats.POSITION_COLOR)
                         while (!mimic.landed) {
                             buffer.vertex(mimic.x - cX + offset.x, mimic.y - cY + offset.y, mimic.z - cZ + offset.z)
                                 .colour(lineColour)
