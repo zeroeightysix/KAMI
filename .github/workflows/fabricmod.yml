@@ -34,7 +34,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          restore-keys: ${{ runner.os }}-gradle-
 
       # Runs a single command using the runners shell
       - name: Build using gradle
