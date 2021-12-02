@@ -45,7 +45,7 @@ object AutoTotem : Module() {
                     mc.networkHandler?.let { net ->
                         // Swap totem server-side.
                         // This works by:
-                        // If the totem in in the hotbar, sending a packet selecting the slot the totem is in.
+                        // If the totem is in the hotbar, sending a packet selecting the slot the totem is in.
                         // Or, if the totem was not in the hotbar, sending a block pick packet to swap the totem slot with the currently selected slot.
                         // Then, send a swap offhand and main hand packet.
                         // Lastly, revert swapped slots and revert to the last selected slot.
