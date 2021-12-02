@@ -1,7 +1,7 @@
 package me.zeroeightsix.kami.feature.hidden
 
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem.disableBlend
+import com.mojang.blaze3d.systems.RenderSystem
 import java.awt.Color
 import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.EventHandler
@@ -93,7 +93,7 @@ object PrepHandler : Feature, Listenable {
                 )
                 GlStateManager.shadeModel(GL11.GL_SMOOTH)
                 GlStateManager._disableDepthTest()
-                GlStateManager.lineWidth(1f)
+                RenderSystem.lineWidth(1f) //This probably works?
                 mc.profiler.pop()
             },
             EventPriority.HIGHEST
@@ -104,7 +104,7 @@ object PrepHandler : Feature, Listenable {
         Listener(
             EventHook<RenderEvent.World> {
                 mc.profiler.push("release")
-                GlStateManager.lineWidth(1f)
+                RenderSystem.lineWidth(1f) //This probably works?
                 GlStateManager.shadeModel(GL11.GL_FLAT)
                 GlStateManager._disableBlend()
                 GlStateManager.enableAlphaTest()
