@@ -35,7 +35,7 @@ object AutoTotem : Module() {
         // Or, if the player is moving something around in their inventory, don't intervene.
         if (offHand.isTotem ||
             (!offHand.isEmpty && soft) ||
-            !player.inventory.cursorStack.isEmpty
+            mc.currentScreen?.isDragging == true
         ) return@Listener
 
         player.inventory.main.forEach {
