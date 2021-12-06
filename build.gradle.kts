@@ -37,7 +37,7 @@ repositories {
     }
     maven {
         name = "Fabric"
-        url = uri("http://maven.fabricmc.net/")
+        url = uri("https://maven.fabricmc.net/")
     }
 }
 
@@ -49,7 +49,7 @@ dependencies {
     val minecraft_version: String by project
     val yarn_mappings: String by project
     val loader_version: String by project
-    val api_version: String by project
+    val fabric_version: String by project
     val resource_loader_version: String by project
     val kotlin_version: String by project
     val fiber_version: String by project
@@ -78,9 +78,17 @@ dependencies {
 
     minecraft("com.mojang:minecraft:$minecraft_version")
     mappings("net.fabricmc:yarn:$yarn_mappings")
-    modCompile("net.fabricmc:fabric-loader:$loader_version")
-    includedModImpl("net.fabricmc.fabric-api:fabric-api-base:$api_version")
+    modImplementation("net.fabricmc:fabric-loader:$loader_version")
+//    includedModImpl("net.fabricmc.fabric-api:fabric-api-base:$")
     includedModImpl("net.fabricmc.fabric-api:fabric-resource-loader-v0:$resource_loader_version")
+    setOf(
+        "fabric-api-base",
+        "fabric-command-api-v1",
+        "fabric-lifecycle-events-v1",
+        "fabric-networking-api-v1"
+    ).forEach {
+        modImplementation(fabricApi.module(it, fabric_version))
+    }
     includedModImpl("com.github.Ladysnake:Satin:$satin_version")
 
     // 1.16.4+ has not added any additional functionality and 1.16.3 Fabritone will work on newer versions.

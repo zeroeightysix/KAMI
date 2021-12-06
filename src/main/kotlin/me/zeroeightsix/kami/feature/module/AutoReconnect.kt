@@ -1,12 +1,14 @@
 package me.zeroeightsix.kami.feature.module
 
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
 import me.zeroeightsix.kami.event.ScreenEvent
 import me.zeroeightsix.kami.event.ScreenEvent.Displayed
 import me.zeroeightsix.kami.mixin.client.IDisconnectedScreen
 import net.minecraft.client.gui.screen.ConnectScreen
+import net.minecraft.client.gui.screen.DirectConnectScreen
 import net.minecraft.client.gui.screen.DisconnectedScreen
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.network.ServerInfo
@@ -57,12 +59,12 @@ object AutoReconnect : Module() {
         var cTime: Long
 
         override fun tick() {
-            if (millis <= 0) mc.openScreen(
-                ConnectScreen(
+            if (millis <= 0) mc.setScreen(
+                DirectConnectScreen(
                     parent,
-                    mc,
+                    {},
                     if (cServer == null) mc.currentServerEntry else cServer
-                )
+                ) // needs to test
             )
         }
 

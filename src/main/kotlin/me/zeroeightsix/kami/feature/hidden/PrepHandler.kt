@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.hidden
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import java.awt.Color
 import me.zero.alpine.event.EventPriority
 import me.zero.alpine.listener.EventHandler
@@ -81,18 +82,18 @@ object PrepHandler : Feature, Listenable {
             EventHook<RenderEvent.World> {
                 mc.profiler.push("kami")
                 mc.profiler.push("setup")
-                GlStateManager.disableTexture()
-                GlStateManager.enableBlend()
+                GlStateManager._disableTexture()
+                GlStateManager._enableBlend()
                 GlStateManager.disableAlphaTest()
-                GlStateManager.blendFuncSeparate(
+                GlStateManager._blendFuncSeparate(
                     GL11.GL_SRC_ALPHA,
                     GL11.GL_ONE_MINUS_SRC_ALPHA,
                     1,
                     0
                 )
                 GlStateManager.shadeModel(GL11.GL_SMOOTH)
-                GlStateManager.disableDepthTest()
-                GlStateManager.lineWidth(1f)
+                GlStateManager._disableDepthTest()
+                RenderSystem.lineWidth(1f) //This probably works?
                 mc.profiler.pop()
             },
             EventPriority.HIGHEST
@@ -103,13 +104,13 @@ object PrepHandler : Feature, Listenable {
         Listener(
             EventHook<RenderEvent.World> {
                 mc.profiler.push("release")
-                GlStateManager.lineWidth(1f)
+                RenderSystem.lineWidth(1f) //This probably works?
                 GlStateManager.shadeModel(GL11.GL_FLAT)
-                GlStateManager.disableBlend()
+                GlStateManager._disableBlend()
                 GlStateManager.enableAlphaTest()
-                GlStateManager.enableTexture()
-                GlStateManager.enableDepthTest()
-                GlStateManager.enableCull()
+                GlStateManager._enableTexture()
+                GlStateManager._enableDepthTest()
+                GlStateManager._enableCull()
                 KamiTessellator.releaseGL()
                 mc.profiler.pop()
                 mc.profiler.pop()

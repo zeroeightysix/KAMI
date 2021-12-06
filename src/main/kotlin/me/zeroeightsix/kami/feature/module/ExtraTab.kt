@@ -20,7 +20,7 @@ object ExtraTab : Module() {
     @JvmStatic
     fun getPlayerName(networkPlayerInfoIn: PlayerListEntry): Text? {
         val dname =
-            if (networkPlayerInfoIn.displayName != null) networkPlayerInfoIn.displayName else Team.modifyText(
+            if (networkPlayerInfoIn.displayName != null) networkPlayerInfoIn.displayName else Team.decorateName(
                 networkPlayerInfoIn.scoreboardTeam,
                 LiteralText(networkPlayerInfoIn.profile.name)
             )

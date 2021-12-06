@@ -75,7 +75,7 @@ public class MixinRebuildTask {
             );
 
             if (consumer != null)
-                consumer = VertexConsumers.dual(consumer, outlineVertexConsumer);
+                consumer = VertexConsumers.union(consumer, outlineVertexConsumer);
             else
                 consumer = outlineVertexConsumer;
         }

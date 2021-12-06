@@ -85,7 +85,7 @@ public class Blink extends Module {
     public void onDisable() {
         if (packets.size() > maxPacketAmount && isCancelable && mc.player != null) {
             if (clonedPlayer != null)  // We don't want a NPE when a player tries to disable blink after logging in
-                mc.player.updatePosition(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
+                mc.player.setPosition(clonedPlayer.getX(), clonedPlayer.getY(), clonedPlayer.getZ()); // Snap back to where we were
             packets.clear(); //Empty the list of packets to send
         }
 

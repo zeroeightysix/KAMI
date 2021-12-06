@@ -30,7 +30,7 @@ object ClickGui : Feature, Listenable, HasBind {
             bind.update(it.key, it.scancode, it.pressed)
             if (bind.isDown && (it.ingame || (Settings.openGuiAnywhere && mc.currentScreen?.expectingInput != true && mc.currentScreen !is KamiGuiScreen))) {
                 KamiHud // In case imgui was not yet initialised, it gets initialised here. (Kotlin `init` block)
-                mc.openScreen(KamiGuiScreen(mc.currentScreen))
+                mc.setScreen(KamiGuiScreen(mc.currentScreen))
                 it.cancel()
             }
         }

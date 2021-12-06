@@ -61,7 +61,7 @@ private val allPlayers
     get() = mc.world?.players
 
 private val allBlockEntities
-    get() = mc.world?.blockEntities
+    get() = mc.world?.entities?.filterIsInstance<BlockEntity>()
 
 internal fun <T> emptyIterator() = emptyList<T>().iterator()
 

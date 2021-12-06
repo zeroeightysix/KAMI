@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.feature.module
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import io.github.fablabsmc.fablabs.api.fiber.v1.annotation.Setting
 import me.zero.alpine.listener.EventHandler
 import me.zero.alpine.listener.Listener
@@ -12,6 +13,7 @@ import me.zeroeightsix.kami.target.EntityCategory
 import me.zeroeightsix.kami.target.EntitySupplier
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
@@ -52,9 +54,9 @@ object Tracers : Module() {
         val cY = camera.pos.y
         val cZ = camera.pos.z
 
-        GlStateManager.lineWidth(thickness)
-        GlStateManager.disableTexture()
-        GlStateManager.disableDepthTest()
+        RenderSystem.lineWidth(thickness)
+        GlStateManager._disableTexture()
+        GlStateManager._disableDepthTest()
 
         glDisable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
@@ -64,7 +66,7 @@ object Tracers : Module() {
                 .rotateX(-Math.toRadians(camera.pitch.toDouble()).toFloat())
                 .rotateY(-Math.toRadians(camera.yaw.toDouble()).toFloat())
 
-            bufferBuilder.begin(GL_LINES, VertexFormats.POSITION_COLOR)
+            bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR)
 
             targets.targets
                 .filter { (entity, _) -> player.distanceTo(entity) < range }
@@ -84,9 +86,9 @@ object Tracers : Module() {
             tessellator.draw()
         }
 
-        GlStateManager.lineWidth(1.0f)
-        GlStateManager.enableTexture()
-        GlStateManager.enableDepthTest()
+        RenderSystem.lineWidth(thickness)
+        GlStateManager._enableTexture()
+        GlStateManager._enableDepthTest()
 
         glDisable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)

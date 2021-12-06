@@ -220,6 +220,7 @@ ehthumbs_vista.db
 
 # Folder config file
 [Dd]esktop.ini
+.DS_Store
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/

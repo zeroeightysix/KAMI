@@ -48,7 +48,7 @@ public class AutoRespawn extends Module {
                 )), null);
             }
             mc.player.requestRespawn();
-            mc.openScreen(null);
+            mc.setScreen(null);
         }
 
     });
