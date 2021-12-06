@@ -15,6 +15,6 @@ object MountBypass : Module() {
     @EventHandler
     private val listener = Listener({ event: PacketEvent.Send ->
         if (mc.player == null || mc.world == null || event.packet !is PlayerInteractEntityC2SPacket) return@Listener
-        if (event.packet.getEntity(mc.world) is AbstractDonkeyEntity) event.cancel()
+        if (event.packet.getEntity(mc.server?.overworld) is AbstractDonkeyEntity) event.cancel()
     })
 }
