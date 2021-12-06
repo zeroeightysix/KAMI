@@ -13,9 +13,6 @@ import net.minecraft.item.PickaxeItem
 import net.minecraft.item.ShearsItem
 import net.minecraft.item.ShovelItem
 import net.minecraft.item.SwordItem
-import net.minecraft.nbt.Tag.AQUA
-import net.minecraft.nbt.Tag.GOLD
-import net.minecraft.nbt.Tag.RED
 
 @Module.Info(
     name = "MurderMysteries",
@@ -97,11 +94,11 @@ object MurderMysteries : Module() {
                         player.sendMessage(
                             text {
                                 +"[MurderMysteries] "
-                                +otherPlayer.displayName.string(AQUA)
+                                +otherPlayer.displayName.string
                                 +" is the "
-                                +"murderer"(RED)
+                                +"murderer"
                                 +"! Wields "
-                                +itemStack.item.name.string(GOLD)
+                                +itemStack.item.name.string
                                 +"!"
                             },
                             false
@@ -115,9 +112,9 @@ object MurderMysteries : Module() {
                         player.sendMessage(
                             text {
                                 +"[MurderMysteries] "
-                                +otherPlayer.displayName.string(AQUA)
+                                +otherPlayer.displayName.string
                                 +" has "
-                                +itemStack.item.name.string(GOLD)
+                                +itemStack.item.name.string
                                 +"!"
                             },
                             false
